@@ -201,6 +201,19 @@ package com . kisscodesystems . KissAs3Fw . app
         var maxx : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
         var maxy : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
         var i : int = 0 ;
+// Setting the visible of the buttons (header: prev widget, next widget, list widget)
+        if ( widgetIndex == 0 )
+        {
+          widget . setButtonVisible ( false , widgetsArray . length > 1 , widgetsArray . length > 1 ) ;
+        }
+        else if ( widgetIndex == widgetsArray . length - 1 )
+        {
+          widget . setButtonVisible ( true , false , widgetsArray . length > 1 ) ;
+        }
+        else
+        {
+          widget . setButtonVisible ( true , true , widgetsArray . length > 1 ) ;
+        }
 // Determining these x y values according to the orientation of the widgets: HORIZONTAL
 // Maximum number of elements in COLUMNS next to each other.
 // (Direction widget-by-widget: DOWN)

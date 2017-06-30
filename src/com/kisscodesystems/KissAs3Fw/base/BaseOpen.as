@@ -20,7 +20,6 @@
 package com . kisscodesystems . KissAs3Fw . base
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
-  import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
   import flash . events . Event ;
   import flash . events . KeyboardEvent ;
   import flash . events . MouseEvent ;
@@ -108,23 +107,8 @@ package com . kisscodesystems . KissAs3Fw . base
       }
 // The object has to be placed onto the top of other objects.
       toTheHighestDepth ( ) ;
-// If the parent parent object is a content single then this opened object has to be
-// repositioned to get it visible in all of its size. (so the scroll may be scrolled.)
-      if ( parent != null )
-      {
-        if ( parent . parent is ContentSingle )
-        {
-          var baseScroll : BaseScroll = ContentSingle ( parent . parent ) . getBaseScroll ( ) ;
-          if ( - ( getcy ( ) + getsh ( ) ) < baseScroll . getccy ( ) - baseScroll . getMask0 ( ) . getsh ( ) )
-          {
-            baseScroll . setccy ( - ( getcy ( ) + getsh ( ) ) + baseScroll . getMask0 ( ) . getsh ( ) ) ;
-          }
-          if ( - ( getcx ( ) + getsw ( ) ) < baseScroll . getccx ( ) - baseScroll . getMask0 ( ) . getsw ( ) )
-          {
-            baseScroll . setccx ( - ( getcx ( ) + getsw ( ) ) + baseScroll . getMask0 ( ) . getsw ( ) ) ;
-          }
-        }
-      }
+// Be visible if not.
+      toBeVisible ( ) ;
     }
 /*
 ** This method will decide to close the contentSprite or not (by mouse).

@@ -86,6 +86,8 @@ package com . kisscodesystems . KissAs3Fw . app
       super . addedToStage ( e ) ;
 // We have to register this event.
       stage . addEventListener ( MouseEvent . MOUSE_DOWN , stageMouseDown , false , 0 , true ) ;
+// Here we have a stage so we can call this now.
+      registerOrUnregisterCanBackgroundMove ( ) ;
     }
 /*
 ** Owerwriting the removedFromStage.

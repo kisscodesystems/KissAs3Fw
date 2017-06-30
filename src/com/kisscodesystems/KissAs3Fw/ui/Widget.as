@@ -166,6 +166,33 @@ package com . kisscodesystems . KissAs3Fw . ui
       super . removedFromStage ( e ) ;
     }
 /*
+** Sets the visibleof the buttons located in the header.
+*/
+    public function setButtonVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
+    {
+      if ( buttonDrawPrev != null )
+      {
+        if ( buttonDrawPrev . visible != prev )
+        {
+          buttonDrawPrev . visible = prev ;
+        }
+      }
+      if ( buttonDrawNext != null )
+      {
+        if ( buttonDrawNext . visible != next )
+        {
+          buttonDrawNext . visible = next ;
+        }
+      }
+      if ( buttonDrawList != null )
+      {
+        if ( buttonDrawList . visible != list )
+        {
+          buttonDrawList . visible = list ;
+        }
+      }
+    }
+/*
 ** Sets the orientation of the content.
 */
     public function setOrientation ( o : String ) : void
@@ -696,7 +723,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
-      resizer . removeEventListener ( MouseEvent . MOUSE_DOWN , resizerMouseDown ) ;
+      if ( resizer != null )
+      {
+        resizer . removeEventListener ( MouseEvent . MOUSE_DOWN , resizerMouseDown ) ;
+      }
       mover . removeEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
       closer . removeEventListener ( MouseEvent . DOUBLE_CLICK , closerDoubleClick ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;

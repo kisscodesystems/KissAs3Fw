@@ -15,13 +15,14 @@
 **
 ** Published       : 06.21.2017
 **
-** Current version : 1.0
+** Current version : 1.1
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
 **                   <https://openso.kisscodesystems.com>
 **
-** Changelog       :
+** Changelog       : 1.1 - 06.30.2017
+**                   bugfixes and smaller improvements
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -135,6 +136,8 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_CHANGED : String = "EVENT_CHANGED" ;
 // The object has been closed.
     public const EVENT_CLOSED : String = "EVENT_CLOSED" ;
+// Events of the reaching the bottom.
+    public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
 // Empty html paragraph
     public const EMPTY_HTML_PARAGRAPH : String = "<p>&nbsp;</p>" ;
 // Color constants
@@ -206,13 +209,31 @@ package com . kisscodesystems . KissAs3Fw
       textStock = new TextStock ( application ) ;
       propsApp = new PropsApp ( ) ;
       propsDyn = new PropsDyn ( application ) ;
-      background = new Background ( application ) ;
-      addChild ( background ) ;
-      middleground = new Middleground ( application ) ;
-      addChild ( middleground ) ;
-      foreground = new Foreground ( application ) ;
-      addChild ( foreground ) ;
       getBaseEventDispatcher ( ) . setParentObject ( this ) ;
+    }
+/*
+** The creation of the layers. Has to be called after the reinitialization
+** of the texts textstock propsapp and propsdyn.
+*/
+    protected function createLayers ( ) : void
+    {
+      if ( background == null )
+      {
+        background = new Background ( application ) ;
+        addChild ( background ) ;
+      }
+      if ( middleground == null )
+      {
+        middleground = new Middleground ( application ) ;
+        addChild ( middleground ) ;
+      }
+      if ( foreground == null )
+      {
+        foreground = new Foreground ( application ) ;
+        addChild ( foreground ) ;
+      }
+// Resizing this object now.
+      setSizeFromStageSize ( ) ;
     }
 /*
 ** This method will be called if the object is being added to the stage.

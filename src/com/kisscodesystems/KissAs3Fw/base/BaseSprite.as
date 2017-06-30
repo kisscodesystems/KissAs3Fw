@@ -518,6 +518,39 @@ package com . kisscodesystems . KissAs3Fw . base
       return enabled ;
     }
 /*
+** If the parent parent object is a content single then this opened object has to be
+** repositioned to get it visible in all of its size. (so the scroll may be scrolled.)
+*/
+    public function toBeVisible ( ) : void
+    {
+      if ( parent != null )
+      {
+        if ( parent . parent is ContentSingle )
+        {
+          var baseScroll : BaseScroll = ContentSingle ( parent . parent ) . getBaseScroll ( ) ;
+          if ( baseScroll != null )
+          {
+            if ( - getcy ( ) > baseScroll . getccy ( ) )
+            {
+              baseScroll . setccy ( - getcy ( ) ) ;
+            }
+            if ( - getcx ( ) > baseScroll . getccx ( ) )
+            {
+              baseScroll . setccx ( - getcx ( ) ) ;
+            }
+            if ( - ( getcy ( ) + getsh ( ) ) < baseScroll . getccy ( ) - baseScroll . getMask0 ( ) . getsh ( ) )
+            {
+              baseScroll . setccy ( - ( getcy ( ) + getsh ( ) ) + baseScroll . getMask0 ( ) . getsh ( ) ) ;
+            }
+            if ( - ( getcx ( ) + getsw ( ) ) < baseScroll . getccx ( ) - baseScroll . getMask0 ( ) . getsw ( ) )
+            {
+              baseScroll . setccx ( - ( getcx ( ) + getsw ( ) ) + baseScroll . getMask0 ( ) . getsw ( ) ) ;
+            }
+          }
+        }
+      }
+    }
+/*
 ** This is the destructor method of this base object.
 ** Public because sometimes we want to execute this on other objects.
 ** Has to be overridden in extending classes.

@@ -156,6 +156,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       return textLabel . getTextType ( ) ;
     }
 /*
+** Gets the text currently having in the label..
+*/
+    public function getText ( ) : String
+    {
+      return textLabel . getPlainText ( ) ;
+    }
+/*
 ** Override open:
 ** - the list has to start from the correct index
 ** - the size will be changed

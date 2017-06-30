@@ -78,6 +78,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Get this into the focus! (and make it visible if not visible on the content)
+*/
+    public function toFocus ( ) : void
+    {
+      if ( stage != null )
+      {
+        stage . focus = baseTextField ;
+        toBeVisible ( ) ;
+      }
+    }
+/*
 ** The user enters text into this textfield.
 */
     private function textInput ( e : TextEvent ) : void

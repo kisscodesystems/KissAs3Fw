@@ -29,6 +29,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     protected var baseTextField : BaseTextField = null ;
 // And a base scroll object.
     protected var baseScroll : BaseScroll = null ;
+// Events of the reaches of the bottoms.
+    private var bottomReached : Event = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -36,6 +38,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Super.
       super ( applicationRef ) ;
+// The event of the reaching the bottom.
+      bottomReached = new Event ( application . BOTTOM_REACHED ) ;
 // Adding the textfield first.
       baseTextField = new BaseTextField ( application ) ;
       addChild ( baseTextField ) ;
@@ -83,10 +87,25 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Scrolling vertically (y, height)
       baseTextField . scrollV = Math . min ( Math . abs ( Math . round ( baseScroll . getccy ( ) * ( baseTextField . maxScrollV ) / ( baseTextField . textHeight - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . height ) - 1 ) ) , baseTextField . maxScrollV ) ;
+// Event if reached the max:
+      if ( baseTextField . scrollV == baseTextField . maxScrollV )
+      {
+        dispatchEventBottomReached ( ) ;
+      }
 // Scrolling horizontally (x, width)
       baseTextField . scrollH = Math . min ( Math . abs ( Math . round ( baseScroll . getccx ( ) * ( baseTextField . maxScrollH ) / ( baseTextField . textWidth - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . width ) - 1 ) ) , baseTextField . maxScrollH ) ;
 // Positioning the textfield.
       baseTextFieldPos ( ) ;
+    }
+/*
+** Dispatches an event.
+*/
+    protected function dispatchEventBottomReached ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && bottomReached != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( bottomReached ) ;
+      }
     }
 /*
 ** Positioning of the base text field according to the current position of mask.
@@ -177,11 +196,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , doSizeOrTextChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , doSizeOrTextChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
+      if ( bottomReached != null )
+      {
+        bottomReached . stopImmediatePropagation ( ) ;
+      }
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       baseTextField = null ;
       baseScroll = null ;
+      bottomReached = null ;
     }
   }
 }
