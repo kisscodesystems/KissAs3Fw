@@ -108,6 +108,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var smartphoneMode : Boolean = false ;
 // The maximum displayable elements in the lang setter.
     protected var langSetterMaxElements : int = 5 ;
+// The pixels to move the content after a mouse wheel.
+    protected var wheelDeltaPixels : int = 30 ;
 /*
 ** Constructor.
 */
@@ -348,6 +350,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getLangSetterMaxElements ( ) : int
     {
       return langSetterMaxElements ;
+    }
+    public function getWheelDeltaPixels ( ) : int
+    {
+      return wheelDeltaPixels ;
     }
   }
 }

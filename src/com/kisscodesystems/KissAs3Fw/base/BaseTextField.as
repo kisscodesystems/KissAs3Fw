@@ -523,6 +523,13 @@ package com . kisscodesystems . KissAs3Fw . base
       }
     }
 /*
+** Sets the password property of this textfield
+*/
+    public function setDisplayAsPassword ( b : Boolean ) : void
+    {
+      displayAsPassword = b ;
+    }
+/*
 ** Clears the dropshadow filter of this textfield.
 */
     private function clearDropShadowFilter ( ) : void

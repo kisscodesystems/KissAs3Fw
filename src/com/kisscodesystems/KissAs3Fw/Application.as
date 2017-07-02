@@ -15,7 +15,7 @@
 **
 ** Published       : 06.21.2017
 **
-** Current version : 1.1
+** Current version : 1.2
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -23,6 +23,9 @@
 **
 ** Changelog       : 1.1 - 06.30.2017
 **                   bugfixes and smaller improvements
+**                   1.2 - 07.02.2017
+**                   displayAsPassword is available in TextInput
+**                   the scrolling works in the BaseScroll using the mouse wheel.
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.

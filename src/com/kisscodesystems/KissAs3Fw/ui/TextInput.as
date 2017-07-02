@@ -78,6 +78,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Sets the password property of its textfield
+*/
+    public function setDisplayAsPassword ( b : Boolean ) : void
+    {
+      baseTextField . setDisplayAsPassword ( b ) ;
+    }
+/*
 ** Get this into the focus! (and make it visible if not visible on the content)
 */
     public function toFocus ( ) : void

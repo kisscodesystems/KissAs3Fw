@@ -14,6 +14,7 @@
 ** or not (for example the currently displayed elements of a list).
 ** The moving of the shapes and the calculations of the coordinates of
 ** the content will happen here, the real positioning happens outside.
+** Mouse wheel works since version 1.2.
 **
 ** MAIN FEATURES:
 ** - displaying the two rectangles
@@ -107,6 +108,7 @@ package com . kisscodesystems . KissAs3Fw . base
       eventContentPositionChanged = new Event ( application . EVENT_CONTENT_POSITION_CHANGED ) ;
 // Adding this event listeners to the spriteMover.
       spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+      spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
@@ -169,6 +171,21 @@ package com . kisscodesystems . KissAs3Fw . base
       return spriteMover ;
     }
 /*
+** Handles the mouse wheel event.
+*/
+    private function mouseWheel ( e : MouseEvent ) : void
+    {
+      if ( ! mouseIsDown )
+      {
+        targety += e . delta * application . getPropsApp ( ) . getWheelDeltaPixels ( ) ;
+        targetCoordinatesCorrection ( ) ;
+        if ( ! hasEventListener ( Event . ENTER_FRAME ) )
+        {
+          addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+        }
+      }
+    }
+/*
 ** The mouse down function.
 ** The user presses the left mouse.
 ** The target x and y coordinates will be calculated continuously
@@ -220,22 +237,7 @@ package com . kisscodesystems . KissAs3Fw . base
         }
 // The corrections.
 // The target coordinates have to be between the bounds.
-        if ( targetx < getsw ( ) - scw )
-        {
-          targetx = getsw ( ) - scw ;
-        }
-        if ( targetx > 0 )
-        {
-          targetx = 0 ;
-        }
-        if ( targety < getsh ( ) - sch )
-        {
-          targety = getsh ( ) - sch ;
-        }
-        if ( targety > 0 )
-        {
-          targety = 0 ;
-        }
+        targetCoordinatesCorrection ( ) ;
 // Now let these coordinates be the current coordinates of the spriteMover.
 // (In the next enter frame event, these are really the previous coordinates.)
         prevx = spriteMover . getcx ( ) ;
@@ -245,6 +247,28 @@ package com . kisscodesystems . KissAs3Fw . base
         {
           addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
         }
+      }
+    }
+/*
+** The correction of the target coordiantes.
+*/
+    private function targetCoordinatesCorrection ( ) : void
+    {
+      if ( targetx < getsw ( ) - scw )
+      {
+        targetx = getsw ( ) - scw ;
+      }
+      if ( targetx > 0 )
+      {
+        targetx = 0 ;
+      }
+      if ( targety < getsh ( ) - sch )
+      {
+        targety = getsh ( ) - sch ;
+      }
+      if ( targety > 0 )
+      {
+        targety = 0 ;
       }
     }
 /*
