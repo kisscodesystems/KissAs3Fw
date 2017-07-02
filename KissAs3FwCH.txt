@@ -1,6 +1,6 @@
  Class hierarchy
  of KissAs3Fw fw
- (version : 1.0)
+ (version : 1.x)
  
  Flash classes   | KissAs3Fw classes
 -----------------+--------------------------------------------------------------

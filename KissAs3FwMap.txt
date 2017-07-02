@@ -1,9 +1,9 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-06-30 12:06:47
+    | Generated   : 2017-07-02 16:34:45
     | Folders     : 1
     | Files       : 42
-    | Total lines : 15324
+    | Total lines : 15371
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
@@ -12,51 +12,51 @@
     |           com\kisscodesystems\KissAs3Fw
 as  | 69        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 404       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 595       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 678       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 792       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 880       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 964       com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1170      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1263      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1523      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 407       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 598       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 681       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 795       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 883       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 967       com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1173      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1266      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1526      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1704      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1790      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 1879      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2028      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2127      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2240      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2458      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2599      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 2885      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3256      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1707      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1793      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 1882      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2031      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2130      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2243      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2472      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2613      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 2899      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3275      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3355      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3595      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3374      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3618      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 3835      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 3960      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 3858      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 3983      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4057      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4236      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4323      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4442      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4514      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
-as  | 4627      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 4904      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5039      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5184      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5326      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5548      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 5681      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 5839      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 5999      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6102      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6212      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6264      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 6590      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4080      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4259      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4346      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4465      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4537      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
+as  | 4650      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 4927      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5062      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5207      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5349      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 5571      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 5704      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 5862      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6022      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6125      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6240      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 6292      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 6618      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -87,7 +87,7 @@ as  |     ** Has contained 42 classes initially and this is not an accident.
 as  |     **
 as  |     ** Published       : 06.21.2017
 as  |     **
-as  |     ** Current version : 1.1
+as  |     ** Current version : 1.2
 as  |     **
 as  |     ** Developed by    : Jozsef Kiss
 as  |     **                   KissCode Systems Kft
@@ -95,6 +95,9 @@ as  |     **                   <https://openso.kisscodesystems.com>
 as  |     **
 as  |     ** Changelog       : 1.1 - 06.30.2017
 as  |     **                   bugfixes and smaller improvements
+as  |     **                   1.2 - 07.02.2017
+as  |     **                   displayAsPassword is available in TextInput
+as  |     **                   the scrolling works in the BaseScroll using the mouse wheel.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -148,7 +151,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   608
+as  |        lines   611
 as  | 
 as  |     Variables:
 as  | 
@@ -2257,6 +2260,7 @@ as  |     ** This can be continuously (for example a content of a widget)
 as  |     ** or not (for example the currently displayed elements of a list).
 as  |     ** The moving of the shapes and the calculations of the coordinates of
 as  |     ** the content will happen here, the real positioning happens outside.
+as  |     ** Mouse wheel works since version 1.2.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - displaying the two rectangles
@@ -2270,7 +2274,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends BaseSprite
-as  |        lines   593
+as  |        lines   617
 as  | 
 as  |     Variables:
 as  | 
@@ -2344,6 +2348,11 @@ as  |     */
 as  |PU      public function getMover ( ) : BaseSprite
 as  | 
 as  |     /*
+as  |     ** Handles the mouse wheel event.
+as  |     */
+as  |        private function mouseWheel ( e : MouseEvent ) : void
+as  | 
+as  |     /*
 as  |     ** The mouse down function.
 as  |     ** The user presses the left mouse.
 as  |     ** The target x and y coordinates will be calculated continuously
@@ -2353,6 +2362,11 @@ as  |     */
 as  |        private function mouseDown ( e : MouseEvent ) : void
 as  | 
 as  |        private function mouseMove ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** The correction of the target coordiantes.
+as  |     */
+as  |        private function targetCoordinatesCorrection ( ) : void
 as  | 
 as  |     /*
 as  |     ** The user lets the left mouse button up.
@@ -2944,7 +2958,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends TextField
-as  |        lines   801
+as  |        lines   808
 as  | 
 as  |     Variables:
 as  | 
@@ -3164,6 +3178,11 @@ as  |     */
 as  |PU      public function setAutoSizeLeft ( ) : void
 as  | 
 as  |     /*
+as  |     ** Sets the password property of this textfield
+as  |     */
+as  |PU      public function setDisplayAsPassword ( b : Boolean ) : void
+as  | 
+as  |     /*
 as  |     ** Clears the dropshadow filter of this textfield.
 as  |     */
 as  |        private function clearDropShadowFilter ( ) : void
@@ -3372,7 +3391,7 @@ as  |     ** No destroy method.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   353
+as  |        lines   359
 as  | 
 as  |     Variables:
 as  | 
@@ -3467,6 +3486,8 @@ as  |     // Smartphone mode.
 as  |        protected var smartphoneMode : Boolean = false ;
 as  |     // The maximum displayable elements in the lang setter.
 as  |        protected var langSetterMaxElements : int = 5 ;
+as  |     // The pixels to move the content after a mouse wheel.
+as  |        protected var wheelDeltaPixels : int = 30 ;
 as  | 
 as  |     Functions:
 as  | 
@@ -3591,6 +3612,8 @@ as  |PU      public function getSmartphoneMode ( ) : Boolean
 as  | 
 as  |PU      public function getLangSetterMaxElements ( ) : int
 as  | 
+as  |PU      public function getWheelDeltaPixels ( ) : int
+as  | 
     +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
 as  | 
@@ -3619,7 +3642,7 @@ as  |     Variables:
 as  | 
 as  |     // Adding the font.
 as  |        public const FONT_FACE_ARIAL : String = "Arial" ;
-as  |    //[ Embed ( source = "../../../../../res/font/arial.ttf" , fontName = "Arial" , mimeType = "application/x-font" , advancedAntiAliasing = "true" , embedAsCFF = "false" ) ]
+as  |        [ Embed ( source = "../../../../../res/font/arial.ttf" , fontName = "Arial" , mimeType = "application/x-font" , advancedAntiAliasing = "true" , embedAsCFF = "false" ) ]
 as  |        private var fontArialEmbedded : Class ;
 as  |     // Adding the background bitmap.
 as  |        [ Embed ( source = "../../../../../res/bg/bg1.jpg" ) ]
@@ -6123,7 +6146,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   197
+as  |        lines   204
 as  | 
 as  |     Variables:
 as  | 
@@ -6146,6 +6169,11 @@ as  |     /*
 as  |     ** The type of the basetextfield has to be changed.
 as  |     */
 as  |PU      override public function setEnabled ( e : Boolean ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the password property of its textfield
+as  |     */
+as  |PU      public function setDisplayAsPassword ( b : Boolean ) : void
 as  | 
 as  |     /*
 as  |     ** Get this into the focus! (and make it visible if not visible on the content)
