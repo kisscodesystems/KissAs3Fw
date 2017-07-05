@@ -50,6 +50,8 @@ package com . kisscodesystems . KissAs3Fw . base
 // The event is dispatched when the position of the content is changed.
 // This can be watched by the outside world.
     private var eventContentPositionChanged : Event = null ;
+// The events of the content caching
+    private var eventContentCacheBegin : Event = null ;
 // The sizes of the external content. (We have to know it to calculate the proper content position.)
     private var scw : int = 0 ;
     private var sch : int = 0 ;
@@ -106,6 +108,7 @@ package com . kisscodesystems . KissAs3Fw . base
       addChild ( spriteMover ) ;
 // This event has to be initialized now.
       eventContentPositionChanged = new Event ( application . EVENT_CONTENT_POSITION_CHANGED ) ;
+      eventContentCacheBegin = new Event ( application . EVENT_CONTENT_CACHE_BEGIN ) ;
 // Adding this event listeners to the spriteMover.
       spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
       spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
@@ -181,6 +184,8 @@ package com . kisscodesystems . KissAs3Fw . base
         targetCoordinatesCorrection ( ) ;
         if ( ! hasEventListener ( Event . ENTER_FRAME ) )
         {
+// Cache the content!
+          dispatchEventCacheBegin ( ) ;
           addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
         }
       }
@@ -196,6 +201,8 @@ package com . kisscodesystems . KissAs3Fw . base
     {
 // Let's stop the current moving.
       removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+// Cache the content!
+      dispatchEventCacheBegin ( ) ;
 // The target coordinates have to be cleared.
       targetx = ccx ;
       targety = ccy ;
@@ -314,6 +321,16 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( getBaseEventDispatcher ( ) != null && eventContentPositionChanged != null )
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventContentPositionChanged ) ;
+      }
+    }
+/*
+** Dispatches when the content position has to be cached.
+*/
+    private function dispatchEventCacheBegin ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && eventContentCacheBegin != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventContentCacheBegin ) ;
       }
     }
 /*
@@ -591,6 +608,10 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( eventContentPositionChanged != null )
       {
         eventContentPositionChanged . stopImmediatePropagation ( ) ;
+      }
+      if ( eventContentCacheBegin != null )
+      {
+        eventContentCacheBegin . stopImmediatePropagation ( ) ;
       }
 // 3: calling the super destroy.
       super . destroy ( ) ;

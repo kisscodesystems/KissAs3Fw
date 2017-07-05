@@ -15,7 +15,7 @@
 **
 ** Published       : 06.21.2017
 **
-** Current version : 1.2
+** Current version : 1.3
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -26,6 +26,9 @@
 **                   1.2 - 07.02.2017
 **                   displayAsPassword is available in TextInput
 **                   the scrolling works in the BaseScroll using the mouse wheel.
+**                   1.3 - 07.05.2017
+**                   the eembedded arial font is in the demo propsDyn from now
+**                   the content will be cached as a bitmap during its movement
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -133,6 +136,8 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_LANG_CODE_CHANGED : String = "EVENT_LANG_CODE_CHANGED" ;
 // When a base scroll notifies other objects about the changing of the content position.
     public const EVENT_CONTENT_POSITION_CHANGED : String = "EVENT_CONTENT_POSITION_CHANGED" ;
+// The events of the cache begin and end
+    public const EVENT_CONTENT_CACHE_BEGIN : String = "EVENT_CONTENT_CACHE_BEGIN" ;
 // When a click event has occurred on the objects.
     public const EVENT_CLICK : String = "EVENT_CLICK" ;
 // The value of the object has been changed.

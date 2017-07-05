@@ -109,7 +109,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         else if ( buttonType == application . DRAW_BUTTON_TYPE_WIDGETS_PREV )
         {
-          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) / 2 ) ;
+          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawPrevNextScale ( ) ) ;
           baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
           baseShape . graphics . moveTo ( getsw ( ) / 4 , getsh ( ) / 4 * 3 - application . getPropsApp ( ) . getDrawOtherLineThickness ( ) ) ;
           baseShape . graphics . lineTo ( getsw ( ) / 2 , getsh ( ) / 4 ) ;
@@ -117,7 +117,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         else if ( buttonType == application . DRAW_BUTTON_TYPE_WIDGETS_NEXT )
         {
-          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) / 2 ) ;
+          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawPrevNextScale ( ) ) ;
           baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
           baseShape . graphics . moveTo ( getsw ( ) / 4 , getsh ( ) / 4 ) ;
           baseShape . graphics . lineTo ( getsw ( ) / 2 , getsh ( ) / 4 * 3 - application . getPropsApp ( ) . getDrawOtherLineThickness ( ) ) ;

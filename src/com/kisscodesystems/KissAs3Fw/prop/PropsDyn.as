@@ -29,8 +29,6 @@ package com . kisscodesystems . KissAs3Fw . prop
   {
 // Adding the font.
     public const FONT_FACE_ARIAL : String = "Arial" ;
-    [ Embed ( source = "../../../../../res/font/arial.ttf" , fontName = "Arial" , mimeType = "application/x-font" , advancedAntiAliasing = "true" , embedAsCFF = "false" ) ]
-    private var fontArialEmbedded : Class ;
 // Adding the background bitmap.
     [ Embed ( source = "../../../../../res/bg/bg1.jpg" ) ]
     private var Bg1 : Class ;
@@ -56,7 +54,7 @@ package com . kisscodesystems . KissAs3Fw . prop
     private var appBackgroundAlpha : Number = 1 ;
     private var appBackgroundLive : Boolean = false ;
     private var appFontFace : String = "Arial" ;
-    private var appFontSize : int = 14 ;
+    private var appFontSize : int = 20 ;
     private var appFontColorBright : Number = 0xffffff ;
     private var appFontColorMid : Number = 0x888888 ;
     private var appFontColorDark : Number = 0x000000 ;
@@ -144,7 +142,7 @@ package com . kisscodesystems . KissAs3Fw . prop
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appBackgroundAlpha" ] = 1 ;
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appBackgroundLive" ] = true ;
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontFace" ] = FONT_FACE_ARIAL ;
-      appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontSize" ] = "14" ;
+      appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontSize" ] = "20" ;
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontColorBright" ] = "CCCCCC" ;
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontColorMid" ] = "999999" ;
       appDisplayingStyles [ application . getTexts ( ) . DISPLAYING_STYLE_BASIC ] [ "appFontColorDark" ] = "111111" ;

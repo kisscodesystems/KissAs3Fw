@@ -65,17 +65,19 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The minimum sizes of a widget.
     protected var widgetSizeMinWidth : int = 200 ;
     protected var widgetSizeMinHeight : int = 150 ;
+// Enable or disable the hiding of the widgets.
+    protected var widgetEnableManualHide : Boolean = true ;
 // Enable or disable the resizing of the widgets.
     protected var widgetEnableManualResize : Boolean = true ;
 // The margin of resizing the widget (the margin around the widget to grab to resize it).
-    protected var widgetResizeMargin : int = 5 ;
+    protected var widgetResizeMargin : int = 6 ;
 // The font size from the stage is calculated by this value if appFontSize == 0.
-    protected var fontSizeFactor : Number = 1 / 60 ;
+    protected var fontSizeFactor : Number = 1 / 48 ;
 // The size factors for the menu and settings panel.
     protected var panelSettingsWidthFactor : Number = 2 / 5 ;
     protected var panelSettingsHeightFactor : Number = 3 / 5 ;
-    protected var panelAlertWidthFactor : Number = 1 / 3 ;
-    protected var panelAlertHeighthFactor : Number = 1 / 4 ;
+    protected var panelAlertWidthFactor : Number = 1 / 2 ;
+    protected var panelAlertHeighthFactor : Number = 1 / 3 ;
     protected var panelMenuWidthFactor : Number = 1 / 5 ;
     protected var panelMenuHeighthFactor : Number = 4 / 5 ;
 // Properties to draw the base shapes.
@@ -110,6 +112,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var langSetterMaxElements : int = 5 ;
 // The pixels to move the content after a mouse wheel.
     protected var wheelDeltaPixels : int = 30 ;
+// The size will be increased of the prev and next drawed buttons. (0.5 will be the original size factor)
+    protected var buttonDrawPrevNextScale : Number = 0.7 ;
 /*
 ** Constructor.
 */
@@ -120,7 +124,6 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function toSmartphone ( ) : void
     {
       smartphoneMode = true ;
-      fontSizeFactor = 1 / 30 ;
       panelSettingsWidthFactor = 4 / 5 ;
       panelSettingsHeightFactor = 3 / 4 ;
       panelAlertWidthFactor = 2 / 3 ;
@@ -131,6 +134,7 @@ package com . kisscodesystems . KissAs3Fw . prop
       widgetsMargin = 0 ;
       widgetEnableManualResize = false ;
       widgetResizeMargin = 0 ;
+      widgetEnableManualHide = false ;
     }
 /*
 ** The getter functions of the properties can be overwritten in the constructor of extending class.
@@ -230,6 +234,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getWidgetSizeMinHeight ( ) : int
     {
       return widgetSizeMinHeight ;
+    }
+    public function getWidgetEnableManualHide ( ) : Boolean
+    {
+      return widgetEnableManualHide ;
     }
     public function getWidgetEnableManualResize ( ) : Boolean
     {
@@ -354,6 +362,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getWheelDeltaPixels ( ) : int
     {
       return wheelDeltaPixels ;
+    }
+    public function getButtonDrawPrevNextScale ( ) : Number
+    {
+      return buttonDrawPrevNextScale ;
     }
   }
 }

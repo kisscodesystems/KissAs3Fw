@@ -273,7 +273,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         setcxy ( x , y ) ;
         if ( prevMouseX == parent . mouseX && prevMouseY == parent . mouseY )
         {
-          setHidden ( ! getHidden ( ) ) ;
+          if ( application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+          {
+            setHidden ( ! getHidden ( ) ) ;
+          }
         }
         removeEventListener ( Event . ENTER_FRAME , enterFrameCheckMovement ) ;
         getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetDragStop ) ;
@@ -701,9 +704,9 @@ package com . kisscodesystems . KissAs3Fw . ui
         mover . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         mover . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
 // The widget list , prev, next buttons have to be repositioned.
-        buttonDrawPrev . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 - buttonDrawPrev . getsw ( ) - buttonDrawList . getsw ( ) , textLabel . getcy ( ) ) ;
+        buttonDrawPrev . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 - buttonDrawPrev . getsw ( ) - buttonDrawList . getsw ( ) , ( backLabel . getsh ( ) - buttonDrawPrev . getsh ( ) * 2 ) / 2 + backLabel . y ) ;
         buttonDrawNext . setcxy ( buttonDrawPrev . getcx ( ) , buttonDrawPrev . getcysh ( ) ) ;
-        buttonDrawList . setcxy ( buttonDrawPrev . getcxsw ( ) , buttonDrawPrev . getcy ( ) ) ;
+        buttonDrawList . setcxy ( buttonDrawPrev . getcxsw ( ) , textLabel . getcy ( ) ) ;
 // And the contentSingle.
         contentSingle . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 4 ) ;
         contentSingle . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , super . getsh ( ) - textLabel . getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 5 ) ;

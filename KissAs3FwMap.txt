@@ -1,9 +1,9 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-07-02 16:34:45
+    | Generated   : 2017-07-05 17:24:05
     | Folders     : 1
     | Files       : 42
-    | Total lines : 15371
+    | Total lines : 15419
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
@@ -12,51 +12,51 @@
     |           com\kisscodesystems\KissAs3Fw
 as  | 69        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 407       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 598       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 681       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 795       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 883       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 967       com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1173      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1266      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1526      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 412       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 603       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 686       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 800       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 888       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 972       com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1178      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1271      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1531      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1707      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1793      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 1882      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2031      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2130      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2243      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2472      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2613      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 2899      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3275      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1712      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1798      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 1887      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2036      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2135      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2248      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2484      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2625      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 2911      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3287      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3374      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3618      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3386      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3638      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 3858      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 3983      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 3876      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 4001      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4080      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4259      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4346      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4465      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4537      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
-as  | 4650      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 4927      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5062      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5207      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5349      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5571      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 5704      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 5862      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 6022      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6125      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6240      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6292      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 6618      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4098      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4277      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4364      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4483      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4555      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
+as  | 4668      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 4945      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5080      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5225      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5372      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 5594      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 5727      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 5885      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6045      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6148      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6263      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 6315      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 6641      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -87,7 +87,7 @@ as  |     ** Has contained 42 classes initially and this is not an accident.
 as  |     **
 as  |     ** Published       : 06.21.2017
 as  |     **
-as  |     ** Current version : 1.2
+as  |     ** Current version : 1.3
 as  |     **
 as  |     ** Developed by    : Jozsef Kiss
 as  |     **                   KissCode Systems Kft
@@ -98,6 +98,9 @@ as  |     **                   bugfixes and smaller improvements
 as  |     **                   1.2 - 07.02.2017
 as  |     **                   displayAsPassword is available in TextInput
 as  |     **                   the scrolling works in the BaseScroll using the mouse wheel.
+as  |     **                   1.3 - 07.05.2017
+as  |     **                   the eembedded arial font is in the demo propsDyn from now
+as  |     **                   the content will be cached as a bitmap during its movement
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -151,7 +154,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   611
+as  |        lines   616
 as  | 
 as  |     Variables:
 as  | 
@@ -188,6 +191,8 @@ as  |     // Used in TextStock.
 as  |        public const EVENT_LANG_CODE_CHANGED : String = "EVENT_LANG_CODE_CHANGED" ;
 as  |     // When a base scroll notifies other objects about the changing of the content position.
 as  |        public const EVENT_CONTENT_POSITION_CHANGED : String = "EVENT_CONTENT_POSITION_CHANGED" ;
+as  |     // The events of the cache begin and end
+as  |        public const EVENT_CONTENT_CACHE_BEGIN : String = "EVENT_CONTENT_CACHE_BEGIN" ;
 as  |     // When a click event has occurred on the objects.
 as  |        public const EVENT_CLICK : String = "EVENT_CLICK" ;
 as  |     // The value of the object has been changed.
@@ -2274,7 +2279,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends BaseSprite
-as  |        lines   617
+as  |        lines   638
 as  | 
 as  |     Variables:
 as  | 
@@ -2295,6 +2300,8 @@ as  |        private var spriteMover : BaseSprite = null ;
 as  |     // The event is dispatched when the position of the content is changed.
 as  |     // This can be watched by the outside world.
 as  |        private var eventContentPositionChanged : Event = null ;
+as  |     // The events of the content caching
+as  |        private var eventContentCacheBegin : Event = null ;
 as  |     // The sizes of the external content. (We have to know it to calculate the proper content position.)
 as  |        private var scw : int = 0 ;
 as  |        private var sch : int = 0 ;
@@ -2382,6 +2389,11 @@ as  |     /*
 as  |     ** Dispatches when the content position has been changed.
 as  |     */
 as  |        private function dispatchEventContentPositionChanged ( ) : void
+as  | 
+as  |     /*
+as  |     ** Dispatches when the content position has to be cached.
+as  |     */
+as  |        private function dispatchEventCacheBegin ( ) : void
 as  | 
 as  |     /*
 as  |     ** Stops the spriteMover and places it into the 0-0.
@@ -3391,7 +3403,7 @@ as  |     ** No destroy method.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   359
+as  |        lines   371
 as  | 
 as  |     Variables:
 as  | 
@@ -3443,17 +3455,19 @@ as  |        protected var widgetsMargin : int = 30 ;
 as  |     // The minimum sizes of a widget.
 as  |        protected var widgetSizeMinWidth : int = 200 ;
 as  |        protected var widgetSizeMinHeight : int = 150 ;
+as  |     // Enable or disable the hiding of the widgets.
+as  |        protected var widgetEnableManualHide : Boolean = true ;
 as  |     // Enable or disable the resizing of the widgets.
 as  |        protected var widgetEnableManualResize : Boolean = true ;
 as  |     // The margin of resizing the widget (the margin around the widget to grab to resize it).
-as  |        protected var widgetResizeMargin : int = 5 ;
+as  |        protected var widgetResizeMargin : int = 6 ;
 as  |     // The font size from the stage is calculated by this value if appFontSize == 0.
-as  |        protected var fontSizeFactor : Number = 1 / 60 ;
+as  |        protected var fontSizeFactor : Number = 1 / 48 ;
 as  |     // The size factors for the menu and settings panel.
 as  |        protected var panelSettingsWidthFactor : Number = 2 / 5 ;
 as  |        protected var panelSettingsHeightFactor : Number = 3 / 5 ;
-as  |        protected var panelAlertWidthFactor : Number = 1 / 3 ;
-as  |        protected var panelAlertHeighthFactor : Number = 1 / 4 ;
+as  |        protected var panelAlertWidthFactor : Number = 1 / 2 ;
+as  |        protected var panelAlertHeighthFactor : Number = 1 / 3 ;
 as  |        protected var panelMenuWidthFactor : Number = 1 / 5 ;
 as  |        protected var panelMenuHeighthFactor : Number = 4 / 5 ;
 as  |     // Properties to draw the base shapes.
@@ -3488,6 +3502,8 @@ as  |     // The maximum displayable elements in the lang setter.
 as  |        protected var langSetterMaxElements : int = 5 ;
 as  |     // The pixels to move the content after a mouse wheel.
 as  |        protected var wheelDeltaPixels : int = 30 ;
+as  |     // The size will be increased of the prev and next drawed buttons. (0.5 will be the original size factor)
+as  |        protected var buttonDrawPrevNextScale : Number = 0.7 ;
 as  | 
 as  |     Functions:
 as  | 
@@ -3552,6 +3568,8 @@ as  |PU      public function getWidgetSizeMinWidth ( ) : int
 as  | 
 as  |PU      public function getWidgetSizeMinHeight ( ) : int
 as  | 
+as  |PU      public function getWidgetEnableManualHide ( ) : Boolean
+as  | 
 as  |PU      public function getWidgetEnableManualResize ( ) : Boolean
 as  | 
 as  |PU      public function getWidgetResizeMargin ( ) : int
@@ -3614,6 +3632,8 @@ as  |PU      public function getLangSetterMaxElements ( ) : int
 as  | 
 as  |PU      public function getWheelDeltaPixels ( ) : int
 as  | 
+as  |PU      public function getButtonDrawPrevNextScale ( ) : Number
+as  | 
     +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
 as  | 
@@ -3636,14 +3656,12 @@ as  |     **
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   684
+as  |        lines   682
 as  | 
 as  |     Variables:
 as  | 
 as  |     // Adding the font.
 as  |        public const FONT_FACE_ARIAL : String = "Arial" ;
-as  |        [ Embed ( source = "../../../../../res/font/arial.ttf" , fontName = "Arial" , mimeType = "application/x-font" , advancedAntiAliasing = "true" , embedAsCFF = "false" ) ]
-as  |        private var fontArialEmbedded : Class ;
 as  |     // Adding the background bitmap.
 as  |        [ Embed ( source = "../../../../../res/bg/bg1.jpg" ) ]
 as  |        private var Bg1 : Class ;
@@ -3669,7 +3687,7 @@ as  |        private var appBackgroundAlign : String = "" ;
 as  |        private var appBackgroundAlpha : Number = 1 ;
 as  |        private var appBackgroundLive : Boolean = false ;
 as  |        private var appFontFace : String = "Arial" ;
-as  |        private var appFontSize : int = 14 ;
+as  |        private var appFontSize : int = 20 ;
 as  |        private var appFontColorBright : Number = 0xffffff ;
 as  |        private var appFontColorMid : Number = 0x888888 ;
 as  |        private var appFontColorDark : Number = 0x000000 ;
@@ -5231,7 +5249,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   618
+as  |        lines   627
 as  | 
 as  |     Variables:
 as  | 
@@ -5259,6 +5277,11 @@ as  |     /*
 as  |     ** The constructor doing the initialization of this object as usual.
 as  |     */
 as  |PU      public function ContentSingle ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** If the content has to be cached as a bitmap.
+as  |     */
+as  |        private function cacheBeginContent ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** The margin of the application has been changed.
@@ -6320,7 +6343,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   783
+as  |        lines   786
 as  | 
 as  |     Variables:
 as  | 

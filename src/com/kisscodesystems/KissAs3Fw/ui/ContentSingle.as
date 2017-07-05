@@ -68,10 +68,19 @@ package com . kisscodesystems . KissAs3Fw . ui
       backSprite . mask = baseScroll . getMask0 ( ) ;
       baseSprite . mask = baseScroll . getMask1 ( ) ;
 // This events are required to listen to.
+      baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_CACHE_BEGIN , cacheBeginContent ) ;
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposContent ) ;
       baseSprite . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , contentResized ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
+    }
+/*
+** If the content has to be cached as a bitmap.
+*/
+    private function cacheBeginContent ( e : Event ) : void
+    {
+      baseSprite . cacheAsBitmap = true ;
+      backSprite . cacheAsBitmap = true ;
     }
 /*
 ** The margin of the application has been changed.
