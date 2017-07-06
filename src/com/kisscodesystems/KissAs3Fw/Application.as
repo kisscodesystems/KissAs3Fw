@@ -15,7 +15,7 @@
 **
 ** Published       : 06.21.2017
 **
-** Current version : 1.3
+** Current version : 1.4
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -29,6 +29,8 @@
 **                   1.3 - 07.05.2017
 **                   the eembedded arial font is in the demo propsDyn from now
 **                   the content will be cached as a bitmap during its movement
+**                   1.4 - 07.06.2017
+**                   small improvements in the content moving
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.

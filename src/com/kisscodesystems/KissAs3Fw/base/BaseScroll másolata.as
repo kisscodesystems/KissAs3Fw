@@ -58,20 +58,19 @@ package com . kisscodesystems . KissAs3Fw . base
 // The actual coordinates of the content (depend on the scw-sch and the current size of this basescroll.)
     private var ccx : Number = 0 ;
     private var ccy : Number = 0 ;
-// The previous coordinates (saved when the mouse is down)
-    private var ccxPrev : Number = 0 ;
-    private var ccyPrev : Number = 0 ;
 // These are the target coordinates where the content will be moved into.
-    private var ccxTarget : int = 0 ;
-    private var ccyTarget : int = 0 ;
+    private var targetx : int = 0 ;
+    private var targety : int = 0 ;
 // These are the coordinates of the spriteMover in the previous frame.
 // The difference between the actual pos and the pos in the
 // previous enterframe decides the speed of the moving of the content!
-    private var prevMoverx : int = 0 ;
-    private var prevMovery : int = 0 ;
+    private var prevx : int = 0 ;
+    private var prevy : int = 0 ;
 // The deltas of the coordinates
     private var deltax : int = 0 ;
     private var deltay : int = 0 ;
+// The mouse is down or up.
+    private var mouseIsDown : Boolean = false ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -111,7 +110,8 @@ package com . kisscodesystems . KissAs3Fw . base
       eventContentPositionChanged = new Event ( application . EVENT_CONTENT_POSITION_CHANGED ) ;
       eventContentCacheBegin = new Event ( application . EVENT_CONTENT_CACHE_BEGIN ) ;
 // Adding this event listeners to the spriteMover.
-      spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
+      spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+      spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
@@ -122,14 +122,24 @@ package com . kisscodesystems . KissAs3Fw . base
       sch = 0 ;
       ccx = 0 ;
       ccy = 0 ;
-      ccxTarget = 0 ;
-      ccyTarget = 0 ;
-      prevMoverx = 0 ;
-      prevMovery = 0 ;
+      targetx = 0 ;
+      targety = 0 ;
+      prevx = 0 ;
+      prevy = 0 ;
     }
 /*
-** These are not necessary to be listened to.
+** This method will be called if the object is being added to the stage.
+** A lot of initializing happens here because the stage is available
+** from here.
 */
+    override protected function addedToStage ( e : Event ) : void
+    {
+// Calling the addedToStage of parent.
+      super . addedToStage ( e ) ;
+// These events have to be registered.
+      stage . addEventListener ( MouseEvent . MOUSE_MOVE , mouseMove , false , 0 , true ) ;
+      stage . addEventListener ( MouseEvent . MOUSE_UP , mouseUp , false , 0 , true ) ;
+    }
     override protected function removedFromStage ( e : Event ) : void
     {
       if ( stage != null )
@@ -139,215 +149,6 @@ package com . kisscodesystems . KissAs3Fw . base
       }
 // This is always necessary at the end of the function body.
       super . removedFromStage ( e ) ;
-    }
-/*
-** Mouse rolls over the mover sprite.
-*/
-    private function rollOver ( e : MouseEvent ) : void
-    {
-      if ( ! e . buttonDown )
-      {
-        spriteMover . removeEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-        spriteMover . addEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-        spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-        spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
-      }
-    }
-/*
-** Mouse rolls out the mover sprite.
-*/
-    private function rollOut ( e : MouseEvent ) : void
-    {
-      if ( ! e . buttonDown )
-      {
-        spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-        spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-        spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-        spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
-      }
-    }
-/*
-** Mouse down on the mover sprite.
-*/
-    private function mouseDown ( e : MouseEvent ) : void
-    {
-      removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-      addEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
-// Cache the content!
-      dispatchEventCacheBegin ( ) ;
-      ccxPrev = ccx ;
-      ccyPrev = ccy ;
-      if ( stage != null )
-      {
-        stage . addEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
-        stage . addEventListener ( MouseEvent . MOUSE_UP , mouseUp ) ;
-      }
-// Starts drag the spriteMover shape.
-      spriteMover . startDrag ( ) ;
-    }
-/*
-** Saves the actual position of the mover.
-*/
-    private function enterFrameSaveMoverPos ( e : Event ) : void
-    {
-      prevMoverx = spriteMover . x ;
-      prevMovery = spriteMover . y ;
-    }
-/*
-** When the mouse is moving.
-*/
-    private function mouseMove ( e : MouseEvent ) : void
-    {
-// Just simply follow the mover.
-      ccxTarget = ccxPrev + spriteMover . x ;
-      ccyTarget = ccyPrev + spriteMover . y ;
-// The corrections.
-// The target coordinates have to be between the bounds.
-      targetCoordinatesCorrection ( ) ;
-      ccx = ccxTarget ;
-      ccy = ccyTarget ;
-// This is the show of the actual position.
-      calcShapeActualposCoordinatesByContentPos ( ) ;
-// The event of the content position changing has to be dispatched in each frame!
-      dispatchEventContentPositionChanged ( ) ;
-    }
-/*
-** The mouse is up!
-*/
-    private function mouseUp ( e : MouseEvent ) : void
-    {
-      if ( stage != null )
-      {
-        stage . removeEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
-        stage . removeEventListener ( MouseEvent . MOUSE_UP , mouseUp ) ;
-      }
-      if ( spriteMover . x != prevMoverx )
-      {
-        deltax = spriteMover . x - prevMoverx ;
-        if ( deltax > 0 )
-        {
-          ccxTarget += Math . max ( deltax , ( deltax ) * Math . abs ( deltax ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
-        }
-        else
-        {
-          ccxTarget += Math . min ( deltax , ( deltax ) * Math . abs ( deltax ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
-        }
-      }
-      else
-      {
-        ccxTarget = ccx ;
-        deltax = 0 ;
-      }
-      if ( spriteMover . y != prevMovery )
-      {
-        deltay = spriteMover . y - prevMovery ;
-        if ( deltay > 0 )
-        {
-          ccyTarget += Math . max ( deltay , ( deltay ) * Math . abs ( deltay ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
-        }
-        else
-        {
-          ccyTarget += Math . min ( deltay , ( deltay ) * Math . abs ( deltay ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
-        }
-      }
-      else
-      {
-        ccyTarget = ccy ;
-        deltay = 0 ;
-      }
-      if ( spriteMover . x != prevMoverx || spriteMover . y != prevMovery )
-      {
-// The corrections.
-// The target coordinates have to be between the bounds.
-        targetCoordinatesCorrection ( ) ;
-        addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-        removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
-      }
-      else
-      {
-        ccxTarget = ccx ;
-        ccyTarget = ccy ;
-        deltax = 0 ;
-        deltay = 0 ;
-      }
-// Stopping the spriteMover.
-      stopMover ( ) ;
-    }
-/*
-** Positions the content continuously to the target coordinates.
-*/
-    private function enterFrameMoveContent ( e : Event ) : void
-    {
-// The position of the content has to be the follows.
-      ccx += ( ccxTarget - ccx ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ;
-      ccy += ( ccyTarget - ccy ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ;
-// We should check the current and the target position in every frame.
-// If the x or the y coordinate has reached the final corrdinate
-      if ( Math . round ( ccx ) == ccxTarget && Math . round ( ccy ) == ccyTarget )
-      {
-// Then this function has to be unregistered.
-        removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-// And the position have to be the target coordinates.
-        ccx = ccxTarget ;
-        ccy = ccyTarget ;
-      }
-// This is the show of the actual position.
-      calcShapeActualposCoordinatesByContentPos ( ) ;
-// The event of the content position changing has to be dispatched in each frame!
-      dispatchEventContentPositionChanged ( ) ;
-    }
-/*
-** Stops the spriteMover and places it into the 0-0.
-*/
-    private function stopMover ( ) : void
-    {
-      if ( spriteMover != null )
-      {
-        spriteMover . stopDrag ( ) ;
-        spriteMover . x = 0 ;
-        spriteMover . y = 0 ;
-      }
-    }
-/*
-** Handles the mouse wheel event.
-*/
-    private function mouseWheel ( e : MouseEvent ) : void
-    {
-      if ( false )
-      {
-        ccxTarget += e . delta * application . getPropsApp ( ) . getWheelDeltaPixels ( ) ;
-      }
-      else
-      {
-        ccyTarget += e . delta * application . getPropsApp ( ) . getWheelDeltaPixels ( ) ;
-      }
-      targetCoordinatesCorrection ( ) ;
-// Cache the content!
-      dispatchEventCacheBegin ( ) ;
-      addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-      removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
-    }
-/*
-** The correction of the target coordiantes.
-*/
-    private function targetCoordinatesCorrection ( ) : void
-    {
-      if ( ccxTarget > 0 )
-      {
-        ccxTarget = 0 ;
-      }
-      else if ( ccxTarget < getsw ( ) - scw )
-      {
-        ccxTarget = getsw ( ) - scw ;
-      }
-      if ( ccyTarget > 0 )
-      {
-        ccyTarget = 0 ;
-      }
-      else if ( ccyTarget < getsh ( ) - sch )
-      {
-        ccyTarget = getsh ( ) - sch ;
-      }
     }
 /*
 ** Gets the reference to the masks.
@@ -373,6 +174,146 @@ package com . kisscodesystems . KissAs3Fw . base
       return spriteMover ;
     }
 /*
+** Handles the mouse wheel event.
+*/
+    private function mouseWheel ( e : MouseEvent ) : void
+    {
+      if ( ! mouseIsDown )
+      {
+        targety += e . delta * application . getPropsApp ( ) . getWheelDeltaPixels ( ) ;
+        targetCoordinatesCorrection ( ) ;
+        if ( ! hasEventListener ( Event . ENTER_FRAME ) )
+        {
+// Cache the content!
+          dispatchEventCacheBegin ( ) ;
+          addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+        }
+      }
+    }
+/*
+** The mouse down function.
+** The user presses the left mouse.
+** The target x and y coordinates will be calculated continuously
+** and the content x and y coordinates will go to these also continuously
+** and independently from the above.
+*/
+    private function mouseDown ( e : MouseEvent ) : void
+    {
+// Let's stop the current moving.
+      removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+// Cache the content!
+      dispatchEventCacheBegin ( ) ;
+// The target coordinates have to be cleared.
+      targetx = ccx ;
+      targety = ccy ;
+// The prev x and y coordinates.
+      prevx = spriteMover . getcx ( ) ;
+      prevy = spriteMover . getcy ( ) ;
+// The mose is down.
+      mouseIsDown = true ;
+// Starts drag the spriteMover shape.
+      spriteMover . startDrag ( ) ;
+    }
+    private function mouseMove ( e : MouseEvent ) : void
+    {
+// Works only if the mouse is down. (And then always.)
+      if ( mouseIsDown )
+      {
+// The spriteMover position is..
+        spriteMover . updatecxy ( ) ;
+// The delta x and y.. they are the current minus the previous coordinates.
+        deltax = spriteMover . getcx ( ) - prevx ;
+        deltay = spriteMover . getcy ( ) - prevy ;
+// The target coordinates have to be increased as follows.
+// Positive deltax: math . max, otherwise math . min will be used!
+        if ( deltax > 0 )
+        {
+          targetx += Math . max ( deltax , ( deltax ) * Math . abs ( deltax ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
+        }
+        else
+        {
+          targetx += Math . min ( deltax , ( deltax ) * Math . abs ( deltax ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
+        }
+        if ( deltay > 0 )
+        {
+          targety += Math . max ( deltay , ( deltay ) * Math . abs ( deltay ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
+        }
+        else
+        {
+          targety += Math . min ( deltay , ( deltay ) * Math . abs ( deltay ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ) ;
+        }
+// The corrections.
+// The target coordinates have to be between the bounds.
+        targetCoordinatesCorrection ( ) ;
+// Now let these coordinates be the current coordinates of the spriteMover.
+// (In the next enter frame event, these are really the previous coordinates.)
+        prevx = spriteMover . getcx ( ) ;
+        prevy = spriteMover . getcy ( ) ;
+// If the content moving is not registered then it has to be done now.
+        if ( ! hasEventListener ( Event . ENTER_FRAME ) )
+        {
+          addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+        }
+      }
+    }
+/*
+** The correction of the target coordiantes.
+*/
+    private function targetCoordinatesCorrection ( ) : void
+    {
+      if ( targetx < getsw ( ) - scw )
+      {
+        targetx = getsw ( ) - scw ;
+      }
+      if ( targetx > 0 )
+      {
+        targetx = 0 ;
+      }
+      if ( targety < getsh ( ) - sch )
+      {
+        targety = getsh ( ) - sch ;
+      }
+      if ( targety > 0 )
+      {
+        targety = 0 ;
+      }
+    }
+/*
+** The user lets the left mouse button up.
+*/
+    private function mouseUp ( e : MouseEvent ) : void
+    {
+// Stopping the spriteMover.
+      stopMover ( ) ;
+      mouseIsDown = false ;
+    }
+/*
+** Positions the content continuously to the target coordinates.
+*/
+    private function enterFrameMoveContent ( e : Event ) : void
+    {
+// The position of the content has to be the follows.
+      ccx += ( targetx - ccx ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ;
+      ccy += ( targety - ccy ) / application . getPropsApp ( ) . getWeightScrollContent ( ) ;
+// We should check the current and the target position in every frame.
+// If the x or the y coordinate has reached the final corrdinate
+      if ( Math . round ( ccx ) == targetx && Math . round ( ccy ) == targety )
+      {
+// Then this function has to be unregistered if the mouse is up.
+        if ( ! mouseIsDown )
+        {
+          removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+        }
+// And the position have to be the target coordinates.
+        ccx = targetx ;
+        ccy = targety ;
+      }
+// This is the show of the actual position.
+      calcShapeActualposCoordinatesByContentPos ( ) ;
+// The event of the content position changing has to be dispatched in each frame!
+      dispatchEventContentPositionChanged ( ) ;
+    }
+/*
 ** Dispatches when the content position has been changed.
 */
     private function dispatchEventContentPositionChanged ( ) : void
@@ -393,6 +334,21 @@ package com . kisscodesystems . KissAs3Fw . base
       }
     }
 /*
+** Stops the spriteMover and places it into the 0-0.
+*/
+    private function stopMover ( ) : void
+    {
+      if ( spriteMover != null )
+      {
+        spriteMover . stopDrag ( ) ;
+        spriteMover . setcxy ( 0 , 0 ) ;
+      }
+      prevx = 0 ;
+      prevy = 0 ;
+      deltax = 0 ;
+      deltay = 0 ;
+    }
+/*
 ** To be able to set the coordinates of the content!
 */
     public function setccx ( newccx : int ) : void
@@ -400,7 +356,7 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( ccx != newccx )
       {
         ccx = newccx ;
-        ccxTarget = ccx ;
+        targetx = ccx ;
         redrawShapesMover ( ) ;
         calcShapeActualposCoordinatesByContentPos ( ) ;
         dispatchEventContentPositionChanged ( ) ;
@@ -411,7 +367,7 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( ccy != newccy )
       {
         ccy = newccy ;
-        ccyTarget = ccy ;
+        targety = ccy ;
         redrawShapesMover ( ) ;
         calcShapeActualposCoordinatesByContentPos ( ) ;
         dispatchEventContentPositionChanged ( ) ;
@@ -423,8 +379,8 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         ccx = newccx ;
         ccy = newccy ;
-        ccxTarget = ccx ;
-        ccyTarget = ccy ;
+        targetx = ccx ;
+        targety = ccy ;
         redrawShapesMover ( ) ;
         calcShapeActualposCoordinatesByContentPos ( ) ;
         dispatchEventContentPositionChanged ( ) ;
@@ -536,15 +492,14 @@ package com . kisscodesystems . KissAs3Fw . base
       stopMover ( ) ;
 // The moving also has to be stopped.
       removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-      removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
 // The 0-0 coordinates will be reached after resizing of a basescroll!
       if ( ccx != 0 || ccy != 0 )
       {
 // And the position have to be zero.
         ccx = 0 ;
         ccy = 0 ;
-        ccxTarget = 0 ;
-        ccyTarget = 0 ;
+        targetx = 0 ;
+        targety = 0 ;
       }
 // This is the show of the actual position.
       redrawShapesMover ( ) ;
@@ -586,8 +541,7 @@ package com . kisscodesystems . KissAs3Fw . base
         spriteMover . graphics . beginFill ( 0 , 0 ) ;
         spriteMover . graphics . drawRect ( 0 , 0 , getsw ( ) , getsh ( ) ) ;
         spriteMover . graphics . endFill ( ) ;
-        spriteMover . x = 0 ;
-        spriteMover . y = 0 ;
+        spriteMover . setcxy ( 0 , 0 ) ;
         spriteMover . setswh ( getsw ( ) , getsh ( ) ) ;
         spriteMover . stopDrag ( ) ;
       }
@@ -603,30 +557,30 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( application != null )
       {
         shapeActualpos . x = Math . round ( - application . getPropsApp ( ) . getScrollMargin ( ) / ( scw - getsw ( ) ) * ccx ) ;
-        if ( shapeActualpos . x < 0 || scw <= getsw ( ) )
+        if ( shapeActualpos . x < 0 )
         {
           shapeActualpos . x = 0 ;
           ccx = 0 ;
-          ccxTarget = ccx ;
+          targetx = ccx ;
         }
         else if ( shapeActualpos . x > application . getPropsApp ( ) . getScrollMargin ( ) )
         {
           shapeActualpos . x = application . getPropsApp ( ) . getScrollMargin ( ) ;
           ccx = getsw ( ) - scw ;
-          ccxTarget = ccx ;
+          targetx = ccx ;
         }
         shapeActualpos . y = Math . round ( - application . getPropsApp ( ) . getScrollMargin ( ) / ( sch - getsh ( ) ) * ccy ) ;
-        if ( shapeActualpos . y < 0 || sch <= getsh ( ) )
+        if ( shapeActualpos . y < 0 )
         {
           shapeActualpos . y = 0 ;
           ccy = 0 ;
-          ccyTarget = ccy ;
+          targety = ccy ;
         }
         else if ( shapeActualpos . y > application . getPropsApp ( ) . getScrollMargin ( ) )
         {
           shapeActualpos . y = application . getPropsApp ( ) . getScrollMargin ( ) ;
           ccy = getsh ( ) - sch ;
-          ccyTarget = ccy ;
+          targety = ccy ;
         }
         shapeMask0 . x = shapeActualpos . x + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
         shapeMask0 . y = shapeActualpos . y + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
@@ -645,12 +599,7 @@ package com . kisscodesystems . KissAs3Fw . base
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_UP , mouseUp ) ;
       }
-      spriteMover . removeEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-      spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-      spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-      spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
       removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-      removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
@@ -673,19 +622,17 @@ package com . kisscodesystems . KissAs3Fw . base
       shapeActualpos = null ;
       spriteMover = null ;
       eventContentPositionChanged = null ;
-      eventContentCacheBegin = null ;
       scw = 0 ;
       sch = 0 ;
       ccx = 0 ;
       ccy = 0 ;
-      ccxPrev = 0 ;
-      ccyPrev = 0 ;
-      ccxTarget = 0 ;
-      ccyTarget = 0 ;
-      prevMoverx = 0 ;
-      prevMovery = 0 ;
+      targetx = 0 ;
+      targety = 0 ;
+      prevx = 0 ;
+      prevy = 0 ;
       deltax = 0 ;
       deltay = 0 ;
+      mouseIsDown = false ;
     }
   }
 }
