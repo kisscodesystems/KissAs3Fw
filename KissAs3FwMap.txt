@@ -1,62 +1,63 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-07-05 17:24:05
+    | Generated   : 2017-07-06 17:35:13
     | Folders     : 1
-    | Files       : 42
-    | Total lines : 15419
+    | Files       : 43
+    | Total lines : 16112
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
     |           com
     |           com\kisscodesystems
     |           com\kisscodesystems\KissAs3Fw
-as  | 69        com\kisscodesystems\KissAs3Fw\Application.as
+as  | 70        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 412       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 603       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 686       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 800       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 888       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 972       com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1178      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1271      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1531      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 415       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 606       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 689       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 803       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 891       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 975       com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1181      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1274      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1534      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1712      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1798      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 1887      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2036      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2135      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2248      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2484      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2625      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 2911      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3287      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1715      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1801      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 1890      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2039      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2138      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2251      com\kisscodesystems\KissAs3Fw\base\BaseScroll másolata.as
+as  | 2487      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2734      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2875      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 3161      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3537      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3386      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3638      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3636      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3888      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 3876      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 4001      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 4126      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 4251      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4098      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4277      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4364      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4483      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4555      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
-as  | 4668      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 4945      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5080      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5225      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5372      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5594      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 5727      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 5885      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 6045      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6148      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6263      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6315      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 6641      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4348      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4527      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4614      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4733      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4805      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
+as  | 4918      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 5195      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5330      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5475      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5622      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 5844      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 5977      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 6135      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6295      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6398      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6513      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 6565      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 6891      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -87,7 +88,7 @@ as  |     ** Has contained 42 classes initially and this is not an accident.
 as  |     **
 as  |     ** Published       : 06.21.2017
 as  |     **
-as  |     ** Current version : 1.3
+as  |     ** Current version : 1.4
 as  |     **
 as  |     ** Developed by    : Jozsef Kiss
 as  |     **                   KissCode Systems Kft
@@ -101,6 +102,8 @@ as  |     **                   the scrolling works in the BaseScroll using the m
 as  |     **                   1.3 - 07.05.2017
 as  |     **                   the eembedded arial font is in the demo propsDyn from now
 as  |     **                   the content will be cached as a bitmap during its movement
+as  |     **                   1.4 - 07.06.2017
+as  |     **                   small improvements in the content moving
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -154,7 +157,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   616
+as  |        lines   618
 as  | 
 as  |     Variables:
 as  | 
@@ -2245,9 +2248,9 @@ as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
     +---------------------------------------------------------------------------
-as  | com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | com\kisscodesystems\KissAs3Fw\base\BaseScroll másolata.as
 as  | 
-as  |     BaseScroll
+as  |     BaseScroll másolata
 as  | 
 as  |     /*
 as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
@@ -2399,6 +2402,253 @@ as  |     /*
 as  |     ** Stops the spriteMover and places it into the 0-0.
 as  |     */
 as  |        private function stopMover ( ) : void
+as  | 
+as  |     /*
+as  |     ** To be able to set the coordinates of the content!
+as  |     */
+as  |PU      public function setccx ( newccx : int ) : void
+as  | 
+as  |PU      public function setccy ( newccy : int ) : void
+as  | 
+as  |PU      public function setccxcy ( newccx : int , newccy : int ) : void
+as  | 
+as  |PU      public function setccxn ( n : Number ) : void
+as  | 
+as  |PU      public function setccyn ( n : Number ) : void
+as  | 
+as  |     /*
+as  |     ** To be able to set the size of the content!
+as  |     */
+as  |PU      public function setscw ( newscw : int ) : void
+as  | 
+as  |PU      public function setsch ( newsch : int ) : void
+as  | 
+as  |PU      public function setscwch ( newscw : int , newsch : int ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the actual x and y of the content.
+as  |     */
+as  |PU      public function getccx ( ) : Number
+as  | 
+as  |PU      public function getccy ( ) : Number
+as  | 
+as  |     /*
+as  |     ** Gets the actual width and height of the content.
+as  |     */
+as  |PU      public function getscw ( ) : int
+as  | 
+as  |PU      public function getsch ( ) : int
+as  | 
+as  |     /*
+as  |     ** The line thickness has been changed
+as  |     */
+as  |        private function lineThicknessChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The radius of the application has been changed.
+as  |     */
+as  |        private function radiusChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The filler color (background) of the background has been changed.
+as  |     */
+as  |        private function backgroundBgColorChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The filler color (foreground) of the background has been changed.
+as  |     */
+as  |        private function backgroundFgColorChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** This is the method runs after the changing of the size of this object.
+as  |     */
+as  |        override protected function doSizeChanged ( ) : void
+as  | 
+as  |     /*
+as  |     ** Redraws the shapes and the spriteMover.
+as  |     ** Only the redrawing is here, the repositioning is elsewhere.
+as  |     */
+as  |        private function redrawShapesMover ( ) : void
+as  | 
+as  |     /*
+as  |     ** Calculating the position of the shapeActualpos by the current position of the content.
+as  |     ** If the position is invalid (lesser than 0 or greather than scroll margin)
+as  |     ** then a correction will be applied both on x and y coordinates and both on actual pos shape and on content.
+as  |     ** The masks will be also repositioned.
+as  |     */
+as  |PU      public function calcShapeActualposCoordinatesByContentPos ( ) : void
+as  | 
+as  |     /*
+as  |     ** Overwriting this destroy method.
+as  |     */
+as  |PU      override public function destroy ( ) : void
+as  | 
+    +---------------------------------------------------------------------------
+as  | com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 
+as  |     BaseScroll
+as  | 
+as  |     /*
+as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
+as  |     ** See the header comment lines of the
+as  |     ** com . kisscodesystems . KissAs3Fw . Application
+as  |     ** The whole framework is available at:
+as  |     ** https://github.com/kisscodesystems/KissAs3Fw
+as  |     ** Demo applications:
+as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
+as  |     **
+as  |     ** DESCRIPTION:
+as  |     ** BaseScroll.
+as  |     ** Scrolling means displaying a part of the content under a mask.
+as  |     ** This can be continuously (for example a content of a widget)
+as  |     ** or not (for example the currently displayed elements of a list).
+as  |     ** The moving of the shapes and the calculations of the coordinates of
+as  |     ** the content will happen here, the real positioning happens outside.
+as  |     ** Mouse wheel works since version 1.2.
+as  |     **
+as  |     ** MAIN FEATURES:
+as  |     ** - displaying the two rectangles
+as  |     ** - contains the two mask usable for the outside world
+as  |     ** - the mover can be dragged to trigger the reposition of the content to the outside
+as  |     ** - the target coordinates ( where to move the content) will be calculated as
+as  |     **   slow down the content continuously.
+as  |     ** - the size and the initial position of the content can be specified from outside
+as  |     ** - the outside can liten to the event of application . EVENT_CONTENT_POSITION_CHANGED
+as  |     */
+as  | 
+as  |        package com . kisscodesystems . KissAs3Fw . base
+as  |        extends BaseSprite
+as  |        lines   691
+as  | 
+as  |     Variables:
+as  | 
+as  |     // The base rectangle frame of the object.
+as  |     // This will not be moved.
+as  |        private var shapeFrame : BaseShape = null ;
+as  |     // The base shape that shows the actual position of the content.
+as  |     // This will be not movable by hand but will be moved according to the actual position.
+as  |     // Setting its coordinates can be hppened by sdetting its x and y coordinates (and not using setcxy())!
+as  |        private var shapeActualpos : BaseShape = null ;
+as  |     // The mask objects of the content.
+as  |        private var shapeMask0 : BaseShape = null ;
+as  |        private var shapeMask1 : BaseShape = null ;
+as  |     // This is the positioner of the external displayable object.
+as  |     // If this is moved then it will be returned immediately to the 0-0 coordinates.
+as  |     // The x and y property will be used instead of getcxy because this object will be dragged.
+as  |        private var spriteMover : BaseSprite = null ;
+as  |     // The event is dispatched when the position of the content is changed.
+as  |     // This can be watched by the outside world.
+as  |        private var eventContentPositionChanged : Event = null ;
+as  |     // The events of the content caching
+as  |        private var eventContentCacheBegin : Event = null ;
+as  |     // The sizes of the external content. (We have to know it to calculate the proper content position.)
+as  |        private var scw : int = 0 ;
+as  |        private var sch : int = 0 ;
+as  |     // The actual coordinates of the content (depend on the scw-sch and the current size of this basescroll.)
+as  |        private var ccx : Number = 0 ;
+as  |        private var ccy : Number = 0 ;
+as  |     // The previous coordinates (saved when the mouse is down)
+as  |        private var ccxPrev : Number = 0 ;
+as  |        private var ccyPrev : Number = 0 ;
+as  |     // These are the target coordinates where the content will be moved into.
+as  |        private var ccxTarget : int = 0 ;
+as  |        private var ccyTarget : int = 0 ;
+as  |     // These are the coordinates of the spriteMover in the previous frame.
+as  |     // The difference between the actual pos and the pos in the
+as  |     // previous enterframe decides the speed of the moving of the content!
+as  |        private var prevMoverx : int = 0 ;
+as  |        private var prevMovery : int = 0 ;
+as  |     // The deltas of the coordinates
+as  |        private var deltax : int = 0 ;
+as  |        private var deltay : int = 0 ;
+as  | 
+as  |     Functions:
+as  | 
+as  |     /*
+as  |     ** The constructor doing the initialization of this object as usual.
+as  |     */
+as  |PU      public function BaseScroll ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** These are not necessary to be listened to.
+as  |     */
+as  |        override protected function removedFromStage ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Mouse rolls over the mover sprite.
+as  |     */
+as  |        private function rollOver ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Mouse rolls out the mover sprite.
+as  |     */
+as  |        private function rollOut ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Mouse down on the mover sprite.
+as  |     */
+as  |        private function mouseDown ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Saves the actual position of the mover.
+as  |     */
+as  |        private function enterFrameSaveMoverPos ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** When the mouse is moving.
+as  |     */
+as  |        private function mouseMove ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** The mouse is up!
+as  |     */
+as  |        private function mouseUp ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Positions the content continuously to the target coordinates.
+as  |     */
+as  |        private function enterFrameMoveContent ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Stops the spriteMover and places it into the 0-0.
+as  |     */
+as  |        private function stopMover ( ) : void
+as  | 
+as  |     /*
+as  |     ** Handles the mouse wheel event.
+as  |     */
+as  |        private function mouseWheel ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** The correction of the target coordiantes.
+as  |     */
+as  |        private function targetCoordinatesCorrection ( ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the reference to the masks.
+as  |     ** If this is a continuous content (like the content of the widget for example)
+as  |     ** then this has to be the mask of that content.
+as  |     ** There are two because the front and the back content sprite of the ContentSingle
+as  |     ** need different masks! These two have to be resized and repositioned in the same way.
+as  |     */
+as  |PU      public function getMask0 ( ) : BaseShape
+as  | 
+as  |PU      public function getMask1 ( ) : BaseShape
+as  | 
+as  |     /*
+as  |     ** Gets the reference to the spriteMover sprite.
+as  |     */
+as  |PU      public function getMover ( ) : BaseSprite
+as  | 
+as  |     /*
+as  |     ** Dispatches when the content position has been changed.
+as  |     */
+as  |        private function dispatchEventContentPositionChanged ( ) : void
+as  | 
+as  |     /*
+as  |     ** Dispatches when the content position has to be cached.
+as  |     */
+as  |        private function dispatchEventCacheBegin ( ) : void
 as  | 
 as  |     /*
 as  |     ** To be able to set the coordinates of the content!
