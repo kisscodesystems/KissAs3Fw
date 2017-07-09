@@ -22,6 +22,13 @@ package com . kisscodesystems . KissAs3Fw . prop
 // PLEASE NOTE THAT THIS VALUE CHANGING WILL DISPATCH NO EVENTS
 // The name of the application.
     protected var applicationName : String = "Application" ;
+// The version of this application.
+    protected var applicationVersion : String = "version 1.0" ;
+// The release date of this version
+    protected var applicationReleaseDate : String = "06.21.2017" ;
+// The homepage of this application
+    protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
+    protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
 // The maximum blur of the glow filter.
     protected var maxBlur : int = 8 ;
 // Uses embed foonts or not.
@@ -59,7 +66,7 @@ package com . kisscodesystems . KissAs3Fw . prop
 // Shows where the content is actually.
     protected var scrollMargin : int = 10 ;
 // The maximum number of widgets in the first line/column (orientation horizontal/vertical).
-    protected var widgetsMaxElementsInLineOrColumn : int = 3 ;
+    protected var widgetsElementsFix : int = 3 ;
 // The margin of the widgets.
     protected var widgetsMargin : int = 30 ;
 // The minimum sizes of a widget.
@@ -113,7 +120,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The pixels to move the content after a mouse wheel.
     protected var wheelDeltaPixels : int = 30 ;
 // The size will be increased of the prev and next drawed buttons. (0.5 will be the original size factor)
-    protected var buttonDrawPrevNextScale : Number = 0.7 ;
+    protected var buttonDrawMovePrevNextScale : Number = 0.7 ;
+// The maximum number of widgetcontainers
+    protected var maxNumOfWidgetcontainers : int = 5 ;
 /*
 ** Constructor.
 */
@@ -130,11 +139,12 @@ package com . kisscodesystems . KissAs3Fw . prop
       panelAlertHeighthFactor = 1 / 4 ;
       panelMenuWidthFactor = 1 / 2 ;
       panelMenuHeighthFactor = 4 / 5 ;
-      widgetsMaxElementsInLineOrColumn = 1 ;
+      widgetsElementsFix = 1 ;
       widgetsMargin = 0 ;
       widgetEnableManualResize = false ;
       widgetResizeMargin = 0 ;
       widgetEnableManualHide = false ;
+      maxNumOfWidgetcontainers = 1 ;
     }
 /*
 ** The getter functions of the properties can be overwritten in the constructor of extending class.
@@ -142,6 +152,22 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getApplicationName ( ) : String
     {
       return applicationName ;
+    }
+    public function getApplicationVersion ( ) : String
+    {
+      return applicationVersion ;
+    }
+    public function getApplicationReleaseDate ( ) : String
+    {
+      return applicationReleaseDate ;
+    }
+    public function getApplicationSoftwareHomepageTxt ( ) : Array
+    {
+      return applicationSoftwareHomepageTxt ;
+    }
+    public function getApplicationSoftwareHomepageUrl ( ) : Array
+    {
+      return applicationSoftwareHomepageUrl ;
     }
     public function getUseEmbedFonts ( ) : Boolean
     {
@@ -219,9 +245,9 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return scrollMargin ;
     }
-    public function getWidgetsMaxElementsInLineOrColumn ( ) : int
+    public function getWidgetsElementsFix ( ) : int
     {
-      return widgetsMaxElementsInLineOrColumn ;
+      return widgetsElementsFix ;
     }
     public function getWidgetsMargin ( ) : int
     {
@@ -363,9 +389,13 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return wheelDeltaPixels ;
     }
-    public function getButtonDrawPrevNextScale ( ) : Number
+    public function getButtonDrawMovePrevNextScale ( ) : Number
     {
-      return buttonDrawPrevNextScale ;
+      return buttonDrawMovePrevNextScale ;
+    }
+    public function getMaxNumOfWidgetcontainers ( ) : int
+    {
+      return maxNumOfWidgetcontainers ;
     }
   }
 }

@@ -65,6 +65,7 @@ package com . kisscodesystems . KissAs3Fw . app
 // Let's add these layers!
       widgets = new Widgets ( application ) ;
       addChild ( widgets ) ;
+      widgets . addWidgetContainer ( ) ;
       footer = new Footer ( application ) ;
       addChild ( footer ) ;
       header = new Header ( application ) ;
@@ -257,6 +258,16 @@ package com . kisscodesystems . KissAs3Fw . app
       }
     }
 /*
+** Shows the actual widget container.
+*/
+    public function showWidgetContainer ( i : int ) : void
+    {
+      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
+      {
+        panelSettings . showWidgetContainer ( i ) ;
+      }
+    }
+/*
 ** Updates the menuxml.
 */
     public function updateMenuxml ( ) : void
@@ -420,9 +431,9 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** Adds a widget into the widgets.
 */
-    public function addWidget ( widget : Widget ) : void
+    public function addWidget ( contentId : int , widget : Widget ) : void
     {
-      widgets . addWidget ( widget ) ;
+      widgets . addWidget ( contentId , widget ) ;
     }
 /*
 ** Closes a widget.

@@ -22,6 +22,7 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . ui . TextLabel ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
+  import flash . net . URLRequest ;
   public class ButtonLink extends BaseSprite
   {
 // The background of the button.
@@ -37,6 +38,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 // This will be the current state to be painted:
 // -1: pushed, 0: general, 1: unpushed, 2: no background to paint
     private var state : int = 2 ;
+// The url to be specified. When it is set then the default browser will navigate to this url.
+    private var url : String = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -124,8 +127,30 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getEnabled ( ) )
       {
         setState ( 1 ) ;
+        navigateToUrlIfNotEmpy ( ) ;
         baseWorkingButtonClick ( ) ;
       }
+    }
+/*
+** Gets the url if that is not empty.
+*/
+    private function navigateToUrlIfNotEmpy ( ) : void
+    {
+      if ( url != null )
+      {
+        if ( url . length > 0 )
+        {
+// Now the navigation ti the url with a new browser.
+          flash . net . navigateToURL ( new URLRequest ( url ) , "_blank" ) ;
+        }
+      }
+    }
+/*
+** Sets the url.
+*/
+    public function setUrl ( s : String ) : void
+    {
+      url = s ;
     }
 /*
 ** When the resize is needed.
@@ -227,6 +252,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite = null ;
       eventClick = null ;
       state = 0 ;
+      url = null ;
     }
   }
 }

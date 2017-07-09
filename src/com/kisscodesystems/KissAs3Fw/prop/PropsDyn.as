@@ -322,22 +322,20 @@ package com . kisscodesystems . KissAs3Fw . prop
     }
     public function setAppWidgetsOrientation ( newWidgetsOrientation : String ) : void
     {
-      if ( appWidgetsOrientation != newWidgetsOrientation )
+// The new value can be the old value. (Dispatches the event every time.)
+      if ( newWidgetsOrientation == application . getTexts ( ) . ORIENTATION_VERTICAL )
       {
-        if ( newWidgetsOrientation == application . getTexts ( ) . ORIENTATION_VERTICAL )
-        {
-          appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_VERTICAL ;
-        }
-        else if ( newWidgetsOrientation == application . getTexts ( ) . ORIENTATION_HORIZONTAL )
-        {
-          appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_HORIZONTAL ;
-        }
-        else
-        {
-          appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_MANUAL ;
-        }
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppWidgetsOrientationChanged ) ;
+        appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_VERTICAL ;
       }
+      else if ( newWidgetsOrientation == application . getTexts ( ) . ORIENTATION_HORIZONTAL )
+      {
+        appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_HORIZONTAL ;
+      }
+      else
+      {
+        appWidgetsOrientation = application . getTexts ( ) . ORIENTATION_MANUAL ;
+      }
+      application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppWidgetsOrientationChanged ) ;
     }
     public function getAppLineThickness ( ) : int
     {

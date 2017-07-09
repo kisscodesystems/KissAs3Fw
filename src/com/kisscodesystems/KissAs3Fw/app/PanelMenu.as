@@ -37,20 +37,39 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // Let's store this reference to the Application object.
       super ( applicationRef ) ;
+// Setting of the default content now.
+      setDefaultContent ( ) ;
 // The elements!
       if ( ! application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
         langSetter = new LangSetter ( application ) ;
-        addChild ( langSetter ) ;
+        contentMultiple . addToContent ( 0 , langSetter , true , 0 ) ;
         langSetter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
       }
       xmlLister = new XmlLister ( application ) ;
-      addChild ( xmlLister ) ;
+      contentMultiple . addToContent ( 0 , xmlLister , true , 1 ) ;
       xmlLister . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , xmlListerChanged ) ;
       xmlLister . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
-// This has to be listened to.
+// This is needed: the size of the xml lister depends on these.
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
 // Initially..
+      resizeReposAll ( ) ;
+    }
+/*
+** The line thickness of the application has been changed.
+*/
+    private function lineThicknessChanged ( e : Event ) : void
+    {
+// So we have to resize.
+      resizeReposAll ( ) ;
+    }
+/*
+** The margin of the application has been changed.
+*/
+    private function marginChanged ( e : Event ) : void
+    {
+// So we have to resize.
       resizeReposAll ( ) ;
     }
 /*
@@ -102,14 +121,6 @@ package com . kisscodesystems . KissAs3Fw . app
       resizeReposAll ( ) ;
     }
 /*
-** The changing of the margin.
-*/
-    private function marginChanged ( e : Event ) : void
-    {
-// Resize/repos all.
-      resizeReposAll ( ) ;
-    }
-/*
 ** Resizibng and repositioning all of the elements.
 */
     private function resizeReposAll ( ) : void
@@ -119,8 +130,7 @@ package com . kisscodesystems . KissAs3Fw . app
 // The lang setter listpicker has to be repositioned and resized.
         if ( langSetter != null )
         {
-          langSetter . setsw ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-          langSetter . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          langSetter . setsw ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
         }
 // The menu displaywer too.
         if ( xmlLister != null )
@@ -128,14 +138,12 @@ package com . kisscodesystems . KissAs3Fw . app
           if ( langSetter != null )
           {
             xmlLister . setsw ( langSetter . getsw ( ) ) ;
-            xmlLister . setcxy ( langSetter . getcx ( ) , langSetter . getcysham ( ) ) ;
           }
           else
           {
-            xmlLister . setsw ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-            xmlLister . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+            xmlLister . setsw ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
           }
-          xmlLister . setNumOfElements ( - 1 + Math . floor ( ( getsh ( ) - xmlLister . getcy ( ) - application . getPropsApp ( ) . getScrollMargin ( ) ) / application . getPropsDyn ( ) . getTextFieldHeight ( xmlLister . getTextType ( ) ) ) ) ;
+          xmlLister . setNumOfElements ( - 3 + Math . floor ( ( getsh ( ) - xmlLister . getcy ( ) - application . getPropsApp ( ) . getScrollMargin ( ) ) / application . getPropsDyn ( ) . getTextFieldHeight ( xmlLister . getTextType ( ) ) ) ) ;
         }
 // Super!
         super . doSizeChanged ( ) ;
@@ -164,6 +172,7 @@ package com . kisscodesystems . KissAs3Fw . app
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.

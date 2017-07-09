@@ -389,7 +389,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
-      removeAllButtons ( ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . ROLL_OVER , moverRollOver ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . ROLL_OUT , moverRollOut ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . MOUSE_MOVE , moverMouseMove ) ;

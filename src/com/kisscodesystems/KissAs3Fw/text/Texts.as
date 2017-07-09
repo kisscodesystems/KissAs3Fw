@@ -51,16 +51,21 @@ package com . kisscodesystems . KissAs3Fw . text
     public const WIDGET_HEADER_GENERAL : String = BTC + "WIDGET_HEADER_GENERAL" + ETC ;
 // The list of the widgets.
     public const LISTS_OF_THE_WIDGETS : String = BTC + "LISTS_OF_THE_WIDGETS" + ETC ;
+// The list of the contents.
+    public const LISTS_OF_THE_CONTENTS_TO_MOVE_INTO : String = BTC + "LISTS_OF_THE_CONTENTS_TO_MOVE_INTO" + ETC ;
 // Te panels of the settings.
     public const SETTINGS_PANEL_GENERAL : String = BTC + "SETTINGS_PANEL_GENERAL" + ETC ;
     public const SETTINGS_PANEL_LINING : String = BTC + "SETTINGS_PANEL_LINING" + ETC ;
     public const SETTINGS_PANEL_COLORING : String = BTC + "SETTINGS_PANEL_COLORING" + ETC ;
     public const SETTINGS_PANEL_IMAGING : String = BTC + "SETTINGS_PANEL_IMAGING" + ETC ;
     public const SETTINGS_PANEL_FONTING : String = BTC + "SETTINGS_PANEL_FONTING" + ETC ;
+    public const SETTINGS_PANEL_ABOUT : String = BTC + "SETTINGS_PANEL_ABOUT" + ETC ;
 // The labels of the settings.
     public const SETTING_LANGUAGE : String = BTC + "SETTING_LANGUAGE" + ETC ;
-    public const SETTING_WIDGET_ORIENTATION : String = BTC + "SETTING_WIDGET_ORIENTATION" + ETC ;
     public const SETTING_DISPLAYING_STYLE : String = BTC + "SETTING_DISPLAYING_STYLE" + ETC ;
+    public const SETTING_NUM_OF_WIDGETCONTAINERS : String = BTC + "SETTING_NUM_OF_WIDGETCONTAINERS" + ETC ;
+    public const SETTING_CURR_WIDGETCONTAINER : String = BTC + "SETTING_CURR_WIDGETCONTAINER" + ETC ;
+    public const SETTING_WIDGET_ORIENTATION : String = BTC + "SETTING_WIDGET_ORIENTATION" + ETC ;
     public const SETTING_LINE_THICKNESS : String = BTC + "SETTING_LINE_THICKNESS" + ETC ;
     public const SETTING_MARGIN : String = BTC + "SETTING_MARGIN" + ETC ;
     public const SETTING_PADDING : String = BTC + "SETTING_PADDING" + ETC ;
@@ -81,6 +86,8 @@ package com . kisscodesystems . KissAs3Fw . text
 // The displaying style of the application.
     public const DISPLAYING_STYLE_MODIFIED : String = BTC + "DISPLAYING_STYLE_MODIFIED" + ETC ;
     public const DISPLAYING_STYLE_BASIC : String = BTC + "DISPLAYING_STYLE_BASIC" + ETC ;
+// The default content of the multiple content component.
+    public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 // The usage of the components.
     public const COMPONENTS_USAGE : String = BTC + "COMPONENTS_USAGE" + ETC ;
   }

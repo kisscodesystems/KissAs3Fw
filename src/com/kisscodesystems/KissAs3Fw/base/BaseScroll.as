@@ -141,16 +141,30 @@ package com . kisscodesystems . KissAs3Fw . base
       super . removedFromStage ( e ) ;
     }
 /*
+** Callable method to simulate rollOver.
+** (for example resizing widget on tablet or on smartphone devices)
+*/
+    public function doRollOver ( ) : void
+    {
+      if ( spriteMover != null )
+      {
+        if ( ! spriteMover . hasEventListener ( MouseEvent . MOUSE_WHEEL ) )
+        {
+          spriteMover . removeEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
+          spriteMover . addEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
+          spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+          spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+        }
+      }
+    }
+/*
 ** Mouse rolls over the mover sprite.
 */
     private function rollOver ( e : MouseEvent ) : void
     {
       if ( ! e . buttonDown )
       {
-        spriteMover . removeEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-        spriteMover . addEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-        spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-        spriteMover . addEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+        doRollOver ( ) ;
       }
     }
 /*
@@ -160,10 +174,13 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( ! e . buttonDown )
       {
-        spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-        spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-        spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-        spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+        if ( spriteMover != null )
+        {
+          spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
+          spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
+          spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+          spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+        }
       }
     }
 /*

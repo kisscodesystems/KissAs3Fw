@@ -20,6 +20,8 @@
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseEventDispatcher ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseScroll ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonBar ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
@@ -58,6 +60,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Sets the default content.
+*/
+    public function setDefaultContent ( ) : void
+    {
+      addContent ( application . getTexts ( ) . DEFAULT_CONTENT ) ;
+      setActiveIndex ( 0 ) ;
+      setButtonBarVisible ( false ) ;
+    }
+/*
 ** Sets the max elementsArray of the line or column in a content.
 */
     public function setElementsFix ( index : int , e : int ) : void
@@ -65,6 +76,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( arrayContentSinges [ index ] is ContentSingle )
       {
         ContentSingle ( arrayContentSinges [ index ] ) . setElementsFix ( e ) ;
+      }
+    }
+    public function getElementsFix ( index : int ) : int
+    {
+      if ( arrayContentSinges [ index ] is ContentSingle )
+      {
+        return ContentSingle ( arrayContentSinges [ index ] ) . getElementsFix ( ) ;
+      }
+      else
+      {
+        return 0 ;
       }
     }
 /*
@@ -75,6 +97,27 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( arrayContentSinges [ index ] is ContentSingle )
       {
         ContentSingle ( arrayContentSinges [ index ] ) . setOrientation ( o ) ;
+      }
+    }
+/*
+** Gets the content single by its index.
+*/
+    public function getContentSingle ( index : int ) : ContentSingle
+    {
+      return ContentSingle ( arrayContentSinges [ index ] ) ;
+    }
+/*
+** Gets the content single by its index.
+*/
+    public function getBaseScroll ( index : int ) : BaseScroll
+    {
+      if ( arrayContentSinges [ index ] is ContentSingle )
+      {
+        return ContentSingle ( arrayContentSinges [ index ] ) . getBaseScroll ( ) ;
+      }
+      else
+      {
+        return null ;
       }
     }
 /*
@@ -94,7 +137,10 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function setActiveIndex ( index : int ) : void
     {
-      buttonBar . setActiveIndex ( index ) ;
+      if ( buttonBar . getActiveIndex ( ) != index )
+      {
+        buttonBar . setActiveIndex ( index ) ;
+      }
     }
 /*
 ** Gets the active index.
@@ -129,8 +175,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         var contentSingle : ContentSingle = new ContentSingle ( application ) ;
         addChildAt ( contentSingle , 0 ) ;
         contentSingle . visible = false ;
-        contentSingle . setcxy ( 0 , buttonBar . getcysh ( ) ) ;
-        contentSingle . setswh ( getsw ( ) , getsh ( ) - ( buttonBar . getcysh ( ) ) ) ;
+        resizeContent ( contentSingle ) ;
         arrayContentSinges . push ( contentSingle ) ;
         contentSingle = null ;
         return arrayContentSinges . length - 1 ;
@@ -208,11 +253,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // First: the button bar has to be repositioned.
       buttonBarRepos ( ) ;
 // Second: all of the contents have to be resized and repositioned.
-      for ( var i : int = 0 ; i < arrayContentSinges . length ; i ++ )
-      {
-        ContentSingle ( arrayContentSinges [ i ] ) . setcxy ( 0 , buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ;
-        ContentSingle ( arrayContentSinges [ i ] ) . setsh ( getsh ( ) - ( buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ) ;
-      }
+      resizeAllContents ( ) ;
     }
 /*
 ** Sets the active index.
@@ -249,10 +290,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getsw ( ) != newsw )
       {
         super . setsw ( newsw ) ;
-        for ( var i : int = 0 ; i < arrayContentSinges . length ; i ++ )
-        {
-          ContentSingle ( arrayContentSinges [ i ] ) . setsw ( getsw ( ) ) ;
-        }
+        resizeAllContents ( ) ;
         buttonBar . setMaxWidth ( getsw ( ) ) ;
         buttonBarRepos ( ) ;
       }
@@ -262,11 +300,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getsh ( ) != newsh )
       {
         super . setsh ( newsh ) ;
-        for ( var i : int = 0 ; i < arrayContentSinges . length ; i ++ )
-        {
-          ContentSingle ( arrayContentSinges [ i ] ) . setcxy ( 0 , buttonBar . getcysh ( ) ) ;
-          ContentSingle ( arrayContentSinges [ i ] ) . setsh ( getsh ( ) - ( buttonBar . getcysh ( ) ) ) ;
-        }
+        resizeAllContents ( ) ;
       }
     }
     override public function setswh ( newsw : int , newsh : int ) : void
@@ -274,14 +308,28 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getsw ( ) != newsw || getsh ( ) != newsh )
       {
         super . setswh ( newsw , newsh ) ;
-        for ( var i : int = 0 ; i < arrayContentSinges . length ; i ++ )
-        {
-          ContentSingle ( arrayContentSinges [ i ] ) . setcxy ( 0 , buttonBar . getcysh ( ) ) ;
-          ContentSingle ( arrayContentSinges [ i ] ) . setswh ( getsw ( ) , getsh ( ) - ( buttonBar . getcysh ( ) ) ) ;
-        }
+        resizeAllContents ( ) ;
         buttonBar . setMaxWidth ( getsw ( ) ) ;
         buttonBarRepos ( ) ;
       }
+    }
+/*
+** Resizes all of the contents.
+*/
+    private function resizeAllContents ( ) : void
+    {
+      for ( var i : int = 0 ; i < arrayContentSinges . length ; i ++ )
+      {
+        resizeContent ( ContentSingle ( arrayContentSinges [ i ] ) ) ;
+      }
+    }
+/*
+** Resizes one content.
+*/
+    private function resizeContent ( content : ContentSingle ) : void
+    {
+      content . setcxy ( 0 , buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ;
+      content . setswh ( getsw ( ) , getsh ( ) - ( buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ) ;
     }
 /*
 ** Overriding this destroy method.

@@ -24,9 +24,12 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . ui . ButtonText ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentMultiple ;
   import com . kisscodesystems . KissAs3Fw . ui . List ;
+  import com . kisscodesystems . KissAs3Fw . ui . ListPicker ;
   import com . kisscodesystems . KissAs3Fw . ui . TextBox ;
   import com . kisscodesystems . KissAs3Fw . ui . TextLabel ;
+  import com . kisscodesystems . KissAs3Fw . ui . Widget ;
   import flash . events . Event ;
+  import flash . events . MouseEvent ;
   public class Foreground extends BaseSprite
   {
 // The background of the elements.
@@ -34,7 +37,14 @@ package com . kisscodesystems . KissAs3Fw . app
 // The list of the widgets.
     private var widgetsLabel : TextLabel = null ;
     private var widgetsList : List = null ;
+// The list of the widgets! (on any widget container.)
     private var widgetListIndex : int = - 1 ;
+// The list of the widget container to move the widget into.
+    private var widgetMoveIndex : int = - 1 ;
+// The widget to be moved.
+    private var widgetToBeMoved : Widget = null ;
+    private var contentsLabel : TextLabel = null ;
+    private var contentsListPicker : ListPicker = null ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -55,9 +65,17 @@ package com . kisscodesystems . KissAs3Fw . app
         setVisible ( true ) ;
         contentMultiple = new ContentMultiple ( application ) ;
         addChild ( contentMultiple ) ;
+        contentMultiple . setButtonBarVisible ( false ) ;
         contentMultiple . setswh ( getsw ( ) * application . getPropsApp ( ) . getPanelAlertWidthFactor ( ) , getsh ( ) * application . getPropsApp ( ) . getPanelAlertHeighthFactor ( ) ) ;
         reposContentMultiple ( ) ;
       }
+    }
+/*
+** Clicked elsewhere?
+*/
+    private function clickedElsewhere ( ) : Boolean
+    {
+      return ! ( mouseX > contentMultiple . getcx ( ) && mouseX < contentMultiple . getcxsw ( ) && mouseY > contentMultiple . getcy ( ) && mouseY < contentMultiple . getcysh ( ) )
     }
 /*
 ** Sets the active index 0.
@@ -80,7 +98,6 @@ package com . kisscodesystems . KissAs3Fw . app
         createContentMultiple ( ) ;
         var index : int = contentMultiple . addContent ( messageString ) ;
         contentMultiple . setElementsFix ( index , 0 ) ;
-        contentMultiple . setButtonBarVisible ( false ) ;
         var textBox : TextBox = new TextBox ( application ) ;
         contentMultiple . addToContent ( index , textBox , true , 0 ) ;
         textBox . setTextCode ( messageString ) ;
@@ -136,7 +153,6 @@ package com . kisscodesystems . KissAs3Fw . app
       {
         widgetListIndex = contentMultiple . addContent ( application . getTexts ( ) . LISTS_OF_THE_WIDGETS ) ;
         contentMultiple . setElementsFix ( widgetListIndex , 0 ) ;
-        contentMultiple . setButtonBarVisible ( false ) ;
         widgetsLabel = new TextLabel ( application ) ;
         contentMultiple . addToContent ( widgetListIndex , widgetsLabel , false , 0 ) ;
         widgetsLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
@@ -151,6 +167,10 @@ package com . kisscodesystems . KissAs3Fw . app
         widgetsList . setArrays ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetHeaders ( ) , application . getMiddleground ( ) . getWidgets ( ) . getWidgetIds ( ) ) ;
         widgetsList . setNumOfElements ( Math . max ( 1 , Math . floor ( ( contentMultiple . getsh ( ) - ( widgetsLabel . getcysh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 + application . getPropsDyn ( ) . getAppPadding ( ) * 2 + application . getPropsApp ( ) . getScrollMargin ( ) ) ) / application . getPropsDyn ( ) . getTextFieldHeight ( widgetsList . getTextType ( ) ) ) ) ) ;
         setActiveIndex0 ( ) ;
+        if ( stage != null )
+        {
+          stage . addEventListener ( MouseEvent . MOUSE_DOWN , cancelWidgetsList ) ;
+        }
       }
     }
 /*
@@ -158,9 +178,24 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function goToTheWidget ( e : Event ) : void
     {
-      application . getMiddleground ( ) . getWidgets ( ) . goToTheWidget ( widgetsList . getSelectedIndexes ( ) [ 0 ] ) ;
+      var targetWidget : Widget = application . getMiddleground ( ) . getWidgets ( ) . getWidgetByHeader ( widgetsList . getArrayLabels ( ) [ widgetsList . getSelectedIndexes ( ) [ 0 ] ] ) ;
+      application . getMiddleground ( ) . getWidgets ( ) . goToTheWidget ( targetWidget ) ;
+      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
+      {
+        application . getMiddleground ( ) . showWidgetContainer ( targetWidget . getContentId ( ) ) ;
+      }
       closeWidgetsList ( ) ;
       e . stopImmediatePropagation ( ) ;
+    }
+/*
+** Automatic removal of the window if the user clicks elsewhere.
+*/
+    private function cancelWidgetsList ( e : MouseEvent ) : void
+    {
+      if ( clickedElsewhere ( ) )
+      {
+        closeWidgetsList ( ) ;
+      }
     }
 /*
 ** Destroys the list of the widgets.
@@ -169,6 +204,10 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( widgetListIndex != - 1 )
       {
+        if ( stage != null )
+        {
+          stage . removeEventListener ( MouseEvent . MOUSE_DOWN , cancelWidgetsList ) ;
+        }
         widgetsLabel . destroy ( ) ;
         contentMultiple . removeFromContent ( widgetListIndex , widgetsLabel ) ;
         widgetsLabel = null ;
@@ -177,6 +216,84 @@ package com . kisscodesystems . KissAs3Fw . app
         widgetsList = null ;
         contentMultiple . removeContent ( widgetListIndex ) ;
         widgetListIndex = - 1 ;
+      }
+      setVisibleFalseIfNoMoreObjects ( ) ;
+    }
+/*
+** Creates the listpicker of the contents.
+*/
+    public function createContentsList ( widget : Widget ) : void
+    {
+// Creating the content multiple is it does not exist.
+      createContentMultiple ( ) ;
+      if ( widgetMoveIndex == - 1 )
+      {
+        widgetToBeMoved = widget ;
+        widgetMoveIndex = contentMultiple . addContent ( application . getTexts ( ) . LISTS_OF_THE_CONTENTS_TO_MOVE_INTO ) ;
+        contentMultiple . setElementsFix ( widgetMoveIndex , 0 ) ;
+        contentsLabel = new TextLabel ( application ) ;
+        contentMultiple . addToContent ( widgetMoveIndex , contentsLabel , false , 0 ) ;
+        contentsLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
+        contentsLabel . setTextCode ( application . getTexts ( ) . LISTS_OF_THE_CONTENTS_TO_MOVE_INTO ) ;
+        contentsLabel . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+        contentsListPicker = new ListPicker ( application ) ;
+        contentMultiple . addToContent ( widgetMoveIndex , contentsListPicker , true , 1 ) ;
+        contentsListPicker . setsw ( contentsLabel . getsw ( ) ) ;
+        var array : Array = new Array ( ) ;
+        for ( var i : int = 0 ; i < application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) ; i ++ )
+        {
+          array . push ( i + 1 ) ;
+        }
+        contentsListPicker . setArrays ( array , array ) ;
+        contentsListPicker . setNumOfElements ( 5 ) ;
+        contentsListPicker . setSelectedIndex ( widget . getContentId ( ) ) ;
+        contentsListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , moveToTheContent ) ;
+        setActiveIndex0 ( ) ;
+        if ( stage != null )
+        {
+          stage . addEventListener ( MouseEvent . MOUSE_DOWN , cancelMoveListPicker ) ;
+        }
+      }
+    }
+/*
+** Moves the widget to the specific content.
+*/
+    private function moveToTheContent ( e : Event ) : void
+    {
+      application . getMiddleground ( ) . getWidgets ( ) . moveWidgetFromContent ( widgetToBeMoved . getContentId ( ) , contentsListPicker . getSelectedIndex ( ) , widgetToBeMoved , true ) ;
+      closeContentsList ( ) ;
+      e . stopImmediatePropagation ( ) ;
+    }
+/*
+** Automatic removal of the window if the user clicks elsewhere.
+*/
+    private function cancelMoveListPicker ( e : MouseEvent ) : void
+    {
+      if ( clickedElsewhere ( ) )
+      {
+        closeContentsList ( ) ;
+      }
+    }
+/*
+** Destroys the listpicker of the contents.
+*/
+    public function closeContentsList ( ) : void
+    {
+      if ( widgetMoveIndex != - 1 )
+      {
+        if ( stage != null )
+        {
+          stage . removeEventListener ( MouseEvent . MOUSE_DOWN , cancelMoveListPicker ) ;
+        }
+        contentsLabel . destroy ( ) ;
+        contentMultiple . removeFromContent ( widgetMoveIndex , contentsLabel ) ;
+        contentsLabel = null ;
+        contentsListPicker . destroy ( ) ;
+        contentMultiple . removeFromContent ( widgetMoveIndex , contentsListPicker ) ;
+        contentsListPicker = null ;
+        contentMultiple . removeContent ( widgetMoveIndex ) ;
+        widgetMoveIndex = - 1 ;
+        widgetToBeMoved = null ;
       }
       setVisibleFalseIfNoMoreObjects ( ) ;
     }
@@ -248,6 +365,11 @@ package com . kisscodesystems . KissAs3Fw . app
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
+      if ( stage != null )
+      {
+        stage . removeEventListener ( MouseEvent . MOUSE_DOWN , cancelWidgetsList ) ;
+        stage . removeEventListener ( MouseEvent . MOUSE_DOWN , cancelMoveListPicker ) ;
+      }
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;

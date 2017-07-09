@@ -18,18 +18,20 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseEventDispatcher ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
+  import com . kisscodesystems . KissAs3Fw . ui . ContentMultiple ;
   import com . kisscodesystems . KissAs3Fw . ui . Widget ;
   import flash . events . Event ;
   public class Widgets extends BaseSprite
   {
 // The id-s of the widgets!
     private var currentWidgetId : int = - 1 ;
-// The contentSingle!
-    private var contentSingle : ContentSingle = null ;
-// The array of the widgets!
+// The content multiple!
+    private var contentMultiple : ContentMultiple = null ;
+// The array of the widgets, two dimensional!
 // Needed for the order, contains the references to the added widgets.
     private var widgetsArray : Array = null ;
+// One dimensipnal array to store the orientations of each contents.
+    private var orientationsArray : Array = null ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -38,14 +40,114 @@ package com . kisscodesystems . KissAs3Fw . app
 // Let's store this reference to the Application object.
       super ( applicationRef ) ;
 // Creating the contentSingle.
-      contentSingle = new ContentSingle ( application ) ;
-      addChild ( contentSingle ) ;
+      contentMultiple = new ContentMultiple ( application ) ;
+      addChild ( contentMultiple ) ;
+      contentMultiple . setButtonBarVisible ( false ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_ORIENTATIONS_CHANGED , widgetsOrientationChanged ) ;
 // An array is needed to store the references to the widgets.
 // Every loop on widgets should be happened on this array.
       widgetsArray = new Array ( ) ;
+      orientationsArray = new Array ( ) ;
+    }
+/*
+** Adds a widget container.
+*/
+    public function addWidgetContainer ( ) : int
+    {
+      var containerId : int = contentMultiple . addContent ( "" + contentMultiple . getNumOfContents ( ) ) ;
+      widgetsArray [ containerId ] = new Array ( ) ;
+      orientationsArray [ containerId ] = application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) ;
+      setActiveWidgetContainer ( containerId ) ;
+      return containerId ;
+    }
+/*
+** Gets the widget orientation.
+*/
+    public function getWidgetOrientation ( i : int ) : String
+    {
+      return orientationsArray [ i ] ;
+    }
+/*
+** Gets the number of contents.
+*/
+    public function getNumOfContents ( ) : int
+    {
+      return contentMultiple . getNumOfContents ( ) ;
+    }
+/*
+** Gets the count of all widgets.
+*/
+    public function getNumOfAllWidgets ( ) : int
+    {
+      var num : int = 0 ;
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          num ++ ;
+        }
+      }
+      return num ;
+    }
+/*
+** Sets the active container.
+*/
+    public function setActiveWidgetContainer ( i : int ) : void
+    {
+      if ( i >= 0 && i < orientationsArray . length )
+      {
+        if ( contentMultiple . getActiveIndex ( ) != i )
+        {
+          contentMultiple . setActiveIndex ( i ) ;
+        }
+      }
+    }
+/*
+** Removes a content.
+*/
+    public function removeWidgetContainer ( ) : void
+    {
+      var containerId : int = contentMultiple . getNumOfContents ( ) - 1 ;
+      if ( containerId > 0 )
+      {
+        moveAllWidgetsFromContent ( containerId ) ;
+        contentMultiple . removeContent ( containerId ) ;
+        widgetsArray . splice ( containerId , 1 ) ;
+        orientationsArray . splice ( containerId , 1 ) ;
+        setActiveWidgetContainer ( containerId - 1 ) ;
+      }
+    }
+/*
+** Moves all of the widgets from a content to the first content.
+*/
+    private function moveAllWidgetsFromContent ( contentId : int ) : void
+    {
+      if ( contentId > 0 )
+      {
+        while ( widgetsArray [ contentId ] . length > 0 )
+        {
+          moveWidgetFromContent ( contentId , contentId - 1 , Widget ( widgetsArray [ contentId ] [ 0 ] ) , false ) ;
+        }
+        reposWidgets ( contentId - 1 ) ;
+      }
+    }
+/*
+** Moves one widget to the previous.
+*/
+    public function moveWidgetFromContent ( fromContentId : int , toContentId : int , widget : Widget , repositionRequired : Boolean ) : void
+    {
+      widgetsArray [ fromContentId ] . splice ( widgetsArray [ fromContentId ] . indexOf ( widget ) , 1 ) ;
+      widgetsArray [ toContentId ] . push ( widget ) ;
+      contentMultiple . removeFromContent ( fromContentId , widget ) ;
+      contentMultiple . addToContent ( toContentId , widget , true , 0 ) ;
+      widget . setContentId ( toContentId ) ;
+      if ( repositionRequired )
+      {
+        reposWidgets ( fromContentId ) ;
+        reposWidgets ( toContentId ) ;
+      }
     }
 /*
 ** The margin of the application has been changed.
@@ -66,14 +168,20 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function widgetsOrientationChanged ( e : Event ) : void
     {
-      reposWidgets ( ) ;
+      orientationsArray [ contentMultiple . getActiveIndex ( ) ] = application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) ;
+      reposWidgets ( contentMultiple . getActiveIndex ( ) ) ;
     }
 /*
 ** When one or more of the widgets have been resized.
 */
     private function widgetResized ( e : Event ) : void
     {
-      reposWidgets ( ) ;
+// Getting the target widget first.
+      var widget : Widget = Widget ( BaseEventDispatcher ( e . target ) . getParentObject ( ) ) ;
+// The event needs to be stopped to loose contact with that widget object.
+      e . stopImmediatePropagation ( ) ;
+// And now the repositioning
+      reposWidgets ( widget . getContentId ( ) ) ;
     }
 /*
 ** When one or more of the widgets have been repositioned.
@@ -82,15 +190,17 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // Getting the target widget first.
       var widget : Widget = Widget ( BaseEventDispatcher ( e . target ) . getParentObject ( ) ) ;
+// The content id.
+      var contentId : int = widget . getContentId ( ) ;
 // The event needs to be stopped to loose contact with that widget object.
       e . stopImmediatePropagation ( ) ;
 // The widgets has to be reordered according to the coordinate changing of this widget.
       var widget2 : Widget = null ;
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      for ( var j : int = 0 ; j < widgetsArray [ contentId ] . length ; j ++ )
       {
-        if ( widget != Widget ( widgetsArray [ i ] ) && widget . hitTestObject ( Widget ( widgetsArray [ i ] ) ) )
+        if ( widget != Widget ( widgetsArray [ contentId ] [ j ] ) && widget . hitTestObject ( Widget ( widgetsArray [ contentId ] [ j ] ) ) )
         {
-          widget2 = Widget ( widgetsArray [ i ] ) ;
+          widget2 = Widget ( widgetsArray [ contentId ] [ j ] ) ;
           break ;
         }
       }
@@ -100,7 +210,7 @@ package com . kisscodesystems . KissAs3Fw . app
         swapWidgets ( widget , widget2 ) ;
       }
 // And now the repositioning
-      reposWidgets ( ) ;
+      reposWidgets ( contentId ) ;
     }
 /*
 ** Swaps the two widgets. (changing their position in the widgetsArray into each other)
@@ -109,15 +219,20 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // A temporary widget reference.
       var tempWidget : Widget = null ;
-// The position of the two widgets
-      var pos : int = widgetsArray . indexOf ( w ) ;
-      var pos2 : int = widgetsArray . indexOf ( w2 ) ;
-      if ( pos != pos2 && pos != - 1 && pos2 != - 1 )
+// One layer contains the widgets.
+      var contentId : int = w . getContentId ( ) ;
+      if ( contentId == w2 . getContentId ( ) )
       {
+// The position of the two widgets
+        var pos : int = widgetsArray [ contentId ] . indexOf ( w ) ;
+        var pos2 : int = widgetsArray [ contentId ] . indexOf ( w2 ) ;
+        if ( pos != pos2 && pos != - 1 && pos2 != - 1 )
+        {
 // Changing the references of the widget objects.
-        tempWidget = widgetsArray [ pos ] ;
-        widgetsArray [ pos ] = widgetsArray [ pos2 ] ;
-        widgetsArray [ pos2 ] = tempWidget ;
+          tempWidget = widgetsArray [ contentId ] [ pos ] ;
+          widgetsArray [ contentId ] [ pos ] = widgetsArray [ contentId ] [ pos2 ] ;
+          widgetsArray [ contentId ] [ pos2 ] = tempWidget ;
+        }
       }
     }
 /*
@@ -139,20 +254,26 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // Getting the target widget first.
       var widget : Widget = Widget ( BaseEventDispatcher ( e . target ) . getParentObject ( ) ) ;
+// The content id.
+      var contentId : int = widget . getContentId ( ) ;
 // The event needs to be stopped to loose contact with that widget object.
       e . stopImmediatePropagation ( ) ;
 // Setting the glow onto the other widgets!
-      setOrClearGlow ( widget ) ;
+      setOrClearGlow ( contentId , widget ) ;
     }
 /*
 ** That widget has been stopped to drag.
 */
     private function widgetDragStop ( e : Event ) : void
     {
+// Getting the target widget first.
+      var widget : Widget = Widget ( BaseEventDispatcher ( e . target ) . getParentObject ( ) ) ;
+// The content id.
+      var contentId : int = widget . getContentId ( ) ;
 // The event needs to be stopped to loose contact with that widget object.
       e . stopImmediatePropagation ( ) ;
 // Clearing the glow from all of the widgets!
-      setOrClearGlow ( null ) ;
+      setOrClearGlow ( contentId , null ) ;
     }
 /*
 ** Sets or clears the blur filter of widgets.
@@ -161,22 +282,22 @@ package com . kisscodesystems . KissAs3Fw . app
 ** If the widget is null then everybody (including the not null widget)
 ** will lose their blur filter.
 */
-    private function setOrClearGlow ( widget : Widget ) : void
+    private function setOrClearGlow ( contentId : int , widget : Widget ) : void
     {
 // Looping on the widgets.
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      for ( var i : int = 0 ; i < widgetsArray [ contentId ] . length ; i ++ )
       {
-        Widget ( widgetsArray [ i ] ) . safePlace ( ) ;
+        Widget ( widgetsArray [ contentId ] [ i ] ) . safePlace ( ) ;
         if ( widget != null )
         {
-          if ( Widget ( widgetsArray [ i ] ) != widget )
+          if ( Widget ( widgetsArray [ contentId ] [ i ] ) != widget )
           {
-            Widget ( widgetsArray [ i ] ) . filters = [ application . getPropsApp ( ) . getBlurFilterBackMiddle ( ) ] ;
+            Widget ( widgetsArray [ contentId ] [ i ] ) . filters = [ application . getPropsApp ( ) . getBlurFilterBackMiddle ( ) ] ;
           }
         }
         else
         {
-          Widget ( widgetsArray [ i ] ) . filters = null ;
+          Widget ( widgetsArray [ contentId ] [ i ] ) . filters = null ;
         }
       }
     }
@@ -187,13 +308,14 @@ package com . kisscodesystems . KissAs3Fw . app
     private function reposWidget ( widget : Widget ) : void
     {
 // The index of the element.
-      var widgetIndex : int = widgetsArray . indexOf ( widget ) ;
+      var contentId : int = widget . getContentId ( ) ;
+      var widgetIndex : int = widgetsArray [ contentId ] . indexOf ( widget ) ;
       if ( widgetIndex > - 1 )
       {
 // The current line or column we are staying in.
-        var rowOrCol : int = Math . floor ( widgetIndex / application . getPropsApp ( ) . getWidgetsMaxElementsInLineOrColumn ( ) ) ;
+        var rowOrCol : int = Math . floor ( widgetIndex / application . getPropsApp ( ) . getWidgetsElementsFix ( ) ) ;
 // Should we place this object into new line or column?
-        var intoNewRowOrCol : Boolean = widgetIndex % application . getPropsApp ( ) . getWidgetsMaxElementsInLineOrColumn ( ) == 0 ;
+        var intoNewRowOrCol : Boolean = widgetIndex % application . getPropsApp ( ) . getWidgetsElementsFix ( ) == 0 ;
 // Wanted the x and y coordinates where we have to place the element.
         var tox : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
         var toy : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
@@ -201,23 +323,24 @@ package com . kisscodesystems . KissAs3Fw . app
         var maxx : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
         var maxy : int = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
         var i : int = 0 ;
+        var allWidgets : int = getNumOfAllWidgets ( ) ;
 // Setting the visible of the buttons (header: prev widget, next widget, list widget)
         if ( widgetIndex == 0 )
         {
-          widget . setButtonVisible ( false , widgetsArray . length > 1 , widgetsArray . length > 1 ) ;
+          widget . setButtonsVisible ( false , widgetsArray [ contentId ] . length > 1 , allWidgets > 1 ) ;
         }
-        else if ( widgetIndex == widgetsArray . length - 1 )
+        else if ( widgetIndex == widgetsArray [ contentId ] . length - 1 )
         {
-          widget . setButtonVisible ( true , false , widgetsArray . length > 1 ) ;
+          widget . setButtonsVisible ( true , false , allWidgets > 1 ) ;
         }
         else
         {
-          widget . setButtonVisible ( true , true , widgetsArray . length > 1 ) ;
+          widget . setButtonsVisible ( true , true , allWidgets > 1 ) ;
         }
 // Determining these x y values according to the orientation of the widgets: HORIZONTAL
 // Maximum number of elements in COLUMNS next to each other.
 // (Direction widget-by-widget: DOWN)
-        if ( application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) == application . getTexts ( ) . ORIENTATION_HORIZONTAL )
+        if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_HORIZONTAL )
         {
           if ( rowOrCol == 0 )
           {
@@ -228,7 +351,7 @@ package com . kisscodesystems . KissAs3Fw . app
             else
             {
 // Not the first widget but in the first row/column, so the other coordinate is set.
-              toy = Widget ( widgetsArray [ widgetIndex - 1 ] ) . y + Widget ( widgetsArray [ widgetIndex - 1 ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+              toy = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . y + Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
             }
           }
           else
@@ -236,11 +359,11 @@ package com . kisscodesystems . KissAs3Fw . app
             if ( intoNewRowOrCol )
             {
 // The new row/column has to be started, so this is the point to determine the size of the previous row/col.
-              for ( i = ( rowOrCol - 1 ) * application . getPropsApp ( ) . getWidgetsMaxElementsInLineOrColumn ( ) ; i < widgetIndex ; i ++ )
+              for ( i = ( rowOrCol - 1 ) * application . getPropsApp ( ) . getWidgetsElementsFix ( ) ; i < widgetIndex ; i ++ )
               {
-                if ( maxx < Widget ( widgetsArray [ i ] ) . x + Widget ( widgetsArray [ i ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) )
+                if ( maxx < Widget ( widgetsArray [ contentId ] [ i ] ) . x + Widget ( widgetsArray [ contentId ] [ i ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) )
                 {
-                  maxx = Widget ( widgetsArray [ i ] ) . x + Widget ( widgetsArray [ i ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+                  maxx = Widget ( widgetsArray [ contentId ] [ i ] ) . x + Widget ( widgetsArray [ contentId ] [ i ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
                 }
               }
               tox = maxx ;
@@ -248,8 +371,8 @@ package com . kisscodesystems . KissAs3Fw . app
             else
             {
 // We are currently in a started row/col, so we continue that: coordinates from the previous widget.
-              tox = Widget ( widgetsArray [ widgetIndex - 1 ] ) . x ;
-              toy = Widget ( widgetsArray [ widgetIndex - 1 ] ) . y + Widget ( widgetsArray [ widgetIndex - 1 ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+              tox = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . x ;
+              toy = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . y + Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
             }
           }
 // Finally: let's place this widget if this is not in this coordinates.
@@ -262,7 +385,7 @@ package com . kisscodesystems . KissAs3Fw . app
 // Determining these x y values according to the orientation of the widgets: VERTICAL
 // Maximum number of elements in ROWS under each other.
 // (Direction widget-by-widget: RIGHT)
-        else if ( application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) == application . getTexts ( ) . ORIENTATION_VERTICAL )
+        else if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_VERTICAL )
         {
           if ( rowOrCol == 0 )
           {
@@ -273,7 +396,7 @@ package com . kisscodesystems . KissAs3Fw . app
             else
             {
 // Not the first widget but in the first row/column, so the other coordinate is set.
-              tox = Widget ( widgetsArray [ widgetIndex - 1 ] ) . x + Widget ( widgetsArray [ widgetIndex - 1 ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+              tox = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . x + Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
             }
           }
           else
@@ -281,11 +404,11 @@ package com . kisscodesystems . KissAs3Fw . app
             if ( intoNewRowOrCol )
             {
 // The new row/column has to be started, so this is the point to determine the size of the previous row/col.
-              for ( i = ( rowOrCol - 1 ) * application . getPropsApp ( ) . getWidgetsMaxElementsInLineOrColumn ( ) ; i < widgetIndex ; i ++ )
+              for ( i = ( rowOrCol - 1 ) * application . getPropsApp ( ) . getWidgetsElementsFix ( ) ; i < widgetIndex ; i ++ )
               {
-                if ( maxy < Widget ( widgetsArray [ i ] ) . y + Widget ( widgetsArray [ i ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) )
+                if ( maxy < Widget ( widgetsArray [ contentId ] [ i ] ) . y + Widget ( widgetsArray [ contentId ] [ i ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) )
                 {
-                  maxy = Widget ( widgetsArray [ i ] ) . y + Widget ( widgetsArray [ i ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+                  maxy = Widget ( widgetsArray [ contentId ] [ i ] ) . y + Widget ( widgetsArray [ contentId ] [ i ] ) . getsh ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
                 }
               }
               toy = maxy ;
@@ -293,8 +416,8 @@ package com . kisscodesystems . KissAs3Fw . app
             else
             {
 // We are currently in a started row/col, so we continue that: coordinates from the previous widget.
-              toy = Widget ( widgetsArray [ widgetIndex - 1 ] ) . y ;
-              tox = Widget ( widgetsArray [ widgetIndex - 1 ] ) . x + Widget ( widgetsArray [ widgetIndex - 1 ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+              toy = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . y ;
+              tox = Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . x + Widget ( widgetsArray [ contentId ] [ widgetIndex - 1 ] ) . getsw ( ) + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
             }
           }
 // Finally: let's place this widget if this is not in this coordinates.
@@ -308,28 +431,28 @@ package com . kisscodesystems . KissAs3Fw . app
 // The user can place the widgets but if a widget is on one of the others then the widgets
 // will be slided until none of the widgets are under another.
 // (Direction widget-by-widget: none)
-        else if ( application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) == application . getTexts ( ) . ORIENTATION_MANUAL )
+        else if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_MANUAL )
         {
 // Goes on all of the widgets.
-          for ( var j : int = 0 ; j < widgetsArray . length ; j ++ )
+          for ( var j : int = 0 ; j < widgetsArray [ contentId ] . length ; j ++ )
           {
 // If the current is not the widget reference coming from the argument of this function call..
-            if ( Widget ( widgetsArray [ j ] ) != widget )
+            if ( Widget ( widgetsArray [ contentId ] [ j ] ) != widget )
             {
 // If this widget and the widget comes from the function arguments are hit test positive..
-              if ( Widget ( widgetsArray [ j ] ) . hitTestObject ( widget ) )
+              if ( Widget ( widgetsArray [ contentId ] [ j ] ) . hitTestObject ( widget ) )
               {
 // The current widget has to be dragged out in the direction which is shorter than the other.
-                if ( Widget ( widgetsArray [ j ] ) . width > Widget ( widgetsArray [ j ] ) . height )
+                if ( Widget ( widgetsArray [ contentId ] [ j ] ) . width > Widget ( widgetsArray [ contentId ] [ j ] ) . height )
                 {
-                  Widget ( widgetsArray [ j ] ) . x = widget . x + widget . width + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+                  Widget ( widgetsArray [ contentId ] [ j ] ) . x = widget . x + widget . width + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
                 }
                 else
                 {
-                  Widget ( widgetsArray [ j ] ) . y = widget . y + widget . height + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+                  Widget ( widgetsArray [ contentId ] [ j ] ) . y = widget . y + widget . height + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
                 }
 // Because this widget is moved, it may be on other widgets so it has to be passed to another function call!
-                reposWidget ( Widget ( widgetsArray [ j ] ) ) ;
+                reposWidget ( Widget ( widgetsArray [ contentId ] [ j ] ) ) ;
               }
             }
           }
@@ -340,75 +463,112 @@ package com . kisscodesystems . KissAs3Fw . app
 ** Repositioning all of the widgets if the size of the contentSingle
 ** has changed or widgets have been removed or added.
 */
-    private function reposWidgets ( ) : void
+    private function reposWidgets ( contentId : int ) : void
     {
       if ( application != null )
       {
 // This is easy, each widget has to be repositioned one-by-one.
-        for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+        for ( var i : int = 0 ; i < widgetsArray [ contentId ] . length ; i ++ )
         {
-          reposWidget ( Widget ( widgetsArray [ i ] ) ) ;
+          reposWidget ( Widget ( widgetsArray [ contentId ] [ i ] ) ) ;
         }
 // Because the x and y coordinates is set, the own cx and cy coordinates have to be updated.
-        for ( var j : int = 0 ; j < widgetsArray . length ; j ++ )
+        for ( var j : int = 0 ; j < widgetsArray [ contentId ] . length ; j ++ )
         {
-          Widget ( widgetsArray [ j ] ) . updatecxy ( ) ;
+          Widget ( widgetsArray [ contentId ] [ j ] ) . updatecxy ( ) ;
         }
 // And now, the recalculation of the size of the content has to be recalculated manually.
-        if ( widgetsArray . length > 0 )
+        if ( widgetsArray [ contentId ] . length > 0 )
         {
-          application . callContentSizeRecalc ( Widget ( widgetsArray [ 0 ] ) ) ;
+          application . callContentSizeRecalc ( Widget ( widgetsArray [ contentId ] [ 0 ] ) ) ;
         }
         else
         {
-          application . callContentSizeRecalc ( contentSingle ) ;
+          application . callContentSizeRecalc ( contentMultiple . getContentSingle ( contentId ) ) ;
         }
       }
     }
 /*
-** Getting a Widget by its id.
+** Getting a Widget by its id. (in any widget containers)
 */
     public function getWidgetById ( id : int ) : Widget
     {
       var widget : Widget = null ;
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      all : for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
       {
-        if ( Widget ( widgetsArray [ i ] ) . getWidgetId ( ) == id )
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
         {
-          widget = Widget ( widgetsArray [ i ] ) ;
-          break ;
+          if ( Widget ( widgetsArray [ i ] [ j ] ) . getWidgetId ( ) == id )
+          {
+            widget = Widget ( widgetsArray [ i ] [ j ] ) ;
+            break all ;
+          }
         }
       }
       return widget ;
     }
 /*
-** Getting a Widget by its header.
+** Getting a Widget by its header. (in any widget containers)
 */
     public function getWidgetByHeader ( header : String ) : Widget
     {
       var widget : Widget = null ;
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      all : for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
       {
-        if ( Widget ( widgetsArray [ i ] ) . getWidgetHeader ( ) == header )
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
         {
-          widget = Widget ( widgetsArray [ i ] ) ;
-          break ;
+          if ( Widget ( widgetsArray [ i ] [ j ] ) . getWidgetHeader ( ) == header )
+          {
+            widget = Widget ( widgetsArray [ i ] [ j ] ) ;
+            break all ;
+          }
         }
       }
       return widget ;
+    }
+/*
+** Gets the headers of the widgets. (in any widget containers)
+*/
+    public function getWidgetHeaders ( ) : Array
+    {
+      var headers : Array = new Array ( ) ;
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          headers . push ( Widget ( widgetsArray [ i ] [ j ] ) . getWidgetHeader ( ) ) ;
+        }
+      }
+      return headers ;
+    }
+/*
+** Gets the headers of the widgets. (in any widget containers)
+*/
+    public function getWidgetIds ( ) : Array
+    {
+      var ids : Array = new Array ( ) ;
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          ids . push ( Widget ( widgetsArray [ i ] [ j ] ) . getWidgetId ( ) ) ;
+        }
+      }
+      return ids ;
     }
 /*
 ** Selects the previous or next widget from the given.
 */
     public function goToPrevWidget ( widget : Widget ) : void
     {
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      var contentId : int = widget . getContentId ( ) ;
+      for ( var i : int = 0 ; i < widgetsArray [ contentId ] . length ; i ++ )
       {
-        if ( Widget ( widgetsArray [ i ] ) == widget )
+        if ( Widget ( widgetsArray [ contentId ] [ i ] ) == widget )
         {
           if ( i > 0 )
           {
-            contentSingle . getBaseScroll ( ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i - 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i - 1 ] ) . getcy ( ) ) ;
+            contentMultiple . getBaseScroll ( contentId ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i - 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i - 1 ] ) . getcy ( ) ) ;
             break ;
           }
         }
@@ -416,13 +576,14 @@ package com . kisscodesystems . KissAs3Fw . app
     }
     public function goToNextWidget ( widget : Widget ) : void
     {
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      var contentId : int = widget . getContentId ( ) ;
+      for ( var i : int = 0 ; i < widgetsArray [ contentId ] . length ; i ++ )
       {
-        if ( Widget ( widgetsArray [ i ] ) == widget )
+        if ( Widget ( widgetsArray [ contentId ] [ i ] ) == widget )
         {
-          if ( i < widgetsArray . length - 1 )
+          if ( i < widgetsArray [ contentId ] . length - 1 )
           {
-            contentSingle . getBaseScroll ( ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i + 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i + 1 ] ) . getcy ( ) ) ;
+            contentMultiple . getBaseScroll ( contentId ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i + 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i + 1 ] ) . getcy ( ) ) ;
             break ;
           }
         }
@@ -431,31 +592,48 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** Goes to a specific widget!
 */
-    public function goToTheWidget ( i : int ) : void
+    public function goToTheWidget ( widget : Widget ) : void
     {
-      contentSingle . getBaseScroll ( ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ i ] ) . getcy ( ) ) ;
+      setActiveWidgetContainer ( widget . getContentId ( ) ) ;
+      contentMultiple . getBaseScroll ( widget . getContentId ( ) ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcy ( ) ) ;
     }
 /*
 ** Adds a widget into the widgets.
 */
-    public function addWidget ( widget : Widget ) : void
+    public function addWidget ( contentId : int , widget : Widget ) : void
     {
-      contentSingle . addToContent ( widget , true , 0 ) ;
-      widgetsArray . push ( widget ) ;
+      widget . setContentId ( contentId ) ;
+      contentMultiple . addToContent ( contentId , widget , true , 0 ) ;
+      widgetsArray [ contentId ] . push ( widget ) ;
       widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
       widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;
       widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_CLOSE_ME , widgetCloseMe ) ;
       widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_START , widgetDragStart ) ;
       widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_STOP , widgetDragStop ) ;
       widget . setWidgetId ( getNextWidgetId ( ) ) ;
-      if ( application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) == application . getTexts ( ) . ORIENTATION_MANUAL )
+      widget . setButtonMoveVisible ( getNumOfContents ( ) != 1 ) ;
+      if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_MANUAL )
       {
         widget . setcxy ( application . getPropsApp ( ) . getWidgetsMargin ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) ) ;
-        reposWidgets ( ) ;
+        reposWidgets ( contentId ) ;
       }
       else
       {
         reposWidget ( widget ) ;
+      }
+    }
+/*
+** Changes the visible of the move button of the widgets if necessary.
+*/
+    public function changeButtonMoveVisibleOnAllWidgets ( ) : void
+    {
+      var v : Boolean = getNumOfContents ( ) != 1 ;
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          Widget ( widgetsArray [ i ] [ j ] ) . setButtonMoveVisible ( v ) ;
+        }
       }
     }
 /*
@@ -465,50 +643,16 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( widget . onClose ( ) )
       {
+        var contentId : int = widget . getContentId ( ) ;
         widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
         widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;
         widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_CLOSE_ME , widgetCloseMe ) ;
         widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_DRAG_START , widgetDragStart ) ;
         widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_DRAG_STOP , widgetDragStop ) ;
         widget . destroy ( ) ;
-        contentSingle . removeFromContent ( widget ) ;
-        widgetsArray . splice ( widgetsArray . indexOf ( widget ) , 1 ) ;
-        reposWidgets ( ) ;
-      }
-    }
-/*
-** Gets the headers of the widgets.
-*/
-    public function getWidgetHeaders ( ) : Array
-    {
-      var headers : Array = new Array ( ) ;
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
-      {
-        headers . push ( Widget ( widgetsArray [ i ] ) . getWidgetHeader ( ) ) ;
-      }
-      return headers ;
-    }
-/*
-** Gets the headers of the widgets.
-*/
-    public function getWidgetIds ( ) : Array
-    {
-      var ids : Array = new Array ( ) ;
-      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
-      {
-        ids . push ( Widget ( widgetsArray [ i ] ) . getWidgetId ( ) ) ;
-      }
-      return ids ;
-    }
-/*
-** Closing all of the widgets.
-*/
-    private function closeAllWidgets ( ) : void
-    {
-// Closing all.
-      while ( widgetsArray . length > 0 )
-      {
-        closeWidget ( Widget ( widgetsArray [ 0 ] ) ) ;
+        contentMultiple . removeFromContent ( contentId , widget ) ;
+        widgetsArray [ contentId ] . splice ( widgetsArray [ contentId ] . indexOf ( widget ) , 1 ) ;
+        reposWidgets ( contentId ) ;
       }
     }
 /*
@@ -528,15 +672,18 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           setcxy ( 0 , application . getMiddleground ( ) . getHeaderh ( ) ) ;
           super . setswh ( application . getsw ( ) , application . getMiddleground ( ) . getWidgetsh ( ) ) ;
-          contentSingle . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-          contentSingle . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
+          contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          contentMultiple . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
           if ( application . getPropsApp ( ) . getSmartphoneMode ( ) )
           {
             for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
             {
-              Widget ( widgetsArray [ i ] ) . setswh ( Widget ( widgetsArray [ i ] ) . getswFromParentContent ( ) , Widget ( widgetsArray [ i ] ) . getshFromParentContent ( ) ) ;
+              for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+              {
+                Widget ( widgetsArray [ i ] [ j ] ) . setswh ( Widget ( widgetsArray [ i ] [ j ] ) . getswFromParentContent ( ) , Widget ( widgetsArray [ i ] [ j ] ) . getshFromParentContent ( ) ) ;
+              }
+              reposWidgets ( i ) ;
             }
-            reposWidgets ( ) ;
           }
         }
       }
@@ -561,9 +708,19 @@ package com . kisscodesystems . KissAs3Fw . app
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       currentWidgetId = 0 ;
-      contentSingle = null ;
+      contentMultiple = null ;
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          widgetsArray [ i ] [ j ] = null ;
+        }
+        widgetsArray [ i ] . splice ( 0 ) ;
+      }
       widgetsArray . splice ( 0 ) ;
       widgetsArray = null ;
+      orientationsArray . splice ( 0 ) ;
+      orientationsArray = null ;
     }
   }
 }

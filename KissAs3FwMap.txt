@@ -1,63 +1,62 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-07-06 17:35:13
+    | Generated   : 2017-07-09 19:14:47
     | Folders     : 1
-    | Files       : 43
-    | Total lines : 16112
+    | Files       : 42
+    | Total lines : 16119
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
     |           com
     |           com\kisscodesystems
     |           com\kisscodesystems\KissAs3Fw
-as  | 70        com\kisscodesystems\KissAs3Fw\Application.as
+as  | 69        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 415       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 606       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 689       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 803       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 891       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 975       com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1181      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1274      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1534      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 422       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 613       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 696       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 847       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 935       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 1019      com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1230      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1328      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1601      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1715      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1801      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 1890      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2039      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2138      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2251      com\kisscodesystems\KissAs3Fw\base\BaseScroll másolata.as
-as  | 2487      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2734      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2875      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 3161      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3537      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1824      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1910      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 1999      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2148      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2247      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2365      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2618      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2759      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 3045      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3421      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3636      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3888      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3520      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3791      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 4126      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 4251      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 4029      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 4154      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4348      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4527      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4614      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4733      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4805      com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
-as  | 4918      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 5195      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5330      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5475      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5622      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5844      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 5977      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 6135      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 6295      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6398      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6513      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6565      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 6891      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4258      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4437      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4524      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4655      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4727      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 4999      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5129      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5301      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5448      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 5670      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 5803      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 5961      com\kisscodesystems\KissAs3Fw\ui\Switcher.as
+as  | 6074      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6234      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6337      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6452      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 6504      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 6874      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -88,7 +87,7 @@ as  |     ** Has contained 42 classes initially and this is not an accident.
 as  |     **
 as  |     ** Published       : 06.21.2017
 as  |     **
-as  |     ** Current version : 1.4
+as  |     ** Current version : 1.5
 as  |     **
 as  |     ** Developed by    : Jozsef Kiss
 as  |     **                   KissCode Systems Kft
@@ -100,10 +99,17 @@ as  |     **                   1.2 - 07.02.2017
 as  |     **                   displayAsPassword is available in TextInput
 as  |     **                   the scrolling works in the BaseScroll using the mouse wheel.
 as  |     **                   1.3 - 07.05.2017
-as  |     **                   the eembedded arial font is in the demo propsDyn from now
+as  |     **                   the embedded arial font is in the demo propsDyn from now
 as  |     **                   the content will be cached as a bitmap during its movement
 as  |     **                   1.4 - 07.06.2017
 as  |     **                   small improvements in the content moving
+as  |     **                   1.5 - 07.09.2017
+as  |     **                   multiple contents are available in widgets instead of ContentSingle
+as  |     **                   multiple widget containers are also available (settings panel)
+as  |     **                   small bugfix of content moving on mobile devices
+as  |     **                   pixel stealing is improved in Color (mobile devices)
+as  |     **                   the Checkbox is Switcher from now
+as  |     **                   "about" tab on the settings panel
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -157,7 +163,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   618
+as  |        lines   626
 as  | 
 as  |     Variables:
 as  | 
@@ -222,6 +228,7 @@ as  |        public const TEXT_ENABLED_CHARS_HEX : String = "0-9a-fA-F" ;
 as  |     // The types of the usable drawn buttons.
 as  |        public const DRAW_BUTTON_TYPE_SETTINGS : String = "DRAW_BUTTON_TYPE_SETTINGS" ;
 as  |        public const DRAW_BUTTON_TYPE_MENU : String = "DRAW_BUTTON_TYPE_MENU" ;
+as  |        public const DRAW_BUTTON_TYPE_WIDGET_MOVE : String = "DRAW_BUTTON_TYPE_WIDGET_MOVE" ;
 as  |        public const DRAW_BUTTON_TYPE_WIDGETS_PREV : String = "DRAW_BUTTON_TYPE_WIDGETS_PREV" ;
 as  |        public const DRAW_BUTTON_TYPE_WIDGETS_NEXT : String = "DRAW_BUTTON_TYPE_WIDGETS_NEXT" ;
 as  |        public const DRAW_BUTTON_TYPE_WIDGETS_LIST : String = "DRAW_BUTTON_TYPE_WIDGETS_LIST" ;
@@ -349,7 +356,7 @@ as  |
 as  |     /*
 as  |     ** Adds a widget into the widgets (located in the middleground).
 as  |     */
-as  |PU      public function addWidget ( widget : Widget ) : void
+as  |PU      public function addWidget ( contentId : int , widget : Widget ) : void
 as  | 
 as  |     /*
 as  |     ** Closes a widget (located in the middleground).
@@ -712,7 +719,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BaseSprite
-as  |        lines   261
+as  |        lines   383
 as  | 
 as  |     Variables:
 as  | 
@@ -721,7 +728,14 @@ as  |        private var contentMultiple : ContentMultiple = null ;
 as  |     // The list of the widgets.
 as  |        private var widgetsLabel : TextLabel = null ;
 as  |        private var widgetsList : List = null ;
+as  |     // The list of the widgets! (on any widget container.)
 as  |        private var widgetListIndex : int = - 1 ;
+as  |     // The list of the widget container to move the widget into.
+as  |        private var widgetMoveIndex : int = - 1 ;
+as  |     // The widget to be moved.
+as  |        private var widgetToBeMoved : Widget = null ;
+as  |        private var contentsLabel : TextLabel = null ;
+as  |        private var contentsListPicker : ListPicker = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -734,6 +748,11 @@ as  |     /*
 as  |     ** Creating the multi content if it is not visible at this moment.
 as  |     */
 as  |        private function createContentMultiple ( ) : void
+as  | 
+as  |     /*
+as  |     ** Clicked elsewhere?
+as  |     */
+as  |        private function clickedElsewhere ( ) : Boolean
 as  | 
 as  |     /*
 as  |     ** Sets the active index 0.
@@ -763,9 +782,34 @@ as  |     */
 as  |        private function goToTheWidget ( e : Event ) : void
 as  | 
 as  |     /*
+as  |     ** Automatic removal of the window if the user clicks elsewhere.
+as  |     */
+as  |        private function cancelWidgetsList ( e : MouseEvent ) : void
+as  | 
+as  |     /*
 as  |     ** Destroys the list of the widgets.
 as  |     */
 as  |PU      public function closeWidgetsList ( ) : void
+as  | 
+as  |     /*
+as  |     ** Creates the listpicker of the contents.
+as  |     */
+as  |PU      public function createContentsList ( widget : Widget ) : void
+as  | 
+as  |     /*
+as  |     ** Moves the widget to the specific content.
+as  |     */
+as  |        private function moveToTheContent ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Automatic removal of the window if the user clicks elsewhere.
+as  |     */
+as  |        private function cancelMoveListPicker ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Destroys the listpicker of the contents.
+as  |     */
+as  |PU      public function closeContentsList ( ) : void
 as  | 
 as  |     /*
 as  |     ** This is the method runs after the changing of the size of this object.
@@ -997,7 +1041,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BaseSprite
-as  |        lines   474
+as  |        lines   485
 as  | 
 as  |     Variables:
 as  | 
@@ -1095,6 +1139,11 @@ as  |     */
 as  |PU      public function setElementsOfDisplayingStylesOBJ ( ) : void
 as  | 
 as  |     /*
+as  |     ** Shows the actual widget container.
+as  |     */
+as  |PU      public function showWidgetContainer ( i : int ) : void
+as  | 
+as  |     /*
 as  |     ** Updates the menuxml.
 as  |     */
 as  |PU      public function updateMenuxml ( ) : void
@@ -1160,7 +1209,7 @@ as  |
 as  |     /*
 as  |     ** Adds a widget into the widgets.
 as  |     */
-as  |PU      public function addWidget ( widget : Widget ) : void
+as  |PU      public function addWidget ( contentId : int , widget : Widget ) : void
 as  | 
 as  |     /*
 as  |     ** Closes a widget.
@@ -1204,7 +1253,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BasePanel
-as  |        lines   176
+as  |        lines   185
 as  | 
 as  |     Variables:
 as  | 
@@ -1219,6 +1268,16 @@ as  |     /*
 as  |     ** Initializing this object. The not null app reference is necessary as usual.
 as  |     */
 as  |PU      public function PanelMenu ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** The line thickness of the application has been changed.
+as  |     */
+as  |        private function lineThicknessChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The margin of the application has been changed.
+as  |     */
+as  |        private function marginChanged ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** Overwritting the setting of the width.
@@ -1244,11 +1303,6 @@ as  |     /*
 as  |     ** One of the elements has been resized.
 as  |     */
 as  |        private function elementsResize ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** The changing of the margin.
-as  |     */
-as  |        private function marginChanged ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** Resizibng and repositioning all of the elements.
@@ -1286,7 +1340,7 @@ as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
 as  |     **
 as  |     ** DESCRIPTION:
 as  |     ** PanelSettings.
-as  |     ** The panel of the settings stuff. Visible if the user clicks on the settings button.
+as  |     ** The panel of the settings stuff will be visible if the user clicks on the settings button.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - handles:
@@ -1298,31 +1352,38 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BasePanel
-as  |        lines   826
+as  |        lines   928
 as  | 
 as  |     Variables:
 as  | 
-as  |     // The multiple content.
-as  |        private var contentMultiple : ContentMultiple = null ;
 as  |     // The identifiers of the contents are:
 as  |        private var indexGeneral : int = - 1 ;
 as  |        private var indexLining : int = - 1 ;
 as  |        private var indexColoring : int = - 1 ;
 as  |        private var indexImaging : int = - 1 ;
 as  |        private var indexFonting : int = - 1 ;
+as  |        private var indexAbout : int = - 1 ;
 as  |     // The list picker should get the width of the panel as its:
-as  |        private const listPickerFAC : Number = 0.5 ;
+as  |        private const listPickerFAC : Number = 0.42 ;
 as  |     // The number of items to be visible in the opened list picker:
 as  |        private const listPickerCNT : int = 5 ;
 as  |     // langCode
 as  |        private var langCodeLAB : TextLabel = null ;
 as  |        private var langCodeOBJ : LangSetter = null ;
+as  |     // predefined disdplaying styles
+as  |        private var displayingStyleLAB : TextLabel = null ;
+as  |        private var displayingStyleOBJ : ListPicker = null ;
+as  |     // The number of the widget containers.
+as  |        private var numOfWidgetcontainersLAB : TextLabel = null ;
+as  |        private var numOfWidgetcontainersOBJ : ListPicker = null ;
+as  |        private var numOfWidgetcontainersARR : Array = null ;
+as  |     // The current widget container.
+as  |        private var currWidgetcontainerLAB : TextLabel = null ;
+as  |        private var currWidgetcontainerOBJ : ListPicker = null ;
+as  |        private var currWidgetcontainerARR : Array = null ;
 as  |     // appWidgetsOrientation
 as  |        private var appWidgetsOrientationLAB : TextLabel = null ;
 as  |        private var appWidgetsOrientationOBJ : ListPicker = null ;
-as  |     // PREDEFINED DISDPLAYING STYLES
-as  |        private var displayingStyleLAB : TextLabel = null ;
-as  |        private var displayingStyleOBJ : ListPicker = null ;
 as  |     // appLineThickness
 as  |        private var appLineThicknessLAB : TextLabel = null ;
 as  |        private var appLineThicknessOBJ : Potmet = null ;
@@ -1373,7 +1434,7 @@ as  |        private const appBackgroundAlphaMIN : Number = 0 ;
 as  |        private const appBackgroundAlphaMAX : Number = 1 ;
 as  |        private const appBackgroundAlphaINC : Number = 0.01 ;
 as  |     // appBackgroundLive
-as  |        private var appBackgroundLiveOBJ : Checkbox = null ;
+as  |        private var appBackgroundLiveOBJ : Switcher = null ;
 as  |     // appFontFace
 as  |        private var appFontFaceLAB : TextLabel = null ;
 as  |        private var appFontFaceOBJ : ListPicker = null ;
@@ -1388,9 +1449,13 @@ as  |     // appFontColorBright
 as  |        private var appFontColorDarkOBJ : ColorPicker = null ;
 as  |        private var appFontColorsLAB : TextLabel = null ;
 as  |     // appFontBold
-as  |        private var appFontBoldOBJ : Checkbox = null ;
+as  |        private var appFontBoldOBJ : Switcher = null ;
 as  |     // appFontItalic
-as  |        private var appFontItalicOBJ : Checkbox = null ;
+as  |        private var appFontItalicOBJ : Switcher = null ;
+as  |     // ABOUT
+as  |        private var applicationNameLAB : TextLabel = null ;
+as  |        private var applicationVersionLAB : TextLabel = null ;
+as  |        private var applicationReleaseDateLAB : TextLabel = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -1430,16 +1495,31 @@ as  |     */
 as  |PU      public function setElementsOfDisplayingStylesOBJ ( ) : void
 as  | 
 as  |     /*
+as  |     ** Sets the elements of the curr widget container.
+as  |     ** (It depends on the max number of widget containers selected by the user.)
+as  |     */
+as  |        private function setArraysCurrWidgetcontainerOBJ ( ) : void
+as  | 
+as  |     /*
 as  |PU   ** This would be in a public function because more fonts are available to add later.
 as  |     */
 as  |PU      public function setElementsOfAppFontFacesOBJ ( ) : void
 as  | 
 as  |     /*
+as  |     ** Shows the actual widget container.
+as  |     */
+as  |PU      public function showWidgetContainer ( i : int ) : void
+as  | 
+as  |     /*
 as  |     ** The listener functions to set the properties of the application.
 as  |     */
-as  |        private function appWidgetsOrientationOBJChanged ( e : Event ) : void
-as  | 
 as  |        private function displayingStyleOBJChanged ( e : Event ) : void
+as  | 
+as  |        private function numOfWidgetcontainersOBJChanged ( e : Event ) : void
+as  | 
+as  |        private function currWidgetcontainerOBJChanged ( e : Event ) : void
+as  | 
+as  |        private function appWidgetsOrientationOBJChanged ( e : Event ) : void
 as  | 
 as  |        private function appLineThicknessOBJchanged ( e : Event ) : void
 as  | 
@@ -1480,12 +1560,6 @@ as  |
 as  |        private function appFontItalicOBJChanged ( e : Event ) : void
 as  | 
 as  |     /*
-as  |     ** Override the mouse close method!
-as  |     ** the pixel stealing has to be not in progress.
-as  |     */
-as  |        override protected function hasToCloseByMouse ( e : MouseEvent ) : void
-as  | 
-as  |     /*
 as  |     ** Sets the displaying style by the listpicker.
 as  |     */
 as  |PU      public function setDisplayingStyleByListpicker ( styleName : String ) : void
@@ -1516,14 +1590,7 @@ as  |     ** Do the same but it is necessary to reposition the actualpos shape.
 as  |     */
 as  |PU      override public function setsw ( newsw : int ) : void
 as  | 
-as  |PU      override public function setsh ( newsh : int ) : void
-as  | 
 as  |PU      override public function setswh ( newsw : int , newsh : int ) : void
-as  | 
-as  |     /*
-as  |     ** The automatic reposition and resize of the multiple content.
-as  |     */
-as  |        private function reposResizeContentMultiple ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** Destroying this application.
@@ -1553,17 +1620,19 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BaseSprite
-as  |        lines   569
+as  |        lines   726
 as  | 
 as  |     Variables:
 as  | 
 as  |     // The id-s of the widgets!
 as  |        private var currentWidgetId : int = - 1 ;
-as  |     // The contentSingle!
-as  |        private var contentSingle : ContentSingle = null ;
-as  |     // The array of the widgets!
+as  |     // The content multiple!
+as  |        private var contentMultiple : ContentMultiple = null ;
+as  |     // The array of the widgets, two dimensional!
 as  |     // Needed for the order, contains the references to the added widgets.
 as  |        private var widgetsArray : Array = null ;
+as  |     // One dimensipnal array to store the orientations of each contents.
+as  |        private var orientationsArray : Array = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -1571,6 +1640,46 @@ as  |     /*
 as  |     ** Initializing this object. The not null app reference is necessary as usual.
 as  |     */
 as  |PU      public function Widgets ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** Adds a widget container.
+as  |     */
+as  |PU      public function addWidgetContainer ( ) : int
+as  | 
+as  |     /*
+as  |     ** Gets the widget orientation.
+as  |     */
+as  |PU      public function getWidgetOrientation ( i : int ) : String
+as  | 
+as  |     /*
+as  |     ** Gets the number of contents.
+as  |     */
+as  |PU      public function getNumOfContents ( ) : int
+as  | 
+as  |     /*
+as  |     ** Gets the count of all widgets.
+as  |     */
+as  |PU      public function getNumOfAllWidgets ( ) : int
+as  | 
+as  |     /*
+as  |     ** Sets the active container.
+as  |     */
+as  |PU      public function setActiveWidgetContainer ( i : int ) : void
+as  | 
+as  |     /*
+as  |     ** Removes a content.
+as  |     */
+as  |PU      public function removeWidgetContainer ( ) : void
+as  | 
+as  |     /*
+as  |     ** Moves all of the widgets from a content to the first content.
+as  |     */
+as  |        private function moveAllWidgetsFromContent ( contentId : int ) : void
+as  | 
+as  |     /*
+as  |     ** Moves one widget to the previous.
+as  |     */
+as  |PU      public function moveWidgetFromContent ( fromContentId : int , toContentId : int , widget : Widget , repositionRequired : Boolean ) : void
 as  | 
 as  |     /*
 as  |     ** The margin of the application has been changed.
@@ -1624,7 +1733,7 @@ as  |     ** except the not null widget.
 as  |     ** If the widget is null then everybody (including the not null widget)
 as  |     ** will lose their blur filter.
 as  |     */
-as  |        private function setOrClearGlow ( widget : Widget ) : void
+as  |        private function setOrClearGlow ( contentId : int , widget : Widget ) : void
 as  | 
 as  |     /*
 as  |     ** Repositions a widget according to the elements being backward of this.
@@ -1636,17 +1745,27 @@ as  |     /*
 as  |     ** Repositioning all of the widgets if the size of the contentSingle
 as  |     ** has changed or widgets have been removed or added.
 as  |     */
-as  |        private function reposWidgets ( ) : void
+as  |        private function reposWidgets ( contentId : int ) : void
 as  | 
 as  |     /*
-as  |     ** Getting a Widget by its id.
+as  |     ** Getting a Widget by its id. (in any widget containers)
 as  |     */
 as  |PU      public function getWidgetById ( id : int ) : Widget
 as  | 
 as  |     /*
-as  |     ** Getting a Widget by its header.
+as  |     ** Getting a Widget by its header. (in any widget containers)
 as  |     */
 as  |PU      public function getWidgetByHeader ( header : String ) : Widget
+as  | 
+as  |     /*
+as  |     ** Gets the headers of the widgets. (in any widget containers)
+as  |     */
+as  |PU      public function getWidgetHeaders ( ) : Array
+as  | 
+as  |     /*
+as  |     ** Gets the headers of the widgets. (in any widget containers)
+as  |     */
+as  |PU      public function getWidgetIds ( ) : Array
 as  | 
 as  |     /*
 as  |     ** Selects the previous or next widget from the given.
@@ -1658,32 +1777,22 @@ as  |
 as  |     /*
 as  |     ** Goes to a specific widget!
 as  |     */
-as  |PU      public function goToTheWidget ( i : int ) : void
+as  |PU      public function goToTheWidget ( widget : Widget ) : void
 as  | 
 as  |     /*
 as  |     ** Adds a widget into the widgets.
 as  |     */
-as  |PU      public function addWidget ( widget : Widget ) : void
+as  |PU      public function addWidget ( contentId : int , widget : Widget ) : void
+as  | 
+as  |     /*
+as  |     ** Changes the visible of the move button of the widgets if necessary.
+as  |     */
+as  |PU      public function changeButtonMoveVisibleOnAllWidgets ( ) : void
 as  | 
 as  |     /*
 as  |     ** Removing a Widget.
 as  |     */
 as  |PU      public function closeWidget ( widget : Widget ) : void
-as  | 
-as  |     /*
-as  |     ** Gets the headers of the widgets.
-as  |     */
-as  |PU      public function getWidgetHeaders ( ) : Array
-as  | 
-as  |     /*
-as  |     ** Gets the headers of the widgets.
-as  |     */
-as  |PU      public function getWidgetIds ( ) : Array
-as  | 
-as  |     /*
-as  |     ** Closing all of the widgets.
-as  |     */
-as  |        private function closeAllWidgets ( ) : void
 as  | 
 as  |     /*
 as  |     ** Overriding the setsw setsh and setswh functions.
@@ -2154,12 +2263,12 @@ as  |     ** This is used as a background and content for example in the setting
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - base shape (background) + content
-as  |     ** -
+as  |     ** - the content is multiple so multiple paged content is available by default!
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends BaseSprite
-as  |        lines   221
+as  |        lines   234
 as  | 
 as  |     Variables:
 as  | 
@@ -2168,7 +2277,7 @@ as  |        private var eventClosed : Event = null ;
 as  |     // The base shape object to have.
 as  |        private var baseShape : BaseShape = null ;
 as  |     // A content to hold the items.
-as  |        private var content : ContentSingle = null ;
+as  |        protected var contentMultiple : ContentMultiple = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -2178,9 +2287,9 @@ as  |     */
 as  |PU      public function BasePanel ( applicationRef : Application ) : void
 as  | 
 as  |     /*
-as  |     ** Sets the content visible.
+as  |     ** Sets the default content.
 as  |     */
-as  |        protected function setContentVisible ( b : Boolean ) : void
+as  |PU      public function setDefaultContent ( ) : void
 as  | 
 as  |     /*
 as  |     ** Overriding the setsw setsh and setswh functions.
@@ -2191,6 +2300,11 @@ as  |
 as  |PU      override public function setsh ( newsh : int ) : void
 as  | 
 as  |PU      override public function setswh ( newsw : int , newsh : int ) : void
+as  | 
+as  |     /*
+as  |     ** The line thickness of the application has been changed.
+as  |     */
+as  |        private function lineThicknessChanged ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** The margin of the application has been changed.
@@ -2240,246 +2354,10 @@ as  |
 as  |     /*
 as  |     ** The mouse is on the area of the content?
 as  |     */
-as  |        protected function mouseIsOnTheContentSingle ( ) : Boolean
+as  |        protected function mouseIsOnTheContent ( ) : Boolean
 as  | 
 as  |     /*
 as  |     ** Destroying this application.
-as  |     */
-as  |PU      override public function destroy ( ) : void
-as  | 
-    +---------------------------------------------------------------------------
-as  | com\kisscodesystems\KissAs3Fw\base\BaseScroll másolata.as
-as  | 
-as  |     BaseScroll másolata
-as  | 
-as  |     /*
-as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
-as  |     ** See the header comment lines of the
-as  |     ** com . kisscodesystems . KissAs3Fw . Application
-as  |     ** The whole framework is available at:
-as  |     ** https://github.com/kisscodesystems/KissAs3Fw
-as  |     ** Demo applications:
-as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
-as  |     **
-as  |     ** DESCRIPTION:
-as  |     ** BaseScroll.
-as  |     ** Scrolling means displaying a part of the content under a mask.
-as  |     ** This can be continuously (for example a content of a widget)
-as  |     ** or not (for example the currently displayed elements of a list).
-as  |     ** The moving of the shapes and the calculations of the coordinates of
-as  |     ** the content will happen here, the real positioning happens outside.
-as  |     ** Mouse wheel works since version 1.2.
-as  |     **
-as  |     ** MAIN FEATURES:
-as  |     ** - displaying the two rectangles
-as  |     ** - contains the two mask usable for the outside world
-as  |     ** - the mover can be dragged to trigger the reposition of the content to the outside
-as  |     ** - the target coordinates ( where to move the content) will be calculated as
-as  |     **   slow down the content continuously.
-as  |     ** - the size and the initial position of the content can be specified from outside
-as  |     ** - the outside can liten to the event of application . EVENT_CONTENT_POSITION_CHANGED
-as  |     */
-as  | 
-as  |        package com . kisscodesystems . KissAs3Fw . base
-as  |        extends BaseSprite
-as  |        lines   638
-as  | 
-as  |     Variables:
-as  | 
-as  |     // The base rectangle frame of the object.
-as  |     // This will not be moved.
-as  |        private var shapeFrame : BaseShape = null ;
-as  |     // The base shape that shows the actual position of the content.
-as  |     // This will be not movable by hand but will be moved according to the actual position.
-as  |     // Setting its coordinates can be hppened by sdetting its x and y coordinates (and not using setcxy())!
-as  |        private var shapeActualpos : BaseShape = null ;
-as  |     // The mask objects of the content.
-as  |        private var shapeMask0 : BaseShape = null ;
-as  |        private var shapeMask1 : BaseShape = null ;
-as  |     // This is the positioner of the external displayable object.
-as  |     // If this is moved then it will be returned immediately to the 0-0 coordinates.
-as  |     // The x and y property will be used instead of getcxy because this object will be dragged.
-as  |        private var spriteMover : BaseSprite = null ;
-as  |     // The event is dispatched when the position of the content is changed.
-as  |     // This can be watched by the outside world.
-as  |        private var eventContentPositionChanged : Event = null ;
-as  |     // The events of the content caching
-as  |        private var eventContentCacheBegin : Event = null ;
-as  |     // The sizes of the external content. (We have to know it to calculate the proper content position.)
-as  |        private var scw : int = 0 ;
-as  |        private var sch : int = 0 ;
-as  |     // The actual coordinates of the content (depend on the scw-sch and the current size of this basescroll.)
-as  |        private var ccx : Number = 0 ;
-as  |        private var ccy : Number = 0 ;
-as  |     // These are the target coordinates where the content will be moved into.
-as  |        private var targetx : int = 0 ;
-as  |        private var targety : int = 0 ;
-as  |     // These are the coordinates of the spriteMover in the previous frame.
-as  |     // The difference between the actual pos and the pos in the
-as  |     // previous enterframe decides the speed of the moving of the content!
-as  |        private var prevx : int = 0 ;
-as  |        private var prevy : int = 0 ;
-as  |     // The deltas of the coordinates
-as  |        private var deltax : int = 0 ;
-as  |        private var deltay : int = 0 ;
-as  |     // The mouse is down or up.
-as  |        private var mouseIsDown : Boolean = false ;
-as  | 
-as  |     Functions:
-as  | 
-as  |     /*
-as  |     ** The constructor doing the initialization of this object as usual.
-as  |     */
-as  |PU      public function BaseScroll ( applicationRef : Application ) : void
-as  | 
-as  |     /*
-as  |     ** This method will be called if the object is being added to the stage.
-as  |     ** A lot of initializing happens here because the stage is available
-as  |     ** from here.
-as  |     */
-as  |        override protected function addedToStage ( e : Event ) : void
-as  | 
-as  |        override protected function removedFromStage ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** Gets the reference to the masks.
-as  |     ** If this is a continuous content (like the content of the widget for example)
-as  |     ** then this has to be the mask of that content.
-as  |     ** There are two because the front and the back content sprite of the ContentSingle
-as  |     ** need different masks! These two have to be resized and repositioned in the same way.
-as  |     */
-as  |PU      public function getMask0 ( ) : BaseShape
-as  | 
-as  |PU      public function getMask1 ( ) : BaseShape
-as  | 
-as  |     /*
-as  |     ** Gets the reference to the spriteMover sprite.
-as  |     */
-as  |PU      public function getMover ( ) : BaseSprite
-as  | 
-as  |     /*
-as  |     ** Handles the mouse wheel event.
-as  |     */
-as  |        private function mouseWheel ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** The mouse down function.
-as  |     ** The user presses the left mouse.
-as  |     ** The target x and y coordinates will be calculated continuously
-as  |     ** and the content x and y coordinates will go to these also continuously
-as  |     ** and independently from the above.
-as  |     */
-as  |        private function mouseDown ( e : MouseEvent ) : void
-as  | 
-as  |        private function mouseMove ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** The correction of the target coordiantes.
-as  |     */
-as  |        private function targetCoordinatesCorrection ( ) : void
-as  | 
-as  |     /*
-as  |     ** The user lets the left mouse button up.
-as  |     */
-as  |        private function mouseUp ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** Positions the content continuously to the target coordinates.
-as  |     */
-as  |        private function enterFrameMoveContent ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** Dispatches when the content position has been changed.
-as  |     */
-as  |        private function dispatchEventContentPositionChanged ( ) : void
-as  | 
-as  |     /*
-as  |     ** Dispatches when the content position has to be cached.
-as  |     */
-as  |        private function dispatchEventCacheBegin ( ) : void
-as  | 
-as  |     /*
-as  |     ** Stops the spriteMover and places it into the 0-0.
-as  |     */
-as  |        private function stopMover ( ) : void
-as  | 
-as  |     /*
-as  |     ** To be able to set the coordinates of the content!
-as  |     */
-as  |PU      public function setccx ( newccx : int ) : void
-as  | 
-as  |PU      public function setccy ( newccy : int ) : void
-as  | 
-as  |PU      public function setccxcy ( newccx : int , newccy : int ) : void
-as  | 
-as  |PU      public function setccxn ( n : Number ) : void
-as  | 
-as  |PU      public function setccyn ( n : Number ) : void
-as  | 
-as  |     /*
-as  |     ** To be able to set the size of the content!
-as  |     */
-as  |PU      public function setscw ( newscw : int ) : void
-as  | 
-as  |PU      public function setsch ( newsch : int ) : void
-as  | 
-as  |PU      public function setscwch ( newscw : int , newsch : int ) : void
-as  | 
-as  |     /*
-as  |     ** Gets the actual x and y of the content.
-as  |     */
-as  |PU      public function getccx ( ) : Number
-as  | 
-as  |PU      public function getccy ( ) : Number
-as  | 
-as  |     /*
-as  |     ** Gets the actual width and height of the content.
-as  |     */
-as  |PU      public function getscw ( ) : int
-as  | 
-as  |PU      public function getsch ( ) : int
-as  | 
-as  |     /*
-as  |     ** The line thickness has been changed
-as  |     */
-as  |        private function lineThicknessChanged ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** The radius of the application has been changed.
-as  |     */
-as  |        private function radiusChanged ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** The filler color (background) of the background has been changed.
-as  |     */
-as  |        private function backgroundBgColorChanged ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** The filler color (foreground) of the background has been changed.
-as  |     */
-as  |        private function backgroundFgColorChanged ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** This is the method runs after the changing of the size of this object.
-as  |     */
-as  |        override protected function doSizeChanged ( ) : void
-as  | 
-as  |     /*
-as  |     ** Redraws the shapes and the spriteMover.
-as  |     ** Only the redrawing is here, the repositioning is elsewhere.
-as  |     */
-as  |        private function redrawShapesMover ( ) : void
-as  | 
-as  |     /*
-as  |     ** Calculating the position of the shapeActualpos by the current position of the content.
-as  |     ** If the position is invalid (lesser than 0 or greather than scroll margin)
-as  |     ** then a correction will be applied both on x and y coordinates and both on actual pos shape and on content.
-as  |     ** The masks will be also repositioned.
-as  |     */
-as  |PU      public function calcShapeActualposCoordinatesByContentPos ( ) : void
-as  | 
-as  |     /*
-as  |     ** Overwriting this destroy method.
 as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
@@ -2518,7 +2396,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends BaseSprite
-as  |        lines   691
+as  |        lines   708
 as  | 
 as  |     Variables:
 as  | 
@@ -2573,6 +2451,12 @@ as  |     /*
 as  |     ** These are not necessary to be listened to.
 as  |     */
 as  |        override protected function removedFromStage ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Callable method to simulate rollOver.
+as  |     ** (for example resizing widget on tablet or on smartphone devices)
+as  |     */
+as  |PU      public function doRollOver ( ) : void
 as  | 
 as  |     /*
 as  |     ** Mouse rolls over the mover sprite.
@@ -3653,7 +3537,7 @@ as  |     ** No destroy method.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   371
+as  |        lines   401
 as  | 
 as  |     Variables:
 as  | 
@@ -3662,6 +3546,13 @@ as  |     // IN THE CONSTRUCTOR IN THE EXTENDING CLASS OF THE APPLICATION.
 as  |     // PLEASE NOTE THAT THIS VALUE CHANGING WILL DISPATCH NO EVENTS
 as  |     // The name of the application.
 as  |        protected var applicationName : String = "Application" ;
+as  |     // The version of this application.
+as  |        protected var applicationVersion : String = "version 1.0" ;
+as  |     // The release date of this version
+as  |        protected var applicationReleaseDate : String = "06.21.2017" ;
+as  |     // The homepage of this application
+as  |        protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
+as  |        protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
 as  |     // The maximum blur of the glow filter.
 as  |        protected var maxBlur : int = 8 ;
 as  |     // Uses embed foonts or not.
@@ -3699,7 +3590,7 @@ as  |     // This will be the margin of the scroll.
 as  |     // Shows where the content is actually.
 as  |        protected var scrollMargin : int = 10 ;
 as  |     // The maximum number of widgets in the first line/column (orientation horizontal/vertical).
-as  |        protected var widgetsMaxElementsInLineOrColumn : int = 3 ;
+as  |        protected var widgetsElementsFix : int = 3 ;
 as  |     // The margin of the widgets.
 as  |        protected var widgetsMargin : int = 30 ;
 as  |     // The minimum sizes of a widget.
@@ -3753,7 +3644,9 @@ as  |        protected var langSetterMaxElements : int = 5 ;
 as  |     // The pixels to move the content after a mouse wheel.
 as  |        protected var wheelDeltaPixels : int = 30 ;
 as  |     // The size will be increased of the prev and next drawed buttons. (0.5 will be the original size factor)
-as  |        protected var buttonDrawPrevNextScale : Number = 0.7 ;
+as  |        protected var buttonDrawMovePrevNextScale : Number = 0.7 ;
+as  |     // The maximum number of widgetcontainers
+as  |        protected var maxNumOfWidgetcontainers : int = 5 ;
 as  | 
 as  |     Functions:
 as  | 
@@ -3771,6 +3664,14 @@ as  |     /*
 as  |     ** The getter functions of the properties can be overwritten in the constructor of extending class.
 as  |     */
 as  |PU      public function getApplicationName ( ) : String
+as  | 
+as  |PU      public function getApplicationVersion ( ) : String
+as  | 
+as  |PU      public function getApplicationReleaseDate ( ) : String
+as  | 
+as  |PU      public function getApplicationSoftwareHomepageTxt ( ) : Array
+as  | 
+as  |PU      public function getApplicationSoftwareHomepageUrl ( ) : Array
 as  | 
 as  |PU      public function getUseEmbedFonts ( ) : Boolean
 as  | 
@@ -3810,7 +3711,7 @@ as  |PU      public function getWeightScrollContent ( ) : int
 as  | 
 as  |PU      public function getScrollMargin ( ) : int
 as  | 
-as  |PU      public function getWidgetsMaxElementsInLineOrColumn ( ) : int
+as  |PU      public function getWidgetsElementsFix ( ) : int
 as  | 
 as  |PU      public function getWidgetsMargin ( ) : int
 as  | 
@@ -3882,7 +3783,9 @@ as  |PU      public function getLangSetterMaxElements ( ) : int
 as  | 
 as  |PU      public function getWheelDeltaPixels ( ) : int
 as  | 
-as  |PU      public function getButtonDrawPrevNextScale ( ) : Number
+as  |PU      public function getButtonDrawMovePrevNextScale ( ) : Number
+as  | 
+as  |PU      public function getMaxNumOfWidgetcontainers ( ) : int
 as  | 
     +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
@@ -3906,7 +3809,7 @@ as  |     **
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   682
+as  |        lines   680
 as  | 
 as  |     Variables:
 as  | 
@@ -4147,7 +4050,7 @@ as  |     ** No destroy method, it is constructed one time and we are done.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   366
+as  |        lines   371
 as  | 
 as  |     Variables:
 as  | 
@@ -4269,7 +4172,7 @@ as  |     ** These codes should start and end with specific strings that can be 
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   87
+as  |        lines   94
 as  | 
 as  |     Variables:
 as  | 
@@ -4307,16 +4210,21 @@ as  |     // The headers of the widgets.
 as  |        public const WIDGET_HEADER_GENERAL : String = BTC + "WIDGET_HEADER_GENERAL" + ETC ;
 as  |     // The list of the widgets.
 as  |        public const LISTS_OF_THE_WIDGETS : String = BTC + "LISTS_OF_THE_WIDGETS" + ETC ;
+as  |     // The list of the contents.
+as  |        public const LISTS_OF_THE_CONTENTS_TO_MOVE_INTO : String = BTC + "LISTS_OF_THE_CONTENTS_TO_MOVE_INTO" + ETC ;
 as  |     // Te panels of the settings.
 as  |        public const SETTINGS_PANEL_GENERAL : String = BTC + "SETTINGS_PANEL_GENERAL" + ETC ;
 as  |        public const SETTINGS_PANEL_LINING : String = BTC + "SETTINGS_PANEL_LINING" + ETC ;
 as  |        public const SETTINGS_PANEL_COLORING : String = BTC + "SETTINGS_PANEL_COLORING" + ETC ;
 as  |        public const SETTINGS_PANEL_IMAGING : String = BTC + "SETTINGS_PANEL_IMAGING" + ETC ;
 as  |        public const SETTINGS_PANEL_FONTING : String = BTC + "SETTINGS_PANEL_FONTING" + ETC ;
+as  |        public const SETTINGS_PANEL_ABOUT : String = BTC + "SETTINGS_PANEL_ABOUT" + ETC ;
 as  |     // The labels of the settings.
 as  |        public const SETTING_LANGUAGE : String = BTC + "SETTING_LANGUAGE" + ETC ;
-as  |        public const SETTING_WIDGET_ORIENTATION : String = BTC + "SETTING_WIDGET_ORIENTATION" + ETC ;
 as  |        public const SETTING_DISPLAYING_STYLE : String = BTC + "SETTING_DISPLAYING_STYLE" + ETC ;
+as  |        public const SETTING_NUM_OF_WIDGETCONTAINERS : String = BTC + "SETTING_NUM_OF_WIDGETCONTAINERS" + ETC ;
+as  |        public const SETTING_CURR_WIDGETCONTAINER : String = BTC + "SETTING_CURR_WIDGETCONTAINER" + ETC ;
+as  |        public const SETTING_WIDGET_ORIENTATION : String = BTC + "SETTING_WIDGET_ORIENTATION" + ETC ;
 as  |        public const SETTING_LINE_THICKNESS : String = BTC + "SETTING_LINE_THICKNESS" + ETC ;
 as  |        public const SETTING_MARGIN : String = BTC + "SETTING_MARGIN" + ETC ;
 as  |        public const SETTING_PADDING : String = BTC + "SETTING_PADDING" + ETC ;
@@ -4337,6 +4245,8 @@ as  |        public const SETTING_FONT_ITALIC : String = BTC + "SETTING_FONT_ITA
 as  |     // The displaying style of the application.
 as  |        public const DISPLAYING_STYLE_MODIFIED : String = BTC + "DISPLAYING_STYLE_MODIFIED" + ETC ;
 as  |        public const DISPLAYING_STYLE_BASIC : String = BTC + "DISPLAYING_STYLE_BASIC" + ETC ;
+as  |     // The default content of the multiple content component.
+as  |        public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 as  |     // The usage of the components.
 as  |        public const COMPONENTS_USAGE : String = BTC + "COMPONENTS_USAGE" + ETC ;
 as  | 
@@ -4371,7 +4281,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   418
+as  |        lines   417
 as  | 
 as  |     Variables:
 as  | 
@@ -4548,7 +4458,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseWorkingButton
-as  |        lines   242
+as  |        lines   250
 as  | 
 as  |     Variables:
 as  | 
@@ -4634,7 +4544,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   232
+as  |        lines   258
 as  | 
 as  |     Variables:
 as  | 
@@ -4651,6 +4561,8 @@ as  |        private var eventClick : Event = null ;
 as  |     // This will be the current state to be painted:
 as  |     // -1: pushed, 0: general, 1: unpushed, 2: no background to paint
 as  |        private var state : int = 2 ;
+as  |     // The url to be specified. When it is set then the default browser will navigate to this url.
+as  |        private var url : String = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -4684,6 +4596,16 @@ as  |
 as  |        private function mouseDown ( e : MouseEvent ) : void
 as  | 
 as  |        private function click ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the url if that is not empty.
+as  |     */
+as  |        private function navigateToUrlIfNotEmpy ( ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the url.
+as  |     */
+as  |PU      public function setUrl ( s : String ) : void
 as  | 
 as  |     /*
 as  |     ** When the resize is needed.
@@ -4802,119 +4724,6 @@ as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
     +---------------------------------------------------------------------------
-as  | com\kisscodesystems\KissAs3Fw\ui\Checkbox.as
-as  | 
-as  |     Checkbox
-as  | 
-as  |     /*
-as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
-as  |     ** See the header comment lines of the
-as  |     ** com . kisscodesystems . KissAs3Fw . Application
-as  |     ** The whole framework is available at:
-as  |     ** https://github.com/kisscodesystems/KissAs3Fw
-as  |     ** Demo applications:
-as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
-as  |     **
-as  |     ** DESCRIPTION:
-as  |     ** Checkbox.
-as  |     ** An object that can be checked or unchecked.
-as  |     **
-as  |     ** MAIN FEATURES:
-as  |     ** - check, uncheck
-as  |     ** - different text codes are able to specify for checked and unchecked state
-as  |     */
-as  | 
-as  |        package com . kisscodesystems . KissAs3Fw . ui
-as  |        extends BaseSprite
-as  |        lines   275
-as  | 
-as  |     Variables:
-as  | 
-as  |     // The padding size of the drawn.
-as  |        private var drawnPadding : int = 0 ;
-as  |     // The label of this checkbox.
-as  |        private var textLabel : TextLabel = null ;
-as  |     // The foreground of the checkbox.
-as  |        private var foregroundSprite : BaseSprite = null ;
-as  |     // This will be drawn.
-as  |        private var drawn : BaseShape = null ;
-as  |     // And this will contain the drawn.
-as  |        private var drawnContainer : BaseSprite = null ;
-as  |     // The text of the checked and unchecked checkbox.
-as  |        private var textChecked : String = null ;
-as  |        private var textUncheck : String = null ;
-as  |     // Checked or not.
-as  |        private var checked : Boolean = false ;
-as  |     // The event object to be dispatched.
-as  |        private var eventChanged : Event = null ;
-as  |     // The glow filter of the checked checkbox.
-as  |        private var glowFilter : GlowFilter = null ;
-as  | 
-as  |     Functions:
-as  | 
-as  |     /*
-as  |     ** The constructor doing the initialization of this object as usual.
-as  |     */
-as  |PU      public function Checkbox ( applicationRef : Application ) : void
-as  | 
-as  |     /*
-as  |     ** Mouse down on the foreground.
-as  |     */
-as  |        private function foregroundSpriteMouseDown ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** Click on the foreground: let's modify the value to its opposite.
-as  |     */
-as  |        private function foregroundSpriteClick ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** Roll out on the foreground.
-as  |     */
-as  |        private function foregroundSpriteRollOut ( e : MouseEvent ) : void
-as  | 
-as  |     /*
-as  |     ** Overriding the setsw setsh and setswh functions.
-as  |     ** setsh and setswh: should be out of order!
-as  |     ** The sh depends on the number of elements to be displayed.
-as  |     */
-as  |PU      override public function setsw ( newsw : int ) : void { }
-as  | 
-as  |PU      override public function setsh ( newsh : int ) : void { }
-as  | 
-as  |PU      override public function setswh ( newsw : int , newsh : int ) : void { }
-as  | 
-as  |     /*
-as  |     ** The content of the label or some of the properties of the application has been changed.
-as  |     */
-as  |        private function resize ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** Draws the checkbox.
-as  |     */
-as  |        private function draw ( buttonDown : Boolean = false ) : void
-as  | 
-as  |     /*
-as  |     ** Gets the selection of the checkbox.
-as  |     */
-as  |PU      public function getChecked ( ) : Boolean
-as  | 
-as  |     /*
-as  |     ** Sets the selection if it is different from the current value
-as  |     ** and does all of the configuration.
-as  |     */
-as  |PU      public function setChecked ( s : Boolean ) : void
-as  | 
-as  |     /*
-as  |     ** Sets the texts (tc: checked text, tu: unchecked text) of this checkbox.
-as  |     */
-as  |PU      public function setTextCodes ( tc : String , tu : String ) : void
-as  | 
-as  |     /*
-as  |     ** Overriding this destroy method.
-as  |     */
-as  |PU      override public function destroy ( ) : void
-as  | 
-    +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\ui\Color.as
 as  | 
 as  |     Color
@@ -4945,7 +4754,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   995
+as  |        lines   988
 as  | 
 as  |     Variables:
 as  | 
@@ -5157,11 +4966,6 @@ as  |     */
 as  |        private function stealPixel ( e : MouseEvent ) : void
 as  | 
 as  |     /*
-as  |     ** Is the pixel stealing in progress?
-as  |     */
-as  |PU      public function isPixelStealingInProgress ( ) : Boolean
-as  | 
-as  |     /*
 as  |     ** Gets the pixel from the stage.
 as  |     */
 as  |        private function getColorFromStage ( e : Event ) : void
@@ -5216,7 +5020,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseOpen
-as  |        lines   235
+as  |        lines   228
 as  | 
 as  |     Variables:
 as  | 
@@ -5297,11 +5101,6 @@ as  |     */
 as  |        override protected function hasToCloseByMouse ( e : MouseEvent ) : void
 as  | 
 as  |     /*
-as  |     ** Needed to decide the closure of the settings panel.
-as  |     */
-as  |PU      public function isPixelStealingInProgress ( ) : Boolean
-as  | 
-as  |     /*
 as  |     ** Calling the super . setswh ( )
 as  |     */
 as  |        private function superSetswh ( ) : void
@@ -5353,7 +5152,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   300
+as  |        lines   348
 as  | 
 as  |     Variables:
 as  | 
@@ -5375,14 +5174,31 @@ as  |     */
 as  |PU      override public function setEnabled ( e : Boolean ) : void
 as  | 
 as  |     /*
+as  |     ** Sets the default content.
+as  |     */
+as  |PU      public function setDefaultContent ( ) : void
+as  | 
+as  |     /*
 as  |     ** Sets the max elementsArray of the line or column in a content.
 as  |     */
 as  |PU      public function setElementsFix ( index : int , e : int ) : void
+as  | 
+as  |PU      public function getElementsFix ( index : int ) : int
 as  | 
 as  |     /*
 as  |     ** Sets the orientation of one of the contents.
 as  |     */
 as  |PU      public function setOrientation ( index : int , o : String ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the content single by its index.
+as  |     */
+as  |PU      public function getContentSingle ( index : int ) : ContentSingle
+as  | 
+as  |     /*
+as  |     ** Gets the content single by its index.
+as  |     */
+as  |PU      public function getBaseScroll ( index : int ) : BaseScroll
 as  | 
 as  |     /*
 as  |     ** Sets the visible of the button bar.
@@ -5465,6 +5281,16 @@ as  |
 as  |PU      override public function setsh ( newsh : int ) : void
 as  | 
 as  |PU      override public function setswh ( newsw : int , newsh : int ) : void
+as  | 
+as  |     /*
+as  |     ** Resizes all of the contents.
+as  |     */
+as  |        private function resizeAllContents ( ) : void
+as  | 
+as  |     /*
+as  |     ** Resizes one content.
+as  |     */
+as  |        private function resizeContent ( content : ContentSingle ) : void
 as  | 
 as  |     /*
 as  |     ** Overriding this destroy method.
@@ -6132,6 +5958,119 @@ as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
     +---------------------------------------------------------------------------
+as  | com\kisscodesystems\KissAs3Fw\ui\Switcher.as
+as  | 
+as  |     Switcher
+as  | 
+as  |     /*
+as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
+as  |     ** See the header comment lines of the
+as  |     ** com . kisscodesystems . KissAs3Fw . Application
+as  |     ** The whole framework is available at:
+as  |     ** https://github.com/kisscodesystems/KissAs3Fw
+as  |     ** Demo applications:
+as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
+as  |     **
+as  |     ** DESCRIPTION:
+as  |     ** Switcher.
+as  |     ** An object that can be up or down.
+as  |     **
+as  |     ** MAIN FEATURES:
+as  |     ** - states: up (true) or down (false)
+as  |     ** - different text codes are able to specify for up and down state
+as  |     */
+as  | 
+as  |        package com . kisscodesystems . KissAs3Fw . ui
+as  |        extends BaseSprite
+as  |        lines   275
+as  | 
+as  |     Variables:
+as  | 
+as  |     // The padding size of the drawn.
+as  |        private var drawnPadding : int = 0 ;
+as  |     // The label of this switcher.
+as  |        private var textLabel : TextLabel = null ;
+as  |     // The foreground of the switcher.
+as  |        private var foregroundSprite : BaseSprite = null ;
+as  |     // This will be drawn.
+as  |        private var drawn : BaseShape = null ;
+as  |     // And this will contain the drawn.
+as  |        private var drawnContainer : BaseSprite = null ;
+as  |     // The text of the up and down switcher.
+as  |        private var textUp : String = null ;
+as  |        private var textDown : String = null ;
+as  |     // up or not.
+as  |        private var up : Boolean = false ;
+as  |     // The event object to be dispatched.
+as  |        private var eventChanged : Event = null ;
+as  |     // The glow filter of the up switcher.
+as  |        private var glowFilter : GlowFilter = null ;
+as  | 
+as  |     Functions:
+as  | 
+as  |     /*
+as  |     ** The constructor doing the initialization of this object as usual.
+as  |     */
+as  |PU      public function Switcher ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** Mouse down on the foreground.
+as  |     */
+as  |        private function foregroundSpriteMouseDown ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Click on the foreground: let's modify the value to its opposite.
+as  |     */
+as  |        private function foregroundSpriteClick ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Roll out on the foreground.
+as  |     */
+as  |        private function foregroundSpriteRollOut ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Overriding the setsw setsh and setswh functions.
+as  |     ** setsh and setswh: should be out of order!
+as  |     ** The sh depends on the number of elements to be displayed.
+as  |     */
+as  |PU      override public function setsw ( newsw : int ) : void { }
+as  | 
+as  |PU      override public function setsh ( newsh : int ) : void { }
+as  | 
+as  |PU      override public function setswh ( newsw : int , newsh : int ) : void { }
+as  | 
+as  |     /*
+as  |     ** The content of the label or some of the properties of the application has been changed.
+as  |     */
+as  |        private function resize ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Draws the switcher.
+as  |     */
+as  |        private function draw ( buttonDown : Boolean = false ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the selection of the switcher.
+as  |     */
+as  |PU      public function getUp ( ) : Boolean
+as  | 
+as  |     /*
+as  |     ** Sets the selection if it is different from the current value
+as  |     ** and does all of the configuration.
+as  |     */
+as  |PU      public function setUp ( s : Boolean ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the texts (tu: up text, td: down text) of this switcher.
+as  |     */
+as  |PU      public function setTextCodes ( tu : String , td : String ) : void
+as  | 
+as  |     /*
+as  |     ** Overriding this destroy method.
+as  |     */
+as  |PU      override public function destroy ( ) : void
+as  | 
+    +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\ui\TextArea.as
 as  | 
 as  |     TextArea
@@ -6581,11 +6520,11 @@ as  |     ** This object will be the replacement of a usual window.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - can be:
-as  |     **   - added to the contentSingle of the Widgets (implemented in Widgets class)
+as  |     **   - added to the content of the Widgets (implemented in Widgets class)
 as  |     **   - repositioned (implemented in Widgets class)
-as  |     **   - closed and removed from the contentSingle of the widgets (implemented in Widgets clas)
+as  |     **   - closed and removed from the content of the widgets (implemented in Widgets clas)
 as  |     **   - resized
-as  |     **   - minimised (contentSingle hide, only the header is visible)
+as  |     **   - minimised (content hide, only the header is visible)
 as  |     ** - cannot be under each other
 as  |     ** - new widgets should extend this
 as  |     ** - can have an id and a type and these can be set once.
@@ -6593,7 +6532,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   786
+as  |        lines   885
 as  | 
 as  |     Variables:
 as  | 
@@ -6619,8 +6558,8 @@ as  |     // Double click on it results the close me event to the outside.
 as  |        private var closer : BaseSprite = null ;
 as  |     // The resizer of this widget.
 as  |        private var resizer : BaseSprite = null ;
-as  |     // And the contentSingle of this widget.
-as  |        private var contentSingle : ContentSingle = null ;
+as  |     // And the contentMultiple of this widget.
+as  |        private var contentMultiple : ContentMultiple = null ;
 as  |     // To be able to determine: the widget is moved or not.
 as  |        private var prevMouseX : int = 0 ;
 as  |        private var prevMouseY : int = 0 ;
@@ -6636,9 +6575,12 @@ as  |        private var prevX : Number = 0 ;
 as  |        private var prevY : Number = 0 ;
 as  |        private var widgetInMove : Boolean = false ;
 as  |     // The buttons of the navigation.
+as  |        private var buttonDrawMove : ButtonDraw = null ;
 as  |        private var buttonDrawPrev : ButtonDraw = null ;
 as  |        private var buttonDrawNext : ButtonDraw = null ;
 as  |        private var buttonDrawList : ButtonDraw = null ;
+as  |     // The id of the content.
+as  |        private var contentId : int = 0 ;
 as  | 
 as  |     Functions:
 as  | 
@@ -6657,18 +6599,32 @@ as  |
 as  |        override protected function removedFromStage ( e : Event ) : void
 as  | 
 as  |     /*
-as  |     ** Sets the visibleof the buttons located in the header.
+as  |     ** Sets and gets the id of the content of this widget.
 as  |     */
-as  |PU      public function setButtonVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
+as  |PU      public function setContentId ( cid : int ) : void
+as  | 
+as  |PU      public function getContentId ( ) : int
 as  | 
 as  |     /*
-as  |     ** Sets the orientation of the content.
+as  |     ** Sets the visible of the buttons located in the header.
 as  |     */
-as  |PU      public function setOrientation ( o : String ) : void
+as  |PU      public function setButtonsVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the visible of the buttons located in the header.
+as  |     */
+as  |PU      public function setButtonMoveVisible ( move : Boolean ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the orientation of a content.
+as  |     */
+as  |PU      public function setOrientation ( index : int , o : String ) : void
 as  | 
 as  |     /*
 as  |     ** Navigates on the widgets.
 as  |     */
+as  |        private function buttonDrawMoveClick ( e : Event ) : void
+as  | 
 as  |        private function buttonDrawPrevClick ( e : Event ) : void
 as  | 
 as  |        private function buttonDrawNextClick ( e : Event ) : void
@@ -6681,7 +6637,7 @@ as  |     */
 as  |        private function closerDoubleClick ( e : MouseEvent ) : void
 as  | 
 as  |     /*
-as  |     ** Gets the size of the contentSingle.
+as  |     ** Gets the size of the content.
 as  |     */
 as  |PU      public function getContentsw ( ) : int
 as  | 
@@ -6690,7 +6646,7 @@ as  |
 as  |     /*
 as  |     ** Gets the event dispatcher of the content.
 as  |     */
-as  |PU      public function getContentBaseEventDispatcher ( ) : EventDispatcher
+as  |PU      public function getContentBaseEventDispatcher ( ) : BaseEventDispatcher
 as  | 
 as  |     /*
 as  |     ** The header has to be at visible space all the time.
@@ -6735,7 +6691,7 @@ as  |        private function enterFrameCheckMovement ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** Overrides the setsh method!
-as  |     ** If the contentSingle of the widget hides then the height will be reduced!
+as  |     ** If the content of the widget hides then the height will be reduced!
 as  |     ** (just for displaying, the sh property will beuntouched in case of masking)
 as  |     */
 as  |PU      override public function getsh ( ) : int
@@ -6752,7 +6708,7 @@ as  |     */
 as  |        private function enterFrameUpdateResizer ( e : Event ) : void
 as  | 
 as  |     /*
-as  |     ** Hides or unhides the contentSingle of the widget.
+as  |     ** Hides or unhides the content of the widget.
 as  |     */
 as  |PU      public function setHidden ( hidden : Boolean ) : void
 as  | 
@@ -6762,21 +6718,48 @@ as  |     */
 as  |PU      public function getHidden ( ) : Boolean
 as  | 
 as  |     /*
-as  |     ** Adds an element to the content sprite.
+as  |     ** Sets the default content.
 as  |     */
-as  |PU      public function addToContent ( displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+as  |PU      public function setDefaultContent ( ) : void
 as  | 
 as  |     /*
-as  |     ** To remove an element from the contentSingle of this widget.
+as  |     ** Adds a content and returns the index of the content.
+as  |     ** Unique elements can be added as the labels of the buttons.
 as  |     */
-as  |PU      public function removeFromContent ( displayObject : DisplayObject ) : void
+as  |PU      public function addContent ( label : String ) : int
+as  | 
+as  |     /*
+as  |     ** Removes a content.
+as  |     */
+as  |PU      public function removeContent ( i : int ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the active index.
+as  |     */
+as  |PU      public function setActiveContent ( index : int ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the visible of the button bar.
+as  |     ** (If it is not visible then the contents will be resized!)
+as  |     */
+as  |PU      public function setButtonBarVisible ( v : Boolean ) : void
+as  | 
+as  |     /*
+as  |     ** Adds an element to the content sprite.
+as  |     */
+as  |PU      public function addToContent ( index : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+as  | 
+as  |     /*
+as  |     ** To remove an element from the contentMultiple of this widget.
+as  |     */
+as  |PU      public function removeFromContent ( index : int , displayObject : DisplayObject ) : void
 as  | 
 as  |     /*
 as  |     ** Sets and gets the max elementsArray of the line or column in the content.
 as  |     */
-as  |PU      public function setElementsFix ( es : int ) : void
+as  |PU      public function setElementsFix ( index : int , es : int ) : void
 as  | 
-as  |PU      public function getElementsFix ( ) : int
+as  |PU      public function getElementsFix ( index : int ) : int
 as  | 
 as  |     /*
 as  |     ** In case of resizing the drawed buttons, the elements have to be resized and repositioned.

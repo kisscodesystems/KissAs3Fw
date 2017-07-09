@@ -13,12 +13,12 @@
 **
 ** MAIN FEATURES:
 ** - base shape (background) + content
-** -
+** - the content is multiple so multiple paged content is available by default!
 */
 package com . kisscodesystems . KissAs3Fw . base
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
-  import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
+  import com . kisscodesystems . KissAs3Fw . ui . ContentMultiple ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
   public class BasePanel extends BaseSprite
@@ -28,7 +28,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // The base shape object to have.
     private var baseShape : BaseShape = null ;
 // A content to hold the items.
-    private var content : ContentSingle = null ;
+    protected var contentMultiple : ContentMultiple = null ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -44,9 +44,10 @@ package com . kisscodesystems . KissAs3Fw . base
       baseShape . setdb ( true ) ;
       baseShape . setdt ( - 1 ) ;
 // The content.
-      content = new ContentSingle ( application ) ;
-      addChild ( content ) ;
-// Registering onto these.
+      contentMultiple = new ContentMultiple ( application ) ;
+      addChild ( contentMultiple ) ;
+// Registering into these events.
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
@@ -56,11 +57,14 @@ package com . kisscodesystems . KissAs3Fw . base
       visible = false ;
     }
 /*
-** Sets the content visible.
+** Sets the default content.
 */
-    protected function setContentVisible ( b : Boolean ) : void
+    public function setDefaultContent ( ) : void
     {
-      content . visible = b ;
+      if ( contentMultiple != null )
+      {
+        contentMultiple . setDefaultContent ( ) ;
+      }
     }
 /*
 ** Overriding the setsw setsh and setswh functions.
@@ -89,6 +93,14 @@ package com . kisscodesystems . KissAs3Fw . base
         super . setswh ( newsw , newsh ) ;
         stuffsResize ( ) ;
       }
+    }
+/*
+** The line thickness of the application has been changed.
+*/
+    private function lineThicknessChanged ( e : Event ) : void
+    {
+// So we have to redraw and resize.
+      stuffsResize ( ) ;
     }
 /*
 ** The margin of the application has been changed.
@@ -141,8 +153,8 @@ package com . kisscodesystems . KissAs3Fw . base
         baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
         baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
         baseShape . drawRect ( ) ;
-        content . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-        content . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , getsh ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+        contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppMargin ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+        contentMultiple . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) , getsh ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
       }
     }
 /*
@@ -178,7 +190,7 @@ package com . kisscodesystems . KissAs3Fw . base
 */
     protected function hasToCloseByMouse ( e : MouseEvent ) : void
     {
-      if ( ! mouseIsOnTheContentSingle ( ) )
+      if ( ! mouseIsOnTheContent ( ) )
       {
         close ( ) ;
       }
@@ -186,7 +198,7 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The mouse is on the area of the content?
 */
-    protected function mouseIsOnTheContentSingle ( ) : Boolean
+    protected function mouseIsOnTheContent ( ) : Boolean
     {
       return ( mouseX >= 0 && mouseX <= getsw ( ) && mouseY >= 0 && mouseY <= getsh ( ) ) ;
     }
@@ -200,6 +212,7 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         stage . removeEventListener ( MouseEvent . MOUSE_DOWN , hasToCloseByMouse ) ;
       }
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
@@ -215,7 +228,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // 4: every reference and value should be resetted to null, 0 or false.
       eventClosed = null ;
       baseShape = null ;
-      content = null ;
+      contentMultiple = null ;
     }
   }
 }

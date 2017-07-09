@@ -120,7 +120,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( stage != null )
       {
-        stage . removeEventListener ( MouseEvent . MOUSE_DOWN , getColorFromStage ) ;
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , getColorFromStage ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , stealPixelMouseMove ) ;
         stage . removeEventListener ( Event . RESIZE , stageResized ) ;
         stage . removeEventListener ( KeyboardEvent . KEY_UP , stealPixelKeyUp ) ;
@@ -166,11 +166,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         if ( getEnabled ( ) )
         {
-          panelColorActual . addEventListener ( MouseEvent . CLICK , stealPixel ) ;
+          panelColorActual . addEventListener ( MouseEvent . MOUSE_DOWN , stealPixel ) ;
         }
         else
         {
-          panelColorActual . removeEventListener ( MouseEvent . CLICK , stealPixel ) ;
+          panelColorActual . removeEventListener ( MouseEvent . MOUSE_DOWN , stealPixel ) ;
         }
       }
       if ( panelColorDefault != null )
@@ -785,7 +785,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( stage != null && inputRgb != null )
       {
         application . getBackground ( ) . stealPixel ( true ) ;
-        stage . addEventListener ( MouseEvent . MOUSE_DOWN , getColorFromStage , false , 0 , true ) ;
+        stage . addEventListener ( MouseEvent . MOUSE_UP , getColorFromStage , false , 0 , true ) ;
         stage . addEventListener ( MouseEvent . MOUSE_MOVE , stealPixelMouseMove , false , 0 , true ) ;
         stage . addEventListener ( Event . RESIZE , stageResized , false , 0 , true ) ;
         stage . addEventListener ( KeyboardEvent . KEY_UP , stealPixelKeyUp , false , 0 , true ) ;
@@ -799,13 +799,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         stealPixelColorText . background = true ;
         stealPixelColorText . backgroundColor = Number ( application . COLOR_HEX_TO_NUMBER_STRING + stealPixelColorText . text ) ;
       }
-    }
-/*
-** Is the pixel stealing in progress?
-*/
-    public function isPixelStealingInProgress ( ) : Boolean
-    {
-      return stealPixelSprite != null ;
     }
 /*
 ** Gets the pixel from the stage.
@@ -891,7 +884,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBackground ( ) . stealPixel ( false ) ;
       if ( stage != null )
       {
-        stage . removeEventListener ( MouseEvent . MOUSE_DOWN , getColorFromStage ) ;
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , getColorFromStage ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , stealPixelMouseMove ) ;
         stage . removeEventListener ( Event . RESIZE , stageResized ) ;
         stage . removeEventListener ( KeyboardEvent . KEY_UP , stealPixelKeyUp ) ;
@@ -940,7 +933,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       inputRgb . removeEventListener ( Event . CHANGE , onChangeInputRgbText ) ;
       if ( stage != null )
       {
-        stage . removeEventListener ( MouseEvent . MOUSE_DOWN , getColorFromStage ) ;
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , getColorFromStage ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , stealPixelMouseMove ) ;
         stage . removeEventListener ( Event . RESIZE , stageResized ) ;
         stage . removeEventListener ( KeyboardEvent . KEY_UP , stealPixelKeyUp ) ;

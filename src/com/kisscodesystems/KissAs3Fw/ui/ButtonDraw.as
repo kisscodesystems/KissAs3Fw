@@ -107,9 +107,17 @@ package com . kisscodesystems . KissAs3Fw . ui
           baseShape . graphics . moveTo ( getsw ( ) / 4 * 3 , getsh ( ) / 4 ) ;
           baseShape . graphics . lineTo ( getsw ( ) / 4 * 3 , getsh ( ) / 4 * 3 ) ;
         }
+        else if ( buttonType == application . DRAW_BUTTON_TYPE_WIDGET_MOVE )
+        {
+          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawMovePrevNextScale ( ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) ) ;
+          baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
+          baseShape . graphics . moveTo ( getsw ( ) / 4 , getsh ( ) / 4 ) ;
+          baseShape . graphics . lineTo ( getsw ( ) / 4 * 3 - application . getPropsApp ( ) . getDrawOtherLineThickness ( ) , getsh ( ) / 4 * 2 ) ;
+          baseShape . graphics . lineTo ( getsw ( ) / 4 , getsh ( ) / 4 * 3 ) ;
+        }
         else if ( buttonType == application . DRAW_BUTTON_TYPE_WIDGETS_PREV )
         {
-          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawPrevNextScale ( ) ) ;
+          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawMovePrevNextScale ( ) ) ;
           baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
           baseShape . graphics . moveTo ( getsw ( ) / 4 , getsh ( ) / 4 * 3 - application . getPropsApp ( ) . getDrawOtherLineThickness ( ) ) ;
           baseShape . graphics . lineTo ( getsw ( ) / 2 , getsh ( ) / 4 ) ;
@@ -117,7 +125,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         else if ( buttonType == application . DRAW_BUTTON_TYPE_WIDGETS_NEXT )
         {
-          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawPrevNextScale ( ) ) ;
+          super . setswh ( application . getPropsDyn ( ) . getTextFieldHeight ( textType ) , application . getPropsDyn ( ) . getTextFieldHeight ( textType ) * application . getPropsApp ( ) . getButtonDrawMovePrevNextScale ( ) ) ;
           baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
           baseShape . graphics . moveTo ( getsw ( ) / 4 , getsh ( ) / 4 ) ;
           baseShape . graphics . lineTo ( getsw ( ) / 2 , getsh ( ) / 4 * 3 - application . getPropsApp ( ) . getDrawOtherLineThickness ( ) ) ;

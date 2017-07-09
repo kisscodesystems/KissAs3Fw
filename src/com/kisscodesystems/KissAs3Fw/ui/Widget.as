@@ -13,11 +13,11 @@
 **
 ** MAIN FEATURES:
 ** - can be:
-**   - added to the contentSingle of the Widgets (implemented in Widgets class)
+**   - added to the content of the Widgets (implemented in Widgets class)
 **   - repositioned (implemented in Widgets class)
-**   - closed and removed from the contentSingle of the widgets (implemented in Widgets clas)
+**   - closed and removed from the content of the widgets (implemented in Widgets clas)
 **   - resized
-**   - minimised (contentSingle hide, only the header is visible)
+**   - minimised (content hide, only the header is visible)
 ** - cannot be under each other
 ** - new widgets should extend this
 ** - can have an id and a type and these can be set once.
@@ -26,11 +26,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . app . Widgets ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseEventDispatcher ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import flash . display . DisplayObject ;
   import flash . events . Event ;
-  import flash . events . EventDispatcher ;
   import flash . events . MouseEvent ;
   public class Widget extends BaseSprite
   {
@@ -56,8 +56,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var closer : BaseSprite = null ;
 // The resizer of this widget.
     private var resizer : BaseSprite = null ;
-// And the contentSingle of this widget.
-    private var contentSingle : ContentSingle = null ;
+// And the contentMultiple of this widget.
+    private var contentMultiple : ContentMultiple = null ;
 // To be able to determine: the widget is moved or not.
     private var prevMouseX : int = 0 ;
     private var prevMouseY : int = 0 ;
@@ -73,9 +73,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var prevY : Number = 0 ;
     private var widgetInMove : Boolean = false ;
 // The buttons of the navigation.
+    private var buttonDrawMove : ButtonDraw = null ;
     private var buttonDrawPrev : ButtonDraw = null ;
     private var buttonDrawNext : ButtonDraw = null ;
     private var buttonDrawList : ButtonDraw = null ;
+// The id of the content.
+    private var contentId : int = 0 ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -95,9 +98,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( baseShape ) ;
       baseShape . setdb ( false ) ;
       baseShape . setdt ( - 1 ) ;
-// Creating the contentSingle.
-      contentSingle = new ContentSingle ( application ) ;
-      addChild ( contentSingle ) ;
+// Creating the contentMultiple.
+      contentMultiple = new ContentMultiple ( application ) ;
+      addChild ( contentMultiple ) ;
 // Creating the header (label + mover) of this widget.
       backLabel = new BaseShape ( application ) ;
       addChild ( backLabel ) ;
@@ -111,6 +114,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( mover ) ;
       mover . addEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
 // The widget navigator buttons.
+      buttonDrawMove = new ButtonDraw ( application ) ;
+      addChild ( buttonDrawMove ) ;
+      buttonDrawMove . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGET_MOVE ) ;
+      buttonDrawMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawMoveClick ) ;
+      buttonDrawMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonDrawResized ) ;
       buttonDrawPrev = new ButtonDraw ( application ) ;
       addChild ( buttonDrawPrev ) ;
       buttonDrawPrev . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGETS_PREV ) ;
@@ -166,9 +174,20 @@ package com . kisscodesystems . KissAs3Fw . ui
       super . removedFromStage ( e ) ;
     }
 /*
-** Sets the visibleof the buttons located in the header.
+** Sets and gets the id of the content of this widget.
 */
-    public function setButtonVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
+    public function setContentId ( cid : int ) : void
+    {
+      contentId = cid ;
+    }
+    public function getContentId ( ) : int
+    {
+      return contentId ;
+    }
+/*
+** Sets the visible of the buttons located in the header.
+*/
+    public function setButtonsVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
     {
       if ( buttonDrawPrev != null )
       {
@@ -193,15 +212,33 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** Sets the orientation of the content.
+** Sets the visible of the buttons located in the header.
 */
-    public function setOrientation ( o : String ) : void
+    public function setButtonMoveVisible ( move : Boolean ) : void
     {
-      contentSingle . setOrientation ( o ) ;
+      if ( buttonDrawMove != null )
+      {
+        if ( buttonDrawMove . visible != move )
+        {
+          buttonDrawMove . visible = move ;
+        }
+      }
+    }
+/*
+** Sets the orientation of a content.
+*/
+    public function setOrientation ( index : int , o : String ) : void
+    {
+      contentMultiple . setOrientation ( index , o ) ;
     }
 /*
 ** Navigates on the widgets.
 */
+    private function buttonDrawMoveClick ( e : Event ) : void
+    {
+      buttonDrawMove . setEnabled ( true ) ;
+      application . getForeground ( ) . createContentsList ( this ) ;
+    }
     private function buttonDrawPrevClick ( e : Event ) : void
     {
       buttonDrawPrev . setEnabled ( true ) ;
@@ -226,22 +263,22 @@ package com . kisscodesystems . KissAs3Fw . ui
       getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetCloseMe ) ;
     }
 /*
-** Gets the size of the contentSingle.
+** Gets the size of the content.
 */
     public function getContentsw ( ) : int
     {
-      return contentSingle . getsw ( ) ;
+      return contentMultiple . getsw ( ) ;
     }
     public function getContentsh ( ) : int
     {
-      return contentSingle . getsh ( ) ;
+      return contentMultiple . getsh ( ) ;
     }
 /*
 ** Gets the event dispatcher of the content.
 */
-    public function getContentBaseEventDispatcher ( ) : EventDispatcher
+    public function getContentBaseEventDispatcher ( ) : BaseEventDispatcher
     {
-      return contentSingle . getBaseEventDispatcher ( ) ;
+      return contentMultiple . getBaseEventDispatcher ( ) ;
     }
 /*
 ** The header has to be at visible space all the time.
@@ -410,7 +447,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     }
 /*
 ** Overrides the setsh method!
-** If the contentSingle of the widget hides then the height will be reduced!
+** If the content of the widget hides then the height will be reduced!
 ** (just for displaying, the sh property will beuntouched in case of masking)
 */
     override public function getsh ( ) : int
@@ -455,7 +492,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** Hides or unhides the contentSingle of the widget.
+** Hides or unhides the content of the widget.
 */
     public function setHidden ( hidden : Boolean ) : void
     {
@@ -485,29 +522,78 @@ package com . kisscodesystems . KissAs3Fw . ui
       return mask != null ;
     }
 /*
-** Adds an element to the content sprite.
+** Sets the default content.
 */
-    public function addToContent ( displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+    public function setDefaultContent ( ) : void
     {
-      contentSingle . addToContent ( displayObject , normal , cellIndex ) ;
+      if ( contentMultiple != null )
+      {
+        contentMultiple . setDefaultContent ( ) ;
+      }
     }
 /*
-** To remove an element from the contentSingle of this widget.
+** Adds a content and returns the index of the content.
+** Unique elements can be added as the labels of the buttons.
 */
-    public function removeFromContent ( displayObject : DisplayObject ) : void
+    public function addContent ( label : String ) : int
     {
-      contentSingle . removeFromContent ( displayObject ) ;
+      return contentMultiple . addContent ( label ) ;
+    }
+/*
+** Removes a content.
+*/
+    public function removeContent ( i : int ) : void
+    {
+      if ( contentMultiple != null )
+      {
+        contentMultiple . removeContent ( i ) ;
+      }
+    }
+/*
+** Sets the active index.
+*/
+    public function setActiveContent ( index : int ) : void
+    {
+      if ( contentMultiple != null )
+      {
+        contentMultiple . setActiveIndex ( index ) ;
+      }
+    }
+/*
+** Sets the visible of the button bar.
+** (If it is not visible then the contents will be resized!)
+*/
+    public function setButtonBarVisible ( v : Boolean ) : void
+    {
+      if ( contentMultiple != null )
+      {
+        contentMultiple . setButtonBarVisible ( v ) ;
+      }
+    }
+/*
+** Adds an element to the content sprite.
+*/
+    public function addToContent ( index : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+    {
+      contentMultiple . addToContent ( index , displayObject , normal , cellIndex ) ;
+    }
+/*
+** To remove an element from the contentMultiple of this widget.
+*/
+    public function removeFromContent ( index : int , displayObject : DisplayObject ) : void
+    {
+      contentMultiple . removeFromContent ( index , displayObject ) ;
     }
 /*
 ** Sets and gets the max elementsArray of the line or column in the content.
 */
-    public function setElementsFix ( es : int ) : void
+    public function setElementsFix ( index : int , es : int ) : void
     {
-      contentSingle . setElementsFix ( es ) ;
+      contentMultiple . setElementsFix ( index , es ) ;
     }
-    public function getElementsFix ( ) : int
+    public function getElementsFix ( index : int ) : int
     {
-      return contentSingle . getElementsFix ( ) ;
+      return contentMultiple . getElementsFix ( index ) ;
     }
 /*
 ** In case of resizing the drawed buttons, the elements have to be resized and repositioned.
@@ -646,6 +732,16 @@ package com . kisscodesystems . KissAs3Fw . ui
         resizer . graphics . endFill ( ) ;
         resizer . setcxy ( 0 , 0 ) ;
         resizer . setswh ( getsw ( ) , super . getsh ( ) ) ;
+        if ( parent != null )
+        {
+          if ( parent . parent is ContentSingle )
+          {
+            if ( ContentSingle ( parent . parent ) . getBaseScroll ( ) != null )
+            {
+              ContentSingle ( parent . parent ) . getBaseScroll ( ) . doRollOver ( ) ;
+            }
+          }
+        }
       }
     }
 /*
@@ -687,7 +783,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         clearResizer ( ) ;
 // The label.
         textLabel . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) * 2 , application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
-        textLabel . setMaxWidth ( getsw ( ) - textLabel . getsh ( ) * 2 - application . getPropsDyn ( ) . getAppMargin ( ) * 2 * 2 , false ) ;
+        textLabel . setMaxWidth ( getsw ( ) - textLabel . getsh ( ) * 3 - application . getPropsDyn ( ) . getAppMargin ( ) * 2 * 2 , false ) ;
         backLabel . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
         backLabel . x = application . getPropsDyn ( ) . getAppMargin ( ) ;
         backLabel . y = application . getPropsDyn ( ) . getAppMargin ( ) ;
@@ -704,12 +800,13 @@ package com . kisscodesystems . KissAs3Fw . ui
         mover . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         mover . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
 // The widget list , prev, next buttons have to be repositioned.
-        buttonDrawPrev . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 - buttonDrawPrev . getsw ( ) - buttonDrawList . getsw ( ) , ( backLabel . getsh ( ) - buttonDrawPrev . getsh ( ) * 2 ) / 2 + backLabel . y ) ;
+        buttonDrawMove . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 - buttonDrawPrev . getsw ( ) - buttonDrawNext . getsw ( ) - buttonDrawList . getsw ( ) , textLabel . getcy ( ) ) ;
+        buttonDrawPrev . setcxy ( buttonDrawMove . getcxsw ( ) , ( backLabel . getsh ( ) - buttonDrawPrev . getsh ( ) * 2 ) / 2 + backLabel . y ) ;
         buttonDrawNext . setcxy ( buttonDrawPrev . getcx ( ) , buttonDrawPrev . getcysh ( ) ) ;
         buttonDrawList . setcxy ( buttonDrawPrev . getcxsw ( ) , textLabel . getcy ( ) ) ;
-// And the contentSingle.
-        contentSingle . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 4 ) ;
-        contentSingle . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , super . getsh ( ) - textLabel . getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 5 ) ;
+// And the contentMultiple.
+        contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 4 ) ;
+        contentMultiple . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , super . getsh ( ) - textLabel . getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 5 ) ;
       }
     }
 /*
@@ -768,7 +865,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       mover = null ;
       closer = null ;
       resizer = null ;
-      contentSingle = null ;
+      contentMultiple = null ;
       prevMouseX = 0 ;
       prevMouseY = 0 ;
       mouseDownHappened = null ;
@@ -778,9 +875,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       prevX = 0 ;
       prevY = 0 ;
       widgetInMove = false ;
+      buttonDrawMove = null ;
       buttonDrawPrev = null ;
       buttonDrawNext = null ;
       buttonDrawList = null ;
+      contentId = 0 ;
     }
   }
 }

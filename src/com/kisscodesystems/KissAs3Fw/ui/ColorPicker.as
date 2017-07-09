@@ -168,17 +168,10 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     override protected function hasToCloseByMouse ( e : MouseEvent ) : void
     {
-      if ( ! mouseIsOnTheContentSprite ( ) && ! color . isPixelStealingInProgress ( ) )
+      if ( ! mouseIsOnTheContentSprite ( ) )
       {
         close ( ) ;
       }
-    }
-/*
-** Needed to decide the closure of the settings panel.
-*/
-    public function isPixelStealingInProgress ( ) : Boolean
-    {
-      return color . isPixelStealingInProgress ( ) ;
     }
 /*
 ** Calling the super . setswh ( )

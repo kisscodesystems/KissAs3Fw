@@ -15,7 +15,7 @@
 **
 ** Published       : 06.21.2017
 **
-** Current version : 1.4
+** Current version : 1.5
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -27,10 +27,17 @@
 **                   displayAsPassword is available in TextInput
 **                   the scrolling works in the BaseScroll using the mouse wheel.
 **                   1.3 - 07.05.2017
-**                   the eembedded arial font is in the demo propsDyn from now
+**                   the embedded arial font is in the demo propsDyn from now
 **                   the content will be cached as a bitmap during its movement
 **                   1.4 - 07.06.2017
 **                   small improvements in the content moving
+**                   1.5 - 07.09.2017
+**                   multiple contents are available in widgets instead of ContentSingle
+**                   multiple widget containers are also available (settings panel)
+**                   small bugfix of content moving on mobile devices
+**                   pixel stealing is improved in Color (mobile devices)
+**                   the Checkbox is Switcher from now
+**                   "about" tab on the settings panel
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -166,6 +173,7 @@ package com . kisscodesystems . KissAs3Fw
 // The types of the usable drawn buttons.
     public const DRAW_BUTTON_TYPE_SETTINGS : String = "DRAW_BUTTON_TYPE_SETTINGS" ;
     public const DRAW_BUTTON_TYPE_MENU : String = "DRAW_BUTTON_TYPE_MENU" ;
+    public const DRAW_BUTTON_TYPE_WIDGET_MOVE : String = "DRAW_BUTTON_TYPE_WIDGET_MOVE" ;
     public const DRAW_BUTTON_TYPE_WIDGETS_PREV : String = "DRAW_BUTTON_TYPE_WIDGETS_PREV" ;
     public const DRAW_BUTTON_TYPE_WIDGETS_NEXT : String = "DRAW_BUTTON_TYPE_WIDGETS_NEXT" ;
     public const DRAW_BUTTON_TYPE_WIDGETS_LIST : String = "DRAW_BUTTON_TYPE_WIDGETS_LIST" ;
@@ -464,9 +472,9 @@ package com . kisscodesystems . KissAs3Fw
 /*
 ** Adds a widget into the widgets (located in the middleground).
 */
-    public function addWidget ( widget : Widget ) : void
+    public function addWidget ( contentId : int , widget : Widget ) : void
     {
-      middleground . addWidget ( widget ) ;
+      middleground . addWidget ( contentId , widget ) ;
     }
 /*
 ** Closes a widget (located in the middleground).
