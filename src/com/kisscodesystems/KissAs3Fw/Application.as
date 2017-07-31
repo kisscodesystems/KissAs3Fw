@@ -13,9 +13,9 @@
 ** Every application built using this framework should extend this class.
 ** Has contained 42 classes initially and this is not an accident.
 **
-** Published       : 06.21.2017
+** Published       : 07.31.2017
 **
-** Current version : 1.5
+** Current version : 1.6
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -38,6 +38,10 @@
 **                   pixel stealing is improved in Color (mobile devices)
 **                   the Checkbox is Switcher from now
 **                   "about" tab on the settings panel
+**                   1.6 - 07.31.2017
+**                   several smaller improvements
+**                   ButtonFile class is added to handle file browsing and uploading
+**                   This works on desktop, webbrowser and on mobile devices.
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -105,6 +109,7 @@ package com . kisscodesystems . KissAs3Fw
   import flash . display . StageScaleMode ;
   import flash . events . ContextMenuEvent ;
   import flash . events . Event ;
+  import flash . filesystem . File ;
   import flash . filters . DropShadowFilter ;
   import flash . net . URLRequest ;
   import flash . text . TextField ;
@@ -153,6 +158,9 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_CHANGED : String = "EVENT_CHANGED" ;
 // The object has been closed.
     public const EVENT_CLOSED : String = "EVENT_CLOSED" ;
+// The events of the file upload.
+    public const EVENT_FILE_UPLOAD_DONE : String = "EVENT_FILE_UPLOAD_DONE" ;
+    public const EVENT_FILE_UPLOAD_FAIL : String = "EVENT_FILE_UPLOAD_FAIL" ;
 // Events of the reaching the bottom.
     public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
 // Empty html paragraph
@@ -209,6 +217,8 @@ package com . kisscodesystems . KissAs3Fw
     private var customContextHandlers : Array = new Array ( ) ;
 // For debugging the application. Usage: application . debug ( the_message ) ; from everywhere of the fw.
     private var debugTextField : TextField = null ;
+// The file class is usable or not..
+    private var fileClassIsUsable : Boolean = true ;
 /*
 ** The constructor, does the initialization of the whole application.
 */
@@ -216,6 +226,15 @@ package com . kisscodesystems . KissAs3Fw
     {
 // Giving the reference to itself since this is the Application.
       super ( this ) ;
+// Determining the usage of file or fileReference to use.
+      try
+      {
+        new File ( ) ;
+      }
+      catch ( e : * )
+      {
+        fileClassIsUsable = false ;
+      }
 // The contextmenu will be changed and be prepared to hold additional items.
       customContextMenu = new ContextMenu ( ) ;
       customContextMenu . hideBuiltInItems ( ) ;
@@ -228,6 +247,13 @@ package com . kisscodesystems . KissAs3Fw
       propsApp = new PropsApp ( ) ;
       propsDyn = new PropsDyn ( application ) ;
       getBaseEventDispatcher ( ) . setParentObject ( this ) ;
+    }
+/*
+** The File class is usable or not.
+*/
+    public function getFileClassIsUsable ( ) : Boolean
+    {
+      return fileClassIsUsable ;
     }
 /*
 ** The creation of the layers. Has to be called after the reinitialization

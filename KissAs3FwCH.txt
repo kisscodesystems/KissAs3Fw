@@ -1,6 +1,6 @@
  Class hierarchy
  of KissAs3Fw fw
- (version : 1.x)
+ (version : 1.6)
  
  Flash classes   | KissAs3Fw classes
 -----------------+--------------------------------------------------------------
@@ -31,7 +31,7 @@
                  |                                             -> PanelSettings
                  |                        -> BaseScroll
                  |                        -> BaseWorkingButton -> ButtonDraw
-                 |                                             -> ButtonText
+                 |                                             -> ButtonText    -> ButtonFile
                  |                        -> ButtonBar
                  |                        -> ButtonLink
                  |                        -> Checkbox

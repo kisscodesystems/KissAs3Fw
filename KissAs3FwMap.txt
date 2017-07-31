@@ -1,62 +1,63 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-07-09 19:14:47
+    | Generated   : 2017-07-31 19:51:15
     | Folders     : 1
-    | Files       : 42
-    | Total lines : 16119
+    | Files       : 43
+    | Total lines : 16738
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
     |           com
     |           com\kisscodesystems
     |           com\kisscodesystems\KissAs3Fw
-as  | 69        com\kisscodesystems\KissAs3Fw\Application.as
+as  | 70        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 422       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 613       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 696       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 847       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 935       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 1019      com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1230      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1328      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1601      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 437       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 628       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 711       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 862       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 950       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 1034      com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1245      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1343      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1616      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1824      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1910      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 1999      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2148      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2247      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2365      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2618      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2759      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 3045      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3421      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1839      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1925      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 2014      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2163      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2262      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2380      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2633      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2774      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 3065      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3441      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3520      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3791      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3545      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3828      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 4029      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 4154      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 4066      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 4191      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4258      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4437      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4524      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4655      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4727      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 4999      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5129      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5301      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5448      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5670      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 5803      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 5961      com\kisscodesystems\KissAs3Fw\ui\Switcher.as
-as  | 6074      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 6234      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6337      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6452      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6504      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 6874      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4300      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4479      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4566      com\kisscodesystems\KissAs3Fw\ui\ButtonFile.as
+as  | 4758      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4889      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4952      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 5224      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5354      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5531      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5678      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 5900      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 6033      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 6191      com\kisscodesystems\KissAs3Fw\ui\Switcher.as
+as  | 6304      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6464      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6567      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6682      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 6734      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 7109      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -85,9 +86,9 @@ as  |     ** This class is the main class of this framework.
 as  |     ** Every application built using this framework should extend this class.
 as  |     ** Has contained 42 classes initially and this is not an accident.
 as  |     **
-as  |     ** Published       : 06.21.2017
+as  |     ** Published       : 07.31.2017
 as  |     **
-as  |     ** Current version : 1.5
+as  |     ** Current version : 1.6
 as  |     **
 as  |     ** Developed by    : Jozsef Kiss
 as  |     **                   KissCode Systems Kft
@@ -110,6 +111,10 @@ as  |     **                   small bugfix of content moving on mobile devices
 as  |     **                   pixel stealing is improved in Color (mobile devices)
 as  |     **                   the Checkbox is Switcher from now
 as  |     **                   "about" tab on the settings panel
+as  |     **                   1.6 - 07.31.2017
+as  |     **                   several smaller improvements
+as  |     **                   ButtonFile class is added to handle file browsing and uploading
+as  |     **                   This works on desktop, webbrowser and on mobile devices.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -163,7 +168,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   626
+as  |        lines   652
 as  | 
 as  |     Variables:
 as  | 
@@ -208,6 +213,9 @@ as  |     // The value of the object has been changed.
 as  |        public const EVENT_CHANGED : String = "EVENT_CHANGED" ;
 as  |     // The object has been closed.
 as  |        public const EVENT_CLOSED : String = "EVENT_CLOSED" ;
+as  |     // The events of the file upload.
+as  |        public const EVENT_FILE_UPLOAD_DONE : String = "EVENT_FILE_UPLOAD_DONE" ;
+as  |        public const EVENT_FILE_UPLOAD_FAIL : String = "EVENT_FILE_UPLOAD_FAIL" ;
 as  |     // Events of the reaching the bottom.
 as  |        public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
 as  |     // Empty html paragraph
@@ -264,6 +272,8 @@ as  |        private var customContextUrls : Array = new Array ( ) ;
 as  |        private var customContextHandlers : Array = new Array ( ) ;
 as  |     // For debugging the application. Usage: application . debug ( the_message ) ; from everywhere of the fw.
 as  |        private var debugTextField : TextField = null ;
+as  |     // The file class is usable or not..
+as  |        private var fileClassIsUsable : Boolean = true ;
 as  | 
 as  |     Functions:
 as  | 
@@ -271,6 +281,11 @@ as  |     /*
 as  |     ** The constructor, does the initialization of the whole application.
 as  |     */
 as  |PU      public function Application ( ) : void
+as  | 
+as  |     /*
+as  |     ** The File class is usable or not.
+as  |     */
+as  |PU      public function getFileClassIsUsable ( ) : Boolean
 as  | 
 as  |     /*
 as  |     ** The creation of the layers. Has to be called after the reinitialization
@@ -1352,7 +1367,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . app
 as  |        extends BasePanel
-as  |        lines   928
+as  |        lines   924
 as  | 
 as  |     Variables:
 as  | 
@@ -2812,7 +2827,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends Sprite
-as  |        lines   633
+as  |        lines   644
 as  | 
 as  |     Variables:
 as  | 
@@ -3018,6 +3033,11 @@ as  |     ** If the parent parent object is a content single then this opened ob
 as  |     ** repositioned to get it visible in all of its size. (so the scroll may be scrolled.)
 as  |     */
 as  |PU      public function toBeVisible ( ) : void
+as  | 
+as  |     /*
+as  |     ** If the event dispatcher needs the reference to this object.
+as  |     */
+as  |PU      public function setEventDispatcherObjectToThis ( ) : void
 as  | 
 as  |     /*
 as  |     ** This is the destructor method of this base object.
@@ -3442,7 +3462,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . base
 as  |        extends BaseSprite
-as  |        lines   207
+as  |        lines   216
 as  | 
 as  |     Variables:
 as  | 
@@ -3470,6 +3490,11 @@ as  |     ** Sets the custom event string to be dispatched later.
 as  |     ** Setting it to null clears the custom event and its dispatching.
 as  |     */
 as  |PU      public function setCustomEventString ( s : String ) : void
+as  | 
+as  |     /*
+as  |     ** Hides or brings back all of the components of this base button.
+as  |     */
+as  |PU      public function setBaseButtonVisible ( v : Boolean ) : void
 as  | 
 as  |     /*
 as  |     ** Gets the contentSprite.
@@ -3537,7 +3562,7 @@ as  |     ** No destroy method.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . prop
-as  |        lines   401
+as  |        lines   420
 as  | 
 as  |     Variables:
 as  | 
@@ -3547,9 +3572,9 @@ as  |     // PLEASE NOTE THAT THIS VALUE CHANGING WILL DISPATCH NO EVENTS
 as  |     // The name of the application.
 as  |        protected var applicationName : String = "Application" ;
 as  |     // The version of this application.
-as  |        protected var applicationVersion : String = "version 1.0" ;
+as  |        protected var applicationVersion : String = "version 1.6" ;
 as  |     // The release date of this version
-as  |        protected var applicationReleaseDate : String = "06.21.2017" ;
+as  |        protected var applicationReleaseDate : String = "07.31.2017" ;
 as  |     // The homepage of this application
 as  |        protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
 as  |        protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
@@ -3600,6 +3625,8 @@ as  |     // Enable or disable the hiding of the widgets.
 as  |        protected var widgetEnableManualHide : Boolean = true ;
 as  |     // Enable or disable the resizing of the widgets.
 as  |        protected var widgetEnableManualResize : Boolean = true ;
+as  |     // Enable or disable the closure of the widgets.
+as  |        protected var widgetEnableManualClose : Boolean = true ;
 as  |     // The margin of resizing the widget (the margin around the widget to grab to resize it).
 as  |        protected var widgetResizeMargin : int = 6 ;
 as  |     // The font size from the stage is calculated by this value if appFontSize == 0.
@@ -3647,6 +3674,10 @@ as  |     // The size will be increased of the prev and next drawed buttons. (0.
 as  |        protected var buttonDrawMovePrevNextScale : Number = 0.7 ;
 as  |     // The maximum number of widgetcontainers
 as  |        protected var maxNumOfWidgetcontainers : int = 5 ;
+as  |     // The acceptable filename:
+as  |        protected var regexpStrFilename : String = "^[a-zA-Z0-9]{1,200}\.[a-zA-Z0-9]{1,10}$" ;
+as  |     // The max number of the displayable elements in a file browser list.
+as  |        protected var fileBrowseMaxElements : int = 7 ;
 as  | 
 as  |     Functions:
 as  | 
@@ -3723,6 +3754,8 @@ as  |PU      public function getWidgetEnableManualHide ( ) : Boolean
 as  | 
 as  |PU      public function getWidgetEnableManualResize ( ) : Boolean
 as  | 
+as  |PU      public function getWidgetEnableManualClose ( ) : Boolean
+as  | 
 as  |PU      public function getWidgetResizeMargin ( ) : int
 as  | 
 as  |PU      public function getFontSizeFactor ( ) : Number
@@ -3786,6 +3819,10 @@ as  |
 as  |PU      public function getButtonDrawMovePrevNextScale ( ) : Number
 as  | 
 as  |PU      public function getMaxNumOfWidgetcontainers ( ) : int
+as  | 
+as  |PU      public function getRegexpStrFilename ( ) : String
+as  | 
+as  |PU      public function getFileBrowseMaxElements ( ) : int
 as  | 
     +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
@@ -4050,7 +4087,7 @@ as  |     ** No destroy method, it is constructed one time and we are done.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   371
+as  |        lines   375
 as  | 
 as  |     Variables:
 as  | 
@@ -4172,7 +4209,7 @@ as  |     ** These codes should start and end with specific strings that can be 
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   94
+as  |        lines   99
 as  | 
 as  |     Variables:
 as  | 
@@ -4249,6 +4286,11 @@ as  |     // The default content of the multiple content component.
 as  |        public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 as  |     // The usage of the components.
 as  |        public const COMPONENTS_USAGE : String = BTC + "COMPONENTS_USAGE" + ETC ;
+as  |     // The selected file and browse labels on the file button + the begin label of progress.
+as  |        public const SELECTED_FILE : String = BTC + "SELECTED_FILE" + ETC ;
+as  |        public const UPLOADED_FILE : String = BTC + "UPLOADED_FILE" + ETC ;
+as  |        public const BROWSE : String = BTC + "BROWSE" + ETC ;
+as  |        public const FILE_UPLOAD_IN_PROGRESS : String = BTC + "FILE_UPLOAD_IN_PROGRESS" + ETC ;
 as  | 
 as  |     Functions:
 as  | 
@@ -4521,6 +4563,198 @@ as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
     +---------------------------------------------------------------------------
+as  | com\kisscodesystems\KissAs3Fw\ui\ButtonFile.as
+as  | 
+as  |     ButtonFile
+as  | 
+as  |     /*
+as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
+as  |     ** See the header comment lines of the
+as  |     ** com . kisscodesystems . KissAs3Fw . Application
+as  |     ** The whole framework is available at:
+as  |     ** https://github.com/kisscodesystems/KissAs3Fw
+as  |     ** Demo applications:
+as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
+as  |     **
+as  |     ** DESCRIPTION:
+as  |     ** ButtonFile.
+as  |     ** File browser and selector. Used for file uploads.
+as  |     ** in web context: the fileReference object will be used
+as  |     ** and the os file browse dialog will appear.
+as  |     ** in air context: the file object will be used
+as  |     ** and a customized list will appear to choose the file!
+as  |     ** If the file name to be selected does not meet the expectings
+as  |     ** then the empy file button (with no selected file) will be given.
+as  |     **
+as  |     ** MAIN FEATURES:
+as  |     ** - Button. Label: "Browse" or the name of the selected file.
+as  |     ** - File filters can be specified.
+as  |     ** - Only the correctly formatted filenames will be accepted!
+as  |     ** - The upload is available by specifying a urlrequest object
+as  |     ** - Handles automatically the air or web environment!
+as  |     **   (to use filereference or file)
+as  |     */
+as  | 
+as  |        package com . kisscodesystems . KissAs3Fw . ui
+as  |        extends ButtonText
+as  |        lines   525
+as  | 
+as  |     Variables:
+as  | 
+as  |     // This filereference object will be used.
+as  |        private var fileReference : FileReference = null ;
+as  |     // Or the file will be used if possible.
+as  |        private var file : *= null ;
+as  |     // If file is used then the browsing will happen in this.
+as  |        private var fileList : List = null ;
+as  |     // The filefilters to apply to the browsing.
+as  |        private var fileFilters : Array = null ;
+as  |     // Events of the success and failed uploadings.
+as  |        private var eventFileUploadDone : Event = null ;
+as  |        private var eventFileUploadFail : Event = null ;
+as  |     // Data recieved after successfully upload.
+as  |        private var uploadCompleteData : String = null ;
+as  |     // The regexp to validate the name of the file.
+as  |        private var regexp : RegExp = null ;
+as  |     // The predefined filefilters.
+as  |        public const fileFilterAll : FileFilter = new FileFilter ( "All Files (*.*)" , "*.*" ) ;
+as  |        public const fileFilterImgs : FileFilter = new FileFilter ( "Images (*.jpg, *.jpeg, *.gif, *.png)" , "*.jpg; *.jpeg; *.gif; *.png" ) ;
+as  |        public const fileFilterTxts : FileFilter = new FileFilter ( "Text Files (*.txt, *.rtf, *.log)" , "*.txt; *.rtf; *.log" ) ;
+as  |        public const fileFilterPdfs : FileFilter = new FileFilter ( "Pdf Files (*.pdf)" , "*.pdf" ) ;
+as  |        public const fileFilterDocs : FileFilter = new FileFilter ( "Doc Files (*.doc, *.docx, *.odt)" , "*.doc; *.docx; *.odt" ) ;
+as  |        public const fileFilterPres : FileFilter = new FileFilter ( "Presentation Files (*.ppt, *.pptx, *.odp)" , "*.ppt; *.pptx; *.odp" ) ;
+as  |        public const fileFilterExcs : FileFilter = new FileFilter ( "Calculate Files (*.xls, *.xlsx, *.ods)" , "*.xls; *.xlsx; *.ods" ) ;
+as  | 
+as  |     Functions:
+as  | 
+as  |     /*
+as  |     ** The constructor doing the initialization of this object as usual.
+as  |     */
+as  |PU      public function ButtonFile ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** Destroys the existing fileReference object.
+as  |     */
+as  |PU      public function destroyFileReference ( ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the uploadCompleteData after the successful upload.
+as  |     */
+as  |PU      public function getUploadCompleteData ( ) : String
+as  | 
+as  |     /*
+as  |     ** Creates a new fileReference object.
+as  |     */
+as  |PU      public function createNewFileReference ( ) : void
+as  | 
+as  |     /*
+as  |     ** The http status event listener.
+as  |     */
+as  |        protected function httpHandler ( e : HTTPStatusEvent ) : void { }
+as  | 
+as  |     /*
+as  |     ** The file is selected.
+as  |     */
+as  |        private function fileSelected ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The file is loaded into flash ( not into the server )
+as  |     */
+as  |        private function completeHandler ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Is there a file?
+as  |     */
+as  |PU      public function isFileSelected ( ) : Boolean
+as  | 
+as  |     /*
+as  |     ** The upload is completed and data is recived from the server.
+as  |     */
+as  |        private function uploadDataRecived ( e : DataEvent ) : void
+as  | 
+as  |     /*
+as  |     ** When the file starts to be uploaded.
+as  |     */
+as  |        private function startHandler ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Displaying the current upload state.
+as  |     */
+as  |        private function progressHandler ( e : ProgressEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Handling the IO error.
+as  |     */
+as  |        private function errorHandler ( e : IOErrorEvent ) : void
+as  | 
+as  |     /*
+as  |     ** click + file browsing.
+as  |     ** open: clears the selected file if there were any.
+as  |     */
+as  |        override protected function baseWorkingButtonClick ( ) : void
+as  | 
+as  |     /*
+as  |     ** Creating the list of the files using File class.
+as  |     */
+as  |        private function createFileBrowse ( ) : void
+as  | 
+as  |     /*
+as  |     ** Destroying the list of the files using File class.
+as  |     */
+as  |        private function destroyFileBrowse ( ) : void
+as  | 
+as  |     /*
+as  |     ** This method will decide to close this object or not (by mouse).
+as  |     */
+as  |        protected function hasToCloseByMouse ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** This method will decide to close this object or not (by keyboard).
+as  |     */
+as  |        private function hasToCloseByKeyboard ( e : KeyboardEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Selects a directory.
+as  |     */
+as  |        private function selectDirectory ( file : * ) : void
+as  | 
+as  |     /*
+as  |     ** Sorts the names of the object located in the directory.
+as  |     */
+as  |        private function fileSort ( file1 : * , file2 : * ) : int
+as  | 
+as  |     /*
+as  |     ** The file or directory has been selected in the fileList.
+as  |     */
+as  |        private function fileListSelected ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The size of the list has been changed.
+as  |     */
+as  |        private function fileListSChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the fileFileter array.
+as  |     */
+as  |PU      public function setFileFilters ( f : Array ) : void
+as  | 
+as  |     /*
+as  |     ** Use this method when uploading a file.
+as  |     */
+as  |PU      public function upload ( urlRequest : URLRequest ) : void
+as  | 
+as  |     /*
+as  |     ** Sets the label of the button.
+as  |     ** (has to be empty, textLabel . setTextCode will be used inside. )
+as  |     */
+as  |PU      override public function setTextCode ( newTextCode : String ) : void { }
+as  | 
+as  |     /*
+as  |     ** Overriding this destroy method.
+as  |     */
+as  |PU      override public function destroy ( ) : void
+as  | 
+    +---------------------------------------------------------------------------
 as  | com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
 as  | 
 as  |     ButtonLink
@@ -4675,12 +4909,12 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseWorkingButton
-as  |        lines   95
+as  |        lines   89
 as  | 
 as  |     Variables:
 as  | 
 as  |     // This will be the label of the button.
-as  |        private var textLabel : TextLabel = null ;
+as  |        protected var textLabel : TextLabel = null ;
 as  | 
 as  |     Functions:
 as  | 
@@ -4697,16 +4931,7 @@ as  |
 as  |     /*
 as  |     ** On changing of the padding.
 as  |     */
-as  |        private function resize ( e : Event ) : void
-as  | 
-as  |     /*
-as  |     ** The set size methods have to have no effects.
-as  |     */
-as  |PU      override public function setsw ( newsw : int ) : void { }
-as  | 
-as  |PU      override public function setsh ( newsh : int ) : void { }
-as  | 
-as  |PU      override public function setswh ( newsw : int , newsh : int ) : void { }
+as  |        protected function resize ( e : Event ) : void
 as  | 
 as  |     /*
 as  |     ** Sets the label of the button.
@@ -5152,7 +5377,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   348
+as  |        lines   368
 as  | 
 as  |     Variables:
 as  | 
@@ -5291,6 +5516,11 @@ as  |     /*
 as  |     ** Resizes one content.
 as  |     */
 as  |        private function resizeContent ( content : ContentSingle ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the height of the buttonBar.
+as  |     */
+as  |PU      public function getButtonBarcysh ( ) : int
 as  | 
 as  |     /*
 as  |     ** Overriding this destroy method.
@@ -6532,7 +6762,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends BaseSprite
-as  |        lines   885
+as  |        lines   895
 as  | 
 as  |     Variables:
 as  | 
@@ -6760,6 +6990,11 @@ as  |     */
 as  |PU      public function setElementsFix ( index : int , es : int ) : void
 as  | 
 as  |PU      public function getElementsFix ( index : int ) : int
+as  | 
+as  |     /*
+as  |     ** What is the height of the buttonbar.
+as  |     */
+as  |PU      public function getButtonBarcysh ( ) : int
 as  | 
 as  |     /*
 as  |     ** In case of resizing the drawed buttons, the elements have to be resized and repositioned.

@@ -551,6 +551,17 @@ package com . kisscodesystems . KissAs3Fw . base
       }
     }
 /*
+** If the event dispatcher needs the reference to this object.
+*/
+    public function setEventDispatcherObjectToThis ( ) : void
+    {
+// Tell to the base event dispatcher the reference.
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . setParentObject ( this ) ;
+      }
+    }
+/*
 ** This is the destructor method of this base object.
 ** Public because sometimes we want to execute this on other objects.
 ** Has to be overridden in extending classes.

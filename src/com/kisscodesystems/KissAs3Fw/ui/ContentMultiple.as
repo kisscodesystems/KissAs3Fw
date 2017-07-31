@@ -243,7 +243,13 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function buttonBarChanged ( e : Event ) : void
     {
+// The active content is set.
       setActiveContent ( buttonBar . getActiveIndex ( ) ) ;
+// Forward this event.
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( e ) ;
+      }
     }
 /*
 ** The button bar is resized.
@@ -328,8 +334,22 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function resizeContent ( content : ContentSingle ) : void
     {
-      content . setcxy ( 0 , buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ;
-      content . setswh ( getsw ( ) , getsh ( ) - ( buttonBar . visible ? buttonBar . getcysh ( ) : 0 ) ) ;
+      content . setcxy ( 0 , getButtonBarcysh ( ) ) ;
+      content . setswh ( getsw ( ) , getsh ( ) - getButtonBarcysh ( ) ) ;
+    }
+/*
+** Gets the height of the buttonBar.
+*/
+    public function getButtonBarcysh ( ) : int
+    {
+      if ( buttonBar != null )
+      {
+        return buttonBar . visible ? buttonBar . getcysh ( ) : 0 ;
+      }
+      else
+      {
+        return 0 ;
+      }
     }
 /*
 ** Overriding this destroy method.

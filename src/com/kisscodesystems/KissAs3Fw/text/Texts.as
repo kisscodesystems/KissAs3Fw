@@ -90,5 +90,10 @@ package com . kisscodesystems . KissAs3Fw . text
     public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 // The usage of the components.
     public const COMPONENTS_USAGE : String = BTC + "COMPONENTS_USAGE" + ETC ;
+// The selected file and browse labels on the file button + the begin label of progress.
+    public const SELECTED_FILE : String = BTC + "SELECTED_FILE" + ETC ;
+    public const UPLOADED_FILE : String = BTC + "UPLOADED_FILE" + ETC ;
+    public const BROWSE : String = BTC + "BROWSE" + ETC ;
+    public const FILE_UPLOAD_IN_PROGRESS : String = BTC + "FILE_UPLOAD_IN_PROGRESS" + ETC ;
   }
 }

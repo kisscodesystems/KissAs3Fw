@@ -23,7 +23,7 @@ package com . kisscodesystems . KissAs3Fw . ui
   public class ButtonText extends BaseWorkingButton
   {
 // This will be the label of the button.
-    private var textLabel : TextLabel = null ;
+    protected var textLabel : TextLabel = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -50,7 +50,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** On changing of the padding.
 */
-    private function resize ( e : Event ) : void
+    protected function resize ( e : Event ) : void
     {
       if ( application != null )
       {
@@ -58,12 +58,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         labelRepos ( ) ;
       }
     }
-/*
-** The set size methods have to have no effects.
-*/
-    override public function setsw ( newsw : int ) : void { }
-    override public function setsh ( newsh : int ) : void { }
-    override public function setswh ( newsw : int , newsh : int ) : void { }
 /*
 ** Sets the label of the button.
 */

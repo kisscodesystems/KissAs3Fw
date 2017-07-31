@@ -120,7 +120,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // and it should be added into the displayable array as this.
         if ( x . item . length ( ) == 0 )
         {
-          arrayLabels . push ( beginString + "|   " + x . @ value ) ;
+          arrayLabels . push ( beginString + "    " + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
         }
 // The item . length ( ) is greather than zero and it is closed (opened=="0"),
@@ -129,7 +129,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // (clicking on this in the list will open this item)
         else if ( x . item . length ( ) > 0 && x . @ opened == "0" )
         {
-          arrayLabels . push ( beginString + "| + " + x . @ value ) ;
+          arrayLabels . push ( beginString + "  +" + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
         }
 // The item . length ( ) is greather than zero and it is opened (opened=="1"),
@@ -139,9 +139,9 @@ package com . kisscodesystems . KissAs3Fw . ui
 // (clicking on this in the list will close this item)
         else if ( x . item . length ( ) > 0 && x . @ opened == "1" )
         {
-          arrayLabels . push ( beginString + "| - " + x . @ value ) ;
+          arrayLabels . push ( beginString + "  - " + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
-          listAnItem ( new XMLList ( x . children ( ) ) , beginString + "|   " ) ;
+          listAnItem ( new XMLList ( x . children ( ) ) , beginString + "    " ) ;
         }
       }
     }

@@ -74,6 +74,15 @@ package com . kisscodesystems . KissAs3Fw . base
       }
     }
 /*
+** Hides or brings back all of the components of this base button.
+*/
+    public function setBaseButtonVisible ( v : Boolean ) : void
+    {
+      baseButton . visible = v ;
+      contentSprite . visible = v ;
+      foregroundSprite . visible = v ;
+    }
+/*
 ** Gets the contentSprite.
 */
     public function getContentSprite ( ) : BaseSprite
@@ -122,7 +131,7 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventClick ) ;
       }
-      if ( application . getBaseEventDispatcher ( ) != null )
+      if ( application != null )
       {
         if ( customEvent != null )
         {

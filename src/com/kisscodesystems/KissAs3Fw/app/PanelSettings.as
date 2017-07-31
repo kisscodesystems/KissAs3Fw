@@ -481,10 +481,6 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function toSmartphone ( ) : void
     {
-      if ( displayingStyleOBJ != null )
-      {
-        displayingStyleOBJ . setEnabled ( false ) ;
-      }
       if ( numOfWidgetcontainersOBJ != null )
       {
         numOfWidgetcontainersOBJ . setEnabled ( false ) ;

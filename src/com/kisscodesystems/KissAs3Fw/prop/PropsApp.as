@@ -23,9 +23,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The name of the application.
     protected var applicationName : String = "Application" ;
 // The version of this application.
-    protected var applicationVersion : String = "version 1.0" ;
+    protected var applicationVersion : String = "version 1.6" ;
 // The release date of this version
-    protected var applicationReleaseDate : String = "06.21.2017" ;
+    protected var applicationReleaseDate : String = "07.31.2017" ;
 // The homepage of this application
     protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
@@ -76,6 +76,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var widgetEnableManualHide : Boolean = true ;
 // Enable or disable the resizing of the widgets.
     protected var widgetEnableManualResize : Boolean = true ;
+// Enable or disable the closure of the widgets.
+    protected var widgetEnableManualClose : Boolean = true ;
 // The margin of resizing the widget (the margin around the widget to grab to resize it).
     protected var widgetResizeMargin : int = 6 ;
 // The font size from the stage is calculated by this value if appFontSize == 0.
@@ -123,6 +125,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var buttonDrawMovePrevNextScale : Number = 0.7 ;
 // The maximum number of widgetcontainers
     protected var maxNumOfWidgetcontainers : int = 5 ;
+// The acceptable filename:
+    protected var regexpStrFilename : String = "^[a-zA-Z0-9]{1,200}\.[a-zA-Z0-9]{1,10}$" ;
+// The max number of the displayable elements in a file browser list.
+    protected var fileBrowseMaxElements : int = 7 ;
 /*
 ** Constructor.
 */
@@ -141,9 +147,10 @@ package com . kisscodesystems . KissAs3Fw . prop
       panelMenuHeighthFactor = 4 / 5 ;
       widgetsElementsFix = 1 ;
       widgetsMargin = 0 ;
-      widgetEnableManualResize = false ;
       widgetResizeMargin = 0 ;
       widgetEnableManualHide = false ;
+      widgetEnableManualResize = false ;
+      widgetEnableManualClose = false ;
       maxNumOfWidgetcontainers = 1 ;
     }
 /*
@@ -268,6 +275,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getWidgetEnableManualResize ( ) : Boolean
     {
       return widgetEnableManualResize ;
+    }
+    public function getWidgetEnableManualClose ( ) : Boolean
+    {
+      return widgetEnableManualClose ;
     }
     public function getWidgetResizeMargin ( ) : int
     {
@@ -396,6 +407,14 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getMaxNumOfWidgetcontainers ( ) : int
     {
       return maxNumOfWidgetcontainers ;
+    }
+    public function getRegexpStrFilename ( ) : String
+    {
+      return regexpStrFilename ;
+    }
+    public function getFileBrowseMaxElements ( ) : int
+    {
+      return fileBrowseMaxElements ;
     }
   }
 }

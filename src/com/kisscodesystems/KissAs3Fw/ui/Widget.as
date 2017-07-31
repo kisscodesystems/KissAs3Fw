@@ -150,7 +150,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       eventWidgetDragStart = new Event ( application . EVENT_WIDGET_DRAG_START ) ;
       eventWidgetDragStop = new Event ( application . EVENT_WIDGET_DRAG_STOP ) ;
 // Tell to the base event dispatcher the reference.
-      getBaseEventDispatcher ( ) . setParentObject ( this ) ;
+      setEventDispatcherObjectToThis ( ) ;
     }
 /*
 ** This method will be called if the object is being added to the stage.
@@ -259,8 +259,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function closerDoubleClick ( e : MouseEvent ) : void
     {
+      if ( application . getPropsApp ( ) . getWidgetEnableManualClose ( ) )
+      {
 // The close event to the outside
-      getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetCloseMe ) ;
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetCloseMe ) ;
+      }
     }
 /*
 ** Gets the size of the content.
@@ -594,6 +597,13 @@ package com . kisscodesystems . KissAs3Fw . ui
     public function getElementsFix ( index : int ) : int
     {
       return contentMultiple . getElementsFix ( index ) ;
+    }
+/*
+** What is the height of the buttonbar.
+*/
+    public function getButtonBarcysh ( ) : int
+    {
+      return contentMultiple . getButtonBarcysh ( ) ;
     }
 /*
 ** In case of resizing the drawed buttons, the elements have to be resized and repositioned.
