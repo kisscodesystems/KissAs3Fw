@@ -1,63 +1,64 @@
     +---------------------------------------------------------------------------
     | Application map from Doccer.
-    | Generated   : 2017-07-31 19:51:15
+    | Generated   : 2017-08-19 17:45:24
     | Folders     : 1
-    | Files       : 43
-    | Total lines : 16738
+    | Files       : 44
+    | Total lines : 17612
     +---------------------------------------------------------------------------
     | Contents |
     | ---------+
     |           com
     |           com\kisscodesystems
     |           com\kisscodesystems\KissAs3Fw
-as  | 70        com\kisscodesystems\KissAs3Fw\Application.as
+as  | 71        com\kisscodesystems\KissAs3Fw\Application.as
     |           com\kisscodesystems\KissAs3Fw\app
-as  | 437       com\kisscodesystems\KissAs3Fw\app\Background.as
-as  | 628       com\kisscodesystems\KissAs3Fw\app\Footer.as
-as  | 711       com\kisscodesystems\KissAs3Fw\app\Foreground.as
-as  | 862       com\kisscodesystems\KissAs3Fw\app\Header.as
-as  | 950       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
-as  | 1034      com\kisscodesystems\KissAs3Fw\app\Middleground.as
-as  | 1245      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
-as  | 1343      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
-as  | 1616      com\kisscodesystems\KissAs3Fw\app\Widgets.as
+as  | 441       com\kisscodesystems\KissAs3Fw\app\Background.as
+as  | 632       com\kisscodesystems\KissAs3Fw\app\Footer.as
+as  | 715       com\kisscodesystems\KissAs3Fw\app\Foreground.as
+as  | 866       com\kisscodesystems\KissAs3Fw\app\Header.as
+as  | 954       com\kisscodesystems\KissAs3Fw\app\LangSetter.as
+as  | 1038      com\kisscodesystems\KissAs3Fw\app\Middleground.as
+as  | 1249      com\kisscodesystems\KissAs3Fw\app\PanelMenu.as
+as  | 1347      com\kisscodesystems\KissAs3Fw\app\PanelSettings.as
+as  | 1620      com\kisscodesystems\KissAs3Fw\app\Widgets.as
     |           com\kisscodesystems\KissAs3Fw\base
-as  | 1839      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
-as  | 1925      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
-as  | 2014      com\kisscodesystems\KissAs3Fw\base\BaseList.as
-as  | 2163      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
-as  | 2262      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
-as  | 2380      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
-as  | 2633      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
-as  | 2774      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
-as  | 3065      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
-as  | 3441      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
+as  | 1843      com\kisscodesystems\KissAs3Fw\base\BaseButton.as
+as  | 1929      com\kisscodesystems\KissAs3Fw\base\BaseEventDispatcher.as
+as  | 2018      com\kisscodesystems\KissAs3Fw\base\BaseList.as
+as  | 2167      com\kisscodesystems\KissAs3Fw\base\BaseOpen.as
+as  | 2266      com\kisscodesystems\KissAs3Fw\base\BasePanel.as
+as  | 2384      com\kisscodesystems\KissAs3Fw\base\BaseScroll.as
+as  | 2637      com\kisscodesystems\KissAs3Fw\base\BaseShape.as
+as  | 2778      com\kisscodesystems\KissAs3Fw\base\BaseSprite.as
+as  | 3069      com\kisscodesystems\KissAs3Fw\base\BaseTextField.as
+as  | 3445      com\kisscodesystems\KissAs3Fw\base\BaseWorkingButton.as
     |           com\kisscodesystems\KissAs3Fw\prop
-as  | 3545      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
-as  | 3828      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
+as  | 3549      com\kisscodesystems\KissAs3Fw\prop\PropsApp.as
+as  | 3832      com\kisscodesystems\KissAs3Fw\prop\PropsDyn.as
     |           com\kisscodesystems\KissAs3Fw\text
-as  | 4066      com\kisscodesystems\KissAs3Fw\text\TextStock.as
-as  | 4191      com\kisscodesystems\KissAs3Fw\text\Texts.as
+as  | 4070      com\kisscodesystems\KissAs3Fw\text\TextStock.as
+as  | 4195      com\kisscodesystems\KissAs3Fw\text\Texts.as
     |           com\kisscodesystems\KissAs3Fw\ui
-as  | 4300      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
-as  | 4479      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
-as  | 4566      com\kisscodesystems\KissAs3Fw\ui\ButtonFile.as
-as  | 4758      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
-as  | 4889      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
-as  | 4952      com\kisscodesystems\KissAs3Fw\ui\Color.as
-as  | 5224      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
-as  | 5354      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
-as  | 5531      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
-as  | 5678      com\kisscodesystems\KissAs3Fw\ui\List.as
-as  | 5900      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
-as  | 6033      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
-as  | 6191      com\kisscodesystems\KissAs3Fw\ui\Switcher.as
-as  | 6304      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
-as  | 6464      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
-as  | 6567      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
-as  | 6682      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
-as  | 6734      com\kisscodesystems\KissAs3Fw\ui\Widget.as
-as  | 7109      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
+as  | 4316      com\kisscodesystems\KissAs3Fw\ui\ButtonBar.as
+as  | 4495      com\kisscodesystems\KissAs3Fw\ui\ButtonDraw.as
+as  | 4582      com\kisscodesystems\KissAs3Fw\ui\ButtonFile.as
+as  | 4797      com\kisscodesystems\KissAs3Fw\ui\ButtonLink.as
+as  | 4928      com\kisscodesystems\KissAs3Fw\ui\ButtonText.as
+as  | 4991      com\kisscodesystems\KissAs3Fw\ui\Camera.as
+as  | 5256      com\kisscodesystems\KissAs3Fw\ui\Color.as
+as  | 5528      com\kisscodesystems\KissAs3Fw\ui\ColorPicker.as
+as  | 5658      com\kisscodesystems\KissAs3Fw\ui\ContentMultiple.as
+as  | 5835      com\kisscodesystems\KissAs3Fw\ui\ContentSingle.as
+as  | 5982      com\kisscodesystems\KissAs3Fw\ui\List.as
+as  | 6204      com\kisscodesystems\KissAs3Fw\ui\ListPicker.as
+as  | 6337      com\kisscodesystems\KissAs3Fw\ui\Potmet.as
+as  | 6495      com\kisscodesystems\KissAs3Fw\ui\Switcher.as
+as  | 6608      com\kisscodesystems\KissAs3Fw\ui\TextArea.as
+as  | 6768      com\kisscodesystems\KissAs3Fw\ui\TextBox.as
+as  | 6871      com\kisscodesystems\KissAs3Fw\ui\TextInput.as
+as  | 6986      com\kisscodesystems\KissAs3Fw\ui\TextLabel.as
+as  | 7038      com\kisscodesystems\KissAs3Fw\ui\Widget.as
+as  | 7413      com\kisscodesystems\KissAs3Fw\ui\XmlLister.as
     +---------------------------------------------------------------------------
     | Folder: E:\openso\KissAs3Fw\src\
     +---------------------------------------------------------------------------
@@ -115,6 +116,9 @@ as  |     **                   1.6 - 07.31.2017
 as  |     **                   several smaller improvements
 as  |     **                   ButtonFile class is added to handle file browsing and uploading
 as  |     **                   This works on desktop, webbrowser and on mobile devices.
+as  |     **                   1.7 - 08.19.2017
+as  |     **                   Camera object is added now.
+as  |     **                   The File and FileReference can be set from outside in ButtonFile.
 as  |     **
 as  |     ** MAIN FEATURES:
 as  |     ** - Contains the public (not static) constants for every part of the fw.
@@ -151,8 +155,6 @@ as  |     ** These are necessary to be there because the grabage collecting will
 as  |     ** immediately so there will be some function calls that we don't want actually.
 as  |     ** We can avoid the running of these functions by checking this condition.
 as  |     **
-as  |     ** Copyright (C) 2017 KissCode Systems Kft
-as  |     **
 as  |     ** KissAs3Fw is free software: you can redistribute it and/or modify
 as  |     ** it under the terms of the GNU General Public License as published by
 as  |     ** Free Software Foundation, version 3.
@@ -168,7 +170,7 @@ as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw
 as  |        extends BaseSprite
-as  |        lines   652
+as  |        lines   655
 as  | 
 as  |     Variables:
 as  | 
@@ -216,6 +218,8 @@ as  |        public const EVENT_CLOSED : String = "EVENT_CLOSED" ;
 as  |     // The events of the file upload.
 as  |        public const EVENT_FILE_UPLOAD_DONE : String = "EVENT_FILE_UPLOAD_DONE" ;
 as  |        public const EVENT_FILE_UPLOAD_FAIL : String = "EVENT_FILE_UPLOAD_FAIL" ;
+as  |     // THe event ostring of the successfuly saving.
+as  |        public const EVENT_SAVED : String = "EVENT_SAVED" ;
 as  |     // Events of the reaching the bottom.
 as  |        public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
 as  |     // Empty html paragraph
@@ -4087,7 +4091,7 @@ as  |     ** No destroy method, it is constructed one time and we are done.
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   375
+as  |        lines   386
 as  | 
 as  |     Variables:
 as  | 
@@ -4209,7 +4213,7 @@ as  |     ** These codes should start and end with specific strings that can be 
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . text
-as  |        lines   99
+as  |        lines   111
 as  | 
 as  |     Variables:
 as  | 
@@ -4291,6 +4295,18 @@ as  |        public const SELECTED_FILE : String = BTC + "SELECTED_FILE" + ETC ;
 as  |        public const UPLOADED_FILE : String = BTC + "UPLOADED_FILE" + ETC ;
 as  |        public const BROWSE : String = BTC + "BROWSE" + ETC ;
 as  |        public const FILE_UPLOAD_IN_PROGRESS : String = BTC + "FILE_UPLOAD_IN_PROGRESS" + ETC ;
+as  |     // Camera activate and release links.
+as  |        public const ACTIVATE_CAMERA : String = BTC + "ACTIVATE_CAMERA" + ETC ;
+as  |        public const RELEASE_CAMERA : String = BTC + "RELEASE_CAMERA" + ETC ;
+as  |        public const CAMERA_WIDE_RES : String = BTC + "CAMERA_WIDE_RES" + ETC ;
+as  |        public const CAMERA_NORMAL_RES : String = BTC + "CAMERA_NORMAL_RES" + ETC ;
+as  |        public const CAMERA_SIZE : String = BTC + "CAMERA_SIZE" + ETC ;
+as  |        public const CAMERA_FPS : String = BTC + "CAMERA_FPS" + ETC ;
+as  |        public const CAMERA_QUALITY : String = BTC + "CAMERA_QUALITY" + ETC ;
+as  |        public const CAMERA_FILTER : String = BTC + "CAMERA_FILTER" + ETC ;
+as  |        public const CAMERA_TAKE_PICTURE : String = BTC + "CAMERA_TAKE_PICTURE" + ETC ;
+as  |        public const CAMERA_PICTURE_SAVED_WEB : String = BTC + "CAMERA_PICTURE_SAVED_WEB" + ETC ;
+as  |        public const CAMERA_PICTURE_SAVED_AIR : String = BTC + "CAMERA_PICTURE_SAVED_AIR" + ETC ;
 as  | 
 as  |     Functions:
 as  | 
@@ -4593,11 +4609,13 @@ as  |     ** - Only the correctly formatted filenames will be accepted!
 as  |     ** - The upload is available by specifying a urlrequest object
 as  |     ** - Handles automatically the air or web environment!
 as  |     **   (to use filereference or file)
+as  |     ** - File or Filereference can be set from outside
+as  |     **   (for example after taking a photo by Camera object)
 as  |     */
 as  | 
 as  |        package com . kisscodesystems . KissAs3Fw . ui
 as  |        extends ButtonText
-as  |        lines   525
+as  |        lines   607
 as  | 
 as  |     Variables:
 as  | 
@@ -4618,10 +4636,10 @@ as  |     // The regexp to validate the name of the file.
 as  |        private var regexp : RegExp = null ;
 as  |     // The predefined filefilters.
 as  |        public const fileFilterAll : FileFilter = new FileFilter ( "All Files (*.*)" , "*.*" ) ;
-as  |        public const fileFilterImgs : FileFilter = new FileFilter ( "Images (*.jpg, *.jpeg, *.gif, *.png)" , "*.jpg; *.jpeg; *.gif; *.png" ) ;
+as  |        public const fileFilterImgs : FileFilter = new FileFilter ( "Images (*.jpg, *.jpeg, *.gif, *.png, *.bmp)" , "*.jpg; *.jpeg; *.gif; *.png; *.bmp" ) ;
 as  |        public const fileFilterTxts : FileFilter = new FileFilter ( "Text Files (*.txt, *.rtf, *.log)" , "*.txt; *.rtf; *.log" ) ;
 as  |        public const fileFilterPdfs : FileFilter = new FileFilter ( "Pdf Files (*.pdf)" , "*.pdf" ) ;
-as  |        public const fileFilterDocs : FileFilter = new FileFilter ( "Doc Files (*.doc, *.docx, *.odt)" , "*.doc; *.docx; *.odt" ) ;
+as  |        public const fileFilterDocs : FileFilter = new FileFilter ( "Document Files (*.doc, *.docx, *.odt)" , "*.doc; *.docx; *.odt" ) ;
 as  |        public const fileFilterPres : FileFilter = new FileFilter ( "Presentation Files (*.ppt, *.pptx, *.odp)" , "*.ppt; *.pptx; *.odp" ) ;
 as  |        public const fileFilterExcs : FileFilter = new FileFilter ( "Calculate Files (*.xls, *.xlsx, *.ods)" , "*.xls; *.xlsx; *.ods" ) ;
 as  | 
@@ -4631,6 +4649,22 @@ as  |     /*
 as  |     ** The constructor doing the initialization of this object as usual.
 as  |     */
 as  |PU      public function ButtonFile ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** Registering and unregistering the evnet listeners.
+as  |     */
+as  |        private function addEventListenersFileReference ( ) : void
+as  | 
+as  |        private function removeEventListenersFileReference ( ) : void
+as  | 
+as  |        private function addEventListenersFile ( ) : void
+as  | 
+as  |        private function removeEventListenersFile ( ) : void
+as  | 
+as  |     /*
+as  |     ** Gives the file or filereference from outside.
+as  |     */
+as  |PU      public function setFileReference ( f : * ) : void
 as  | 
 as  |     /*
 as  |     ** Destroys the existing fileReference object.
@@ -4717,6 +4751,11 @@ as  |     /*
 as  |     ** Selects a directory.
 as  |     */
 as  |        private function selectDirectory ( file : * ) : void
+as  | 
+as  |     /*
+as  |     ** The filename has a good or bad extension.
+as  |     */
+as  |        private function fileHasGoodExt ( filename : String ) : Boolean
 as  | 
 as  |     /*
 as  |     ** Sorts the names of the object located in the directory.
@@ -4945,6 +4984,271 @@ as  |        private function labelRepos ( ) : void
 as  | 
 as  |     /*
 as  |     ** Overriding this destroy method.
+as  |     */
+as  |PU      override public function destroy ( ) : void
+as  | 
+    +---------------------------------------------------------------------------
+as  | com\kisscodesystems\KissAs3Fw\ui\Camera.as
+as  | 
+as  |     Camera
+as  | 
+as  |     /*
+as  |     ** This class is a part of the KissAs3Fw actionscrip framework.
+as  |     ** See the header comment lines of the
+as  |     ** com . kisscodesystems . KissAs3Fw . Application
+as  |     ** The whole framework is available at:
+as  |     ** https://github.com/kisscodesystems/KissAs3Fw
+as  |     ** Demo applications:
+as  |     ** https://github.com/kisscodesystems/KissAs3FwDemos
+as  |     **
+as  |     ** DESCRIPTION:
+as  |     ** Camera.
+as  |     ** Catches one of the available camera devices.
+as  |     **
+as  |     ** MAIN FEATURES:
+as  |     ** - get and release the camera
+as  |     ** - choosing between cameras if available
+as  |     ** - the quality and the size can be set
+as  |     ** - photo can be taken
+as  |     ** - the exact properties are to modify:
+as  |     **   camera wide:    on  -  off (16:9 or 4:3)
+as  |     **   camera width:   160 -  960
+as  |     **   camera fps:     10  -  42
+as  |     **   camera quality: 42  -  100
+as  |     **   camera filter:  0   -  16 : blur
+as  |     **                   0   -  1  : alpha channel
+as  |     **                   0   -  2  : red channel
+as  |     **                   0   -  2  : green channel
+as  |     **                   0   -  2  : blue channel
+as  |     **   (for taking a picture and not for outgoing stream)
+as  |     **
+as  |     */
+as  | 
+as  |        package com . kisscodesystems . KissAs3Fw . ui
+as  |        extends BaseSprite
+as  |        lines   766
+as  | 
+as  |     Variables:
+as  | 
+as  |     // The sprite where the camera object can be appeared.
+as  |        private var bg : BaseSprite = null ;
+as  |     // Mask for the better view of the cam.
+as  |        private var shapeBgMask : BaseShape = null ;
+as  |     // To have a frame around the camera view.
+as  |        private var shapeBgFrame : BaseShape = null ;
+as  |     // The sprite that is clickable.
+as  |        private var clickSprite : BaseSprite = null ;
+as  |     // The linkbutton to activate the camera.
+as  |        private var cameraAttachButtonLink : ButtonLink = null ;
+as  |     // The button link of releasing the camera
+as  |        private var cameraDetachButtonLink : ButtonLink = null ;
+as  |     // The foreground or the settings can be displayed.
+as  |        private var fg : ContentSingle = null ;
+as  |     // And the settings.
+as  |        private var wideSwitcher : Switcher = null ;
+as  |        private var sizeTextLabel : TextLabel = null ;
+as  |        private var sizePotmet : Potmet = null ;
+as  |        private var fpsTextLabel : TextLabel = null ;
+as  |        private var fpsPotmet : Potmet = null ;
+as  |        private var qualityTextLabel : TextLabel = null ;
+as  |        private var qualityPotmet : Potmet = null ;
+as  |        private var filterTextLabel : TextLabel = null ;
+as  |        private var filterPotmetB : Potmet = null ;
+as  |        private var filterPotmetCR : Potmet = null ;
+as  |        private var filterPotmetCG : Potmet = null ;
+as  |        private var filterPotmetCB : Potmet = null ;
+as  |        private var filterPotmetCA : Potmet = null ;
+as  |        private var takePicture : ButtonText = null ;
+as  |        private var pictureSaved : TextLabel = null ;
+as  |        private var cameraListPicker : ListPicker = null ;
+as  |     // This will be the default filename to save the photo.
+as  |        private var filenameToSave : String = null ;
+as  |     // The camera object.
+as  |        private var camera : flash . media . Camera = null ;
+as  |     // The video object to display the view of the camera
+as  |        private var video : flash . media . Video = null ;
+as  |     // The available sizes of the camera.
+as  |        private var cameraWide : Boolean = false ;
+as  |        private var cameraWidth : int = 320 ;
+as  |        private var cameraHeight : int = 240 ;
+as  |     // The available fps of the camera:
+as  |        private var cameraFps : int = 24 ;
+as  |     // The quality of the Camera is:
+as  |        private var cameraQuality : int = 100 ;
+as  |     // The applied filter objects:
+as  |        private var blurFilter : BlurFilter = null ;
+as  |        private var colorMatrixFilter : ColorMatrixFilter = null ;
+as  |     // The available camera devices.
+as  |        private var cameraDevices : Array = null ;
+as  |     // The properties of the saved byte array.
+as  |        private var savedPictureName : String = null ;
+as  |        private var savedPictureByteArray : ByteArray = null ;
+as  |        private var savedEvent : Event = null ;
+as  |     // The file or fileReference objects.
+as  |        private var file : *= null ;
+as  |        private var fileReference : FileReference = null ;
+as  | 
+as  |     Functions:
+as  | 
+as  |     /*
+as  |     ** The constructor doing the initialization of this object as usual.
+as  |     */
+as  |PU      public function Camera ( applicationRef : Application ) : void
+as  | 
+as  |     /*
+as  |     ** The wide property of the camera has been changed.
+as  |     ** Destroys the camera view, does some modification and creates the camera again.
+as  |     */
+as  |        private function wideSwitcherChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The size of the camera is changed.
+as  |     ** Destroys the camera view, does some modification and creates the camera again.
+as  |     */
+as  |        private function sizeChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The fps of the camera is changed.
+as  |     ** No need to destroy the current camera view.
+as  |     */
+as  |        private function fpsChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The quality of the camera is changed.
+as  |     ** No need to destroy the current camera view.
+as  |     */
+as  |        private function qualityChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The filter of the camera is changed.
+as  |     */
+as  |        private function filterPotmetBChanged ( e : Event ) : void
+as  | 
+as  |        private function filterPotmetCChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The camera object has been changed by user selection.
+as  |     */
+as  |        private function cameraChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Apply the filters.
+as  |     ** If at least one of the filters is requested then the filter or filters
+as  |     ** will go into the filters array, otherwise the filters of bg will be null.
+as  |     */
+as  |        private function applyFilters ( ) : void
+as  | 
+as  |     /*
+as  |     ** Taking and saving a picture.
+as  |     */
+as  |        private function takePictureClick ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The saved event will be dispatched.
+as  |     */
+as  |        private function dispatchSavedEvent ( ) : void
+as  | 
+as  |     /*
+as  |     ** Let the outside world have the informations about the last saved image.
+as  |     */
+as  |PU      public function getFileReference ( ) : *
+as  | 
+as  |     /*
+as  |     ** The size of the take picture button has been changed.
+as  |     */
+as  |        private function takePictureSizeChanged ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The background of the stage is copied.
+as  |     */
+as  |        private function copyStagebg ( bitmapData : BitmapData ) : void
+as  | 
+as  |     /*
+as  |     ** The savings of the bytearray.
+as  |     ** air: saving into the documents directory
+as  |     ** web: saving where the user wants to
+as  |     */
+as  |        private function saveByteArrayFile ( ) : void
+as  | 
+as  |        private function saveByteArrayFileReference ( ) : void
+as  | 
+as  |        private function savedFromFileReference ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Recalculating and resizing the camera.
+as  |     ** After changing the wide or width property.
+as  |     */
+as  |        private function calcSizeStuffs ( ) : void
+as  | 
+as  |     /*
+as  |     ** Redraws the shapes. The clickable sprite too.
+as  |     */
+as  |        private function redrawShapes ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** The mouse is down on the background so the foreground has to be visible.
+as  |     */
+as  |        private function clickSpriteMouseDown ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Listen to the mouse down event.
+as  |     ** If the mouse is not over the object then the fg has to be not visible.
+as  |     */
+as  |        private function stageMouseDown ( e : MouseEvent ) : void
+as  | 
+as  |     /*
+as  |     ** Calculates the height of the camera.
+as  |     */
+as  |        private function calcCamHeight ( ) : void
+as  | 
+as  |     /*
+as  |     ** Gets the camera object to use for example in a stream.
+as  |     */
+as  |PU      public function getCamera ( ) : flash . media . Camera
+as  | 
+as  |     /*
+as  |     ** Attaches the camera.
+as  |     */
+as  |        private function attachCamera ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Creating the video object using the selected camera.
+as  |     */
+as  |        private function createVideo ( ) : void
+as  | 
+as  |     /*
+as  |     ** Handles the permission events.
+as  |     ** Detaching if something is not good.
+as  |     */
+as  |        private function permissionHandler ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** Detaches the camera.
+as  |     */
+as  |        private function detachCamera ( e : Event ) : void
+as  | 
+as  |     /*
+as  |     ** We are going to destroy the video object and release the used camera.
+as  |     */
+as  |        private function destroyVideo ( ) : void
+as  | 
+as  |     /*
+as  |     ** Is the camera in use?
+as  |     */
+as  |PU      public function isCameraInUse ( ) : Boolean
+as  | 
+as  |     /*
+as  |     ** Overriding the sizer methods.
+as  |     ** (to do nothing.)
+as  |     */
+as  |PU      override public function setsw ( newsw : int ) : void { }
+as  | 
+as  |PU      override public function setsh ( newsh : int ) : void { }
+as  | 
+as  |PU      override public function setswh ( newsw : int , newsh : int ) : void { }
+as  | 
+as  |     /*
+as  |     ** Override of destroy.
 as  |     */
 as  |PU      override public function destroy ( ) : void
 as  | 
@@ -6789,7 +7093,7 @@ as  |        private var closer : BaseSprite = null ;
 as  |     // The resizer of this widget.
 as  |        private var resizer : BaseSprite = null ;
 as  |     // And the contentMultiple of this widget.
-as  |        private var contentMultiple : ContentMultiple = null ;
+as  |        protected var contentMultiple : ContentMultiple = null ;
 as  |     // To be able to determine: the widget is moved or not.
 as  |        private var prevMouseX : int = 0 ;
 as  |        private var prevMouseY : int = 0 ;

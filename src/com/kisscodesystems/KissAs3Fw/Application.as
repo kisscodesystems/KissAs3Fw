@@ -42,6 +42,9 @@
 **                   several smaller improvements
 **                   ButtonFile class is added to handle file browsing and uploading
 **                   This works on desktop, webbrowser and on mobile devices.
+**                   1.7 - 08.19.2017
+**                   Camera object is added now.
+**                   The File and FileReference can be set from outside in ButtonFile.
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -77,8 +80,6 @@
 ** These are necessary to be there because the grabage collecting will not happen
 ** immediately so there will be some function calls that we don't want actually.
 ** We can avoid the running of these functions by checking this condition.
-**
-** Copyright (C) 2017 KissCode Systems Kft
 **
 ** KissAs3Fw is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -161,6 +162,8 @@ package com . kisscodesystems . KissAs3Fw
 // The events of the file upload.
     public const EVENT_FILE_UPLOAD_DONE : String = "EVENT_FILE_UPLOAD_DONE" ;
     public const EVENT_FILE_UPLOAD_FAIL : String = "EVENT_FILE_UPLOAD_FAIL" ;
+// THe event ostring of the successfuly saving.
+    public const EVENT_SAVED : String = "EVENT_SAVED" ;
 // Events of the reaching the bottom.
     public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
 // Empty html paragraph
@@ -607,7 +610,7 @@ package com . kisscodesystems . KissAs3Fw
         debugTextField . x = 50 ;
         debugTextField . y = 10 ;
         debugTextField . width = 500 ;
-        debugTextField . height = 300 ;
+        debugTextField . height = 50 ;
         debugTextField . selectable = true ;
         debugTextField . defaultTextFormat = propsDyn . getTextFormatBright ( ) ;
       }

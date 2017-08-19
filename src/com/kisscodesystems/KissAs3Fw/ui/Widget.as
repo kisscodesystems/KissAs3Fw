@@ -57,7 +57,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The resizer of this widget.
     private var resizer : BaseSprite = null ;
 // And the contentMultiple of this widget.
-    private var contentMultiple : ContentMultiple = null ;
+    protected var contentMultiple : ContentMultiple = null ;
 // To be able to determine: the widget is moved or not.
     private var prevMouseX : int = 0 ;
     private var prevMouseY : int = 0 ;

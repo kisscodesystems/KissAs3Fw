@@ -24,6 +24,8 @@
 ** - The upload is available by specifying a urlrequest object
 ** - Handles automatically the air or web environment!
 **   (to use filereference or file)
+** - File or Filereference can be set from outside
+**   (for example after taking a photo by Camera object)
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
@@ -60,10 +62,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var regexp : RegExp = null ;
 // The predefined filefilters.
     public const fileFilterAll : FileFilter = new FileFilter ( "All Files (*.*)" , "*.*" ) ;
-    public const fileFilterImgs : FileFilter = new FileFilter ( "Images (*.jpg, *.jpeg, *.gif, *.png)" , "*.jpg; *.jpeg; *.gif; *.png" ) ;
+    public const fileFilterImgs : FileFilter = new FileFilter ( "Images (*.jpg, *.jpeg, *.gif, *.png, *.bmp)" , "*.jpg; *.jpeg; *.gif; *.png; *.bmp" ) ;
     public const fileFilterTxts : FileFilter = new FileFilter ( "Text Files (*.txt, *.rtf, *.log)" , "*.txt; *.rtf; *.log" ) ;
     public const fileFilterPdfs : FileFilter = new FileFilter ( "Pdf Files (*.pdf)" , "*.pdf" ) ;
-    public const fileFilterDocs : FileFilter = new FileFilter ( "Doc Files (*.doc, *.docx, *.odt)" , "*.doc; *.docx; *.odt" ) ;
+    public const fileFilterDocs : FileFilter = new FileFilter ( "Document Files (*.doc, *.docx, *.odt)" , "*.doc; *.docx; *.odt" ) ;
     public const fileFilterPres : FileFilter = new FileFilter ( "Presentation Files (*.ppt, *.pptx, *.odp)" , "*.ppt; *.pptx; *.odp" ) ;
     public const fileFilterExcs : FileFilter = new FileFilter ( "Calculate Files (*.xls, *.xlsx, *.ods)" , "*.xls; *.xlsx; *.ods" ) ;
 /*
@@ -84,6 +86,117 @@ package com . kisscodesystems . KissAs3Fw . ui
       destroyFileReference ( ) ;
     }
 /*
+** Registering and unregistering the evnet listeners.
+*/
+    private function addEventListenersFileReference ( ) : void
+    {
+      if ( fileReference != null )
+      {
+        fileReference . addEventListener ( Event . SELECT , fileSelected ) ;
+        fileReference . addEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
+        fileReference . addEventListener ( Event . OPEN , startHandler ) ;
+        fileReference . addEventListener ( Event . COMPLETE , completeHandler ) ;
+        fileReference . addEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
+        fileReference . addEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
+        fileReference . addEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+      }
+    }
+    private function removeEventListenersFileReference ( ) : void
+    {
+      if ( fileReference != null )
+      {
+        fileReference . cancel ( ) ;
+        fileReference . removeEventListener ( Event . SELECT , fileSelected ) ;
+        fileReference . removeEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
+        fileReference . removeEventListener ( Event . OPEN , startHandler ) ;
+        fileReference . removeEventListener ( Event . COMPLETE , completeHandler ) ;
+        fileReference . removeEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
+        fileReference . removeEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
+        fileReference . removeEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+      }
+    }
+    private function addEventListenersFile ( ) : void
+    {
+      if ( file != null )
+      {
+        file . addEventListener ( Event . SELECT , fileSelected ) ;
+        file . addEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
+        file . addEventListener ( Event . OPEN , startHandler ) ;
+        file . addEventListener ( Event . COMPLETE , completeHandler ) ;
+        file . addEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
+        file . addEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
+        file . addEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+      }
+    }
+    private function removeEventListenersFile ( ) : void
+    {
+      if ( file != null )
+      {
+        file . cancel ( ) ;
+        file . removeEventListener ( Event . SELECT , fileSelected ) ;
+        file . removeEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
+        file . removeEventListener ( Event . OPEN , startHandler ) ;
+        file . removeEventListener ( Event . COMPLETE , completeHandler ) ;
+        file . removeEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
+        file . removeEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
+        file . removeEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+      }
+    }
+/*
+** Gives the file or filereference from outside.
+*/
+    public function setFileReference ( f : * ) : void
+    {
+// Destroy if it is existing.
+      destroyFileReference ( ) ;
+      if ( application . getFileClassIsUsable ( ) )
+      {
+        try
+        {
+// The fileReference object to be initialized.
+          file = File ( f ) ;
+          if ( fileHasGoodExt ( file . name ) )
+          {
+// To specify the label of the file.
+            addEventListenersFile ( ) ;
+// The selection will happen automatically at this time.
+            fileSelected ( null ) ;
+          }
+          else
+          {
+            destroyFileReference ( ) ;
+          }
+        }
+        catch ( e : * )
+        {
+          destroyFileReference ( ) ;
+        }
+      }
+      else
+      {
+        try
+        {
+// The fileReference object to be initialized.
+          fileReference = FileReference ( f ) ;
+          if ( fileHasGoodExt ( fileReference . name ) )
+          {
+// To specify the label of the file.
+            addEventListenersFileReference ( ) ;
+// The selection will happen automatically at this time.
+            fileSelected ( null ) ;
+          }
+          else
+          {
+            destroyFileReference ( ) ;
+          }
+        }
+        catch ( e : * )
+        {
+          destroyFileReference ( ) ;
+        }
+      }
+    }
+/*
 ** Destroys the existing fileReference object.
 */
     public function destroyFileReference ( ) : void
@@ -95,33 +208,13 @@ package com . kisscodesystems . KissAs3Fw . ui
 // If it is not null then let it be null.
       if ( application . getFileClassIsUsable ( ) )
       {
-        if ( file != null )
-        {
-          file . cancel ( ) ;
-          file . removeEventListener ( Event . SELECT , fileSelected ) ;
-          file . removeEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
-          file . removeEventListener ( Event . OPEN , startHandler ) ;
-          file . removeEventListener ( Event . COMPLETE , completeHandler ) ;
-          file . removeEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
-          file . removeEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
-          file . removeEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
-          file = null ;
-        }
+        removeEventListenersFile ( ) ;
+        file = null ;
       }
       else
       {
-        if ( fileReference != null )
-        {
-          fileReference . cancel ( ) ;
-          fileReference . removeEventListener ( Event . SELECT , fileSelected ) ;
-          fileReference . removeEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
-          fileReference . removeEventListener ( Event . OPEN , startHandler ) ;
-          fileReference . removeEventListener ( Event . COMPLETE , completeHandler ) ;
-          fileReference . removeEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
-          fileReference . removeEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
-          fileReference . removeEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
-          fileReference = null ;
-        }
+        removeEventListenersFileReference ( ) ;
+        fileReference = null ;
       }
     }
 /*
@@ -143,26 +236,14 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The fileReference object to be initialized.
         file = new File ( ) ;
 // To specify the label of the file.
-        file . addEventListener ( Event . SELECT , fileSelected ) ;
-        file . addEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
-        file . addEventListener ( Event . OPEN , startHandler ) ;
-        file . addEventListener ( Event . COMPLETE , completeHandler ) ;
-        file . addEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
-        file . addEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
-        file . addEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+        addEventListenersFile ( ) ;
       }
       else
       {
 // The fileReference object to be initialized.
         fileReference = new FileReference ( ) ;
 // To specify the label of the file.
-        fileReference . addEventListener ( Event . SELECT , fileSelected ) ;
-        fileReference . addEventListener ( DataEvent . UPLOAD_COMPLETE_DATA , uploadDataRecived ) ;
-        fileReference . addEventListener ( Event . OPEN , startHandler ) ;
-        fileReference . addEventListener ( Event . COMPLETE , completeHandler ) ;
-        fileReference . addEventListener ( HTTPStatusEvent . HTTP_STATUS , httpHandler ) ;
-        fileReference . addEventListener ( ProgressEvent . PROGRESS , progressHandler ) ;
-        fileReference . addEventListener ( IOErrorEvent . IO_ERROR , errorHandler ) ;
+        addEventListenersFileReference ( ) ;
       }
     }
 /*
@@ -231,7 +312,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function uploadDataRecived ( e : DataEvent ) : void
     {
       uploadCompleteData = e . data ;
-      if ( getBaseEventDispatcher ( ) != null )
+      if ( getBaseEventDispatcher ( ) != null && eventFileUploadDone != null )
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventFileUploadDone ) ;
       }
@@ -255,8 +336,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function errorHandler ( e : IOErrorEvent ) : void
     {
-      uploadCompleteData = "error" ;
-      if ( getBaseEventDispatcher ( ) != null )
+      uploadCompleteData = "" + e ;
+      if ( getBaseEventDispatcher ( ) != null && eventFileUploadFail != null )
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventFileUploadFail ) ;
       }
@@ -359,10 +440,6 @@ package com . kisscodesystems . KissAs3Fw . ui
           var currentDirectoryContent : Array = File ( file ) . getDirectoryListing ( ) . sort ( fileSort ) ;
           arrLabels . push ( ".." ) ;
           arrFiles . push ( File ( file ) . parent ) ;
-          var fileMatchesToFilteredExtensions : Boolean = false ;
-          var currentFileFilterExtension : String = "" ;
-          var currentFileExtPoint : int = 0 ;
-          var currentFileExtension : String = "" ;
           for ( var i : int = 0 ; i < currentDirectoryContent . length ; i ++ )
           {
             if ( File ( currentDirectoryContent [ i ] ) . isDirectory )
@@ -370,48 +447,53 @@ package com . kisscodesystems . KissAs3Fw . ui
               arrLabels . push ( "+" + currentDirectoryContent [ i ] . name ) ;
               arrFiles . push ( File ( currentDirectoryContent [ i ] ) ) ;
             }
-            else
+            else if ( fileHasGoodExt ( currentDirectoryContent [ i ] . name ) )
             {
-              fileMatchesToFilteredExtensions = false ;
-              if ( fileFilters != null )
-              {
-                for ( var j : int = 0 ; j < fileFilters . length ; j ++ )
-                {
-                  currentFileFilterExtension = FileFilter ( fileFilters [ j ] ) . extension . toLowerCase ( ) + ";" ;
-                  if ( currentFileFilterExtension . indexOf ( ".*" ) != - 1 )
-                  {
-                    fileMatchesToFilteredExtensions = true ;
-                    break ;
-                  }
-                  else
-                  {
-                    currentFileExtPoint = currentDirectoryContent [ i ] . name . lastIndexOf ( "." ) ;
-                    if ( currentFileExtPoint > 0 )
-                    {
-                      currentFileExtension = currentDirectoryContent [ i ] . name . substr ( currentFileExtPoint + 1 ) . toLowerCase ( ) ;
-                      if ( currentFileFilterExtension . indexOf ( "." + currentFileExtension + ";" ) > 0 )
-                      {
-                        fileMatchesToFilteredExtensions = true ;
-                        break ;
-                      }
-                    }
-                  }
-                }
-              }
-              else
-              {
-                fileMatchesToFilteredExtensions = true ;
-              }
-              if ( fileMatchesToFilteredExtensions )
-              {
-                arrLabels . push ( "  " + currentDirectoryContent [ i ] . name ) ;
-                arrFiles . push ( File ( currentDirectoryContent [ i ] ) ) ;
-              }
+              arrLabels . push ( "  " + currentDirectoryContent [ i ] . name ) ;
+              arrFiles . push ( File ( currentDirectoryContent [ i ] ) ) ;
             }
           }
           fileList . setArrays ( arrLabels , arrFiles ) ;
         }
       }
+    }
+/*
+** The filename has a good or bad extension.
+*/
+    private function fileHasGoodExt ( filename : String ) : Boolean
+    {
+      var fileMatchesToFilteredExtensions : Boolean = false ;
+      var currentFileFilterExtensions : String = "" ;
+      var currentFileExtPoint : int = filename . lastIndexOf ( "." ) ;
+      var currentFileExtension : String = filename . substr ( currentFileExtPoint + 1 ) . toLowerCase ( ) ;
+      if ( fileFilters != null )
+      {
+        for ( var j : int = 0 ; j < fileFilters . length ; j ++ )
+        {
+          currentFileFilterExtensions = FileFilter ( fileFilters [ j ] ) . extension . toLowerCase ( ) + ";" ;
+          if ( currentFileFilterExtensions . indexOf ( ".*" ) != - 1 )
+          {
+            fileMatchesToFilteredExtensions = true ;
+            break ;
+          }
+          else
+          {
+            if ( currentFileExtPoint > 0 )
+            {
+              if ( currentFileFilterExtensions . indexOf ( "." + currentFileExtension + ";" ) > 0 )
+              {
+                fileMatchesToFilteredExtensions = true ;
+                break ;
+              }
+            }
+          }
+        }
+      }
+      else
+      {
+        fileMatchesToFilteredExtensions = true ;
+      }
+      return fileMatchesToFilteredExtensions ;
     }
 /*
 ** Sorts the names of the object located in the directory.

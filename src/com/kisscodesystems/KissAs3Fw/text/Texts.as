@@ -95,5 +95,17 @@ package com . kisscodesystems . KissAs3Fw . text
     public const UPLOADED_FILE : String = BTC + "UPLOADED_FILE" + ETC ;
     public const BROWSE : String = BTC + "BROWSE" + ETC ;
     public const FILE_UPLOAD_IN_PROGRESS : String = BTC + "FILE_UPLOAD_IN_PROGRESS" + ETC ;
+// Camera activate and release links.
+    public const ACTIVATE_CAMERA : String = BTC + "ACTIVATE_CAMERA" + ETC ;
+    public const RELEASE_CAMERA : String = BTC + "RELEASE_CAMERA" + ETC ;
+    public const CAMERA_WIDE_RES : String = BTC + "CAMERA_WIDE_RES" + ETC ;
+    public const CAMERA_NORMAL_RES : String = BTC + "CAMERA_NORMAL_RES" + ETC ;
+    public const CAMERA_SIZE : String = BTC + "CAMERA_SIZE" + ETC ;
+    public const CAMERA_FPS : String = BTC + "CAMERA_FPS" + ETC ;
+    public const CAMERA_QUALITY : String = BTC + "CAMERA_QUALITY" + ETC ;
+    public const CAMERA_FILTER : String = BTC + "CAMERA_FILTER" + ETC ;
+    public const CAMERA_TAKE_PICTURE : String = BTC + "CAMERA_TAKE_PICTURE" + ETC ;
+    public const CAMERA_PICTURE_SAVED_WEB : String = BTC + "CAMERA_PICTURE_SAVED_WEB" + ETC ;
+    public const CAMERA_PICTURE_SAVED_AIR : String = BTC + "CAMERA_PICTURE_SAVED_AIR" + ETC ;
   }
 }
