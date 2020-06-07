@@ -5,4 +5,4 @@ Actionscript3 based framework for Flash Player or Air of Adobe.
 
 This framework will contain the set of frequently used UI components implemented based on our ideas and will grow continuously.
 
-Read more: https://openso.kisscodesystems.com
+Read more: http://kcsopensource.com
