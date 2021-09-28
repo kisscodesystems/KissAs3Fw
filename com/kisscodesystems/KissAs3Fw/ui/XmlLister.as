@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** XmlLister. Lists and handles xmls.
@@ -30,6 +30,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The array that can be displayed.
     private var arrayLabels : Array = null ;
     private var arrayValues : Array = null ;
+    private var arrayIcons : Array = null ;
 // The xml object to be handled.
 // The keywords are: items, item, opened, value.
     private var xml : XML = null ;
@@ -58,6 +59,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The array should be an empty one.
       arrayLabels = new Array ( ) ;
       arrayValues = new Array ( ) ;
+      arrayIcons = new Array ( ) ;
 // This is by default.
       selectedItem = "" ;
       startIndex = 0 ;
@@ -95,7 +97,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         xml = null ;
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
-        list . setArrays ( arrayLabels , arrayValues ) ;
+        arrayIcons = new Array ( ) ;
+        list . setArrays ( arrayLabels , arrayValues , arrayIcons ) ;
         list . setStartIndex ( 0 ) ;
       }
     }
@@ -108,14 +111,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
+        arrayIcons = new Array ( ) ;
         listAnItem ( new XMLList ( xml . children ( ) ) , "" ) ;
       }
       catch ( e : Error )
       {
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
+        arrayIcons = new Array ( ) ;
       }
-      list . setArrays ( arrayLabels , arrayValues ) ;
+      list . setArrays ( arrayLabels , arrayValues , arrayIcons ) ;
       list . setStartIndex ( startIndex ) ;
     }
 /*
@@ -133,6 +138,14 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           arrayLabels . push ( beginString + "    " + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
+          try
+          {
+            arrayIcons . push ( x . @ icon ) ;
+          }
+          catch ( e : * )
+          {
+            arrayIcons . push ( "" ) ;
+          }
         }
 // The item . length ( ) is greather than zero and it is closed (opened=="0"),
 // so this single element has to be added into the displayable array,
@@ -142,6 +155,14 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           arrayLabels . push ( beginString + "  +" + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
+          try
+          {
+            arrayIcons . push ( x . @ icon ) ;
+          }
+          catch ( e : * )
+          {
+            arrayIcons . push ( "" ) ;
+          }
         }
 // The item . length ( ) is greather than zero and it is opened (opened=="1"),
 // so this single element has to be added into the displayable array,
@@ -152,6 +173,14 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           arrayLabels . push ( beginString + "  - " + x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
+          try
+          {
+            arrayIcons . push ( x . @ icon ) ;
+          }
+          catch ( e : * )
+          {
+            arrayIcons . push ( "" ) ;
+          }
           listAnItem ( new XMLList ( x . children ( ) ) , beginString + "    " ) ;
         }
       }
@@ -281,6 +310,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       arrayLabels = null ;
       arrayValues . splice ( 0 ) ;
       arrayValues = null ;
+      arrayIcons . splice ( 0 ) ;
+      arrayIcons = null ;
       xml = null ;
       selectedItem = null ;
       startIndex = 0 ;

@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseOpen.
@@ -105,8 +105,6 @@ package com . kisscodesystems . KissAs3Fw . base
         stage . addEventListener ( MouseEvent . MOUSE_DOWN , hasToCloseByMouse , false , 0 , true ) ;
         stage . addEventListener ( KeyboardEvent . KEY_DOWN , hasToCloseByKeyboard , false , 0 , true ) ;
       }
-// The object has to be placed onto the top of other objects.
-      toTheHighestDepth ( ) ;
 // Be visible if not.
       toBeVisible ( ) ;
     }

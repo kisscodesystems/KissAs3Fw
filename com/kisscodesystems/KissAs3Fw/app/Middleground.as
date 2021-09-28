@@ -5,14 +5,24 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Middleground.
-** The header, footer and widgets, the panel of the menu and the settings are here.
+** The info and widgets, the panel of the menu and the settings are here.
 **
 ** MAIN FEATURES:
-** - holds the header , footer , widgets , settings button , settings panel , menu button , menu panel , application name textfield
+** - holds the
+**     info
+**     , widgets
+**     , settings button
+**     , settings panel
+**     , menu button
+**     , menu panel
+**     , application name textfield
+**     , watch
+**     , terms and conditions buttonlink
+**     , privacy policy buttonlink
 ** - followes the size of the application (stage)
 ** - can be not visible: a blur filter will be applied at this time.
 */
@@ -21,14 +31,15 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import com . kisscodesystems . KissAs3Fw . ui . ButtonDraw ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
+  import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
+  import com . kisscodesystems . KissAs3Fw . ui . ButtonText ;
   import com . kisscodesystems . KissAs3Fw . ui . TextLabel ;
+  import com . kisscodesystems . KissAs3Fw . ui . Watch ;
   import com . kisscodesystems . KissAs3Fw . ui . Widget ;
   import flash . display . BitmapData ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
-  import flash . filters . BlurFilter ;
   import flash . geom . Matrix ;
   import flash . text . TextField ;
   public class Middleground extends BaseSprite
@@ -36,25 +47,21 @@ package com . kisscodesystems . KissAs3Fw . app
 // This is the objext of the widgets.
 // Every widget used in this application will be added to there.
     private var widgets : Widgets = null ;
-// This is the header and footer base shape objects.
-    private var footer : Footer = null ;
-    private var header : Header = null ;
 // The height of the the widgetsh.
     private var widgetsh : int = 0 ;
-// The height of the footer and the header will be calculated here.
-    private var headerh : int = 0 ;
-    private var footerh : int = 0 ;
+// The height of the info will be calculated here.
+    private var infoh : int = 0 ;
 // The stuffs of the menu if enabled.
-    private var buttonDrawMenu : ButtonDraw = null ;
+    private var buttonTextMenu : ButtonText = null ;
     private var panelMenu : PanelMenu = null ;
 // The stuffs of the settings if enabled.
-    private var buttonDrawSettings : ButtonDraw = null ;
+    private var buttonTextSettings : ButtonText = null ;
     private var panelSettings : PanelSettings = null ;
+// The watch to display the current (client) time
+    private var watch : Watch = null ;
 // The label to display the name of the application.
-    private var textLabelApplicationName : TextLabel = null ;
+    private var applicationName : TextLabel = null ;
 // This object should be blured or not.
-// (visible1: not blured, not visible1: blur filter should be applied.)
-    private var visible1 : Boolean = true ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -62,23 +69,35 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // Let's store this reference to the Application object.
       super ( applicationRef ) ;
-      filters = null ;
 // Let's add these layers!
       widgets = new Widgets ( application ) ;
       addChild ( widgets ) ;
       widgets . addWidgetContainer ( ) ;
-      footer = new Footer ( application ) ;
-      addChild ( footer ) ;
-      header = new Header ( application ) ;
-      addChild ( header ) ;
-      createApplicationNameTextField ( ) ;
+// The name of this application will be displayed here.
+      applicationName = new TextLabel ( application ) ;
+      addChild ( applicationName ) ;
+// The best layer to watch is above the application name.
+      watch = new Watch ( application ) ;
+      addChild ( watch ) ;
+      watch . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , watchSizesChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WATCH_REPOSITIONED , appNameReSize ) ;
 // The buttons and the panels of the settings and menu.
       if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
       {
-        buttonDrawMenu = new ButtonDraw ( application ) ;
-        addChild ( buttonDrawMenu ) ;
-        buttonDrawMenu . setButtonType ( application . DRAW_BUTTON_TYPE_MENU ) ;
-        buttonDrawMenu . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawMenuClick ) ;
+        buttonTextMenu = new ButtonText ( application ) ;
+        addChild ( buttonTextMenu ) ;
+        buttonTextMenu . setIcon ( "menu" ) ;
+        buttonTextMenu . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonTextMenuClick ) ;
+      }
+      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
+      {
+        buttonTextSettings = new ButtonText ( application ) ;
+        addChild ( buttonTextSettings ) ;
+        buttonTextSettings . setIcon ( "settings" ) ;
+        buttonTextSettings . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonTextSettingsClick ) ;
+      }
+      if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+      {
         panelMenu = new PanelMenu ( application ) ;
         addChild ( panelMenu ) ;
         panelMenu . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLOSED , panelMenuClosed ) ;
@@ -86,10 +105,6 @@ package com . kisscodesystems . KissAs3Fw . app
       }
       if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
-        buttonDrawSettings = new ButtonDraw ( application ) ;
-        addChild ( buttonDrawSettings ) ;
-        buttonDrawSettings . setButtonType ( application . DRAW_BUTTON_TYPE_SETTINGS ) ;
-        buttonDrawSettings . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawSettingsClick ) ;
         panelSettings = new PanelSettings ( application ) ;
         addChild ( panelSettings ) ;
         panelSettings . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLOSED , panelSettingsClosed ) ;
@@ -98,50 +113,35 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , stuffsChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , stuffsChanged ) ;
     }
 /*
-** Sets the name of the application.
-** This writes a label into the header of the application.
+** When the watch is resized then it is necessary to reposition.
 */
-    private function createApplicationNameTextField ( ) : void
+    public function watchSizesChanged ( e : Event ) : void
     {
-      textLabelApplicationName = new TextLabel ( application ) ;
-      addChild ( textLabelApplicationName ) ;
-      textLabelApplicationName . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
-      textLabelApplicationName . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeReposApplicationName ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , resizeReposApplicationName ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resizeReposApplicationName ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeReposApplicationName ) ;
-    }
-    public function setApplicationName ( ) : void
-    {
-      if ( application != null )
+      if ( watch != null )
       {
-        textLabelApplicationName . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
-        resizeReposApplicationName ( ) ;
+        watch . setcxy ( ( buttonTextSettings != null ? buttonTextSettings . getcx ( ) : getsw ( ) ) - watch . getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
       }
     }
-    private function resizeReposApplicationName ( e : Event = null ) : void
+/*
+** Sets the name of the application, and the other text codes.
+*/
+    public function setApplicationNameWithIcon ( iconName : String ) : void
     {
-      if ( application != null )
+      if ( application != null && applicationName != null )
       {
-        if ( textLabelApplicationName != null )
+        applicationName . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        if ( iconName != null && iconName != "" )
         {
-          textLabelApplicationName . setMaxWidth ( getsw ( ) - 4 * textLabelApplicationName . getsh ( ) - 4 * application . getPropsDyn ( ) . getAppPadding ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , false ) ;
-          textLabelApplicationName . setcxy ( ( getsw ( ) - textLabelApplicationName . getsw ( ) ) / 2 , 2 * application . getPropsDyn ( ) . getAppPadding ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          applicationName . setIcon ( iconName ) ;
+        }
+        else
+        {
+          applicationName . destIcon ( ) ;
         }
       }
-    }
-/*
-** Complete style modification has been chaned or just a single property.
-*/
-    public function isStyleChange ( ) : Boolean
-    {
-      if ( panelSettings != null )
-      {
-        return panelSettings . isStyleChange ( ) ;
-      }
-      return false ;
     }
 /*
  ** Gets the active widget container.
@@ -158,17 +158,6 @@ package com . kisscodesystems . KissAs3Fw . app
       }
     }
 /*
-** The last (user) style is selected or not.
-*/
-    public function isUserStyleSelected ( ) : Boolean
-    {
-      if ( panelSettings != null )
-      {
-        return panelSettings . isUserStyleSelected ( ) ;
-      }
-      return false ;
-    }
-/*
 ** Gets the event of the changing of the menu.
 */
     private function panelMenuHandler ( e : Event ) : void
@@ -179,26 +168,13 @@ package com . kisscodesystems . KissAs3Fw . app
       }
     }
 /*
-** Sets the smartphone mode.
-** Currently: the panel settings and the widgets objects support this.
-*/
-    public function toSmartphone ( ) : void
-    {
-      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
-      {
-        panelSettings . toSmartphone ( ) ;
-      }
-      widgets . toSmartphone ( ) ;
-      reposResizeStuffs ( ) ;
-    }
-/*
 ** Gets the application background image uploaded by the user.
 */
-    public function getAppBackgroundUserImage ( ) : ButtonFile
+    public function getUserBgButtonFile ( ) : ButtonFile
     {
       if ( panelSettings != null )
       {
-        return panelSettings . getAppBackgroundUserImage ( ) ;
+        return panelSettings . getUserBgButtonFile ( ) ;
       }
       else
       {
@@ -211,34 +187,22 @@ package com . kisscodesystems . KissAs3Fw . app
     override public function setEnabled ( e : Boolean ) : void
     {
       super . setEnabled ( e ) ;
-      if ( buttonDrawMenu != null )
+      if ( buttonTextMenu != null )
       {
-        buttonDrawMenu . setEnabled ( getEnabled ( ) ) ;
+        buttonTextMenu . setEnabled ( getEnabled ( ) ) ;
       }
-      if ( buttonDrawSettings != null )
+      if ( buttonTextSettings != null )
       {
-        buttonDrawSettings . setEnabled ( getEnabled ( ) ) ;
+        buttonTextSettings . setEnabled ( getEnabled ( ) ) ;
       }
     }
 /*
 ** Sets its clear property instead of visible (always has to be visible).
-** If this is not visible then a filter should be applied.
 ** The setVisible of the Foreground should be called instead of this!
 */
     public function setVisible ( b : Boolean ) : void
     {
-      if ( visible1 != b )
-      {
-        visible1 = b ;
-        if ( visible1 )
-        {
-          filters = null ;
-        }
-        else
-        {
-          filters = [ application . getPropsApp ( ) . getBlurFilterBackMiddle ( ) ] ;
-        }
-      }
+      visible = b ;
     }
 /*
 ** Sets the lang code.
@@ -248,50 +212,6 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
         panelSettings . setLangCode ( langCode ) ;
-      }
-    }
-/*
-** Sets the orientation of the widgets in this app.
-*/
-    public function setWidgetsOrientation ( widgetOrientation : String ) : void
-    {
-      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
-      {
-        panelSettings . setWidgetsOrientation ( widgetOrientation ) ;
-      }
-    }
-/*
-** Sets the predefined displaying styles.
-*/
-    public function setDisplayingStyle ( styleName : String ) : void
-    {
-      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
-      {
-        panelSettings . setDisplayingStyleByListpicker ( styleName ) ;
-      }
-      else
-      {
-        application . getPropsDyn ( ) . setDisplayingStyle ( styleName ) ;
-      }
-    }
-/*
-** Backgrounds images can be added -> it may be necessary to update the list.
-*/
-    public function setElementsOfBackgroundImageOBJ ( ) : void
-    {
-      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
-      {
-        panelSettings . setElementsOfBackgroundImageOBJ ( ) ;
-      }
-    }
-/*
-** Sometimes we want to change the background object from outside.
-*/
-    public function setBackgroundImageByIndex ( i : int ) : void
-    {
-      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
-      {
-        panelSettings . setBackgroundImageByIndex ( i ) ;
       }
     }
 /*
@@ -353,25 +273,25 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function stuffsChanged ( e : Event ) : void
     {
-      reposResizeStuffs ( ) ;
+      middlegroundRePosSize ( ) ;
     }
 /*
 ** Sets the visible of the menu and settings button.
 */
-    public function setVisibleButtonDrawMenu ( v : Boolean ) : void
+    public function setVisibleButtonTextMenu ( v : Boolean ) : void
     {
       panelMenuClosed ( null ) ;
-      buttonDrawMenu . visible = v ;
+      buttonTextMenu . setEnabled ( v ) ;
     }
-    public function setVisibleButtonDrawSettings ( v : Boolean ) : void
+    public function setVisibleButtonTextSettings ( v : Boolean ) : void
     {
       panelSettingsClosed ( null ) ;
-      buttonDrawSettings . visible = v ;
+      buttonTextSettings . setEnabled ( v ) ;
     }
 /*
 ** The menu and the settings button has been clicked.
 */
-    private function buttonDrawMenuClick ( e : Event ) : void
+    private function buttonTextMenuClick ( e : Event ) : void
     {
       openPanelMenu ( ) ;
     }
@@ -379,7 +299,7 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
       {
-        buttonDrawMenu . visible = false ;
+        buttonTextMenu . visible = false ;
         panelMenu . open ( ) ;
       }
     }
@@ -387,11 +307,12 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
       {
-        buttonDrawMenu . visible = true ;
+        buttonTextMenu . visible = true ;
+        buttonTextMenu . setEnabled ( true ) ;
         panelMenu . close ( ) ;
       }
     }
-    private function buttonDrawSettingsClick ( e : Event ) : void
+    private function buttonTextSettingsClick ( e : Event ) : void
     {
       openPanelSettings ( ) ;
     }
@@ -399,7 +320,7 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
-        buttonDrawSettings . visible = false ;
+        buttonTextSettings . visible = false ;
         panelSettings . open ( ) ;
       }
     }
@@ -407,30 +328,17 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
-        buttonDrawSettings . visible = true ;
+        buttonTextSettings . visible = true ;
+        buttonTextSettings . setEnabled ( true ) ;
         panelSettings . close ( ) ;
       }
     }
 /*
 ** The panel settings user background image.
 */
-    public function setUserImageEnabled ( b : Boolean ) : void
+    public function setUserBgButtonFileEnabled ( b : Boolean ) : void
     {
-      panelSettings . setUserImageEnabled ( b ) ;
-    }
-/*
-** Sets the selected background.
-*/
-    public function setAppBackgroundImage ( index : int ) : void
-    {
-      panelSettings . setAppBackgroundImage ( index ) ;
-    }
-/*
-** Sets the selected align to background.
-*/
-    public function setAppBackgroundAlign ( index : int ) : void
-    {
-      panelSettings . setAppBackgroundAlign ( index ) ;
+      panelSettings . setUserBgButtonFileEnabled ( b ) ;
     }
 /*
 ** The buttons has to be set sometimes.
@@ -450,87 +358,93 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
       {
-        buttonDrawMenu . visible = true ;
-        buttonDrawMenu . setEnabled ( true ) ;
+        buttonTextMenu . visible = true ;
+        buttonTextMenu . setEnabled ( true ) ;
       }
     }
     private function panelSettingsClosed ( e : Event ) : void
     {
       if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
-        buttonDrawSettings . visible = true ;
-        buttonDrawSettings . setEnabled ( true ) ;
+        buttonTextSettings . visible = true ;
+        buttonTextSettings . setEnabled ( true ) ;
       }
+    }
+/*
+** Get this sizes: sometimes it is needed to be public.
+*/
+    public function getPanelWidth ( ) : int
+    {
+      return application . getPropsDyn ( ) . weAreInDesktopMode ( ) ? ( ( application . getPropsDyn ( ) . getAppFontSize ( ) == 0 ? application . calcFontSizeFromStageSize ( ) : application . getPropsDyn ( ) . getAppFontSize ( ) ) + 10 ) * 10 + application . getPropsDyn ( ) . getAppMargin ( ) * 8 + application . getPropsDyn ( ) . getAppPadding ( ) * 8 : getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ;
+    }
+    public function getPanelMenuHeight ( ) : int
+    {
+      return getsh ( ) - buttonTextMenu . getcy ( ) - application . getPropsDyn ( ) . getAppMargin ( ) ;
+    }
+    public function getPanelSettingsHeight ( ) : int
+    {
+      return getsh ( ) - buttonTextSettings . getcysh ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ;
+    }
+/*
+** Reference to the watch.
+*/
+    public function getWatch ( ) : Watch
+    {
+      return watch ;
     }
 /*
 ** The resizing and repositioning of stuffs of menu and settings.
+** Should be public because the widget mode changing needs this.
 */
-    private function reposResizeStuffs ( ) : void
+    public function middlegroundRePosSize ( ) : void
     {
       if ( application != null )
       {
-        if ( application . getPropsApp ( ) . getHeaderHeightMidLines ( ) == 0 )
-        {
-          headerh = 0 ;
-        }
-        else
-        {
-          headerh = application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_MID ) * application . getPropsApp ( ) . getHeaderHeightMidLines ( ) + 4 * application . getPropsDyn ( ) . getAppPadding ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ;
-        }
-        if ( application . getPropsApp ( ) . getFooterHeightMidLines ( ) == 0 )
-        {
-          footerh = 0 ;
-        }
-        else
-        {
-          footerh = application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_MID ) * application . getPropsApp ( ) . getFooterHeightMidLines ( ) + 4 * application . getPropsDyn ( ) . getAppPadding ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ;
-        }
-        widgetsh = getsh ( ) - headerh - footerh ;
-        header . headerRePosSize ( ) ;
-        footer . footerRePosSize ( ) ;
-        widgets . widgetsRePosSize ( ) ;
+        widgetsh = getsh ( ) ;
         if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
         {
-          panelSettings . setswh ( getsw ( ) * application . getPropsApp ( ) . getPanelSettingsWidthFactor ( ) , getsh ( ) * application . getPropsApp ( ) . getPanelSettingsHeightFactor ( ) ) ;
-          if ( application . getPropsApp ( ) . getHeaderHeightMidLines ( ) > 0 )
-          {
-            buttonDrawSettings . setcxy ( header . getcxsw ( ) - buttonDrawSettings . getsw ( ) - application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppMargin ( ) , header . getcysh ( ) - buttonDrawSettings . getsh ( ) - application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-            panelSettings . setcxy ( buttonDrawSettings . getcxswap ( ) - panelSettings . getsw ( ) , buttonDrawSettings . getcyshamap ( ) ) ;
-          }
-          else
-          {
-            buttonDrawSettings . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) - buttonDrawSettings . getsw ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-            panelSettings . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) - panelSettings . getsw ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-          }
+          buttonTextSettings . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) - buttonTextSettings . getsw ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          panelSettings . setswh ( getPanelWidth ( ) , getPanelSettingsHeight ( ) ) ;
+          panelSettings . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) - panelSettings . getsw ( ) , getsh ( ) - getPanelSettingsHeight ( ) - application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          widgetsh = getsh ( ) - buttonTextSettings . getcysh ( ) ;
         }
+        watchSizesChanged ( null ) ;
         if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
         {
-          if ( application . getPropsApp ( ) . getHeaderHeightMidLines ( ) > 0 )
-          {
-            buttonDrawMenu . setcxy ( header . getcxamap ( ) , header . getcysh ( ) - buttonDrawMenu . getsh ( ) - application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-          }
-          else
-          {
-            buttonDrawMenu . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-          }
-          panelMenu . setswh ( getsw ( ) * application . getPropsApp ( ) . getPanelMenuWidthFactor ( ) , getsh ( ) * application . getPropsApp ( ) . getPanelMenuHeighthFactor ( ) ) ;
-          panelMenu . setcxy ( buttonDrawMenu . getcx ( ) , buttonDrawMenu . getcy ( ) ) ;
+          buttonTextMenu . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          panelMenu . setswh ( getPanelWidth ( ) , getPanelMenuHeight ( ) ) ;
+          panelMenu . setcxy ( buttonTextMenu . getcx ( ) , buttonTextMenu . getcy ( ) ) ;
+          widgetsh = getsh ( ) - buttonTextMenu . getcysh ( ) ;
+          applicationName . setcxy ( buttonTextMenu . getcxsw ( ) + application . getPropsDyn ( ) . getAppMargin ( ) , buttonTextMenu . getcy ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         }
+        else
+        {
+          applicationName . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+        }
+        appNameReSize ( null ) ;
+        if ( ! application . getPropsApp ( ) . getPanelSettingsEnabled ( ) && ! application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+        {
+          widgetsh = getsh ( ) - applicationName . getsh ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ;
+        }
+        widgets . widgetsRePosSize ( ) ;
       }
     }
 /*
-** Gets the header height.
+** Repos only the app name.
 */
-    public function getHeaderh ( ) : int
+    private function appNameReSize ( e : Event ) : void
     {
-      return headerh ;
-    }
-/*
-** Gets the footer height.
-*/
-    public function getFooterh ( ) : int
-    {
-      return footerh ;
+      if ( applicationName != null )
+      {
+        if ( watch != null )
+        {
+          applicationName . setMaxWidth ( watch . getcx ( ) + watch . getShapeFgFrameX ( ) - applicationName . getcx ( ) - application . getPropsDyn ( ) . getAppMargin ( ) , false ) ;
+        }
+        else
+        {
+          applicationName . setMaxWidth ( getsw ( ) - 4 * applicationName . getsh ( ) - 4 * application . getPropsDyn ( ) . getAppPadding ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , false ) ;
+        }
+      }
     }
 /*
 ** Gets the widgets height.
@@ -538,20 +452,6 @@ package com . kisscodesystems . KissAs3Fw . app
     public function getWidgetsh ( ) : int
     {
       return widgetsh ;
-    }
-/*
-** Gets the header.
-*/
-    public function getHeader ( ) : Header
-    {
-      return header ;
-    }
-/*
-** Gets the footer.
-*/
-    public function getFooter ( ) : Footer
-    {
-      return footer ;
     }
 /*
 ** Gets the widgets.
@@ -565,14 +465,20 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function addWidget ( contentId : int , widget : Widget ) : void
     {
-      widgets . addWidget ( contentId , widget ) ;
+      if ( widgets != null )
+      {
+        widgets . addWidget ( contentId , widget ) ;
+      }
     }
 /*
 ** Closes a widget.
 */
     public function closeWidget ( widget : Widget ) : void
     {
-      widgets . closeWidget ( widget ) ;
+      if ( widgets != null )
+      {
+        widgets . closeWidget ( widget ) ;
+      }
     }
 /*
  ** Sets only the profile image to display.
@@ -587,11 +493,21 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** Sets the data of the menu panel.
 */
-    public function setLoginDataToDisplay ( g : Boolean , p : String , s : String , u : String , f : String , n : String , r : String , l : String ) : void
+    public function setLoginDataToDisplay ( g : Boolean , i : String , p : String , s : String , u : String , f : String , n : String , r : String ) : void
     {
       if ( panelMenu != null )
       {
-        panelMenu . setLoginDataToDisplay ( g , p , s , u , f , n , r , l ) ;
+        panelMenu . setLoginDataToDisplay ( g , i , p , s , u , f , n , r ) ;
+      }
+    }
+/*
+** Updates the role only.
+*/
+    public function updateRole ( r : String ) : void
+    {
+      if ( panelMenu != null )
+      {
+        panelMenu . updateRole ( r ) ;
       }
     }
 /*
@@ -600,7 +516,7 @@ package com . kisscodesystems . KissAs3Fw . app
     override protected function doSizeChanged ( ) : void
     {
 // All of the shapes have to be repainted.
-      reposResizeStuffs ( ) ;
+      middlegroundRePosSize ( ) ;
 // Super!
       super . doSizeChanged ( ) ;
     }
@@ -613,25 +529,19 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , stuffsChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , resizeReposApplicationName ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resizeReposApplicationName ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_SIZES_CHANGED , resizeReposApplicationName ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_MODE_CHANGED , stuffsChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WATCH_REPOSITIONED , appNameReSize ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       widgets = null ;
-      footer = null ;
-      header = null ;
       widgetsh = 0 ;
-      headerh = 0 ;
-      footerh = 0 ;
-      buttonDrawMenu = null ;
+      buttonTextMenu = null ;
       panelMenu = null ;
-      buttonDrawSettings = null ;
+      buttonTextSettings = null ;
       panelSettings = null ;
-      textLabelApplicationName = null ;
-      visible1 = true ;
+      applicationName = null ;
     }
   }
 }

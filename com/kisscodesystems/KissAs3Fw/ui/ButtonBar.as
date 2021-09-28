@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ButtonBar.
@@ -176,7 +176,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function moverMouseClick ( e : MouseEvent ) : void
     {
-      if ( getEnabled ( ) && origMouseX == int ( mouseX ) && origMouseY == int ( mouseY ) )
+// It is necessary to leave a gap otherwise it can be difficoult to click on an element.
+      if ( getEnabled ( ) && Math . abs ( origMouseX - int ( mouseX ) ) < application . CLICK_GAP && Math . abs ( origMouseY - int ( mouseY ) ) < application . CLICK_GAP )
       {
 // If enabled and the current mouse position equals the previous stored mouse potision..
         if ( getActualElementIndexByMouse ( ) != - 1 )

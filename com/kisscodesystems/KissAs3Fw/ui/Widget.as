@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Widget.
@@ -18,9 +18,10 @@
 **   - closed and removed from the content of the widgets (implemented in Widgets clas)
 **   - resized
 **   - minimised (content hide, only the header is visible)
-** - cannot be under each other
 ** - new widgets should extend this
 ** - can have an id and a type and these can be set once.
+** - an info content can be displayed to help users.
+** - desktop and mobile displaying can be set.
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
@@ -34,6 +35,8 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . events . MouseEvent ;
   public class Widget extends BaseSprite
   {
+// To insert a tab to a specific TextValue values
+    protected const tab : String = "  " ;
 // The mouse down event can be happened on this objects.
     private const mouseDownHappenedMover : String = "mouseDownHappenedMover" ;
     private const mouseDownHappenedResizer : String = "mouseDownHappenedResizer" ;
@@ -51,14 +54,11 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var textLabel : TextLabel = null ;
 // The mover of this widget.
     private var mover : BaseSprite = null ;
-// The closer of this widget.
-// Double click on it results the close me event to the outside.
-    private var closer : BaseSprite = null ;
 // The resizer of this widget.
     private var resizer : BaseSprite = null ;
 // And the contentMultiple of this widget.
     private var contentMultiple : ContentMultiple = null ;
-// To be able to determine: the widget is moved or not.
+// To be able to determine: the widget is moved or resized or none of these.
     private var prevMouseX : int = 0 ;
     private var prevMouseY : int = 0 ;
 // The mouse down has happened in..
@@ -75,20 +75,36 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var prevY : Number = 0 ;
     private var widgetInMove : Boolean = false ;
 // The buttons of the navigation.
-    private var buttonDrawMove : ButtonDraw = null ;
-    private var buttonDrawPrev : ButtonDraw = null ;
-    private var buttonDrawNext : ButtonDraw = null ;
-    private var buttonDrawList : ButtonDraw = null ;
+    private var buttonLinkInfo : ButtonLink = null ;
+    private var buttonLinkMove : ButtonLink = null ;
+    private var buttonLinkPrev : ButtonLink = null ;
+    private var buttonLinkNext : ButtonLink = null ;
+    private var buttonLinkList : ButtonLink = null ;
+    private var buttonLinkMima : ButtonLink = null ;
+    private var buttonLinkClos : ButtonLink = null ;
+// The info content of this widget can be displayed.
+    private var hintTextBox : TextBox = null ;
 // The id of the content.
     private var contentId : int = 0 ;
 // The possibility of moving the widget.
     private var buttonMoveEventPossible : Boolean = true ;
+// The possibility of closing the widget.
+    private var buttonClosEventPossible : Boolean = true ;
 // The text label to inform the user, for example while loading something into the widget.
     private var infoTextLabel : TextLabel = null ;
 // To create the alert and the confirm dialogs, these will be the actions can be overridden.
     protected var alertOK : Function = null ;
     protected var confirmOK : Function = null ;
     protected var confirmCancel : Function = null ;
+// The sizes of the initialized widget, these should be set in every extender Widget.
+// These should be defined as the font size would be 16.
+// If this is not, then the initialization size will be changed depending on the actual font size.
+    protected var iniSizeWidth : int = 543
+    protected var iniSizeHeight : int = 432 ;
+// It is necessary to save the currently (or lastly) mode to display.
+    protected var widgetMode : String = "" ;
+// This can be modified is necessary, for example after loading some data.
+    protected var loaded : Boolean = false ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -119,41 +135,56 @@ package com . kisscodesystems . KissAs3Fw . ui
       textLabel = new TextLabel ( application ) ;
       addChild ( textLabel ) ;
       textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
-      textLabel . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , textLabelResized ) ;
       mover = new BaseSprite ( application ) ;
       addChild ( mover ) ;
       mover . addEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
+// info buttonlink
+      buttonLinkInfo = new ButtonLink ( application ) ;
+      addChild ( buttonLinkInfo ) ;
+      buttonLinkInfo . setIcon ( "info" ) ;
+      buttonLinkInfo . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkInfoClick ) ;
+      buttonLinkInfo . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
 // The widget navigator buttons.
-      buttonDrawMove = new ButtonDraw ( application ) ;
-      addChild ( buttonDrawMove ) ;
-      buttonDrawMove . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGET_MOVE ) ;
-      buttonDrawMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawMoveClick ) ;
-      buttonDrawMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonDrawResized ) ;
-      buttonDrawPrev = new ButtonDraw ( application ) ;
-      addChild ( buttonDrawPrev ) ;
-      buttonDrawPrev . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGETS_PREV ) ;
-      buttonDrawPrev . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawPrevClick ) ;
-      buttonDrawPrev . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonDrawResized ) ;
-      buttonDrawNext = new ButtonDraw ( application ) ;
-      addChild ( buttonDrawNext ) ;
-      buttonDrawNext . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGETS_NEXT ) ;
-      buttonDrawNext . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawNextClick ) ;
-      buttonDrawNext . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonDrawResized ) ;
-      buttonDrawList = new ButtonDraw ( application ) ;
-      addChild ( buttonDrawList ) ;
-      buttonDrawList . setButtonType ( application . DRAW_BUTTON_TYPE_WIDGETS_LIST ) ;
-      buttonDrawList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonDrawListClick ) ;
-      buttonDrawList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonDrawResized ) ;
-// Finally the closer.
-      closer = new BaseSprite ( application ) ;
-      addChild ( closer ) ;
-      closer . addEventListener ( MouseEvent . DOUBLE_CLICK , closerDoubleClick ) ;
-      closer . doubleClickEnabled = true ;
+      buttonLinkMove = new ButtonLink ( application ) ;
+      addChild ( buttonLinkMove ) ;
+      buttonLinkMove . setIcon ( "downarrow" ) ;
+      buttonLinkMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkMoveClick ) ;
+      buttonLinkMove . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
+      buttonLinkPrev = new ButtonLink ( application ) ;
+      addChild ( buttonLinkPrev ) ;
+      buttonLinkPrev . setIcon ( "leftarrow" ) ;
+      buttonLinkPrev . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkPrevClick ) ;
+      buttonLinkPrev . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
+      buttonLinkNext = new ButtonLink ( application ) ;
+      addChild ( buttonLinkNext ) ;
+      buttonLinkNext . setIcon ( "rightarrow" ) ;
+      buttonLinkNext . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkNextClick ) ;
+      buttonLinkNext . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
+      buttonLinkList = new ButtonLink ( application ) ;
+      addChild ( buttonLinkList ) ;
+      buttonLinkList . setIcon ( "settings" ) ;
+      buttonLinkList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkListClick ) ;
+      buttonLinkList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
+      buttonLinkMima = new ButtonLink ( application ) ;
+      addChild ( buttonLinkMima ) ;
+      buttonLinkMima . setIcon ( "minimize" ) ;
+      buttonLinkMima . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkMimaClick ) ;
+      buttonLinkMima . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
+      if ( ! application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+      {
+        buttonLinkMima . setSpriteVisible ( false ) ;
+      }
+      buttonLinkClos = new ButtonLink ( application ) ;
+      addChild ( buttonLinkClos ) ;
+      buttonLinkClos . setIcon ( "close" ) ;
+      buttonLinkClos . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkClosClick ) ;
+      buttonLinkClos . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , buttonLinkResized ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
 // The event of closing itself or drag start or drag stop.
       eventWidgetCloseMe = new Event ( application . EVENT_WIDGET_CLOSE_ME ) ;
@@ -164,6 +195,48 @@ package com . kisscodesystems . KissAs3Fw . ui
       setEventDispatcherObjectToThis ( ) ;
 // A standard size will be set.
       setswh ( application . getPropsApp ( ) . getWidgetSizeStandardWidth ( ) , application . getPropsApp ( ) . getWidgetSizeStandardHeight ( ) ) ;
+// Hidden by default
+      buttonLinkInfo . setSpriteVisible ( false ) ;
+    }
+/*
+** Sets the info content. This is a hint to the user how to use this widget.
+*/
+    protected function setInfoContent ( tc : String , html : Boolean = false ) : void
+    {
+      if ( hintTextBox == null )
+      {
+        hintTextBox = new TextBox ( application ) ;
+        addChild ( hintTextBox ) ;
+        hintTextBox . setWordWrap ( true ) ;
+        resizeHintTextBox ( ) ;
+      }
+      if ( contentMultiple != null )
+      {
+        contentMultiple . visible = true ;
+        hintTextBox . visible = false ;
+      }
+      if ( buttonLinkInfo != null )
+      {
+        buttonLinkInfo . setSpriteVisible ( true ) ;
+      }
+      hintTextBox . setHtml ( html ) ;
+      hintTextBox . setTextCode ( tc ) ;
+    }
+    public function clearInfoContent ( ) : void
+    {
+      if ( hintTextBox != null )
+      {
+        removeChild ( hintTextBox ) ;
+        hintTextBox = null ;
+      }
+      if ( buttonLinkInfo != null )
+      {
+        buttonLinkInfo . setSpriteVisible ( false ) ;
+      }
+      if ( contentMultiple != null )
+      {
+        contentMultiple . visible = true ;
+      }
     }
 /*
  ** An information can be displayed using these methods.
@@ -211,6 +284,33 @@ package com . kisscodesystems . KissAs3Fw . ui
       onCreate ( ) ;
 // Listens to the mouse up on stage.
       stage . addEventListener ( MouseEvent . MOUSE_UP , stageMouseUp , false , 0 , true ) ;
+// The actual sizes depend on the actual font size.
+      setIniSizes ( ) ;
+    }
+/*
+** This calculates the actual sizes, but to be failsafe, this has to be callable from outside.
+*/
+    public function setIniSizes ( ) : void
+    {
+      var iniSizeWidthModified : int = 0 ;
+      var iniSizeHeightModified : int = 0 ;
+      var factor : Number = application . getPropsApp ( ) . getWidgetSizeFromFontSizeFactor ( ) ;
+      var origFontSize : int = 16 ;
+      var currFontSize : int = 0 ;
+      if ( application . getPropsDyn ( ) . getAppFontSize ( ) == 0 )
+      {
+        currFontSize = application . calcFontSizeFromStageSize ( ) ;
+      }
+      else
+      {
+        currFontSize = application . getPropsDyn ( ) . getAppFontSize ( ) ;
+      }
+      iniSizeWidthModified = currFontSize / origFontSize * factor * iniSizeWidth ;
+      iniSizeHeightModified = currFontSize / origFontSize * factor * iniSizeHeight ;
+// Sets to the initialized size.
+      super . setswh ( iniSizeWidthModified , iniSizeHeightModified ) ;
+// And, also saved to the container.
+      application . getMiddleground ( ) . getWidgets ( ) . saveWidgetSizes ( this , iniSizeWidthModified , iniSizeHeightModified ) ;
     }
     override protected function removedFromStage ( e : Event ) : void
     {
@@ -236,26 +336,17 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function setButtonsVisible ( prev : Boolean , next : Boolean , list : Boolean ) : void
     {
-      if ( buttonDrawPrev != null )
+      if ( buttonLinkPrev != null )
       {
-        if ( buttonDrawPrev . visible != prev )
-        {
-          buttonDrawPrev . visible = prev ;
-        }
+        buttonLinkPrev . setSpriteVisible ( prev ) ;
       }
-      if ( buttonDrawNext != null )
+      if ( buttonLinkNext != null )
       {
-        if ( buttonDrawNext . visible != next )
-        {
-          buttonDrawNext . visible = next ;
-        }
+        buttonLinkNext . setSpriteVisible ( next ) ;
       }
-      if ( buttonDrawList != null )
+      if ( buttonLinkList != null )
       {
-        if ( buttonDrawList . visible != list )
-        {
-          buttonDrawList . visible = list ;
-        }
+        buttonLinkList . setSpriteVisible ( list ) ;
       }
     }
 /*
@@ -263,14 +354,24 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function setButtonMoveVisible ( move : Boolean ) : void
     {
-      if ( buttonDrawMove != null )
+      if ( buttonLinkMove != null )
       {
-        if ( buttonDrawMove . visible != move )
+        if ( ( move && buttonMoveEventPossible ) || ! move )
         {
-          if ( ( move && buttonMoveEventPossible ) || ! move )
-          {
-            buttonDrawMove . visible = move ;
-          }
+          buttonLinkMove . setSpriteVisible ( move ) ;
+        }
+      }
+    }
+/*
+** Sets the visible of the buttons located in the header.
+*/
+    public function setButtonClosVisible ( clos : Boolean ) : void
+    {
+      if ( buttonLinkClos != null )
+      {
+        if ( ( clos && buttonClosEventPossible ) || ! clos )
+        {
+          buttonLinkClos . setSpriteVisible ( clos ) ;
         }
       }
     }
@@ -282,7 +383,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       buttonMoveEventPossible = p ;
       if ( ! buttonMoveEventPossible )
       {
-        setButtonMoveVisible ( false ) ;
+        setButtonMoveVisible ( p ) ;
+      }
+    }
+/*
+** Sets the button moving action disabled or enabled.
+*/
+    public function setButtonClosEventPossible ( p : Boolean ) : void
+    {
+      buttonClosEventPossible = p ;
+      if ( ! buttonClosEventPossible )
+      {
+        setButtonClosVisible ( p ) ;
       }
     }
 /*
@@ -295,30 +407,55 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Navigates on the widgets.
 */
-    private function buttonDrawMoveClick ( e : Event ) : void
+    private function buttonLinkInfoClick ( e : Event ) : void
     {
-      buttonDrawMove . setEnabled ( true ) ;
+      if ( contentMultiple != null && hintTextBox != null )
+      {
+        if ( contentMultiple . visible )
+        {
+          contentMultiple . visible = false ;
+          hintTextBox . visible = true ;
+          if ( getHidden ( ) )
+          {
+            buttonLinkMimaClick ( null ) ;
+          }
+        }
+        else
+        {
+          contentMultiple . visible = true ;
+          hintTextBox . visible = false ;
+        }
+        if ( infoTextLabel != null )
+        {
+          infoTextLabel . visible = contentMultiple . visible ;
+        }
+      }
+    }
+    private function buttonLinkMoveClick ( e : Event ) : void
+    {
       application . getForeground ( ) . createContentsList ( this ) ;
     }
-    private function buttonDrawPrevClick ( e : Event ) : void
+    private function buttonLinkPrevClick ( e : Event ) : void
     {
-      buttonDrawPrev . setEnabled ( true ) ;
       application . getMiddleground ( ) . getWidgets ( ) . goToPrevWidget ( this ) ;
     }
-    private function buttonDrawNextClick ( e : Event ) : void
+    private function buttonLinkNextClick ( e : Event ) : void
     {
-      buttonDrawNext . setEnabled ( true ) ;
       application . getMiddleground ( ) . getWidgets ( ) . goToNextWidget ( this ) ;
     }
-    private function buttonDrawListClick ( e : Event ) : void
+    private function buttonLinkListClick ( e : Event ) : void
     {
-      buttonDrawList . setEnabled ( true ) ;
       application . getForeground ( ) . createWidgetsList ( ) ;
     }
-/*
-** The function to be called after doubleClick.
-*/
-    protected function closerDoubleClick ( e : MouseEvent = null ) : void
+    private function buttonLinkMimaClick ( e : Event ) : void
+    {
+      if ( application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+      {
+        setHidden ( ! getHidden ( ) ) ;
+        buttonLinkMima . setIcon ( getHidden ( ) ? "maximize" : "minimize" ) ;
+      }
+    }
+    protected function buttonLinkClosClick ( e : Event = null ) : void
     {
       if ( application . getPropsApp ( ) . getWidgetEnableManualClose ( ) )
       {
@@ -331,11 +468,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function getContentsw ( ) : int
     {
-      return contentMultiple . getsw ( ) ;
+      return contentMultiple . getContentsw ( ) ;
     }
     public function getContentsh ( ) : int
     {
-      return contentMultiple . getsh ( ) ;
+      return contentMultiple . getContentsh ( ) ;
     }
 /*
 ** Gets the event dispatcher of the content.
@@ -352,15 +489,20 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function safePlace ( ) : void
     {
-// If it is too right then bring it left.
-      if ( getcx ( ) < application . getPropsApp ( ) . getWidgetsMargin ( ) )
+      var safePos : int = 0 ;
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
       {
-        setcx ( application . getPropsApp ( ) . getWidgetsMargin ( ) ) ;
+        safePos = application . getPropsApp ( ) . getWidgetsMargin ( ) ;
+      }
+// If it is too right then bring it left.
+      if ( getcx ( ) < safePos )
+      {
+        setcx ( safePos ) ;
       }
 // If it is too up then bring it down.
-      if ( getcy ( ) < application . getPropsApp ( ) . getWidgetsMargin ( ) )
+      if ( getcy ( ) < safePos )
       {
-        setcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) ) ;
+        setcy ( safePos ) ;
       }
     }
 /*
@@ -368,32 +510,29 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function stageMouseUp ( e : MouseEvent ) : void
     {
-      if ( mouseDownHappened == mouseDownHappenedMover )
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
       {
-        stopDrag ( ) ;
-        setcxy ( x , y ) ;
-        if ( prevMouseX == parent . mouseX && prevMouseY == parent . mouseY )
+        if ( mouseDownHappened == mouseDownHappenedMover )
         {
-          if ( application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+          stopDrag ( ) ;
+          setcxy ( x , y ) ;
+          removeEventListener ( Event . ENTER_FRAME , enterFrameCheckMovement ) ;
+          getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetDragStop ) ;
+        }
+        else if ( mouseDownHappened == mouseDownHappenedResizer )
+        {
+          removeEventListener ( Event . ENTER_FRAME , enterFrameUpdateResizer ) ;
+          if ( mouseX != prevMouseX || mouseY != prevMouseY )
           {
-            setHidden ( ! getHidden ( ) ) ;
+            setswh ( getsw ( ) + mouseX - prevMouseX , getsh ( ) + mouseY - prevMouseY ) ;
+            application . getMiddleground ( ) . getWidgets ( ) . saveWidgetSizes ( this , getsw ( ) , getsh ( ) ) ;
           }
+          clearResizer ( ) ;
         }
-        removeEventListener ( Event . ENTER_FRAME , enterFrameCheckMovement ) ;
-        getBaseEventDispatcher ( ) . dispatchEvent ( eventWidgetDragStop ) ;
-      }
-      else if ( mouseDownHappened == mouseDownHappenedResizer )
-      {
-        removeEventListener ( Event . ENTER_FRAME , enterFrameUpdateResizer ) ;
-        if ( mouseX != prevMouseX || mouseY != prevMouseY )
-        {
-          setswh ( getsw ( ) + mouseX - prevMouseX , getsh ( ) + mouseY - prevMouseY ) ;
-        }
-        clearResizer ( ) ;
+        safePlace ( ) ;
       }
       prevMouseX = 0 ;
       prevMouseY = 0 ;
-      safePlace ( ) ;
       mouseDownHappened = "" ;
     }
 /*
@@ -402,26 +541,18 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     override public function setsw ( newsw : int ) : void
     {
-      if ( ! application . getPropsApp ( ) . getSmartphoneMode ( ) )
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
       {
         super . setsw ( Math . max ( application . getPropsApp ( ) . getWidgetSizeMinWidth ( ) , newsw ) ) ;
-      }
-      else
-      {
-        super . setsw ( getswFromParentContent ( ) ) ;
       }
     }
     override public function setsh ( newsh : int ) : void
     {
       if ( ! getHidden ( ) )
       {
-        if ( ! application . getPropsApp ( ) . getSmartphoneMode ( ) )
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
         {
           super . setsh ( Math . max ( application . getPropsApp ( ) . getWidgetSizeMinHeight ( ) , newsh ) ) ;
-        }
-        else
-        {
-          super . setsh ( getshFromParentContent ( ) ) ;
         }
       }
     }
@@ -429,26 +560,38 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( ! getHidden ( ) )
       {
-        if ( ! application . getPropsApp ( ) . getSmartphoneMode ( ) )
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
         {
           super . setswh ( Math . max ( application . getPropsApp ( ) . getWidgetSizeMinWidth ( ) , newsw ) , Math . max ( application . getPropsApp ( ) . getWidgetSizeMinHeight ( ) , newsh ) ) ;
-        }
-        else
-        {
-          super . setswh ( getswFromParentContent ( ) , getshFromParentContent ( ) ) ;
         }
       }
       else
       {
-        if ( ! application . getPropsApp ( ) . getSmartphoneMode ( ) )
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
         {
           super . setsw ( Math . max ( application . getPropsApp ( ) . getWidgetSizeMinWidth ( ) , newsw ) ) ;
         }
-        else
-        {
-          super . setsw ( getswFromParentContent ( ) ) ;
-        }
       }
+    }
+/*
+** These methods will switch the sizes between desktop and mobile mode.
+*/
+    public function setDesktopSizes ( ) : void
+    {
+      super . setswh ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetSavedWidth ( this ) , application . getMiddleground ( ) . getWidgets ( ) . getWidgetSavedHeight ( this ) ) ;
+      if ( application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+      {
+        buttonLinkMima . setSpriteVisible ( true ) ;
+      }
+    }
+    public function setMobileSizes ( ) : void
+    {
+      setHidden ( false ) ;
+      if ( application . getPropsApp ( ) . getWidgetEnableManualHide ( ) )
+      {
+        buttonLinkMima . setSpriteVisible ( false ) ;
+      }
+      super . setswh ( getswFromParentContent ( ) , getshFromParentContent ( ) ) ;
     }
 /*
 ** Gets the sizes from the size of stage (more precisely from parent content).
@@ -460,7 +603,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         if ( parent . parent is ContentSingle )
         {
-          w = ContentSingle ( parent . parent ) . getsw ( ) - application . getPropsApp ( ) . getWidgetsMargin ( ) * 2 ;
+          if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+          {
+            w = ContentSingle ( parent . parent ) . getsw ( ) - application . getPropsApp ( ) . getWidgetsMargin ( ) * 2 ;
+          }
+          else
+          {
+            w = ContentSingle ( parent . parent ) . getsw ( ) ;
+          }
         }
       }
       return w ;
@@ -472,7 +622,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         if ( parent . parent is ContentSingle )
         {
-          h = ContentSingle ( parent . parent ) . getsh ( ) - application . getPropsApp ( ) . getWidgetsMargin ( ) * 2 ;
+          if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+          {
+            h = ContentSingle ( parent . parent ) . getsh ( ) - application . getPropsApp ( ) . getWidgetsMargin ( ) * 2 ;
+          }
+          else
+          {
+            h = ContentSingle ( parent . parent ) . getsh ( ) ;
+          }
         }
       }
       return h ;
@@ -482,15 +639,18 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function moverMouseDown ( e : MouseEvent ) : void
     {
-      mouseDownHappened = mouseDownHappenedMover ;
-      prevMouseX = parent . mouseX ;
-      prevMouseY = parent . mouseY ;
-      startDrag ( ) ;
-      toTheHighestDepth ( ) ;
-      prevX = x ;
-      prevY = y ;
-      widgetInMove = false ;
-      addEventListener ( Event . ENTER_FRAME , enterFrameCheckMovement ) ;
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        mouseDownHappened = mouseDownHappenedMover ;
+        prevMouseX = parent . mouseX ;
+        prevMouseY = parent . mouseY ;
+        startDrag ( ) ;
+        toTheHighestDepth ( ) ;
+        prevX = x ;
+        prevY = y ;
+        widgetInMove = false ;
+        addEventListener ( Event . ENTER_FRAME , enterFrameCheckMovement ) ;
+      }
     }
 /*
 ** The blur effect should be applied when this Widget really moves.
@@ -530,16 +690,19 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function resizerMouseDown ( e : MouseEvent ) : void
     {
-      if ( getcx ( ) < 0 || getcy ( ) < 0 )
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
       {
-        safePlace ( ) ;
-      }
-      else
-      {
-        mouseDownHappened = mouseDownHappenedResizer ;
-        prevMouseX = mouseX ;
-        prevMouseY = mouseY ;
-        addEventListener ( Event . ENTER_FRAME , enterFrameUpdateResizer ) ;
+        if ( getcx ( ) < 0 || getcy ( ) < 0 )
+        {
+          safePlace ( ) ;
+        }
+        else
+        {
+          mouseDownHappened = mouseDownHappenedResizer ;
+          prevMouseX = mouseX ;
+          prevMouseY = mouseY ;
+          addEventListener ( Event . ENTER_FRAME , enterFrameUpdateResizer ) ;
+        }
       }
     }
 /*
@@ -551,8 +714,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( resizer != null )
       {
         resizer . graphics . clear ( ) ;
-        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-        resizer . graphics . drawRect ( - application . getPropsApp ( ) . getWidgetResizeMargin ( ) , - application . getPropsApp ( ) . getWidgetResizeMargin ( ) , getsw ( ) + mouseX - prevMouseX + 2 * application . getPropsApp ( ) . getWidgetResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) , getsh ( ) + mouseY - prevMouseY + 2 * application . getPropsApp ( ) . getWidgetResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+        resizer . graphics . drawRect ( - application . getPropsApp ( ) . getResizeMargin ( ) , - application . getPropsApp ( ) . getResizeMargin ( ) , getsw ( ) + mouseX - prevMouseX + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) , getsh ( ) + mouseY - prevMouseY + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
       }
     }
 /*
@@ -566,6 +729,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           mask = backLabel ;
           textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
+          dispatchEventSizesChanged ( ) ;
         }
       }
       else
@@ -574,9 +738,9 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           mask = null ;
           textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
+          dispatchEventSizesChanged ( ) ;
         }
       }
-      dispatchEventSizesChanged ( ) ;
     }
 /*
 ** Gets the hidden property of this widget
@@ -635,11 +799,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Changes a cell index only.
+*/
+    public function changeCellIndex ( index : int , displayObject : DisplayObject , cellIndex : int ) : void
+    {
+      contentMultiple . changeCellIndex ( index , displayObject , cellIndex ) ;
+    }
+/*
 ** Adds an element to the content sprite.
 */
-    public function addToContent ( index : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+    public function addToContent ( index : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
     {
-      contentMultiple . addToContent ( index , displayObject , normal , cellIndex ) ;
+      contentMultiple . addToContent ( index , displayObject , normal , cellIndex , sizeConsider ) ;
     }
 /*
 ** To remove an element from the contentMultiple of this widget.
@@ -667,17 +838,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       return contentMultiple . getButtonBarcysh ( ) ;
     }
 /*
-** In case of resizing the drawed buttons, the elements have to be resized and repositioned.
+** In case of resizing the drawn buttons, the elements have to be resized and repositioned.
 */
-    private function buttonDrawResized ( e : Event ) : void
-    {
-// So, we have to redraw the color shape.
-      resizeElements ( ) ;
-    }
-/*
-** In case of resizing the label, the elements have to be resized and repositioned.
-*/
-    private function textLabelResized ( e : Event ) : void
+    private function buttonLinkResized ( e : Event ) : void
     {
 // So, we have to redraw the color shape.
       resizeElements ( ) ;
@@ -704,6 +867,17 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** Sets the header ot fhe widget.
 ** (Not changable later.)
 */
+    public function setWidgetHeaderIcon ( icon : String ) : void
+    {
+      if ( textLabel != null )
+      {
+        textLabel . setIcon ( icon ) ;
+      }
+    }
+/*
+** Sets the header ot fhe widget.
+** (Not changable later.)
+*/
     public function setWidgetHeaderCode ( header : String ) : void
     {
       if ( widgetHeader == null )
@@ -718,7 +892,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       widgetHeader = header ;
       textLabel . setTextCode ( header ) ;
-      resizeCloser ( ) ;
     }
 /*
 ** Gets the header of the widget.
@@ -767,6 +940,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       resizeElements ( ) ;
     }
 /*
+** The margin of the application has been changed.
+*/
+    private function paddingChanged ( e : Event ) : void
+    {
+// So we have to redraw.
+      resizeElements ( ) ;
+    }
+/*
 ** The radius of the application has been changed.
 */
     private function radiusChanged ( e : Event ) : void
@@ -808,10 +989,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         resizer . graphics . clear ( ) ;
         resizer . graphics . beginFill ( 0 , 0 ) ;
-        resizer . graphics . drawRect ( - application . getPropsApp ( ) . getWidgetResizeMargin ( ) , - application . getPropsApp ( ) . getWidgetResizeMargin ( ) , getsw ( ) + 2 * application . getPropsApp ( ) . getWidgetResizeMargin ( ) , super . getsh ( ) + 2 * application . getPropsApp ( ) . getWidgetResizeMargin ( ) ) ;
+        resizer . graphics . drawRect ( - application . getPropsApp ( ) . getResizeMargin ( ) , - application . getPropsApp ( ) . getResizeMargin ( ) , getsw ( ) + 2 * application . getPropsApp ( ) . getResizeMargin ( ) , super . getsh ( ) + 2 * application . getPropsApp ( ) . getResizeMargin ( ) ) ;
         resizer . graphics . endFill ( ) ;
         resizer . setcxy ( 0 , 0 ) ;
-        resizer . setswh ( getsw ( ) , super . getsh ( ) ) ;
+        resizer . setswh ( super . getsw ( ) , super . getsh ( ) ) ;
         if ( parent != null )
         {
           if ( parent . parent is ContentSingle )
@@ -829,24 +1010,12 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function resizeBackground ( ) : void
     {
-      baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 4 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
+      baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 4 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
       baseShape . x = 0 ;
       baseShape . y = 0 ;
-      baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+      baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       baseShape . setswh ( getsw ( ) , super . getsh ( ) ) ;
       baseShape . drawRect ( ) ;
-    }
-/*
-** Resizing the closer.
-*/
-    private function resizeCloser ( ) : void
-    {
-      closer . graphics . clear ( ) ;
-      closer . graphics . beginFill ( 0 , 0 ) ;
-      closer . graphics . drawRoundRect ( 0 , 0 , textLabel . textWidth , textLabel . getsh ( ) , application . getPropsDyn ( ) . getAppRadius2 ( ) , application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
-      closer . graphics . endFill ( ) ;
-      closer . setcxy ( textLabel . getcx ( ) , textLabel . getcy ( ) ) ;
-      closer . setswh ( textLabel . textWidth , textLabel . getsh ( ) ) ;
     }
 /*
 ** This is the method should be run after the size changing or changing of
@@ -862,31 +1031,75 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The resizer.
         clearResizer ( ) ;
 // The label.
-        textLabel . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) * 2 , application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
-        textLabel . setMaxWidth ( getsw ( ) - textLabel . getsh ( ) * 3 - application . getPropsDyn ( ) . getAppMargin ( ) * 2 * 2 , false ) ;
-        backLabel . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
+        buttonLinkInfo . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+        textLabel . setcxy ( ( buttonLinkInfo . getsw ( ) == 0 ? application . getPropsDyn ( ) . getAppPadding ( ) : buttonLinkInfo . getsw ( ) ) + application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+        backLabel . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
         backLabel . x = application . getPropsDyn ( ) . getAppMargin ( ) ;
         backLabel . y = application . getPropsDyn ( ) . getAppMargin ( ) ;
-        backLabel . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
-        backLabel . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
+        backLabel . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        backLabel . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) * 2 ) ;
         backLabel . drawRect ( ) ;
-// The closer after the header label.
-        resizeCloser ( ) ;
 // And the mover.
         mover . graphics . clear ( ) ;
         mover . graphics . beginFill ( 0 , 0 ) ;
-        mover . graphics . drawRoundRect ( 0 , 0 , getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 , application . getPropsDyn ( ) . getAppRadius2 ( ) , application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        mover . graphics . drawRoundRect ( 0 , 0 , getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 , application . getPropsDyn ( ) . getAppRadius ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         mover . graphics . endFill ( ) ;
         mover . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-        mover . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
+        mover . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) * 2 ) ;
 // The widget list , prev, next buttons have to be repositioned.
-        buttonDrawMove . setcxy ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 - buttonDrawPrev . getsw ( ) - buttonDrawNext . getsw ( ) - buttonDrawList . getsw ( ) , textLabel . getcy ( ) ) ;
-        buttonDrawPrev . setcxy ( buttonDrawMove . getcxsw ( ) , ( backLabel . getsh ( ) - buttonDrawPrev . getsh ( ) * 2 ) / 2 + backLabel . y ) ;
-        buttonDrawNext . setcxy ( buttonDrawPrev . getcx ( ) , buttonDrawPrev . getcysh ( ) ) ;
-        buttonDrawList . setcxy ( buttonDrawPrev . getcxsw ( ) , textLabel . getcy ( ) ) ;
+        var currx : int = getsw ( ) - textLabel . getsh ( ) - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppMargin ( ) ;
+        if ( buttonLinkClos . visible )
+        {
+          buttonLinkClos . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkClos . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkClos . getsw ( ) ;
+        }
+        if ( buttonLinkMima . visible )
+        {
+          buttonLinkMima . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkMima . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkMima . getsw ( ) ;
+        }
+        if ( buttonLinkList . visible )
+        {
+          buttonLinkList . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkList . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkList . getsw ( ) ;
+        }
+        if ( buttonLinkNext . visible )
+        {
+          buttonLinkNext . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkNext . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkNext . getsw ( ) ;
+        }
+        if ( buttonLinkPrev . visible )
+        {
+          buttonLinkPrev . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkPrev . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkPrev . getsw ( ) ;
+        }
+        if ( buttonLinkMove . visible )
+        {
+          buttonLinkMove . setcxy ( currx , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+          textLabel . setMaxWidth ( buttonLinkMove . getcx ( ) - textLabel . getcx ( ) , false ) ;
+          currx -= buttonLinkMove . getsw ( ) ;
+        }
 // And the contentMultiple.
-        contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) * 4 ) ;
-        contentMultiple . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , super . getsh ( ) - textLabel . getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 5 ) ;
+        contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , textLabel . getsh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) * 2 + application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
+        contentMultiple . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , super . getsh ( ) - contentMultiple . getcy ( ) - application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+// similar to the above: info content
+        resizeHintTextBox ( ) ;
+      }
+    }
+/*
+** Resizes the hint text box only (if any)
+*/
+    private function resizeHintTextBox ( ) : void
+    {
+      if ( hintTextBox != null && contentMultiple != null )
+      {
+        hintTextBox . setcxy ( contentMultiple . getcx ( ) , contentMultiple . getcy ( ) ) ;
+        hintTextBox . setswh ( contentMultiple . getsw ( ) , contentMultiple . getsh ( ) ) ;
       }
     }
 /*
@@ -933,7 +1146,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , cancelFunction ) ;
       application . getForeground ( ) . createAlert ( messageString , uniqueString , true , true ) ;
     }
-    protected function showAlert ( messageString : String ) : void
+    protected function showAlert ( messageString : String , fullscreen : Boolean = false ) : void
     {
       var uniqueString : String = "" + new Date ( ) . time ;
       var okFunction : Function = function ( e : Event ) : void
@@ -947,7 +1160,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         e . stopImmediatePropagation ( ) ;
       }
       application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , false ) ;
+      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , false , false , fullscreen ) ;
     }
 /*
 ** Override these as necessary.
@@ -969,11 +1182,11 @@ package com . kisscodesystems . KissAs3Fw . ui
         resizer . removeEventListener ( MouseEvent . MOUSE_DOWN , resizerMouseDown ) ;
       }
       mover . removeEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
-      closer . removeEventListener ( MouseEvent . DOUBLE_CLICK , closerDoubleClick ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
       if ( stage != null )
       {
@@ -1008,7 +1221,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       backLabel = null ;
       textLabel = null ;
       mover = null ;
-      closer = null ;
       resizer = null ;
       contentMultiple = null ;
       prevMouseX = 0 ;
@@ -1021,15 +1233,20 @@ package com . kisscodesystems . KissAs3Fw . ui
       prevX = 0 ;
       prevY = 0 ;
       widgetInMove = false ;
-      buttonDrawMove = null ;
-      buttonDrawPrev = null ;
-      buttonDrawNext = null ;
-      buttonDrawList = null ;
+      buttonLinkInfo = null ;
+      buttonLinkMove = null ;
+      buttonLinkPrev = null ;
+      buttonLinkNext = null ;
+      buttonLinkList = null ;
+      buttonLinkClos = null ;
       contentId = 0 ;
       infoTextLabel = null ;
       alertOK = null ;
       confirmOK = null ;
       confirmCancel = null ;
+      hintTextBox = null ;
+      iniSizeWidth = 0 ;
+      iniSizeHeight = 0 ;
     }
   }
 }

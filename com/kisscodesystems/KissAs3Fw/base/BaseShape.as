@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseShape.
@@ -56,6 +56,8 @@ package com . kisscodesystems . KissAs3Fw . base
     private var db : Boolean = false ;
 // Type (-1: pushed, 0: general, 1: unpushed).
     private var dt : int = 0 ;
+// Fill is needed or not
+    private var df : Boolean = true ;
 // A rectangle was drawn or not.
     private var rectangleDrawn : Boolean = false ;
 /*
@@ -105,7 +107,7 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** Sets the colors of the drawing.
 ** (ccac: color color alpha color)
-** The object has to be redrawed after this!
+** The object has to be redrawn after this!
 */
     public function setccac ( lineColor : Number , fillColor : Number , fillAlpha : Number , brightColor1 : Number ) : void
     {
@@ -123,7 +125,7 @@ package com . kisscodesystems . KissAs3Fw . base
     }
 /*
 ** Sets the r radius and the w and h sizes.
-** The object has to be redrawed after this!
+** The object has to be redrawn after this!
 */
     public function setswh ( sw : int , sh : int ) : void
     {
@@ -146,8 +148,16 @@ package com . kisscodesystems . KissAs3Fw . base
       return sr ;
     }
 /*
+** Sets the necessary of the filling of the rectangle.
+** The object has to be redrawn after this!
+*/
+    public function setdf ( df : Boolean ) : void
+    {
+      this . df = df ;
+    }
+/*
 ** Sets the necessary of the bright layer of the shape.
-** The object has to be redrawed after this!
+** The object has to be redrawn after this!
 */
     public function setdb ( db : Boolean ) : void
     {
@@ -156,7 +166,7 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** Sets the type of the shape.
 ** -1 0 and 1 are acceptable.
-** The object has to be redrawed after this!
+** The object has to be redrawn after this!
 */
     public function setdt ( dt : int ) : void
     {
@@ -185,11 +195,17 @@ package com . kisscodesystems . KissAs3Fw . base
 // Let's clear first.
         clear ( ) ;
 // Begin of filling.
-        graphics . beginFill ( fillColor , fillAlpha ) ;
+        if ( df )
+        {
+          graphics . beginFill ( fillColor , fillAlpha ) ;
+        }
 // Really drawing the rect, with line drawing.
         drawThatRect ( true ) ;
 // End of filling.
-        graphics . endFill ( ) ;
+        if ( df )
+        {
+          graphics . endFill ( ) ;
+        }
 // If the bright layer is needed..
         if ( db )
         {
@@ -412,6 +428,7 @@ package com . kisscodesystems . KissAs3Fw . base
       sh = 0 ;
       db = false ;
       dt = 0 ;
+      df = false ;
       application = null ;
     }
   }

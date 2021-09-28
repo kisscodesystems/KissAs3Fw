@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Camera.
@@ -17,15 +17,15 @@
 ** - the quality and the size can be set
 ** - photo can be taken
 ** - the exact properties are to modify:
-**   camera ar:      1:1 , 4:3 , 16:9, 18:9, 18.5:9
-**   camera width:   160 - 960
-**   camera fps:      10 - 42
-**   camera quality:  42 - 100
-**   camera filter:    0 - 16  : blur
-**   (for taking a     0 - 1   : alpha channel
-**    picture and not  0 - 1 - 2  : red channel
-**    for outgoing     0 - 1 - 2  : green channel
-**    stream)          0 - 1 - 2  : blue channel
+**   camera resolution: 1:1 , 4:3 , 16:9
+**   camera width:      160 - 1280
+**   camera fps:        10 - 42
+**   camera quality:    42 - 100
+**   camera filter:      0 - 16  : blur
+**   (for taking a       0 - 1   : alpha channel
+**    picture and not    0 - 1 - 2  : red channel
+**    for outgoing       0 - 1 - 2  : green channel
+**    stream)            0 - 1 - 2  : blue channel
 **
 */
 package com . kisscodesystems . KissAs3Fw . ui
@@ -52,9 +52,15 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . utils . ByteArray ;
   public class Camera extends BaseSprite
   {
+// The resolutions available.
+    private const RES_11 : String = "1:1" ;
+    private const RES_43 : String = "4:3" ;
+    private const RES_169 : String = "16:9" ;
+// This will be the base of the increasing of the camera.
+    private const WDELTA : int = 160 ;
 // The sprite where the camera object can be appeared.
     private var bg : BaseSprite = null ;
-// Mask for the better view of the cam.
+// Msk for the better view of the cam.
     private var shapeBgMask : BaseShape = null ;
 // To have a frame around the camera view.
     private var shapeBgFrame : BaseShape = null ;
@@ -67,22 +73,24 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The foreground or the settings can be displayed.
     private var fg : ContentSingle = null ;
 // And the settings.
-    private var arListPicker : ListPicker = null ;
+    private var resolutionListPicker : ListPicker = null ;
     private var sizeTextLabel : TextLabel = null ;
-    private var sizePotmet : Potmet = null ;
+    private var sizePotmeter : Potmeter = null ;
     private var fpsTextLabel : TextLabel = null ;
-    private var fpsPotmet : Potmet = null ;
+    private var fpsPotmeter : Potmeter = null ;
     private var qualityTextLabel : TextLabel = null ;
-    private var qualityPotmet : Potmet = null ;
+    private var qualityPotmeter : Potmeter = null ;
     private var filterTextLabel : TextLabel = null ;
-    private var filterPotmetB : Potmet = null ;
-    private var filterPotmetCR : Potmet = null ;
-    private var filterPotmetCG : Potmet = null ;
-    private var filterPotmetCB : Potmet = null ;
-    private var filterPotmetCA : Potmet = null ;
+    private var filterPotmeterB : Potmeter = null ;
+    private var filterPotmeterCR : Potmeter = null ;
+    private var filterPotmeterCG : Potmeter = null ;
+    private var filterPotmeterCB : Potmeter = null ;
+    private var filterPotmeterCA : Potmeter = null ;
     private var takePicture : ButtonText = null ;
     private var pictureSaved : TextLabel = null ;
     private var cameraListPicker : ListPicker = null ;
+// The button link of resetting the filters and all of the camera properties
+    private var resetButtonLink : ButtonLink = null ;
 // This will be the default filename to save the photo.
     private var filenameToSave : String = null ;
 // The camera object.
@@ -90,9 +98,9 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The video object to display the view of the camera
     private var video : flash . media . Video = null ;
 // The available sizes of the camera.
-    private var cameraAr : String = "4:3" ;
-    private var cameraWidth : int = 320 ;
-    private var cameraHeight : int = 240 ;
+    private var cameraResolution : String = RES_43 ;
+    private var cameraWidth : int = 2 * WDELTA ;
+    private var cameraHeight : int = cameraWidth * 3 / 4 ;
 // The available fps of the camera:
     private var cameraFps : int = 24 ;
 // The quality of the Camera is:
@@ -110,7 +118,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var file : *= null ;
     private var fileReference : FileReference = null ;
 // The sizes of the camera.
-    private var arArr : Array = [ "1:1" , "4:3" , "16:9" , "18:9" , "18.5:9" ] ;
+    private var resolutionsArray : Array = [ RES_11 , RES_43 , RES_169 ] ;
 // The displaying of the last taken photo.
     private var photo : BaseSprite = null ;
 // This will be accessible from the whole class.
@@ -149,8 +157,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       clickSprite . addEventListener ( MouseEvent . MOUSE_DOWN , clickSpriteMouseDown ) ;
 // The events are necessary to listen to.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShapes ) ;
 // The event of the successfully saving.
       savedEvent = new Event ( application . EVENT_SAVED ) ;
 // The event of the camrea attaching.
@@ -161,7 +169,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       cameraDevices = new Array ( ) ;
       for ( var i : int = 0 ; i < flash . media . Camera . names . length ; i ++ )
       {
-        cameraDevices . push ( "Cam " + flash . media . Camera . names [ i ] ) ;
+        cameraDevices . push ( flash . media . Camera . names [ i ] ) ;
       }
 // The attach button link! Using this results the camera be attached.
       cameraAttachButtonLink = new ButtonLink ( application ) ;
@@ -188,111 +196,125 @@ package com . kisscodesystems . KissAs3Fw . ui
       sizeTextLabel = new TextLabel ( application ) ;
       fg . addToContent ( sizeTextLabel , false , 3 ) ;
       sizeTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_SIZE ) ;
-      sizePotmet = new Potmet ( application ) ;
-      fg . addToContent ( sizePotmet , true , 4 ) ;
-      sizePotmet . setMinMaxIncValues ( 160 , 960 , 160 ) ;
-      sizePotmet . setCurValue ( cameraWidth ) ;
-      sizePotmet . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , sizeChanged ) ;
+      sizePotmeter = new Potmeter ( application ) ;
+      fg . addToContent ( sizePotmeter , true , 4 ) ;
+      sizePotmeter . setMinMaxIncValues ( 2 * WDELTA , 8 * WDELTA , WDELTA ) ;
+      sizePotmeter . setCurValue ( cameraWidth ) ;
+      sizePotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , sizePotmeterChanged ) ;
       cameraListPicker = new ListPicker ( application ) ;
       fg . addToContent ( cameraListPicker , true , 5 ) ;
       cameraListPicker . setArrays ( cameraDevices , cameraDevices ) ;
       cameraListPicker . setSelectedIndex ( 0 ) ;
       cameraListPicker . setNumOfElements ( 5 ) ;
-      cameraListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , cameraChanged ) ;
+      cameraListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , cameraListPickerChanged ) ;
       takePictureSizeChanged ( null ) ;
       fpsTextLabel = new TextLabel ( application ) ;
       fg . addToContent ( fpsTextLabel , false , 6 ) ;
       fpsTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_FPS ) ;
-      fpsPotmet = new Potmet ( application ) ;
-      fg . addToContent ( fpsPotmet , true , 7 ) ;
-      fpsPotmet . setMinMaxIncValues ( 10 , 42 , 1 ) ;
-      fpsPotmet . setCurValue ( cameraFps ) ;
-      fpsPotmet . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , fpsChanged ) ;
+      fpsPotmeter = new Potmeter ( application ) ;
+      fg . addToContent ( fpsPotmeter , true , 7 ) ;
+      fpsPotmeter . setMinMaxIncValues ( 10 , 42 , 1 ) ;
+      fpsPotmeter . setCurValue ( cameraFps ) ;
+      fpsPotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , fpsChanged ) ;
+      resetButtonLink = new ButtonLink ( application ) ;
+      fg . addToContent ( resetButtonLink , true , 8 ) ;
+      resetButtonLink . setTextCode ( application . getTexts ( ) . RESET ) ;
+      resetButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , resetCamera ) ;
       qualityTextLabel = new TextLabel ( application ) ;
       fg . addToContent ( qualityTextLabel , false , 9 ) ;
       qualityTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_QUALITY ) ;
-      qualityPotmet = new Potmet ( application ) ;
-      fg . addToContent ( qualityPotmet , true , 10 ) ;
-      qualityPotmet . setMinMaxIncValues ( 42 , 100 , 1 ) ;
-      qualityPotmet . setCurValue ( cameraQuality ) ;
-      qualityPotmet . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , qualityChanged ) ;
-      arListPicker = new ListPicker ( application ) ;
-      fg . addToContent ( arListPicker , true , 11 ) ;
-      arListPicker . setArrays ( arArr , arArr ) ;
-      arListPicker . setNumOfElements ( 5 ) ;
-      arListPicker . setSelectedIndex ( arArr . indexOf ( cameraAr ) ) ;
-      arListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , arListPickerChanged ) ;
+      qualityPotmeter = new Potmeter ( application ) ;
+      fg . addToContent ( qualityPotmeter , true , 10 ) ;
+      qualityPotmeter . setMinMaxIncValues ( 42 , 100 , 1 ) ;
+      qualityPotmeter . setCurValue ( cameraQuality ) ;
+      qualityPotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , qualityChanged ) ;
+      resolutionListPicker = new ListPicker ( application ) ;
+      fg . addToContent ( resolutionListPicker , true , 11 ) ;
+      resolutionListPicker . setArrays ( resolutionsArray , resolutionsArray ) ;
+      resolutionListPicker . setNumOfElements ( resolutionsArray . length ) ;
+      resolutionListPicker . setSelectedIndex ( resolutionsArray . indexOf ( cameraResolution ) ) ;
+      resolutionListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , resolutionListPickerChanged ) ;
       filterTextLabel = new TextLabel ( application ) ;
       fg . addToContent ( filterTextLabel , false , 12 ) ;
       filterTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_FILTER ) ;
-      filterPotmetB = new Potmet ( application ) ;
-      fg . addToContent ( filterPotmetB , true , 13 ) ;
-      filterPotmetB . setMinMaxIncValues ( 0 , 16 , 1 ) ;
-      filterPotmetB . setCurValue ( 0 ) ;
-      filterPotmetB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmetBChanged ) ;
-      filterPotmetCA = new Potmet ( application ) ;
-      fg . addToContent ( filterPotmetCA , true , 14 ) ;
-      filterPotmetCA . setMinMaxIncValues ( 0 , 1 , 0.01 ) ;
-      filterPotmetCA . setCurValue ( 1 ) ;
-      filterPotmetCA . setDecimalPrecision ( 2 ) ;
-      filterPotmetCA . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmetCChanged ) ;
-      filterPotmetCR = new Potmet ( application ) ;
-      fg . addToContent ( filterPotmetCR , true , 14 ) ;
-      filterPotmetCR . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
-      filterPotmetCR . setCurValue ( 1 ) ;
-      filterPotmetCR . setDecimalPrecision ( 2 ) ;
-      filterPotmetCR . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmetCChanged ) ;
-      filterPotmetCG = new Potmet ( application ) ;
-      fg . addToContent ( filterPotmetCG , true , 14 ) ;
-      filterPotmetCG . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
-      filterPotmetCG . setCurValue ( 1 ) ;
-      filterPotmetCG . setDecimalPrecision ( 2 ) ;
-      filterPotmetCG . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmetCChanged ) ;
-      filterPotmetCB = new Potmet ( application ) ;
-      fg . addToContent ( filterPotmetCB , true , 14 ) ;
-      filterPotmetCB . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
-      filterPotmetCB . setCurValue ( 1 ) ;
-      filterPotmetCB . setDecimalPrecision ( 2 ) ;
-      filterPotmetCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmetCChanged ) ;
-      filterPotmetCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeArListPicker ) ;
-      resizeArListPicker ( null ) ;
+      filterPotmeterB = new Potmeter ( application ) ;
+      fg . addToContent ( filterPotmeterB , true , 13 ) ;
+      filterPotmeterB . setMinMaxIncValues ( 0 , 16 , 1 ) ;
+      filterPotmeterB . setCurValue ( 0 ) ;
+      filterPotmeterB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterBChanged ) ;
+      filterPotmeterCA = new Potmeter ( application ) ;
+      fg . addToContent ( filterPotmeterCA , true , 14 ) ;
+      filterPotmeterCA . setMinMaxIncValues ( 0 , 1 , 0.01 ) ;
+      filterPotmeterCA . setCurValue ( 1 ) ;
+      filterPotmeterCA . setDecimalPrecision ( 2 ) ;
+      filterPotmeterCA . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
+      filterPotmeterCR = new Potmeter ( application ) ;
+      fg . addToContent ( filterPotmeterCR , true , 14 ) ;
+      filterPotmeterCR . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
+      filterPotmeterCR . setCurValue ( 1 ) ;
+      filterPotmeterCR . setDecimalPrecision ( 2 ) ;
+      filterPotmeterCR . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
+      filterPotmeterCG = new Potmeter ( application ) ;
+      fg . addToContent ( filterPotmeterCG , true , 14 ) ;
+      filterPotmeterCG . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
+      filterPotmeterCG . setCurValue ( 1 ) ;
+      filterPotmeterCG . setDecimalPrecision ( 2 ) ;
+      filterPotmeterCG . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
+      filterPotmeterCB = new Potmeter ( application ) ;
+      fg . addToContent ( filterPotmeterCB , true , 14 ) ;
+      filterPotmeterCB . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
+      filterPotmeterCB . setCurValue ( 1 ) ;
+      filterPotmeterCB . setDecimalPrecision ( 2 ) ;
+      filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
+      filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeResolutionListPicker ) ;
+      resizeResolutionListPicker ( null ) ;
     }
 /*
 ** The wide property of the camera has been changed.
 ** Destroys the camera view, does some modification and creates the camera again.
 */
-    private function arListPickerChanged ( e : Event ) : void
+    private function resolutionListPickerChanged ( e : Event ) : void
     {
-      if ( camera != null )
+      if ( resolutionListPicker != null )
       {
         destroyVideo ( ) ;
-        cameraAr = arListPicker . getText ( ) ;
+        cameraResolution = resolutionListPicker . getText ( ) ;
         calcSizeStuffs ( ) ;
         createVideo ( ) ;
       }
     }
 /*
-** The size of the arListPicker will follow the sizes of the potmets.
+** The size of the resolutionListPicker will follow the sizes of the potmeters.
 */
-    private function resizeArListPicker ( e : Event ) : void
+    private function resizeResolutionListPicker ( e : Event ) : void
     {
-      if ( arListPicker != null && filterPotmetCA != null )
+      if ( resolutionListPicker != null && filterPotmeterCA != null )
       {
-        arListPicker . setsw ( filterPotmetCA . getsw ( ) * 2 ) ;
+        resolutionListPicker . setsw ( filterPotmeterCA . getsw ( ) * 2 ) ;
       }
     }
 /*
 ** The size of the camera is changed.
 ** Destroys the camera view, does some modification and creates the camera again.
 */
-    private function sizeChanged ( e : Event ) : void
+    private function sizePotmeterChanged ( e : Event ) : void
     {
-      if ( camera != null )
+      if ( sizePotmeter != null )
       {
         destroyVideo ( ) ;
-        cameraWidth = sizePotmet . getCurValue ( ) ;
+        cameraWidth = sizePotmeter . getCurValue ( ) ;
         calcSizeStuffs ( ) ;
         createVideo ( ) ;
+      }
+    }
+/*
+** Sets the size of the camera from outside.
+*/
+    public function setCameraSize ( i : int ) : void
+    {
+      if ( sizePotmeter != null )
+      {
+        sizePotmeter . setCurValue ( i ) ;
       }
     }
 /*
@@ -303,7 +325,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( camera != null )
       {
-        cameraFps = fpsPotmet . getCurValue ( ) ;
+        cameraFps = fpsPotmeter . getCurValue ( ) ;
         camera . setMode ( cameraWidth , cameraHeight , cameraFps ) ;
       }
     }
@@ -315,43 +337,43 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( camera != null )
       {
-        cameraQuality = qualityPotmet . getCurValue ( ) ;
+        cameraQuality = qualityPotmeter . getCurValue ( ) ;
         camera . setQuality ( 0 , cameraQuality ) ;
       }
     }
 /*
 ** The filter of the camera is changed.
 */
-    private function filterPotmetBChanged ( e : Event ) : void
+    private function filterPotmeterBChanged ( e : Event ) : void
     {
       if ( camera != null )
       {
 // Let it be null!
         blurFilter = null ;
 // Create only if the blur filter is needed.
-        if ( filterPotmetB . getCurValue ( ) > 0 )
+        if ( filterPotmeterB . getCurValue ( ) > 0 )
         {
-          blurFilter = new BlurFilter ( filterPotmetB . getCurValue ( ) , filterPotmetB . getCurValue ( ) / 2 , 1 ) ;
+          blurFilter = new BlurFilter ( filterPotmeterB . getCurValue ( ) , filterPotmeterB . getCurValue ( ) / 2 , 1 ) ;
         }
 // Has to refilter.
         applyFilters ( ) ;
       }
     }
-    private function filterPotmetCChanged ( e : Event ) : void
+    private function filterPotmeterCChanged ( e : Event ) : void
     {
       if ( camera != null )
       {
 // Let it be null!
         colorMatrixFilter = null ;
 // Filtering if the filter is requested.
-        if ( filterPotmetCR . getCurValue ( ) != 1 || filterPotmetCG . getCurValue ( ) != 1 || filterPotmetCB . getCurValue ( ) != 1 || filterPotmetCA . getCurValue ( ) != 1 )
+        if ( filterPotmeterCR . getCurValue ( ) != 1 || filterPotmeterCG . getCurValue ( ) != 1 || filterPotmeterCB . getCurValue ( ) != 1 || filterPotmeterCA . getCurValue ( ) != 1 )
         {
 // This will be the matrix to be applied.
           var colorMatrixArray : Array = new Array ( ) ;
-          var r : Number = filterPotmetCR . getCurValue ( ) ;
-          var g : Number = filterPotmetCG . getCurValue ( ) ;
-          var b : Number = filterPotmetCB . getCurValue ( ) ;
-          var a : Number = filterPotmetCA . getCurValue ( ) ;
+          var r : Number = filterPotmeterCR . getCurValue ( ) ;
+          var g : Number = filterPotmeterCG . getCurValue ( ) ;
+          var b : Number = filterPotmeterCB . getCurValue ( ) ;
+          var a : Number = filterPotmeterCA . getCurValue ( ) ;
           colorMatrixArray = colorMatrixArray . concat ( [ r , 0 , 0 , 0 , 0 ] ) ;
           colorMatrixArray = colorMatrixArray . concat ( [ 0 , g , 0 , 0 , 0 ] ) ;
           colorMatrixArray = colorMatrixArray . concat ( [ 0 , 0 , b , 0 , 0 ] ) ;
@@ -366,11 +388,45 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The camera object has been changed by user selection.
 */
-    private function cameraChanged ( e : Event ) : void
+    private function cameraListPickerChanged ( e : Event ) : void
     {
 // Has to be completely destroyed and recreated.
       detachCamera ( null ) ;
       attachCamera ( null ) ;
+    }
+/*
+** All of the properties will be restored except some.
+*/
+    private function resetCamera ( e : Event ) : void
+    {
+      if ( fpsPotmeter != null )
+      {
+        fpsPotmeter . setCurValue ( 24 ) ;
+      }
+      if ( qualityPotmeter != null )
+      {
+        qualityPotmeter . setCurValue ( 100 ) ;
+      }
+      if ( filterPotmeterB != null )
+      {
+        filterPotmeterB . setCurValue ( 0 ) ;
+      }
+      if ( filterPotmeterCR != null )
+      {
+        filterPotmeterCR . setCurValue ( 1 ) ;
+      }
+      if ( filterPotmeterCG != null )
+      {
+        filterPotmeterCG . setCurValue ( 1 ) ;
+      }
+      if ( filterPotmeterCB != null )
+      {
+        filterPotmeterCB . setCurValue ( 1 ) ;
+      }
+      if ( filterPotmeterCA != null )
+      {
+        filterPotmeterCA . setCurValue ( 1 ) ;
+      }
     }
 /*
 ** Apply the filters.
@@ -580,7 +636,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function copyStagebg ( bmd : BitmapData ) : void
     {
-      if ( filterPotmetCA . getCurValue ( ) != 1 )
+      if ( filterPotmeterCA . getCurValue ( ) != 1 )
       {
 // If the alpha channel is not 1 then copy the area of the stage being under this
 // camera object and draw this onto the BitmapData object given from argument.
@@ -641,47 +697,34 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function setCameraAspectRatioTo11 ( ) : void
     {
-      if ( arListPicker != null )
+      if ( resolutionListPicker != null )
       {
-        arListPicker . setSelectedIndex ( arArr . indexOf ( "1:1" ) ) ;
-        arListPicker . setEnabled ( false ) ;
+        resolutionListPicker . setSelectedIndex ( resolutionsArray . indexOf ( RES_11 ) ) ;
+        resolutionListPicker . setEnabled ( false ) ;
       }
     }
     public function setCameraAspectRatioTo43 ( ) : void
     {
-      if ( arListPicker != null )
+      if ( resolutionListPicker != null )
       {
-        arListPicker . setSelectedIndex ( arArr . indexOf ( "4:3" ) ) ;
-        arListPicker . setEnabled ( false ) ;
+        resolutionListPicker . setSelectedIndex ( resolutionsArray . indexOf ( RES_43 ) ) ;
+        resolutionListPicker . setEnabled ( false ) ;
       }
     }
     public function setCameraAspectRatioTo169 ( ) : void
     {
-      if ( arListPicker != null )
+      if ( resolutionListPicker != null )
       {
-        arListPicker . setSelectedIndex ( arArr . indexOf ( "16:9" ) ) ;
-        arListPicker . setEnabled ( false ) ;
-      }
-    }
-    public function setCameraAspectRatioTo1189 ( ) : void
-    {
-      if ( arListPicker != null )
-      {
-        arListPicker . setSelectedIndex ( arArr . indexOf ( "18:9" ) ) ;
-        arListPicker . setEnabled ( false ) ;
-      }
-    }
-    public function setCameraAspectRatioTo11859 ( ) : void
-    {
-      if ( arListPicker != null )
-      {
-        arListPicker . setSelectedIndex ( arArr . indexOf ( "18.5:9" ) ) ;
-        arListPicker . setEnabled ( false ) ;
+        resolutionListPicker . setSelectedIndex ( resolutionsArray . indexOf ( RES_169 ) ) ;
+        resolutionListPicker . setEnabled ( false ) ;
       }
     }
     public function setCameraAspectRatioToAny ( ) : void
     {
-      arListPicker . setEnabled ( true ) ;
+      if ( resolutionListPicker != null )
+      {
+        resolutionListPicker . setEnabled ( true ) ;
+      }
     }
 /*
 ** Redraws the shapes. The clickable sprite too.
@@ -690,12 +733,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( application != null )
       {
-        shapeBgMask . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeBgMask . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        shapeBgMask . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgMask . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgMask . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgMask . drawRect ( ) ;
-        shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgFrame . drawRect ( ) ;
         clickSprite . graphics . clear ( ) ;
@@ -740,21 +783,13 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function calcCamHeight ( ) : void
     {
-      if ( cameraAr == "4:3" )
+      if ( cameraResolution == RES_43 )
       {
         cameraHeight = int ( cameraWidth * 3 / 4 ) ;
       }
-      else if ( cameraAr == "16:9" )
+      else if ( cameraResolution == RES_169 )
       {
         cameraHeight = int ( cameraWidth * 9 / 16 ) ;
-      }
-      else if ( cameraAr == "18:9" )
-      {
-        cameraHeight = int ( cameraWidth * 9 / 18 ) ;
-      }
-      else if ( cameraAr == "18.5:9" )
-      {
-        cameraHeight = int ( cameraWidth * 9 / 18.5 ) ;
       }
       else
       {
@@ -774,7 +809,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function attachCamera ( e : Event ) : void
     {
 // Both have to be null!
-      if ( camera == null && video == null )
+      if ( camera == null && video == null && cameraListPicker != null )
       {
 // It would be good to disappear.
         clearLastPicture ( ) ;
@@ -816,11 +851,14 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function createVideo ( ) : void
     {
-      video = new flash . media . Video ( ) ;
-      video . width = cameraWidth ;
-      video . height = cameraHeight ;
-      video . attachCamera ( camera ) ;
-      bg . addChild ( video ) ;
+      if ( camera != null && bg != null )
+      {
+        video = new flash . media . Video ( ) ;
+        video . width = cameraWidth ;
+        video . height = cameraHeight ;
+        video . attachCamera ( camera ) ;
+        bg . addChild ( video ) ;
+      }
     }
 /*
 ** Handles the permission events.
@@ -924,8 +962,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         clickSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , clickSpriteMouseDown ) ;
       }
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShapes ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       detachCamera ( null ) ;
       if ( savedEvent != null )
@@ -943,26 +981,27 @@ package com . kisscodesystems . KissAs3Fw . ui
       cameraAttachButtonLink = null ;
       cameraDetachButtonLink = null ;
       fg = null ;
-      arListPicker = null ;
+      resolutionListPicker = null ;
       sizeTextLabel = null ;
-      sizePotmet = null ;
+      sizePotmeter = null ;
       fpsTextLabel = null ;
-      fpsPotmet = null ;
+      fpsPotmeter = null ;
       qualityTextLabel = null ;
-      qualityPotmet = null ;
+      qualityPotmeter = null ;
       filterTextLabel = null ;
-      filterPotmetB = null ;
-      filterPotmetCR = null ;
-      filterPotmetCG = null ;
-      filterPotmetCB = null ;
-      filterPotmetCA = null ;
+      filterPotmeterB = null ;
+      filterPotmeterCR = null ;
+      filterPotmeterCG = null ;
+      filterPotmeterCB = null ;
+      filterPotmeterCA = null ;
+      resetButtonLink = null ;
       takePicture = null ;
       pictureSaved = null ;
       cameraListPicker = null ;
       filenameToSave = null ;
       camera = null ;
       video = null ;
-      cameraAr = null ;
+      cameraResolution = null ;
       cameraWidth = 0 ;
       cameraHeight = 0 ;
       cameraFps = 0 ;
@@ -975,7 +1014,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       savedEvent = null ;
       file = null ;
       fileReference = null ;
-      arArr = null ;
+      resolutionsArray = null ;
       photo = null ;
       bitmapData = null ;
       cameraIsAttachedEvent = null ;

@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** TextInput.
@@ -22,6 +22,9 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import com . kisscodesystems . KissAs3Fw . base . BaseTextField ;
+  import com . kisscodesystems . KissAs3Fw . ui . ContentMultiple ;
+  import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
+  import flash . display . DisplayObject ;
   import flash . events . Event ;
   import flash . events . FocusEvent ;
   import flash . events . KeyboardEvent ;
@@ -50,6 +53,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var toAutoComplete1 : String = "" ;
 // The event if the text (after ENTER) has been changed.
     private var eventChanged : Event = null ;
+// Content and its original y position has to be saved if it is mobile mode.
+    private var contentSprite : BaseSprite = null ;
+    private var backSprite : BaseSprite = null ;
+    private var origContentPos : int = 0 ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -72,6 +79,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseTextField . type = TextFieldType . INPUT ;
       baseTextField . setswh ( 1 , application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) ) ;
       baseTextField . addEventListener ( FocusEvent . FOCUS_OUT , focusOut ) ;
+      baseTextField . addEventListener ( FocusEvent . FOCUS_IN , focusIn ) ;
       baseTextField . addEventListener ( KeyboardEvent . KEY_UP , keyUp ) ;
       baseTextField . addEventListener ( TextEvent . TEXT_INPUT , textInput ) ;
       baseTextFieldRepos ( ) ;
@@ -79,8 +87,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
     }
 /*
@@ -113,7 +121,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( stage != null )
       {
         stage . focus = baseTextField ;
-        toBeVisible ( ) ;
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+        {
+          toBeVisible ( ) ;
+        }
       }
     }
 /*
@@ -137,7 +148,56 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** When the input field gets the focus.
+** Mobile mode: the input has to be moved to the top of the screen!
+** User wants to see what is typed into it.
+** TextInput and TextArea contains the same implementation.
+*/
+    private function focusIn ( e : FocusEvent ) : void
+    {
+      if ( ! application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        var currentObject : DisplayObject = DisplayObject ( this ) ;
+        if ( currentObject != null )
+        {
+          var currentParent : DisplayObject = currentObject . parent ;
+          var dist : int = y ;
+          while ( currentParent != null )
+          {
+            if ( currentParent is DisplayObject )
+            {
+              dist += DisplayObject ( currentParent ) . y ;
+              if ( currentParent is ContentSingle )
+              {
+                if ( currentParent . parent != null && currentParent . parent is ContentMultiple )
+                {
+                  dist -= ContentMultiple ( currentParent . parent ) . getButtonBarcysh ( ) ;
+                }
+                var contentSingle : ContentSingle = ContentSingle ( currentParent ) ;
+                contentSprite = ContentSingle ( currentParent ) . getBaseSprite ( ) ;
+                backSprite = ContentSingle ( currentParent ) . getBackSprite ( ) ;
+                if ( contentSingle != null && contentSprite != null && backSprite != null )
+                {
+                  origContentPos = contentSprite . y ;
+                  contentSprite . y = application . getPropsApp ( ) . getScrollMargin ( ) + application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) - dist + contentSingle . getBaseScroll ( ) . getccy ( ) ;
+                  backSprite . y = contentSprite . y ;
+                }
+                break ;
+              }
+              currentObject = currentParent ;
+              currentParent = currentObject . parent ;
+            }
+            else
+            {
+              break ;
+            }
+          }
+        }
+      }
+    }
+/*
 ** When the input field losts the focus.
+** Mobile mode: the input has to be moved back to its original position !
 */
     private function focusOut ( e : FocusEvent ) : void
     {
@@ -146,6 +206,17 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( ! ( mouseX >= autoCompleteList . getcx ( ) && mouseX <= autoCompleteList . getcxsw ( ) && mouseY >= autoCompleteList . getcy ( ) && mouseY <= autoCompleteList . getcysh ( ) ) )
         {
           autoCompleteListRemove ( ) ;
+        }
+      }
+      if ( ! application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        if ( contentSprite != null )
+        {
+          contentSprite . y = origContentPos ;
+        }
+        if ( backSprite != null )
+        {
+          backSprite . y = origContentPos ;
         }
       }
     }
@@ -277,7 +348,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( autoCompleteList != null && baseTextField != null )
       {
         var selectedItem : String = autoCompleteList . getArrayValues ( ) [ autoCompleteList . getSelectedIndexes ( ) [ 0 ] ] ;
-        var theString : String = toAutoComplete1 + autoCompleteSeparatorChar + selectedItem + autoCompleteSeparatorChar ;
+        var theString : String = "" ;
+        if ( toAutoComplete1 == "" )
+        {
+          theString = selectedItem + autoCompleteSeparatorChar ;
+        }
+        else
+        {
+          theString = toAutoComplete1 + autoCompleteSeparatorChar + selectedItem + autoCompleteSeparatorChar ;
+        }
         baseTextField . text = theString ;
         if ( stage != null )
         {
@@ -353,8 +432,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         baseTextField . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppPadding ( ) , application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) ) ;
         super . setsh ( baseTextField . getsh ( ) + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         baseTextFieldRepos ( ) ;
-        baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
+        baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
         baseShape . drawRect ( ) ;
         autoCompleteListReposResize ( ) ;
@@ -430,12 +509,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       baseTextField . removeEventListener ( TextEvent . TEXT_INPUT , textInput ) ;
       baseTextField . removeEventListener ( FocusEvent . FOCUS_OUT , focusOut ) ;
+      baseTextField . removeEventListener ( FocusEvent . FOCUS_IN , focusIn ) ;
       baseTextField . removeEventListener ( KeyboardEvent . KEY_UP , keyUp ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( autoCompleteCurrents != null )
@@ -463,6 +543,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       toAutoComplete0 = null ;
       toAutoComplete1 = null ;
       eventChanged = null ;
+      contentSprite = null ;
+      backSprite = null ;
+      origContentPos = 0 ;
     }
   }
 }

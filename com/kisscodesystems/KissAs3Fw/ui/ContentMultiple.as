@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ContentMultiple.
@@ -121,6 +121,20 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Gets the content single by its index.
+*/
+    public function getBaseSprite ( index : int ) : BaseSprite
+    {
+      if ( arrayContentSinges [ index ] is ContentSingle )
+      {
+        return ContentSingle ( arrayContentSinges [ index ] ) . getBaseSprite ( ) ;
+      }
+      else
+      {
+        return null ;
+      }
+    }
+/*
 ** Sets the visible of the button bar.
 ** (If it is not visible then the contents will be resized!)
 */
@@ -223,13 +237,23 @@ package com . kisscodesystems . KissAs3Fw . ui
       arrayContentSinges . splice ( 0 ) ;
     }
 /*
-** Adds an element to the content sprite.
+** Changes a cell index only.
 */
-    public function addToContent ( i : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+    public function changeCellIndex ( i : int , displayObject : DisplayObject , cellIndex : int ) : void
     {
       if ( i >= 0 && i < arrayContentSinges . length )
       {
-        ContentSingle ( arrayContentSinges [ i ] ) . addToContent ( displayObject , normal , cellIndex ) ;
+        ContentSingle ( arrayContentSinges [ i ] ) . changeCellIndex ( displayObject , cellIndex ) ;
+      }
+    }
+/*
+** Adds an element to the content sprite.
+*/
+    public function addToContent ( i : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
+    {
+      if ( i >= 0 && i < arrayContentSinges . length )
+      {
+        ContentSingle ( arrayContentSinges [ i ] ) . addToContent ( displayObject , normal , cellIndex , sizeConsider ) ;
       }
     }
 /*
@@ -354,6 +378,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         return 0 ;
       }
+    }
+/*
+** The content size itself.
+** Depends on the visibility of the menu.
+*/
+    public function getContentsw ( ) : int
+    {
+      return getsw ( ) ;
+    }
+    public function getContentsh ( ) : int
+    {
+      return getsh ( ) - getButtonBarcysh ( ) ;
     }
 /*
 ** Overriding this destroy method.

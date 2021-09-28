@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ListPanel.
@@ -38,6 +38,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The displayable texts and the values are here.
     private var arrayLabels : Array = null ;
     private var arrayValues : Array = null ;
+    private var arrayIcons : Array = null ;
 // Multiple or not
     private var multiple : Boolean = false ;
 // The index to start the displaying from.
@@ -81,9 +82,12 @@ package com . kisscodesystems . KissAs3Fw . ui
 // Other initializations.
       arrayLabels = new Array ( ) ;
       arrayValues = new Array ( ) ;
+      arrayIcons = new Array ( ) ;
       selectedIndexes = new Array ( ) ;
 // This events are required now. (application baselist basescroll)
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposContent ) ;
+      baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TOP_REACHED , topReached ) ;
+      baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOTTOM_REACHED , bottomReached ) ;
       baseList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , listResized ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
@@ -108,6 +112,20 @@ package com . kisscodesystems . KissAs3Fw . ui
           }
         }
       }
+    }
+/*
+** The bottom of the base scroll content has been reached.
+** So, it is mandatory to display the very last item ot the list.
+*/
+    private function topReached ( e : Event ) : void
+    {
+      startIndex = 0 ;
+      displayFromIndex ( startIndex , false ) ;
+    }
+    private function bottomReached ( e : Event ) : void
+    {
+      startIndex = arrayLabels . length - baseList . getNumOfElements ( ) ;
+      displayFromIndex ( startIndex , false ) ;
     }
 /*
 ** Sets the canBeEmpty property.
@@ -139,6 +157,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( application != null )
       {
+        setBaseScrollSch ( ) ;
         baseList . setsw ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         baseListRepos ( ) ;
       }
@@ -150,6 +169,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( application != null )
       {
+        setBaseScrollSch ( ) ;
         baseListRepos ( ) ;
       }
     }
@@ -185,6 +205,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function moverMouseMove ( e : MouseEvent ) : void
     {
       displayFromIndex ( startIndex , false ) ;
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** Mouse down on the mover.
@@ -194,6 +218,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       origMouseX = int ( mouseX ) ;
       origMouseY = int ( mouseY ) ;
       displayFromIndex ( startIndex , true ) ;
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** Dispatches the event of the changing of the selected items.
@@ -209,17 +237,18 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function moverMouseClick ( e : MouseEvent ) : void
     {
-      if ( origMouseX == int ( mouseX ) && origMouseY == int ( mouseY ) && mouseX > baseList . getcx ( ) && mouseX < baseList . getcxsw ( ) && mouseY > baseList . getcy ( ) && mouseY < baseList . getcysh ( ) && getActualElementIndexByMouse ( ) != - 1 )
+// It is necessary to leave a gap otherwise it can be difficoult to click on an element.
+      if ( Math . abs ( origMouseX - int ( mouseX ) ) < application . CLICK_GAP && Math . abs ( origMouseY - int ( mouseY ) ) < application . CLICK_GAP && mouseX > baseList . getcx ( ) && mouseX < baseList . getcxsw ( ) && mouseY > baseList . getcy ( ) && mouseY < baseList . getcysh ( ) && getActualElementIndexByMouse ( ) != - 1 )
       {
 // Selecting the current item.
         if ( selectedIndexes . indexOf ( startIndex + getActualElementIndexByMouse ( ) ) != - 1 )
         {
-          if ( selectedIndexes . length >= 2 || canBeEmpty || alwaysDispatchSelectedEvent )
+          if ( selectedIndexes . length >= 2 || canBeEmpty )
           {
-            if ( canBeEmpty )
-            {
-              selectedIndexes . splice ( selectedIndexes . indexOf ( startIndex + getActualElementIndexByMouse ( ) ) , 1 ) ;
-            }
+            selectedIndexes . splice ( selectedIndexes . indexOf ( startIndex + getActualElementIndexByMouse ( ) ) , 1 ) ;
+          }
+          if ( alwaysDispatchSelectedEvent )
+          {
             dispatchSelectedChanged ( ) ;
           }
         }
@@ -232,13 +261,21 @@ package com . kisscodesystems . KissAs3Fw . ui
           }
           else
           {
-            if ( selectedIndexes [ 0 ] != startIndex + getActualElementIndexByMouse ( ) || alwaysDispatchSelectedEvent )
+            if ( selectedIndexes [ 0 ] != startIndex + getActualElementIndexByMouse ( ) )
             {
               selectedIndexes [ 0 ] = startIndex + getActualElementIndexByMouse ( ) ;
               dispatchSelectedChanged ( ) ;
             }
+            else if ( alwaysDispatchSelectedEvent )
+            {
+              dispatchSelectedChanged ( ) ;
+            }
           }
         }
+      }
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
       }
     }
 /*
@@ -295,7 +332,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function reposContent ( e : Event ) : void
     {
 // Positioning the elements.
-      displayFromIndex ( - Math . floor ( baseScroll . getccy ( ) / ( application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) - application . getPropsDyn ( ) . getAppPadding ( ) / numOfElements ) ) , false ) ;
+      displayFromIndex ( - Math . round ( baseScroll . getccy ( ) / ( application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ) , false ) ;
 // Positioning the list.
       baseListRepos ( ) ;
     }
@@ -378,7 +415,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( startIndex != validStartIndex ( index ) )
       {
         startIndex = validStartIndex ( index ) ;
-        baseScroll . setccy ( - startIndex * ( application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) - application . getPropsDyn ( ) . getAppPadding ( ) / numOfElements ) ) ;
+        baseScroll . setccy ( - startIndex * ( application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ) ;
 // Positioning the list.
         baseListRepos ( ) ;
         displayFromIndex ( startIndex , false ) ;
@@ -398,7 +435,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         baseScroll . setswh ( baseList . getsw ( ) + 2 * application . getPropsDyn ( ) . getAppPadding ( ) , baseList . getsh ( ) + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
       }
       super . setswh ( baseScroll . getsw ( ) , baseScroll . getsh ( ) ) ;
-      baseScroll . setsch ( arrayLabels . length * application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ;
+      setBaseScrollSch ( ) ;
       displayFromIndex ( 0 , false ) ;
     }
 /*
@@ -414,15 +451,26 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** This is necessary to be separated.
+*/
+    private function setBaseScrollSch ( ) : void
+    {
+      if ( baseScroll != null )
+      {
+        baseScroll . setsch ( arrayLabels . length * application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) + application . getPropsDyn ( ) . getAppLineThickness ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+      }
+    }
+/*
 ** Sets the arrays of the list to be displayed.
 */
-    public function setArrays ( labels : Array , values : Array ) : void
+    public function setArrays ( labels : Array , values : Array , icons : Array = null ) : void
     {
       arrayLabels = labels ;
       arrayValues = values ;
+      arrayIcons = icons ;
       selectedIndexes = new Array ( ) ;
       baseList . setNumOfElements ( Math . min ( numOfElements , arrayLabels . length ) ) ;
-      baseScroll . setsch ( arrayLabels . length * application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ;
+      setBaseScrollSch ( ) ;
       displayFromIndex ( 0 , false ) ;
     }
 /*
@@ -440,6 +488,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       return arrayValues ;
     }
 /*
+** Gets the array of labels.
+*/
+    public function getArrayIcons ( ) : Array
+    {
+      return arrayIcons ;
+    }
+/*
 ** Displays the list elements and their marks from the specified index.
 */
     private function displayFromIndex ( index : int , buttonDown : Boolean ) : void
@@ -447,7 +502,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       startIndex = validStartIndex ( index ) ;
       for ( var i : int = 0 ; i < baseList . getNumOfElements ( ) ; i ++ )
       {
-        baseList . setTextCode ( i , arrayLabels [ i + startIndex ] ) ;
+        baseList . setTextCode ( i , arrayLabels [ i + startIndex ] , arrayIcons == null ? null : arrayIcons [ i + startIndex ] ) ;
         if ( getActualElementIndexByMouse ( ) == i && ! buttonDown )
         {
           baseList . markElement ( i , 1 ) ;
@@ -520,6 +575,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseScroll = null ;
       arrayLabels = null ;
       arrayValues = null ;
+      arrayIcons = null ;
       multiple = false ;
       startIndex = 0 ;
       selectedIndexes = null ;

@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Texts.
@@ -29,8 +29,6 @@ package com . kisscodesystems . KissAs3Fw . text
 // Ok and Cancel.
     public const OC_OK : String = BTC + "OC_OK" + ETC ;
     public const OC_CANCEL : String = BTC + "OC_CANCEL" + ETC ;
-// The names of background images.
-    public const BACKGROUND_IMAGE_BG1 : String = BTC + "BACKGROUND_IMAGE_BG1" + ETC ;
 // The types of aligning of the background picture.
     public const BACKGROUND_ALIGN_NONE : String = BTC + "BACKGROUND_ALIGN_NONE" + ETC ;
     public const BACKGROUND_ALIGN_CENTER1 : String = BTC + "BACKGROUND_ALIGN_CENTER1" + ETC ;
@@ -45,8 +43,15 @@ package com . kisscodesystems . KissAs3Fw . text
     public const ORIENTATION_MANUAL : String = BTC + "ORIENTATION_MANUAL" + ETC ;
     public const ORIENTATION_VERTICAL : String = BTC + "ORIENTATION_VERTICAL" + ETC ;
     public const ORIENTATION_HORIZONTAL : String = BTC + "ORIENTATION_HORIZONTAL" + ETC ;
+// The orientations of the widgets
+    public const WIDGET_MODE_AUTOMATIC : String = BTC + "WIDGET_MODE_AUTOMATIC" + ETC ;
+    public const WIDGET_MODE_DESKTOP : String = BTC + "WIDGET_MODE_DESKTOP" + ETC ;
+    public const WIDGET_MODE_MOBILE : String = BTC + "WIDGET_MODE_MOBILE" + ETC ;
+// the watch
+    public const WATCH_SHOW_SECONDS : String = BTC + "WATCH_SHOW_SECONDS" + ETC ;
+    public const WATCH_WITHOUT_SECONDS : String = BTC + "WATCH_WITHOUT_SECONDS" + ETC ;
 // The displayable styles by default.
-    public const DISPLAYING_STYLE_BASIC : String = BTC + "DISPLAYING_STYLE_BASIC" + ETC ;
+    public const DISPLAYING_STYLE_VIEW : String = BTC + "DISPLAYING_STYLE_VIEW" + ETC ;
 // Types of the widgets.
     public const WIDGET_TYPE_GENERAL : String = BTC + "WIDGET_TYPE_GENERAL" + ETC ;
 // The headers of the widgets.
@@ -62,30 +67,38 @@ package com . kisscodesystems . KissAs3Fw . text
     public const SETTINGS_PANEL_IMAGING : String = BTC + "SETTINGS_PANEL_IMAGING" + ETC ;
     public const SETTINGS_PANEL_FONTING : String = BTC + "SETTINGS_PANEL_FONTING" + ETC ;
     public const SETTINGS_PANEL_ABOUT : String = BTC + "SETTINGS_PANEL_ABOUT" + ETC ;
+    public const SETTINGS_PANEL_REALLY_DELETE_EXISTING_BGIMAGE : String = BTC + "SETTINGS_PANEL_REALLY_DELETE_EXISTING_BGIMAGE" + ETC ;
 // The labels of the settings.
     public const SETTING_LANGUAGE : String = BTC + "SETTING_LANGUAGE" + ETC ;
     public const SETTING_DISPLAYING_STYLE : String = BTC + "SETTING_DISPLAYING_STYLE" + ETC ;
     public const SETTING_NUM_OF_WIDGETCONTAINERS : String = BTC + "SETTING_NUM_OF_WIDGETCONTAINERS" + ETC ;
     public const SETTING_REALLY_REDUCE_NUM_OF_WIDGET_CONTAINERS : String = BTC + "SETTING_REALLY_REDUCE_NUM_OF_WIDGET_CONTAINERS" + ETC ;
     public const SETTING_CURR_WIDGETCONTAINER : String = BTC + "SETTING_CURR_WIDGETCONTAINER" + ETC ;
-    public const SETTING_WIDGET_ORIENTATION : String = BTC + "SETTING_WIDGET_ORIENTATION" + ETC ;
+    public const SETTING_WIDGETS_ORIENTATION : String = BTC + "SETTING_WIDGETS_ORIENTATION" + ETC ;
+    public const SETTING_WIDGET_MODE : String = BTC + "SETTING_WIDGET_MODE" + ETC ;
     public const SETTING_LINE_THICKNESS : String = BTC + "SETTING_LINE_THICKNESS" + ETC ;
     public const SETTING_MARGIN : String = BTC + "SETTING_MARGIN" + ETC ;
     public const SETTING_PADDING : String = BTC + "SETTING_PADDING" + ETC ;
     public const SETTING_RADIUS : String = BTC + "SETTING_RADIUS" + ETC ;
     public const SETTING_BACKGROUND_BG_COLOR : String = BTC + "SETTING_BACKGROUND_BG_COLOR" + ETC ;
     public const SETTING_BACKGROUND_FG_COLOR : String = BTC + "SETTING_BACKGROUND_FG_COLOR" + ETC ;
+    public const SETTING_BACKGROUND_BLUR : String = BTC + "SETTING_BACKGROUND_BLUR" + ETC ;
     public const SETTING_BACKGROUND_FILL_ALPHA : String = BTC + "SETTING_BACKGROUND_FILL_ALPHA" + ETC ;
-    public const SETTING_BACKGROUND_IMAGE : String = BTC + "SETTING_BACKGROUND_IMAGE" + ETC ;
     public const SETTING_BACKGROUND_ALIGN : String = BTC + "SETTING_BACKGROUND_ALIGN" + ETC ;
     public const SETTING_BACKGROUND_ALPHA : String = BTC + "SETTING_BACKGROUND_ALPHA" + ETC ;
     public const SETTING_BACKGROUND_LIVE : String = BTC + "SETTING_BACKGROUND_LIVE" + ETC ;
     public const SETTING_BACKGROUND_FIXED : String = BTC + "SETTING_BACKGROUND_FIXED" + ETC ;
+    public const SETTING_BACKGROUND_MOVEMENT : String = BTC + "SETTING_BACKGROUND_MOVEMENT" + ETC ;
     public const SETTING_FONT_FACE : String = BTC + "SETTING_FONT_FACE" + ETC ;
     public const SETTING_FONT_SIZE : String = BTC + "SETTING_FONT_SIZE" + ETC ;
     public const SETTING_FONT_COLORS : String = BTC + "SETTING_FONT_COLORS" + ETC ;
     public const SETTING_FONT_BOLD : String = BTC + "SETTING_FONT_BOLD" + ETC ;
     public const SETTING_FONT_ITALIC : String = BTC + "SETTING_FONT_ITALIC" + ETC ;
+    public const SETTING_FONT_NORMAL : String = BTC + "SETTING_FONT_NORMAL" + ETC ;
+    public const SETTING_FONT_SKEWNESS : String = BTC + "SETTING_FONT_SKEWNESS" + ETC ;
+    public const SETTING_FONT_THICKNESS : String = BTC + "SETTING_FONT_THICKNESS" + ETC ;
+    public const SETTING_SOUND_PLAYING_ON : String = BTC + "SETTING_SOUND_PLAYING_ON" + ETC ;
+    public const SETTING_SOUND_PLAYING_OFF : String = BTC + "SETTING_SOUND_PLAYING_OFF" + ETC ;
 // The default content of the multiple content component.
     public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 // The usage of the components.
@@ -106,17 +119,21 @@ package com . kisscodesystems . KissAs3Fw . text
     public const CAMERA_FILTER : String = BTC + "CAMERA_FILTER" + ETC ;
     public const CAMERA_TAKE_PICTURE : String = BTC + "CAMERA_TAKE_PICTURE" + ETC ;
     public const TODAY : String = BTC + "TODAY" + ETC ;
+    public const RESET : String = BTC + "RESET" + ETC ;
 // To the menu panel
-    public const PROFILE_ROLE_LOGINTIME_SEP : String = BTC + "PROFILE_ROLE_LOGINTIME_SEP" + ETC ;
     public const REGISTER_BUTTON : String = BTC + "REGISTER_BUTTON" + ETC ;
     public const LOGOUT_BUTTON : String = BTC + "LOGOUT_BUTTON" + ETC ;
 // The elements of the password change.
-    public const CHANGE_PASSWORD_HEADER : String = BTC + "CHANGE_PASSWORD_HEADER" + ETC ;
-    public const CHANGE_PASS_FORM_HEADING_CAN : String = BTC + "CHANGE_PASS_FORM_HEADING_CAN" + ETC ;
-    public const CHANGE_PASS_FORM_HEADING_SHOULD : String = BTC + "CHANGE_PASS_FORM_HEADING_SHOULD" + ETC ;
-    public const CHANGE_PASS_FORM_OLD_PASS : String = BTC + "CHANGE_PASS_FORM_OLD_PASS" + ETC ;
-    public const CHANGE_PASS_FORM_NEW_PASS : String = BTC + "CHANGE_PASS_FORM_NEW_PASS" + ETC ;
-    public const CHANGE_PASS_FORM_VERIFY_PASS : String = BTC + "CHANGE_PASS_FORM_VERIFY_PASS" + ETC ;
+    public const PASSWORD_HEADER : String = BTC + "PASSWORD_HEADER" + ETC ;
+    public const PASS_FORM_HEADING_PW_CHANGE_SHOULD : String = BTC + "PASS_FORM_HEADING_PW_CHANGE_SHOULD" + ETC ;
+    public const PASS_FORM_HEADING_PW_CREATE_SHOULD : String = BTC + "PASS_FORM_HEADING_PW_CREATE_SHOULD" + ETC ;
+    public const PASS_FORM_HEADING_PW_IMHERE_SHOULD : String = BTC + "PASS_FORM_HEADING_PW_IMHERE_SHOULD" + ETC ;
+    public const PASS_FORM_HEADING_PW_CHANGE_CAN : String = BTC + "PASS_FORM_HEADING_PW_CHANGE_CAN" + ETC ;
+    public const PASS_FORM_HEADING_PW_CREATE_CAN : String = BTC + "PASS_FORM_HEADING_PW_CREATE_CAN" + ETC ;
+    public const PASS_FORM_HEADING_PW_IMHERE_CAN : String = BTC + "PASS_FORM_HEADING_PW_IMHERE_CAN" + ETC ;
+    public const PASS_FORM_OLD_PASS : String = BTC + "PASS_FORM_OLD_PASS" + ETC ;
+    public const PASS_FORM_NEW_PASS : String = BTC + "PASS_FORM_NEW_PASS" + ETC ;
+    public const PASS_FORM_CON_PASS : String = BTC + "PASS_FORM_CON_PASS" + ETC ;
 // Role texts
     public const g : String = BTC + "g" + ETC ;
 // The days of the week.
@@ -140,39 +157,15 @@ package com . kisscodesystems . KissAs3Fw . text
     public const MONTH_OKT : String = BTC + "MONTH_OKT" + ETC ;
     public const MONTH_NOV : String = BTC + "MONTH_NOV" + ETC ;
     public const MONTH_DEC : String = BTC + "MONTH_DEC" + ETC ;
-// Dateformats
-    public const DF_VALUE_DMYT : String = "DD.Mon.YYYY HH24:MI:SS"
-    public const DF_VALUE_MDYT : String = "Mon/DD/YYYY HH24:MI:SS"
-    public const DF_VALUE_YMDT : String = "YYYY-MM-DD HH24:MI:SS"
-    public const DF_LABEL_DMYT : String = "20.Dec.2012" ;
-    public const DF_LABEL_MDYT : String = "Dec/20/2012" ;
-    public const DF_LABEL_YMDT : String = "2012-12-20" ;
-// To get date format values and labels.
-    public function getDateFormatValues ( ) : Array
-    {
-      var array : Array = new Array ( ) ;
-      array . push ( DF_VALUE_DMYT ) ;
-      array . push ( DF_VALUE_MDYT ) ;
-      array . push ( DF_VALUE_YMDT ) ;
-      return array ;
-    }
-    public function getDateFormatLabels ( ) : Array
-    {
-      var array : Array = new Array ( ) ;
-      array . push ( DF_LABEL_DMYT ) ;
-      array . push ( DF_LABEL_MDYT ) ;
-      array . push ( DF_LABEL_YMDT ) ;
-      return array ;
-    }
-// The translations of the dateformats from database to as3!
-    public function translateDateFormatFromDBtoAS ( df : String , timeNeeded : Boolean ) : String
-    {
-      if ( df != null )
-      {
-        var regExp : RegExp = new RegExp ( "_" , "g" ) ;
-        return df . replace ( "d" , "dd" ) . replace ( "m" , "MM" ) . replace ( "Y" , "yyyy" ) . replace ( "T" , timeNeeded ? "hh:mm:ss" : "" ) . replace ( " " , timeNeeded ? " " : "" ) . replace ( regExp , "" ) ;
-      }
-      return "" ;
-    }
+// Watch types
+    public const WATCH_TYPE_BASIC : String = BTC + "WATCH_TYPE_BASIC" + ETC ;
+    public const WATCH_TYPE_DIGITAL : String = BTC + "WATCH_TYPE_DIGITAL" + ETC ;
+    public const WATCH_TYPE_ANALOG : String = BTC + "WATCH_TYPE_ANALOG" + ETC ;
+    public const WATCH_TYPE_BINARY : String = BTC + "WATCH_TYPE_BINARY" + ETC ;
+// Others
+    public const CLEAR : String = BTC + "CLEAR" + ETC ;
+    public const DRAW : String = BTC + "DRAW" + ETC ;
+    public const RUBBER : String = BTC + "RUBBER" + ETC ;
+    public const REALLY_WANT_TO_CLEAR_DRAWN_CONTENT : String = BTC + "REALLY_WANT_TO_CLEAR_DRAWN_CONTENT" + ETC ;
   }
 }

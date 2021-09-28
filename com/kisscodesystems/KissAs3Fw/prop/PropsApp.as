@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** PropsApp.
@@ -23,9 +23,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The name of the application.
     protected var applicationName : String = "Application" ;
 // The version of this application.
-    protected var applicationVersion : String = "version 1.6" ;
+    protected var applicationVersion : String = "version 1.9" ;
 // The release date of this version
-    protected var applicationReleaseDate : String = "07.31.2017" ;
+    protected var applicationReleaseDate : String = "2021.09.28" ;
 // The homepage of this application
     protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
@@ -48,15 +48,13 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var colorSquareLineColor : Number = 0x000000 ;
     protected var colorSquareLineAlphaMouseOut : Number = 0.2 ;
     protected var colorSquareLineAlphaMouseOver : Number = 1 ;
+// This is the factor which reduce the final size of the widget according to the actual font size.
+    protected var widgetSizeFromFontSizeFactor : Number = 0.7 ;
 // The alpha of the disabled object.
     protected var disabledAlpha : Number = 0.5 ;
 // The minimum sizes of this application.
     protected var appSizeMinWidth : int = 300 ;
     protected var appSizeMinHeight : int = 300 ;
-// The height o fhte header and footeer by mid text type line numbers.
-// 0 means no header or no footer.
-    protected var headerHeightMidLines : int = 1 ;
-    protected var footerHeightMidLines : int = 0 ;
 // The weight of the background.
 // Higher value results slower movement.
     protected var weightBackgroundPicture : int = 8 ;
@@ -68,7 +66,7 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The maximum number of widgets in the first line/column (orientation horizontal/vertical).
     protected var widgetsElementsFix : int = 3 ;
 // The margin of the widgets.
-    protected var widgetsMargin : int = 30 ;
+    protected var widgetsMargin : int = 32 ;
 // The minimum sizes of a widget.
     protected var widgetSizeMinWidth : int = 200 ;
     protected var widgetSizeMinHeight : int = 150 ;
@@ -81,17 +79,11 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var widgetEnableManualResize : Boolean = true ;
 // Enable or disable the closure of the widgets.
     protected var widgetEnableManualClose : Boolean = true ;
-// The margin of resizing the widget (the margin around the widget to grab to resize it).
-    protected var widgetResizeMargin : int = 6 ;
+// The margin of resizing the widget or board (the margin around the object to grab to resize it).
+    protected var resizeMargin : int = 14 ;
 // The font size from the stage is calculated by this value if appFontSize == 0.
-    protected var fontSizeFactor : Number = 1 / 48 ;
-// The size factors for the menu and settings panel.
-    protected var panelSettingsWidthFactor : Number = 2 / 5 ;
-    protected var panelSettingsHeightFactor : Number = 3 / 5 ;
-    protected var panelAlertWidthFactor : Number = 1 / 2 ;
-    protected var panelAlertHeighthFactor : Number = 1 / 3 ;
-    protected var panelMenuWidthFactor : Number = 1 / 4 ;
-    protected var panelMenuHeighthFactor : Number = 3 / 4 ;
+    protected var fontSizeFactorMobile : Number = 1 / 20 ;
+    protected var fontSizeFactorDesktop : Number = 1 / 50 ;
 // Properties to draw the base shapes.
     protected var lineAlpha : Number = 1 ;
     protected var lineColor2 : Number = 0xaaaaaa ;
@@ -118,18 +110,16 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var baseMinh : int = 0 ;
 // The minimum width of a single line text field.
     protected var textsMinSize : int = 50 ;
-// Smartphone mode.
-    protected var smartphoneMode : Boolean = false ;
 // The maximum displayable elements in the lang setter.
     protected var langSetterMaxElements : int = 5 ;
 // The pixels to move the content after a mouse wheel.
     protected var wheelDeltaPixels : int = 30 ;
-// The size will be increased of the prev and next drawed buttons. (0.5 will be the original size factor)
+// The size will be increased of the prev and next drawn buttons. (0.5 will be the original size factor)
     protected var buttonDrawMovePrevNextScale : Number = 0.7 ;
 // The maximum number of widgetcontainers
     protected var maxNumOfWidgetcontainers : int = 5 ;
 // The acceptable filename:
-    protected var regexpStrFilename : String = "^[a-zA-Z0-9]{1,200}\.[a-zA-Z0-9]{1,10}$" ;
+    protected var regexpStrFilename : String = "^[a-zA-Z0-9_\\-]{1,200}\\.[a-zA-Z0-9]{3,4}$" ;
 // The max number of the displayable elements in a file browser list.
     protected var fileBrowseMaxElements : int = 7 ;
 // The number of max elements to display during autocompletion
@@ -141,27 +131,6 @@ package com . kisscodesystems . KissAs3Fw . prop
 ** Constructor.
 */
     public function PropsApp ( ) : void { }
-/*
-** Prepares the view of this application into smartphone friendly.
-*/
-    public function toSmartphone ( ) : void
-    {
-      smartphoneMode = true ;
-      panelSettingsWidthFactor = 4 / 5 ;
-      panelSettingsHeightFactor = 3 / 4 ;
-      panelAlertWidthFactor = 2 / 3 ;
-      panelAlertHeighthFactor = 1 / 4 ;
-      panelMenuWidthFactor = 1 / 2 ;
-      panelMenuHeighthFactor = 4 / 5 ;
-      widgetsElementsFix = 1 ;
-      widgetsMargin = 0 ;
-      widgetResizeMargin = 0 ;
-      widgetEnableManualHide = false ;
-      widgetEnableManualResize = false ;
-      widgetEnableManualClose = false ;
-      maxNumOfWidgetcontainers = 1 ;
-      fontSizeFactor = 1 / 24 ;
-    }
 /*
 ** The getter functions of the properties can be overwritten in the constructor of extending class.
 */
@@ -229,6 +198,10 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return colorSquareLineAlphaMouseOver ;
     }
+    public function getWidgetSizeFromFontSizeFactor ( ) : Number
+    {
+      return widgetSizeFromFontSizeFactor ;
+    }
     public function getDisabledAlpha ( ) : Number
     {
       return disabledAlpha ;
@@ -240,14 +213,6 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getAppSizeMinHeight ( ) : int
     {
       return appSizeMinHeight ;
-    }
-    public function getHeaderHeightMidLines ( ) : int
-    {
-      return headerHeightMidLines ;
-    }
-    public function getFooterHeightMidLines ( ) : int
-    {
-      return footerHeightMidLines ;
     }
     public function getWeightBackgroundPicture ( ) : int
     {
@@ -297,37 +262,17 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return widgetEnableManualClose ;
     }
-    public function getWidgetResizeMargin ( ) : int
+    public function getResizeMargin ( ) : int
     {
-      return widgetResizeMargin ;
+      return resizeMargin ;
     }
-    public function getFontSizeFactor ( ) : Number
+    public function getFontSizeFactorMobile ( ) : Number
     {
-      return fontSizeFactor ;
+      return fontSizeFactorMobile ;
     }
-    public function getPanelSettingsWidthFactor ( ) : Number
+    public function getFontSizeFactorDesktop ( ) : Number
     {
-      return panelSettingsWidthFactor ;
-    }
-    public function getPanelSettingsHeightFactor ( ) : Number
-    {
-      return panelSettingsHeightFactor ;
-    }
-    public function getPanelMenuWidthFactor ( ) : Number
-    {
-      return panelMenuWidthFactor ;
-    }
-    public function getPanelMenuHeighthFactor ( ) : Number
-    {
-      return panelMenuHeighthFactor ;
-    }
-    public function getPanelAlertWidthFactor ( ) : Number
-    {
-      return panelAlertWidthFactor ;
-    }
-    public function getPanelAlertHeighthFactor ( ) : Number
-    {
-      return panelAlertHeighthFactor ;
+      return fontSizeFactorDesktop ;
     }
     public function getLineAlpha ( ) : Number
     {
@@ -404,10 +349,6 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getTextsMinSize ( ) : int
     {
       return textsMinSize ;
-    }
-    public function getSmartphoneMode ( ) : Boolean
-    {
-      return smartphoneMode ;
     }
     public function getLangSetterMaxElements ( ) : int
     {

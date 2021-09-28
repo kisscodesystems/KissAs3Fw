@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Background.
@@ -14,9 +14,9 @@
 **
 ** MAIN FEATURES:
 ** - contains the layers:
-**     - a backShape shape which can be colored to getAppBackgroundBgColor ( ) , alpha : 1
+**     - a backShape shape which can be colored to getAppBackgroundFillBgColor ( ) , alpha : 1
 **     - a backgroundImageShape which can be painted with the background image, alpha: 0 - 1
-**     - a backgroundColorShape  which can be colored to getAppBackgroundBgColor ( ) and getAppBackgroundFgColor ( ) , alpha: 0 - 1
+**     - a backgroundColorShape  which can be colored to getAppBackgroundFillBgColor ( ) and getAppBackgroundFillFgColor ( ) , alpha: 0 - 1
 ** - live property: the background image can follow the mouse pointer slowly
 ** - the background is fixed automatically if a color object steals pixel from the stage
 ** - external image loading is available to get the bitmap from
@@ -26,7 +26,6 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import com . kisscodesystems . KissAs3Fw . ui . ButtonDraw ;
   import com . kisscodesystems . KissAs3Fw . ui . Widget ;
   import flash . display . BitmapData ;
   import flash . events . Event ;
@@ -72,13 +71,14 @@ package com . kisscodesystems . KissAs3Fw . app
       backgroundColorShape = new BaseShape ( application ) ;
       addChild ( backgroundColorShape ) ;
 // Registering onto the events which can modify this object.
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_ALIGN_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_ALPHA_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_LIVE_CHANGED , backgroundLiveChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALIGN_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALPHA_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BLUR_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_LIVE_CHANGED , backgroundLiveChanged ) ;
     }
 /*
 ** Overwriting the addedToStage.
@@ -235,7 +235,7 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( application != null )
       {
 // Reinitializing and positioning.
-        backgroundColorShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
+        backgroundColorShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
         backgroundColorShape . x = 0 ;
         backgroundColorShape . y = 0 ;
         backgroundColorShape . setsr ( 0 ) ;
@@ -257,7 +257,7 @@ package com . kisscodesystems . KissAs3Fw . app
         backShape . y = 0 ;
         backShape . graphics . clear ( ) ;
         backShape . graphics . lineStyle ( 0 , 0 , 0 ) ;
-        backShape . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 1 ) ;
+        backShape . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 1 ) ;
         backShape . graphics . drawRect ( 0 , 0 , application . getsw ( ) , application . getsh ( ) ) ;
         backShape . graphics . endFill ( ) ;
       }
@@ -270,7 +270,7 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( application != null )
       {
 // Drawing if it is possible. (stage and background bitmap data of the app object are needed.)
-        if ( stage != null && application . getPropsDyn ( ) . getBackgroundBitmapData ( ) != null )
+        if ( stage != null && application . getPropsDyn ( ) . getBitmapData ( ) != null )
         {
 // The sizes of this background object can be used.
           swCorrected = getsw ( ) ;
@@ -288,8 +288,8 @@ package com . kisscodesystems . KissAs3Fw . app
           if ( application . getPropsDyn ( ) . getAppBackgroundAlign ( ) == application . getTexts ( ) . BACKGROUND_ALIGN_CENTER1 )
           {
             matrix = new Matrix ( ) ;
-            tempWidth = application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width ;
-            tempHeight = application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ;
+            tempWidth = application . getPropsDyn ( ) . getBitmapData ( ) . width ;
+            tempHeight = application . getPropsDyn ( ) . getBitmapData ( ) . height ;
             if ( swCorrected < tempWidth )
             {
               tempHeight = Math . round ( swCorrected / tempWidth * tempHeight ) ;
@@ -300,49 +300,49 @@ package com . kisscodesystems . KissAs3Fw . app
               tempWidth = Math . round ( shCorrected / tempHeight * tempWidth ) ;
               tempHeight = shCorrected ;
             }
-            matrix . scale ( tempWidth / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width , tempHeight / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) ;
+            matrix . scale ( tempWidth / application . getPropsDyn ( ) . getBitmapData ( ) . width , tempHeight / application . getPropsDyn ( ) . getBitmapData ( ) . height ) ;
             matrix . translate ( ( swCorrected - tempWidth ) / 2 , ( shCorrected - tempHeight ) / 2 ) ;
             backgroundImageShape . graphics . clear ( ) ;
-            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBackgroundBitmapData ( ) , matrix , false , true ) ;
+            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBitmapData ( ) , matrix , false , true ) ;
             backgroundImageShape . graphics . drawRect ( ( swCorrected - tempWidth ) / 2 , ( shCorrected - tempHeight ) / 2 , tempWidth , tempHeight ) ;
             backgroundImageShape . graphics . endFill ( ) ;
           }
           else if ( application . getPropsDyn ( ) . getAppBackgroundAlign ( ) == application . getTexts ( ) . BACKGROUND_ALIGN_CENTER2 )
           {
             matrix = new Matrix ( ) ;
-            tempWidth = application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width ;
-            tempHeight = application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ;
+            tempWidth = application . getPropsDyn ( ) . getBitmapData ( ) . width ;
+            tempHeight = application . getPropsDyn ( ) . getBitmapData ( ) . height ;
             if ( swCorrected != tempWidth )
             {
               tempWidth = swCorrected ;
-              tempHeight = Math . round ( swCorrected / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width * application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) ;
+              tempHeight = Math . round ( swCorrected / application . getPropsDyn ( ) . getBitmapData ( ) . width * application . getPropsDyn ( ) . getBitmapData ( ) . height ) ;
             }
             if ( shCorrected > tempHeight )
             {
               tempHeight = shCorrected ;
-              tempWidth = Math . round ( shCorrected / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height * application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width ) ;
+              tempWidth = Math . round ( shCorrected / application . getPropsDyn ( ) . getBitmapData ( ) . height * application . getPropsDyn ( ) . getBitmapData ( ) . width ) ;
             }
-            matrix . scale ( tempWidth / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width , tempHeight / application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) ;
+            matrix . scale ( tempWidth / application . getPropsDyn ( ) . getBitmapData ( ) . width , tempHeight / application . getPropsDyn ( ) . getBitmapData ( ) . height ) ;
             matrix . translate ( ( swCorrected - tempWidth ) / 2 , ( shCorrected - tempHeight ) / 2 ) ;
             backgroundImageShape . graphics . clear ( ) ;
-            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBackgroundBitmapData ( ) , matrix , false , true ) ;
+            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBitmapData ( ) , matrix , false , true ) ;
             backgroundImageShape . graphics . drawRect ( ( swCorrected - tempWidth ) / 2 , ( shCorrected - tempHeight ) / 2 , tempWidth , tempHeight ) ;
             backgroundImageShape . graphics . endFill ( ) ;
           }
           else if ( application . getPropsDyn ( ) . getAppBackgroundAlign ( ) == application . getTexts ( ) . BACKGROUND_ALIGN_CENTER3 )
           {
             matrix = new Matrix ( ) ;
-            matrix . translate ( ( swCorrected - application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width ) / 2 , ( shCorrected - application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) / 2 ) ;
+            matrix . translate ( ( swCorrected - application . getPropsDyn ( ) . getBitmapData ( ) . width ) / 2 , ( shCorrected - application . getPropsDyn ( ) . getBitmapData ( ) . height ) / 2 ) ;
             backgroundImageShape . graphics . clear ( ) ;
-            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBackgroundBitmapData ( ) , matrix , false , true ) ;
-            backgroundImageShape . graphics . drawRect ( ( swCorrected - application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width ) / 2 , ( shCorrected - application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) / 2 , application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . width , application . getPropsDyn ( ) . getBackgroundBitmapData ( ) . height ) ;
+            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBitmapData ( ) , matrix , false , true ) ;
+            backgroundImageShape . graphics . drawRect ( ( swCorrected - application . getPropsDyn ( ) . getBitmapData ( ) . width ) / 2 , ( shCorrected - application . getPropsDyn ( ) . getBitmapData ( ) . height ) / 2 , application . getPropsDyn ( ) . getBitmapData ( ) . width , application . getPropsDyn ( ) . getBitmapData ( ) . height ) ;
             backgroundImageShape . graphics . endFill ( ) ;
           }
           else if ( application . getPropsDyn ( ) . getAppBackgroundAlign ( ) == application . getTexts ( ) . BACKGROUND_ALIGN_MOSAIC )
           {
             matrix = null ;
             backgroundImageShape . graphics . clear ( ) ;
-            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBackgroundBitmapData ( ) , null , true , true ) ;
+            backgroundImageShape . graphics . beginBitmapFill ( application . getPropsDyn ( ) . getBitmapData ( ) , null , true , true ) ;
             backgroundImageShape . graphics . drawRect ( 0 , 0 , swCorrected , shCorrected ) ;
             backgroundImageShape . graphics . endFill ( ) ;
           }
@@ -448,13 +448,14 @@ package com . kisscodesystems . KissAs3Fw . app
         stage . removeEventListener ( MouseEvent . MOUSE_DOWN , stageMouseDown ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , posBackgroundImageForBackgroundLive ) ;
       }
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_IMAGE_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_IMAGE_ALIGN_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_IMAGE_ALPHA_CHANGED , backgroundImageChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_IMAGE_LIVE_CHANGED , backgroundLiveChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_ALIGN_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_ALPHA_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BLUR_CHANGED , backgroundImageChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_LIVE_CHANGED , backgroundLiveChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;

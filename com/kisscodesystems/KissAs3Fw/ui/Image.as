@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Image.
@@ -15,23 +15,26 @@
 ** MAIN FEATURES:
 ** - image to display from the internet
 ** - can display the image using a frame is requested
+** - delayed if specified
+** - can load thumb is specified
+** - square can be defined to display and align the image
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import flash . display . Bitmap ;
   import flash . display . BitmapData ;
   import flash . display . Loader ;
-  import flash . display . PixelSnapping ;
   import flash . events . Event ;
   import flash . events . IOErrorEvent ;
   import flash . events . SecurityErrorEvent ;
+  import flash . events . TimerEvent ;
   import flash . geom . Matrix ;
   import flash . net . URLRequest ;
   import flash . net . URLRequestMethod ;
   import flash . net . URLVariables ;
+  import flash . utils . Timer ;
   public class Image extends BaseSprite
   {
 // It uses a separate urlrequest and urlloader object since
@@ -40,7 +43,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var urlRequest : URLRequest = null ;
     private var urlVariables : URLVariables = null ;
 // These will store the data of the picture.
-    private var bitmap : Bitmap = null ;
     private var bitmapData : BitmapData = null ;
 // If a resizing is needed.
     private var matrix : Matrix = null ;
@@ -62,6 +64,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var background : BaseShape = null ;
 // The image can be resized or not.
     private var resizable : Boolean = true ;
+// Thumb version of image is also possible.
+    private var isThumb : Boolean = false ;
+// Timer object to enable delay.
+    private var timer : Timer = null ;
+// Has to display the image in a square.
+    private var inSquare : Boolean = false ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -74,6 +82,21 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( canvas ) ;
 // The event object needed to inform the outside world about loading.
       eventFileLoaded = new Event ( application . EVENT_FILE_LOADED ) ;
+    }
+/*
+** inSquare set: has to be displayed and aligned in a regular square
+*/
+    public function getInSquare ( ) : Boolean
+    {
+      return inSquare ;
+    }
+    public function setInSquare ( b : Boolean ) : void
+    {
+      if ( b != inSquare )
+      {
+        inSquare = b ;
+        repaintReposImage ( ) ;
+      }
     }
 /*
 ** The get and set of the resizable property.
@@ -103,13 +126,45 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** Sets the ID of the file and session IDs to the server.
 ** Use as you want: the ID-s can be used as you implement the server side code.
 */
-    public function setParamsAndLoadImage ( pId : String , sId : String , fUrl : String ) : void
+    public function setParamsAndLoadImage ( pId : String , sId : String , fUrl : String , delayed : int = 0 , thumb : Boolean = false ) : void
     {
 // The ids.
       serverId = pId ;
       sessionId = sId ;
       fileUrl = fUrl ;
-// This 2 data is given so we can load the image itself.
+      isThumb = thumb ;
+      if ( thumb )
+      {
+        frame = false ;
+      }
+// Lets begin.
+      createTimer ( delayed ) ;
+    }
+/*
+** Timer handler functions.
+*/
+    public function createTimer ( delayed : int ) : void
+    {
+      destroyTimer ( ) ;
+      timer = new Timer ( delayed ) ;
+      timer . addEventListener ( TimerEvent . TIMER , timerEvent ) ;
+      timer . start ( ) ;
+    }
+    private function destroyTimer ( ) : void
+    {
+      if ( timer != null )
+      {
+        timer . stop ( ) ;
+        timer . removeEventListener ( TimerEvent . TIMER , timerEvent ) ;
+        timer = null ;
+      }
+    }
+    private function timerEvent ( e : TimerEvent ) : void
+    {
+      if ( timer != null )
+      {
+        timer . stop ( ) ;
+      }
       loadImage ( ) ;
     }
 /*
@@ -122,6 +177,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Loads the image from the server after constructing the request.
 ** It will use the given file id and session id.
+** url variables:
+**   pid: server side ID (such as PHP session id)
+**   sid: other backend side ID
+**   fileurl: the whole url where the image will be loaded from
+**   thumb: "y" or "n" value
 */
     private function loadImage ( ) : void
     {
@@ -136,6 +196,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         urlVariables [ "pid" ] = serverId ;
         urlVariables [ "sid" ] = sessionId ;
         urlVariables [ "fileurl" ] = fileUrl ;
+        urlVariables [ "thumb" ] = isThumb ? "y" : "n" ;
         urlRequest . data = urlVariables ;
         urlRequest . method = URLRequestMethod . POST ;
         urlRequest . url = application . getUrlFiles ( ) ;
@@ -159,7 +220,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         bitmapData = new BitmapData ( e . target . content . width , e . target . content . height ) ;
         bitmapData . draw ( e . target . content ) ;
-        bitmap = new Bitmap ( bitmapData , PixelSnapping . AUTO , true ) ;
       }
       catch ( e : * )
       {
@@ -174,6 +234,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventFileLoaded ) ;
       }
+// Timer has to be stopped.
+      destroyTimer ( ) ;
     }
 /*
 ** IOError or SecurityError occurred.
@@ -182,9 +244,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       bitmapDataDispose ( ) ;
       bitmapData = new BitmapData ( 1 , 1 ) ;
-      bitmap = new Bitmap ( bitmapData , PixelSnapping . AUTO , true ) ;
       resetImageLoading ( ) ;
       repaintReposImage ( ) ;
+      destroyTimer ( ) ;
     }
 /*
 ** The image loader objects can be released.
@@ -228,12 +290,12 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function repaintReposImage ( ) : void
     {
+      var radius : int = application . getPropsDyn ( ) . getAppRadius ( ) ;
       if ( canvas != null )
       {
         canvas . graphics . clear ( ) ;
         if ( bitmapData != null )
         {
-          var radius : int = application . getPropsDyn ( ) . getAppRadius2 ( ) ;
           var deltaWidth : int = 0 ;
           var deltaHeight : int = 0 ;
           if ( frame )
@@ -260,7 +322,7 @@ package com . kisscodesystems . KissAs3Fw . ui
           matrix . scale ( tempWidth / bitmapData . width , tempHeight / bitmapData . height ) ;
           canvas . graphics . clear ( ) ;
           canvas . graphics . beginBitmapFill ( bitmapData , matrix , false , true ) ;
-          canvas . graphics . drawRect ( 0 , 0 , tempWidth , tempHeight ) ;
+          canvas . graphics . drawRoundRect ( 0 , 0 , tempWidth , tempHeight , radius , radius ) ;
           canvas . graphics . endFill ( ) ;
           if ( frame )
           {
@@ -272,7 +334,25 @@ package com . kisscodesystems . KissAs3Fw . ui
             canvas . x = 0 ;
             canvas . y = 0 ;
           }
-          super . setswh ( tempWidth + deltaWidth , tempHeight + deltaHeight ) ;
+          if ( inSquare )
+          {
+            if ( getsw ( ) > getsh ( ) )
+            {
+              canvas . x = int ( ( getsw ( ) - tempWidth ) / 2 ) ;
+              canvas . y = 0 ;
+              super . setswh ( getsw ( ) , getsw ( ) ) ;
+            }
+            else
+            {
+              canvas . x = 0 ;
+              canvas . y = int ( ( getsh ( ) - tempHeight ) / 2 ) ;
+              super . setswh ( getsh ( ) , getsh ( ) ) ;
+            }
+          }
+          else
+          {
+            super . setswh ( tempWidth + deltaWidth , tempHeight + deltaHeight ) ;
+          }
         }
       }
       if ( frame )
@@ -285,8 +365,8 @@ package com . kisscodesystems . KissAs3Fw . ui
           background . setdt ( 1 ) ;
           addListeners ( ) ;
         }
-        background . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        background . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        background . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        background . setsr ( radius ) ;
         background . setswh ( getsw ( ) , getsh ( ) ) ;
         background . drawRect ( ) ;
       }
@@ -342,8 +422,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function addListeners ( ) : void
     {
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
     }
 /*
@@ -352,8 +432,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function resetListeners ( ) : void
     {
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
     }
 /*
@@ -364,6 +444,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       resetListeners ( ) ;
       resetImageLoading ( ) ;
+      destroyTimer ( ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       bitmapDataDispose ( ) ;
       if ( eventFileLoaded != null )
@@ -376,7 +457,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       loader = null ;
       urlRequest = null ;
       urlVariables = null ;
-      bitmap = null ;
       bitmapData = null ;
       matrix = null ;
       serverId = null ;
@@ -389,6 +469,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       canvas = null ;
       background = null ;
       resizable = false ;
+      isThumb = false ;
+      inSquare = false ;
     }
   }
 }

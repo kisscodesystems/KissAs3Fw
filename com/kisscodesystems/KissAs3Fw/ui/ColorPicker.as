@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ColorPicker.
@@ -31,6 +31,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var color : ColorPanel = null ;
 // The event to the outside world of the changing of the color.
     private var eventChanged : Event = null ;
+// The color stealing events (start, stop)
+    private var eventColorStealFromStageStart : Event = null ;
+    private var eventColorStealFromStageStop : Event = null ;
 // The type of the text to be used for considering the size of this object.
     private var textType : String = null ;
 /*
@@ -47,10 +50,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       contentSprite . addChild ( color ) ;
       color . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , colorChanged ) ;
       color . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , colorResized ) ;
+      color . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
+      color . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
 // The content sprite has to be updated now.
       contentSprite . setswh ( color . getsw ( ) , color . getsh ( ) ) ;
 // The default color has been changed, message to the outside world.
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
+// To be able to dispatch these to the outside world (fe. PanelSettings)
+      eventColorStealFromStageStart = new Event ( application . EVENT_COLOR_STEAL_FROM_STAGE_START ) ;
+      eventColorStealFromStageStop = new Event ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP ) ;
 // Creating the elements.
       baseSprite = new BaseSprite ( application ) ;
       baseWorkingButton . addChild ( baseSprite ) ;
@@ -61,6 +69,23 @@ package com . kisscodesystems . KissAs3Fw . ui
 // Events to listen to.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
+    }
+/*
+** Dispatch these to the outside (from the color panel)
+*/
+    private function colorStealStart ( e : Event ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && eventColorStealFromStageStart != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventColorStealFromStageStart ) ;
+      }
+    }
+    private function colorStealStop ( e : Event ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && eventColorStealFromStageStop != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventColorStealFromStageStop ) ;
+      }
     }
 /*
 ** The color object has been resized.

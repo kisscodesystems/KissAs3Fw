@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseWorkingButton.
@@ -99,11 +99,19 @@ package com . kisscodesystems . KissAs3Fw . base
         baseButton . setState ( 1 ) ;
         contentSprite . setcxy ( 0 , 0 ) ;
       }
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
     private function rollOut ( e : MouseEvent ) : void
     {
       baseButton . setState ( 0 ) ;
       contentSprite . setcxy ( 0 , 0 ) ;
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
     private function mouseDown ( e : MouseEvent ) : void
     {
@@ -111,6 +119,10 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         baseButton . setState ( 2 ) ;
         contentSprite . setcxy ( 1 , 1 ) ;
+      }
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
       }
     }
     private function click ( e : MouseEvent ) : void
@@ -124,6 +136,10 @@ package com . kisscodesystems . KissAs3Fw . base
           baseWorkingButtonClick ( ) ;
         }
         catch ( e : * ) { }
+      }
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
       }
     }
 /*
@@ -185,7 +201,7 @@ package com . kisscodesystems . KissAs3Fw . base
       foregroundSprite . graphics . clear ( ) ;
       foregroundSprite . graphics . lineStyle ( 0 , 0 , 0 ) ;
       foregroundSprite . graphics . beginFill ( 0 , 0 ) ;
-      foregroundSprite . graphics . drawRoundRect ( 0 , 0 , getsw ( ) , getsh ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
+      foregroundSprite . graphics . drawRoundRect ( 0 , 0 , getsw ( ) , getsh ( ) , application . getPropsDyn ( ) . getAppRadius ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       foregroundSprite . graphics . endFill ( ) ;
     }
 /*

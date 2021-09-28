@@ -15,11 +15,11 @@
 **
 ** Published       : 07.31.2017
 **
-** Current version : 1.8
+** Current version : 1.9
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
-**                   <https://openso.kisscodesystems.com>
+**                   <http://kcsopensource.com>
 **
 ** Changelog       : 1.1 - 06.30.2017
 **                   bugfixes and smaller improvements
@@ -46,12 +46,17 @@
 **                   Camera object is added now.
 **                   The File and FileReference can be set from outside in ButtonFile.
 **                   1.8 - 04.01.2018
-**                   Clock, Icon, Image and Timezone classes are added
+**                   Watch, Icon, Image and Timezone classes are added
 **                   menu contains profile image, nickname, fullname, role, login time,
 **                   and logout, register buttons
 **                   background can display background images loaded from the internet.
 **                   Tracer class
 **                   several minor improvements
+**                   1.9 - 28.sep.2021
+**                   Watch class is finished
+**                   Board object is added
+**                   SoundManager is added to application to play several sounds for example
+**                   by clicking a button or display a confirm dialog.
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -61,7 +66,6 @@
 ** - uses customContextMenu to handle custom context menu items.
 **
 ** - handles the menu selection
-** - toSmartphone: easier to set up the application into smartphones
 ** - setApplicationName: sets a name to this application for you
 ** - custom context menu items are available to add and remove, and even handles
 **   the events of clicks in case of single webpage opener menu items.
@@ -105,12 +109,15 @@ package com . kisscodesystems . KissAs3Fw
   import com . kisscodesystems . KissAs3Fw . app . Middleground ;
   import com . kisscodesystems . KissAs3Fw . app . Tracer ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseTextField ;
   import com . kisscodesystems . KissAs3Fw . prop . PropsApp ;
   import com . kisscodesystems . KissAs3Fw . prop . PropsDyn ;
   import com . kisscodesystems . KissAs3Fw . text . TextStock ;
   import com . kisscodesystems . KissAs3Fw . text . Texts ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
+  import com . kisscodesystems . KissAs3Fw . ui . IconManager ;
+  import com . kisscodesystems . KissAs3Fw . ui . SoundManager ;
   import com . kisscodesystems . KissAs3Fw . ui . Widget ;
   import flash . display . DisplayObject ;
   import flash . display . StageAlign ;
@@ -120,16 +127,34 @@ package com . kisscodesystems . KissAs3Fw
   import flash . filesystem . File ;
   import flash . filters . DropShadowFilter ;
   import flash . globalization . DateTimeFormatter ;
-  import flash . net . URLRequest ;
+  import flash . media . Camera ;
+  import flash . media . Microphone ;
   import flash . net . navigateToURL ;
+  import flash . net . NetConnection ;
+  import flash . net . NetStream ;
+  import flash . net . URLRequest ;
+  import flash . text . TextFieldAutoSize ;
   import flash . ui . ContextMenu ;
   import flash . ui . ContextMenuItem ;
   public class Application extends BaseSprite
   {
 // SOME VARS NEED TO BE HERE
-    public const LENGTHS_PASS : Array = new Array ( 8 , 200 ) ;
+    public const LENGTHS_PASS : Array = new Array ( 8 , 201 ) ;
     public const CHARS_PASS : String = "a-zA-Z0-9 .\\-\\,:;_*@?#áíűőüöúóéÁÍŰŐÜÖÚÓÉ" ;
 // CONSTANTS
+// The watch displaying is changed.
+    public const EVENT_WATCH_CHANGED : String = "EVENT_WATCH_CHANGED" ;
+// The elements of the watch displaying has been repositioned.
+    public const EVENT_WATCH_REPOSITIONED : String = "EVENT_WATCH_REPOSITIONED" ;
+// The displaying style or an attribute is changed.
+    public const EVENT_DISPLAYING_STYLE_CHANGED : String = "EVENT_DISPLAYING_STYLE_CHANGED" ;
+// Event string of the changing of the orientation of widgets or other UI elements.
+    public const EVENT_WIDGETS_ORIENTATION_CHANGED : String = "EVENT_WIDGETS_ORIENTATION_CHANGED" ;
+// Event string of the changing of the mode of widgets.
+    public const EVENT_WIDGET_MODE_CHANGED : String = "EVENT_WIDGET_MODE_CHANGED" ;
+// Event string of the changing of the sound properties.
+    public const EVENT_SOUND_VOLUME_CHANGED : String = "EVENT_SOUND_VOLUME_CHANGED" ;
+    public const EVENT_SOUND_PLAYING_CHANGED : String = "EVENT_SOUND_PLAYING_CHANGED" ;
 // The line thickness change event string.
     public const EVENT_LINE_THICKNESS_CHANGED : String = "EVENT_LINE_THICKNESS_CHANGED" ;
 // The events of the margin, padding and radius change.
@@ -137,16 +162,27 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_PADDING_CHANGED : String = "EVENT_PADDING_CHANGED" ;
     public const EVENT_RADIUS_CHANGED : String = "EVENT_RADIUS_CHANGED" ;
 // Event strings of the background color changing events.
-    public const EVENT_BACKGROUND_BG_COLOR_CHANGED : String = "EVENT_BACKGROUND_BG_COLOR_CHANGED" ;
-    public const EVENT_BACKGROUND_FG_COLOR_CHANGED : String = "EVENT_BACKGROUND_FG_COLOR_CHANGED" ;
+    public const EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED : String = "EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED" ;
+    public const EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED : String = "EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED" ;
 // Event string of the changing of the fill alhpa.
     public const EVENT_BACKGROUND_FILL_ALPHA_CHANGED : String = "EVENT_BACKGROUND_FILL_ALPHA_CHANGED" ;
 // The changing of the properties of background image.
     public const EVENT_BACKGROUND_IMAGE_CHANGED : String = "EVENT_BACKGROUND_IMAGE_CHANGED" ;
-    public const EVENT_BACKGROUND_IMAGE_ALIGN_CHANGED : String = "EVENT_BACKGROUND_IMAGE_ALIGN_CHANGED" ;
-    public const EVENT_BACKGROUND_IMAGE_ALPHA_CHANGED : String = "EVENT_BACKGROUND_IMAGE_ALPHA_CHANGED" ;
-    public const EVENT_BACKGROUND_IMAGE_LIVE_CHANGED : String = "EVENT_BACKGROUND_IMAGE_LIVE_CHANGED" ;
+    public const EVENT_BACKGROUND_ALIGN_CHANGED : String = "EVENT_BACKGROUND_ALIGN_CHANGED" ;
+    public const EVENT_BACKGROUND_ALPHA_CHANGED : String = "EVENT_BACKGROUND_ALPHA_CHANGED" ;
+    public const EVENT_BACKGROUND_BLUR_CHANGED : String = "EVENT_BACKGROUND_BLUR_CHANGED" ;
+    public const EVENT_BACKGROUND_LIVE_CHANGED : String = "EVENT_BACKGROUND_LIVE_CHANGED" ;
+// Event strings of font face and size changing
+    public const EVENT_FONT_FACE_CHANGED : String = "EVENT_FONT_FACE_CHANGED" ;
+    public const EVENT_FONT_SIZE_CHANGED : String = "EVENT_FONT_SIZE_CHANGED" ;
 // Event strings of the changing of the used textformats.
+    public const EVENT_FONT_COLOR_BRIGHT_CHANGED : String = "EVENT_FONT_COLOR_BRIGHT_CHANGED" ;
+    public const EVENT_FONT_COLOR_MID_CHANGED : String = "EVENT_FONT_COLOR_MID_CHANGED" ;
+    public const EVENT_FONT_COLOR_DARK_CHANGED : String = "EVENT_FONT_COLOR_DARK_CHANGED" ;
+// Event strings of font bold and italic changing
+    public const EVENT_FONT_BOLD_CHANGED : String = "EVENT_FONT_BOLD_CHANGED" ;
+    public const EVENT_FONT_ITALIC_CHANGED : String = "EVENT_FONT_ITALIC_CHANGED" ;
+// Event strings of the changing of the used textformats to the textfield objects.
     public const EVENT_TEXT_FORMAT_BRIGHT_CHANGED : String = "EVENT_TEXT_FORMAT_BRIGHT_CHANGED" ;
     public const EVENT_TEXT_FORMAT_MID_CHANGED : String = "EVENT_TEXT_FORMAT_MID_CHANGED" ;
     public const EVENT_TEXT_FORMAT_DARK_CHANGED : String = "EVENT_TEXT_FORMAT_DARK_CHANGED" ;
@@ -160,13 +196,12 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_WIDGET_CLOSED : String = "EVENT_WIDGET_CLOSED" ;
     public const EVENT_WIDGET_DRAG_START : String = "EVENT_WIDGET_DRAG_START" ;
     public const EVENT_WIDGET_DRAG_STOP : String = "EVENT_WIDGET_DRAG_STOP" ;
-// Event string of the changing of the orientation of widgets or other UI elements.
-    public const EVENT_ORIENTATIONS_CHANGED : String = "EVENT_ORIENTATIONS_CHANGED" ;
+// Events of the color stealing from the stage.
+    public const EVENT_COLOR_STEAL_FROM_STAGE_START : String = "EVENT_COLOR_STEAL_FROM_STAGE_START" ;
+    public const EVENT_COLOR_STEAL_FROM_STAGE_STOP : String = "EVENT_COLOR_STEAL_FROM_STAGE_STOP" ;
 // Event string of the changing of the actual used language code of the application.
 // Used in TextStock.
     public const EVENT_LANG_CODE_CHANGED : String = "EVENT_LANG_CODE_CHANGED" ;
-// The displaying style or an attribute is changed.
-    public const EVENT_STYLE_CHANGED : String = "EVENT_STYLE_CHANGED" ;
 // When a base scroll notifies other objects about the changing of the content position.
     public const EVENT_CONTENT_POSITION_CHANGED : String = "EVENT_CONTENT_POSITION_CHANGED" ;
 // The events of the cache begin and end
@@ -197,13 +232,34 @@ package com . kisscodesystems . KissAs3Fw
 // A user file is selected or cancelled.
     public const EVENT_USER_BACKGROUND_FILE_SELECTED : String = "EVENT_USER_BACKGROUND_FILE_SELECTED" ;
     public const EVENT_USER_BACKGROUND_FILE_CANCELLED : String = "EVENT_USER_BACKGROUND_FILE_CANCELLED" ;
-// The user changes the password or creates a new one.
+// The user changes the password or creates a new one or confirms that he/she is here.
     public const EVENT_USER_PASSWORD_CHANGE_DO : String = "EVENT_USER_PASSWORD_CHANGE_DO" ;
     public const EVENT_USER_PASSWORD_CREATE_DO : String = "EVENT_USER_PASSWORD_CREATE_DO" ;
-// Events of the reaching the bottom.
-    public const BOTTOM_REACHED : String = "BOTTOM_REACHED" ;
+    public const EVENT_USER_PASSWORD_IMHERE_DO : String = "EVENT_USER_PASSWORD_IMHERE_DO" ;
+// Events of the reaching the top and bottom (BaseScroll fe.).
+    public const EVENT_TOP_REACHED : String = "EVENT_TOP_REACHED" ;
+    public const EVENT_BOTTOM_REACHED : String = "EVENT_BOTTOM_REACHED" ;
+// The event of the playing in SoundPlayer
+    public const EVENT_PLAYED : String = "EVENT_PLAYED" ;
 // Empty html paragraph
     public const EMPTY_HTML_PARAGRAPH : String = "<p>&nbsp;</p>" ;
+// Dateformats to use in as3 (YYYY-MM-DD HH24:MI:SS in database)
+    public const ASDATEFORMAT : String = "yyyy-MM-dd" ;
+    public const ASMINSFORMAT : String = "yyyy-MM-dd HH:mm" ;
+    public const ASTIMEFORMAT : String = "yyyy-MM-dd HH:mm:ss" ;
+// Gap of a click on ButtonBar or ListPanel.
+    public const CLICK_GAP : int = 16 ;
+// The displaying refresh time in milliseconds
+    public const TIME_DISPLAYING_TIMER_DELAY : int = 200 ;
+// Board object constants
+    public const BOARD_BACKGROUND_COLOR : String = "DDDDDD" ;
+    public const BOARD_PADDING : int = 6 ;
+    public const BOARD_LINE_COLOR : String = "111111" ;
+    public const BOARD_LINE_THICKNESS : int = 2 ;
+    public const BOARD_LINE_MINTHICKNESS : int = 1 ;
+    public const BOARD_LINE_MAXTHICKNESS : int = 10 ;
+    public const BOARD_LINE_INCTHICKNESS : int = 1 ;
+    public const BOARD_LINE_RUBBER_THICKNESS : int = 20 ;
 // Color constants
     public const COLOR_RGB_INPUT_ZEROS : String = "000000" ;
     public const COLOR_HEX_TO_NUMBER_STRING : String = "0x" ;
@@ -217,13 +273,8 @@ package com . kisscodesystems . KissAs3Fw
     public const TEXT_BRIGHT_DARK_CHANGE_BOUND : int = 4 * 16 ;
 // The enabled characters of the hexadecimal input
     public const TEXT_ENABLED_CHARS_HEX : String = "0-9a-fA-F" ;
-// The types of the usable drawn buttons.
-    public const DRAW_BUTTON_TYPE_SETTINGS : String = "DRAW_BUTTON_TYPE_SETTINGS" ;
-    public const DRAW_BUTTON_TYPE_MENU : String = "DRAW_BUTTON_TYPE_MENU" ;
-    public const DRAW_BUTTON_TYPE_WIDGET_MOVE : String = "DRAW_BUTTON_TYPE_WIDGET_MOVE" ;
-    public const DRAW_BUTTON_TYPE_WIDGETS_PREV : String = "DRAW_BUTTON_TYPE_WIDGETS_PREV" ;
-    public const DRAW_BUTTON_TYPE_WIDGETS_NEXT : String = "DRAW_BUTTON_TYPE_WIDGETS_NEXT" ;
-    public const DRAW_BUTTON_TYPE_WIDGETS_LIST : String = "DRAW_BUTTON_TYPE_WIDGETS_LIST" ;
+// The voter object has to contain this number of stars:
+    public const VOTER_STARS : int = 5 ;
 // The drop shadow object to the texts and other objects.
 // These are the objects usable everywhere.
 // Have to be initialized now!
@@ -237,6 +288,8 @@ package com . kisscodesystems . KissAs3Fw
 // 4: no tracing
 // This framework uses 0 only, your application should use other tracing levels.
     protected var traceLevel : int = 1 ;
+// The macimum lehgth of the messages to be traced
+    protected var traceMaxLength : int = 1000 ;
 // The Tracer class to display developer messages.
     public var tracer : Tracer = null ;
 // To trace
@@ -259,6 +312,11 @@ package com . kisscodesystems . KissAs3Fw
 // The properties of this application.
     protected var propsApp : PropsApp = null ;
     protected var propsDyn : PropsDyn = null ;
+// The icon manager of this application.
+// Can be overwritten if more icons needed.
+    protected var iconManager : IconManager = null ;
+// There comes the sound manager to handle sound events: button click for example.
+    protected var soundManager : SoundManager = null ;
 // The menu items of this applicaiton.
     protected var menuxml : String = "" ;
 // To hide unnecessary right click menu elements and to add new ones.
@@ -274,6 +332,10 @@ package com . kisscodesystems . KissAs3Fw
     protected var urlFiles : String = "" ;
     protected var urlSubmit : String = "" ;
     protected var urlProfile : String = "" ;
+// The last calculated font size is:
+    private var lastCalculatedFontSize : int = 0 ;
+// If we asked for it before, we will not do that again.
+    private var askedForCameraPermission : Boolean = false ;
 /*
 ** The constructor, does the initialization of the whole application.
 */
@@ -303,6 +365,8 @@ package com . kisscodesystems . KissAs3Fw
       textStock = new TextStock ( application ) ;
       propsApp = new PropsApp ( ) ;
       propsDyn = new PropsDyn ( application ) ;
+      iconManager = new IconManager ( application ) ;
+      soundManager = new SoundManager ( application ) ;
       getBaseEventDispatcher ( ) . setParentObject ( this ) ;
       application . trace ( "App started and initialized." , 1 ) ;
     }
@@ -328,6 +392,39 @@ package com . kisscodesystems . KissAs3Fw
     public function getUrlProfile ( ) : String
     {
       return urlProfile ;
+    }
+/*
+** Gets and sets the properties of the currently displayed watch.
+*/
+    public function getWatchType ( ) : String
+    {
+      if ( getMiddleground ( ) != null && getMiddleground ( ) . getWatch ( ) != null )
+      {
+        return getMiddleground ( ) . getWatch ( ) . getWatchType ( ) ;
+      }
+      return "" ;
+    }
+    public function getWatchSecs ( ) : Boolean
+    {
+      if ( getMiddleground ( ) != null && getMiddleground ( ) . getWatch ( ) != null )
+      {
+        return getMiddleground ( ) . getWatch ( ) . getWatchSecs ( ) ;
+      }
+      return true ;
+    }
+    public function setWatchType ( t : String ) : void
+    {
+      if ( getMiddleground ( ) != null && getMiddleground ( ) . getWatch ( ) != null )
+      {
+        getMiddleground ( ) . getWatch ( ) . setWatchType ( t ) ;
+      }
+    }
+    public function setWatchSecs ( s : Boolean ) : void
+    {
+      if ( getMiddleground ( ) != null && getMiddleground ( ) . getWatch ( ) != null )
+      {
+        getMiddleground ( ) . getWatch ( ) . setWatchSecs ( s ) ;
+      }
     }
 /*
 ** The File class is usable or not.
@@ -422,25 +519,15 @@ package com . kisscodesystems . KissAs3Fw
       getForeground ( ) . createAlert ( messageString , uniqueString , true , false ) ;
     }
 /*
-** Prepares the displaying of this application to smartphone friendly.
-*/
-    public function toSmartphone ( ) : void
-    {
-// By default: the app, dyn variables and the middleground have to be prepared.
-      propsApp . toSmartphone ( ) ;
-      propsDyn . toSmartphone ( ) ;
-      middleground . toSmartphone ( ) ;
-    }
-/*
 ** Sets the name of the application.
 ** This writes a label onto the header area of the application.
 */
-    protected function setApplicationName ( ) : void
+    public function setApplicationNameWithIcon ( iconName : String ) : void
     {
       if ( middleground != null )
       {
-// The middleground dose this.
-        middleground . setApplicationName ( ) ;
+// The middleground does this.
+        middleground . setApplicationNameWithIcon ( iconName ) ;
       }
     }
 /*
@@ -486,20 +573,6 @@ package com . kisscodesystems . KissAs3Fw
       }
     }
 /*
-** Gets the application background image uploaded by the user.
-*/
-    public function getAppBackgroundUserImage ( ) : ButtonFile
-    {
-      if ( middleground != null )
-      {
-        return middleground . getAppBackgroundUserImage ( ) ;
-      }
-      else
-      {
-        return null ;
-      }
-    }
-/*
 ** Removes a custom context menu item specified by its index.
 */
     public function removeContextMenuItem ( i : int ) : void
@@ -532,6 +605,27 @@ package com . kisscodesystems . KissAs3Fw
       }
     }
 /*
+** Sets the language by an id.
+*/
+    public function setLangById ( id : int ) : void
+    {
+      getMiddleground ( ) . setLangCode ( textStock . getLangCodes ( ) [ textStock . getLangIds ( ) . indexOf ( id ) ] ) ;
+    }
+/*
+** Gets the application background image uploaded by the user.
+*/
+    public function getUserBgButtonFile ( ) : ButtonFile
+    {
+      if ( middleground != null )
+      {
+        return middleground . getUserBgButtonFile ( ) ;
+      }
+      else
+      {
+        return null ;
+      }
+    }
+/*
 ** Happens when the stage has been resized.
 */
     private function stageResized ( e : Event ) : void
@@ -539,9 +633,23 @@ package com . kisscodesystems . KissAs3Fw
 // We will have new sizes to this app.
       setSizeFromStageSize ( ) ;
 // New font size has to be calculated if necessary.
+      setFontSizeFromStage ( ) ;
+    }
+/*
+** Sets the font size according to the sizes of the stage.
+** This is necessary to call it for example when the user changes the appearance
+** from desktop to mobile by hand. (Settings panel)
+*/
+    public function setFontSizeFromStage ( ) : void
+    {
       if ( propsDyn . getAppFontSize ( ) == 0 )
       {
-        propsDyn . setFontSize ( calcFontSizeFromStageSize ( ) ) ;
+        var size : int = calcFontSizeFromStageSize ( ) ;
+        if ( lastCalculatedFontSize != size )
+        {
+          lastCalculatedFontSize = size ;
+          propsDyn . setAllFontSizes ( size ) ;
+        }
       }
     }
 /*
@@ -550,13 +658,17 @@ package com . kisscodesystems . KissAs3Fw
     public function calcFontSizeFromStageSize ( ) : int
     {
 // The new font size will be calculated if the stage is existing.
-      if ( stage != null )
+      if ( stage != null && getPropsDyn ( ) != null && getPropsApp ( ) != null )
       {
-        return int ( getsw ( ) * getPropsApp ( ) . getFontSizeFactor ( ) ) ;
+        var size : int = getsw ( ) * ( getPropsDyn ( ) . weAreInDesktopMode ( ) ? getPropsApp ( ) . getFontSizeFactorDesktop ( ) : getPropsApp ( ) . getFontSizeFactorMobile ( ) ) ;
+        if ( size % 2 == 1 ) size ++ ;
+        if ( size > getPropsDyn ( ) . getMaxFontSize ( ) ) size = getPropsDyn ( ) . getMaxFontSize ( ) ;
+        if ( size < getPropsDyn ( ) . getMinFontSize ( ) ) size = getPropsDyn ( ) . getMinFontSize ( ) ;
+        return size ;
       }
       else
       {
-        return 12 ;
+        return 20 ;
       }
     }
 /*
@@ -652,6 +764,20 @@ package com . kisscodesystems . KissAs3Fw
       return propsDyn ;
     }
 /*
+** Gets the icon manager.
+*/
+    public function getIconManager ( ) : IconManager
+    {
+      return iconManager ;
+    }
+/*
+** Gets the sound manager.
+*/
+    public function getSoundManager ( ) : SoundManager
+    {
+      return soundManager ;
+    }
+/*
 ** For displaying the color.
 */
     public function colorToString ( color : Number ) : String
@@ -711,6 +837,15 @@ package com . kisscodesystems . KissAs3Fw
       }
     }
 /*
+** Creating minutes from seconds.
+*/
+    public function secondsToMinutes ( s : int ) : String
+    {
+      var minutes : int = Math . floor ( s / 60 ) ;
+      var seconds : int = s - 60 * minutes ;
+      return "" + minutes + ":" + ( seconds <= 9 ? "0" : "" ) + seconds ;
+    }
+/*
 ** Destroying this application.
 */
     override public function destroy ( ) : void
@@ -735,21 +870,27 @@ package com . kisscodesystems . KissAs3Fw
       textStock = null ;
       propsApp = null ;
       propsDyn = null ;
+      iconManager = null ;
+      soundManager = null ;
       menuxml = "" ;
       customContextMenu = null ;
       customContextLabels = null ;
       customContextUrls = null ;
       customContextHandlers = null ;
       fileClassIsUsable = false ;
+      urlNc = null ;
       urlSite = null ;
       urlFiles = null ;
       urlSubmit = null ;
+      urlProfile = null ;
+      tracer = null ;
+      traceLevel = 0 ;
     }
 /*
 ** Tracing developer messages.
-** The logic of the filtering is here and not in the tracer class.
+** The logic of the log level is here and not in the tracer class.
 */
-    public function trace ( message : String , level : int ) : void
+    public function trace ( message : Object , level : int = 0 ) : void
     {
       if ( level >= 0 && level <= 3 )
       {
@@ -764,7 +905,14 @@ package com . kisscodesystems . KissAs3Fw
           {
             tracerUp ( ) ;
           }
-          tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + message ) ;
+          if ( message . length < traceMaxLength )
+          {
+            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + message ) ;
+          }
+          else
+          {
+            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + message . substring ( 0 , traceMaxLength - 3 ) + "..." ) ;
+          }
         }
       }
     }
@@ -773,6 +921,30 @@ package com . kisscodesystems . KissAs3Fw
       if ( tracer != null )
       {
         setChildIndex ( tracer , numChildren - 1 ) ;
+      }
+    }
+/*
+** The permission can be asked from user before any other useful stuff could happen.
+*/
+    public function askForCameraPermission ( ) : void
+    {
+      if ( ! askedForCameraPermission )
+      {
+        var nc : NetConnection = new NetConnection ( ) ;
+        nc . connect ( null ) ;
+        var ns : NetStream = new NetStream ( nc ) ;
+        var cam : Camera = Camera . getCamera ( ) ;
+        var mic : Microphone = Microphone . getMicrophone ( ) ;
+        ns . publish ( "live" , "live" ) ;
+        ns . attachCamera ( cam ) ;
+        ns . attachAudio ( mic ) ;
+        ns . attachCamera ( null ) ;
+        ns . attachAudio ( null ) ;
+        ns . close ( ) ;
+        nc . close ( ) ;
+        cam = null ;
+        mic = null ;
+        askedForCameraPermission = true ;
       }
     }
   }

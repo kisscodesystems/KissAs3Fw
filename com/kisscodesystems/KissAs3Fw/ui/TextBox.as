@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** TextBox.
@@ -29,8 +29,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     protected var baseTextField : BaseTextField = null ;
 // And a base scroll object.
     protected var baseScroll : BaseScroll = null ;
-// Events of the reaches of the bottoms.
-    private var bottomReached : Event = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -38,8 +36,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Super.
       super ( applicationRef ) ;
-// The event of the reaching the bottom.
-      bottomReached = new Event ( application . BOTTOM_REACHED ) ;
 // Adding the textfield first.
       baseTextField = new BaseTextField ( application ) ;
       addChild ( baseTextField ) ;
@@ -51,6 +47,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( baseScroll ) ;
 // This event is required for us now.
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposText ) ;
+      baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TOP_REACHED , dispatchEventTopReached ) ;
+      baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOTTOM_REACHED , dispatchEventBottomReached ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , doSizeOrTextChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , doSizeOrTextChanged ) ;
 // Setting the mask ( but not necessary since the textfield always will have the size of the mask).
@@ -86,25 +84,35 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function reposText ( e : Event ) : void
     {
 // Scrolling vertically (y, height)
-      baseTextField . scrollV = Math . min ( Math . abs ( Math . round ( baseScroll . getccy ( ) * ( baseTextField . maxScrollV ) / ( baseTextField . textHeight - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . height ) - 1 ) ) , baseTextField . maxScrollV ) ;
-// Event if reached the max:
-      if ( baseTextField . scrollV == baseTextField . maxScrollV )
-      {
-        dispatchEventBottomReached ( ) ;
-      }
+      baseTextField . scrollV = Math . min ( Math . abs ( Math . round ( baseScroll . getccy ( ) * ( baseTextField . maxScrollV ) / ( baseTextField . textHeight - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . height ) ) ) , baseTextField . maxScrollV ) ;
 // Scrolling horizontally (x, width)
-      baseTextField . scrollH = Math . min ( Math . abs ( Math . round ( baseScroll . getccx ( ) * ( baseTextField . maxScrollH ) / ( baseTextField . textWidth - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . width ) - 1 ) ) , baseTextField . maxScrollH ) ;
+      baseTextField . scrollH = Math . min ( Math . abs ( Math . round ( baseScroll . getccx ( ) * ( baseTextField . maxScrollH ) / ( baseTextField . textWidth - 2 * application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsApp ( ) . getScrollMargin ( ) - baseTextField . width ) ) ) , baseTextField . maxScrollH ) ;
 // Positioning the textfield.
       baseTextFieldPos ( ) ;
     }
 /*
 ** Dispatches an event.
 */
-    protected function dispatchEventBottomReached ( ) : void
+    protected function dispatchEventTopReached ( eventTopReached : Event ) : void
     {
-      if ( getBaseEventDispatcher ( ) != null && bottomReached != null )
+      if ( baseTextField != null )
       {
-        getBaseEventDispatcher ( ) . dispatchEvent ( bottomReached ) ;
+        baseTextField . scrollV = 0 ;
+      }
+      if ( getBaseEventDispatcher ( ) != null && eventTopReached != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventTopReached ) ;
+      }
+    }
+    protected function dispatchEventBottomReached ( eventBottomReached : Event ) : void
+    {
+      if ( baseTextField != null )
+      {
+        baseTextField . scrollV = baseTextField . maxScrollV ;
+      }
+      if ( getBaseEventDispatcher ( ) != null && eventBottomReached != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventBottomReached ) ;
       }
     }
 /*
@@ -196,16 +204,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , doSizeOrTextChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , doSizeOrTextChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
-      if ( bottomReached != null )
-      {
-        bottomReached . stopImmediatePropagation ( ) ;
-      }
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       baseTextField = null ;
       baseScroll = null ;
-      bottomReached = null ;
     }
   }
 }

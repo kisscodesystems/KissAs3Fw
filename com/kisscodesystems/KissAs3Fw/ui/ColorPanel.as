@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ColorPanel.
@@ -20,6 +20,7 @@
 ** - set color from any pixel of the stage
 ** - set color from the prepared color squares
 ** - set color from the colored rectangle: ffffff - actual_color - 000000
+** - calculates the complementer of the temp color
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
@@ -44,19 +45,27 @@ package com . kisscodesystems . KissAs3Fw . ui
 // To make the actual color as the default color.
     private var acceptNewColorButton : ButtonText = null ;
 // This is the sprite that is clickable and colored by ffffff - actual_color - 000000
-    private var drawedCustomSprite : BaseSprite = null ;
+    private var drawnCustomSprite : BaseSprite = null ;
 // The array containing the colors of the above.
-    private var drawedColorArray : Array = null ;
+    private var drawnColorArray : Array = null ;
 // This also helps to the coloring of the above.
-    private var drawedMatrix : Matrix = null ;
+    private var drawnMatrix : Matrix = null ;
+// The bitmap and bitmapdata objects to draw the drawn sprite.
+    private var drawnBitmapData : BitmapData = null ;
+    private var drawnBitmap : Bitmap = null ;
+// The complementer properties.
+    private var drawn2CustomSprite : BaseSprite = null ;
+    private var drawn2ColorArray : Array = null ;
+    private var drawn2Matrix : Matrix = null ;
+    private var drawn2BitmapData : BitmapData = null ;
+    private var drawn2Bitmap : Bitmap = null ;
 // The size of this.
-    private var drawedWidth : int = 0 ;
-    private var drawedHeight : int = 0 ;
-// The bitmap and bitmapdata objects to draw the drawed sprite.
-    private var drawedBitmapData : BitmapData = null ;
-    private var drawedBitmap : Bitmap = null ;
+    private var drawnWidth : int = 0 ;
+    private var drawnHeight : int = 0 ;
 // The colored sprite of the actual color.
     private var panelColorActual : BaseSprite = null ;
+// Displays the complementer color of the actual color.
+    private var panelColorComplementer : BaseSprite = null ;
 // The colored sprite of the default color.
     private var panelColorDefault : BaseSprite = null ;
 // This bitmapdata will be used when this object want to get a pixel from a satge.
@@ -87,10 +96,15 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var startSquaresY : int = 0 ;
 // The color of the actual color (in number format)
     private var tempColorNumber : Number = 0 ;
+// The complementer color has to be known.
+    private var compColorNumber : Number = 0xffffff ;
 // The index which square has to be marked.
     private var markedSquareIndex : int = 0 ;
 // This event will be changed after the changing of the default color of this Color object.
     private var eventChanged : Event = null ;
+// The color stealing events (start, stop)
+    private var eventColorStealFromStageStart : Event = null ;
+    private var eventColorStealFromStageStop : Event = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -100,6 +114,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       super ( applicationRef ) ;
 // The default color has been changed, this message goes to the outside world.
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
+// To be able to dispatch these to the outside world (fe. PanelSettings)
+      eventColorStealFromStageStart = new Event ( application . EVENT_COLOR_STEAL_FROM_STAGE_START ) ;
+      eventColorStealFromStageStop = new Event ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP ) ;
 // This is the index of the marked square: 0 by default.
       markedSquareIndex = 0 ;
 // Sets these to the default zero value.
@@ -173,6 +190,21 @@ package com . kisscodesystems . KissAs3Fw . ui
           panelColorActual . removeEventListener ( MouseEvent . MOUSE_DOWN , stealPixel ) ;
         }
       }
+      if ( panelColorComplementer != null )
+      {
+        if ( getEnabled ( ) )
+        {
+          panelColorComplementer . addEventListener ( MouseEvent . MOUSE_DOWN , setComplementerToTemp ) ;
+          panelColorComplementer . addEventListener ( MouseEvent . MOUSE_OVER , displayCompColor ) ;
+          panelColorComplementer . addEventListener ( MouseEvent . MOUSE_OUT , displayTempColor ) ;
+        }
+        else
+        {
+          panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_DOWN , setComplementerToTemp ) ;
+          panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_OVER , displayCompColor ) ;
+          panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_OUT , displayTempColor ) ;
+        }
+      }
       if ( panelColorDefault != null )
       {
         if ( getEnabled ( ) )
@@ -184,19 +216,30 @@ package com . kisscodesystems . KissAs3Fw . ui
           panelColorDefault . removeEventListener ( MouseEvent . CLICK , setDefaultColor ) ;
         }
       }
-      if ( drawedCustomSprite != null )
+      if ( drawnCustomSprite != null )
       {
         if ( getEnabled ( ) )
         {
-          drawedCustomSprite . addEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
-          drawedCustomSprite . addEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
-          drawedCustomSprite . addEventListener ( MouseEvent . DOUBLE_CLICK , drawedCustomSpriteDoubleClick ) ;
+          drawnCustomSprite . addEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
+          drawnCustomSprite . addEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
+          drawnCustomSprite . addEventListener ( MouseEvent . DOUBLE_CLICK , drawnCustomSpriteDoubleClick ) ;
         }
         else
         {
-          drawedCustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
-          drawedCustomSprite . removeEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
-          drawedCustomSprite . removeEventListener ( MouseEvent . DOUBLE_CLICK , drawedCustomSpriteDoubleClick ) ;
+          drawnCustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
+          drawnCustomSprite . removeEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
+          drawnCustomSprite . removeEventListener ( MouseEvent . DOUBLE_CLICK , drawnCustomSpriteDoubleClick ) ;
+        }
+      }
+      if ( drawn2CustomSprite != null )
+      {
+        if ( getEnabled ( ) )
+        {
+          drawn2CustomSprite . addEventListener ( MouseEvent . MOUSE_DOWN , update2BitmapColor ) ;
+        }
+        else
+        {
+          drawn2CustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , update2BitmapColor ) ;
         }
       }
       if ( squareArray != null )
@@ -243,7 +286,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** - rgb input textfield
 ** - OK button to accept the temp color
 ** - color squares
-** - drawed bitmap according to the temp color.
+** - drawn bitmap according to the temp color.
 */
     private function createContentSingle ( ) : void
     {
@@ -251,17 +294,26 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         squareWidth = int ( application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_MID ) * 2 / 3 ) ;
         super . setsw ( 19 * squareWidth ) ;
-        drawedWidth = 19 * squareWidth ;
-        drawedHeight = squareWidth ;
-        if ( drawedColorArray != null )
+        drawnWidth = 19 * squareWidth ;
+        drawnHeight = squareWidth ;
+        if ( drawnColorArray != null )
         {
-          drawedColorArray . splice ( 0 ) ;
-          drawedColorArray = null ;
+          drawnColorArray . splice ( 0 ) ;
+          drawnColorArray = null ;
         }
-        drawedColorArray = new Array ( 3 ) ;
-        drawedMatrix = null ;
-        drawedMatrix = new Matrix ( ) ;
-        drawedMatrix . createGradientBox ( drawedWidth , drawedHeight , Math . PI , 0 , 0 ) ;
+        drawnColorArray = new Array ( 3 ) ;
+        drawnMatrix = null ;
+        drawnMatrix = new Matrix ( ) ;
+        drawnMatrix . createGradientBox ( drawnWidth , drawnHeight , Math . PI , 0 , 0 ) ;
+        if ( drawn2ColorArray != null )
+        {
+          drawn2ColorArray . splice ( 0 ) ;
+          drawn2ColorArray = null ;
+        }
+        drawn2ColorArray = new Array ( 3 ) ;
+        drawn2Matrix = null ;
+        drawn2Matrix = new Matrix ( ) ;
+        drawn2Matrix . createGradientBox ( drawnWidth , drawnHeight , Math . PI , 0 , 0 ) ;
         colorStealTextCDelta = squareWidth ;
         startSquaresX = squareWidth ;
         if ( acceptNewColorButton == null )
@@ -275,13 +327,13 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( acceptNewColorButton != null )
         {
           acceptNewColorButton . setcxy ( getsw ( ) - acceptNewColorButton . getsw ( ) , 0 ) ;
-          super . setsh ( 13 * squareWidth + acceptNewColorButton . getsh ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) * 2 ) ;
+          super . setsh ( 14 * squareWidth + acceptNewColorButton . getsh ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) * 2 ) ;
         }
         else
         {
-          super . setsh ( 13 * squareWidth ) ;
+          super . setsh ( 14 * squareWidth ) ;
         }
-        startSquaresY = acceptNewColorButton . getcysh ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) * 2 ;
+        startSquaresY = squareWidth + acceptNewColorButton . getcysh ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) * 2 ;
         if ( panelColorActual == null )
         {
           panelColorActual = new BaseSprite ( application ) ;
@@ -303,13 +355,24 @@ package com . kisscodesystems . KissAs3Fw . ui
           panelColorDefault . setswh ( panelColorActual . getsw ( ) , int ( panelColorActual . getsh ( ) / 2 ) ) ;
           panelColorDefault . setcxy ( panelColorActual . getcx ( ) , panelColorActual . getcy ( ) ) ;
         }
-        displayTempColor ( tempColorNumber ) ;
+        if ( panelColorComplementer == null )
+        {
+          panelColorComplementer = new BaseSprite ( application ) ;
+          addChild ( panelColorComplementer ) ;
+        }
+        if ( panelColorComplementer != null && panelColorActual != null )
+        {
+          panelColorComplementer . setswh ( int ( panelColorActual . getsw ( ) / 2 ) , int ( panelColorActual . getsh ( ) / 2 ) ) ;
+          panelColorComplementer . setcxy ( panelColorActual . getcx ( ) + panelColorActual . getsw ( ) / 2 - application . getPropsDyn ( ) . getAppLineThickness ( ) , panelColorActual . getcy ( ) + panelColorActual . getsh ( ) * 1 / 3 ) ;
+        }
+        displayTempAndCompColor ( tempColorNumber ) ;
         displayDefaultColor ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + getValue ( ) ) ) ;
         if ( inputRgb == null )
         {
           inputRgb = new TextInput ( application ) ;
           addChild ( inputRgb ) ;
           inputRgb . addEventListener ( Event . CHANGE , onChangeInputRgbText ) ;
+          inputRgb . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , inputRgbChanged ) ;
           inputRgb . setMaxChars ( application . COLOR_MAX_CHARS_RGB_INPUT ) ;
           inputRgb . setRestrict ( application . TEXT_ENABLED_CHARS_HEX ) ;
         }
@@ -454,24 +517,41 @@ package com . kisscodesystems . KissAs3Fw . ui
             }
           }
         }
-        if ( drawedCustomSprite == null )
+        if ( drawn2CustomSprite == null )
         {
-          drawedCustomSprite = new BaseSprite ( application ) ;
-          addChild ( drawedCustomSprite ) ;
-          drawedCustomSprite . doubleClickEnabled = true ;
+          drawn2CustomSprite = new BaseSprite ( application ) ;
+          addChild ( drawn2CustomSprite ) ;
         }
-        if ( drawedBitmapData != null )
+        if ( drawn2BitmapData != null )
         {
-          drawedBitmapData . dispose ( ) ;
+          drawn2BitmapData . dispose ( ) ;
         }
-        if ( drawedCustomSprite != null )
+        if ( drawn2CustomSprite != null )
         {
-          drawedCustomSprite . setswh ( drawedWidth , drawedHeight ) ;
-          drawedCustomSprite . setcxy ( BaseSprite ( squareArray [ squareArray . length - 1 ] ) . getcx ( ) , startSquaresY + 12 * squareWidth ) ;
+          drawn2CustomSprite . setswh ( drawnWidth , drawnHeight ) ;
+          drawn2CustomSprite . setcxy ( BaseSprite ( squareArray [ squareArray . length - 1 ] ) . getcx ( ) , startSquaresY - squareWidth ) ;
         }
-        drawedBitmapData = new BitmapData ( drawedCustomSprite . getsw ( ) , drawedCustomSprite . getsh ( ) ) ;
-        drawedBitmap = new Bitmap ( ) ;
+        drawn2BitmapData = new BitmapData ( drawn2CustomSprite . getsw ( ) , drawn2CustomSprite . getsh ( ) ) ;
+        drawn2Bitmap = new Bitmap ( ) ;
+        if ( drawnCustomSprite == null )
+        {
+          drawnCustomSprite = new BaseSprite ( application ) ;
+          addChild ( drawnCustomSprite ) ;
+          drawnCustomSprite . doubleClickEnabled = true ;
+        }
+        if ( drawnBitmapData != null )
+        {
+          drawnBitmapData . dispose ( ) ;
+        }
+        if ( drawnCustomSprite != null )
+        {
+          drawnCustomSprite . setswh ( drawnWidth , drawnHeight ) ;
+          drawnCustomSprite . setcxy ( BaseSprite ( squareArray [ squareArray . length - 1 ] ) . getcx ( ) , startSquaresY + 12 * squareWidth ) ;
+        }
+        drawnBitmapData = new BitmapData ( drawnCustomSprite . getsw ( ) , drawnCustomSprite . getsh ( ) ) ;
+        drawnBitmap = new Bitmap ( ) ;
         drawBitmap ( ) ;
+        draw2Bitmap ( ) ;
         markSquare ( ) ;
         setOrClearAllListeners ( ) ;
       }
@@ -596,9 +676,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( e . currentTarget is BaseSprite )
         {
           tempColorNumber = Number ( application . COLOR_HEX_TO_NUMBER_STRING + BaseSprite ( e . currentTarget ) . getValue ( ) ) ;
-          displayTempColor ( tempColorNumber ) ;
+          displayTempAndCompColor ( tempColorNumber ) ;
           inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
           drawBitmap ( ) ;
+          draw2Bitmap ( ) ;
           markSquare ( ) ;
         }
       }
@@ -621,42 +702,78 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function drawBitmap ( ) : void
     {
-      if ( drawedColorArray && drawedCustomSprite && drawedBitmapData && drawedBitmap )
+      if ( drawnColorArray && drawnCustomSprite && drawnBitmapData && drawnBitmap )
       {
-        drawedColorArray . splice ( 0 ) ;
-        drawedColorArray = [ application . COLOR_DRAWED_COLOR_ARRAY_DARK , tempColorNumber , application . COLOR_DRAWED_COLOR_ARRAY_BRIGHT ] ;
-        drawedCustomSprite . graphics . clear ( ) ;
-        drawedCustomSprite . graphics . beginGradientFill ( GradientType . LINEAR , drawedColorArray , application . COLOR_DRAWED_ALPHA_ARRAY , application . COLOR_DRAWED_RATIO_ARRAY , drawedMatrix ) ;
-        drawedCustomSprite . graphics . moveTo ( 0 , 0 ) ;
-        drawedCustomSprite . graphics . lineTo ( drawedWidth , 0 ) ;
-        drawedCustomSprite . graphics . lineTo ( drawedWidth , drawedHeight - application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        drawedCustomSprite . graphics . curveTo ( drawedWidth , drawedHeight , drawedWidth - application . getPropsDyn ( ) . getAppRadius1 ( ) , drawedHeight ) ;
-        drawedCustomSprite . graphics . lineTo ( application . getPropsDyn ( ) . getAppRadius1 ( ) , drawedHeight ) ;
-        drawedCustomSprite . graphics . curveTo ( 0 , drawedHeight , 0 , drawedHeight - application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        drawedCustomSprite . graphics . lineTo ( 0 , 0 ) ;
-        drawedCustomSprite . graphics . endFill ( ) ;
-        drawedBitmapData . draw ( drawedCustomSprite ) ;
-        drawedBitmap . bitmapData = drawedBitmapData ;
+        drawnColorArray . splice ( 0 ) ;
+        drawnColorArray = [ application . COLOR_DRAWED_COLOR_ARRAY_DARK , tempColorNumber , application . COLOR_DRAWED_COLOR_ARRAY_BRIGHT ] ;
+        drawnCustomSprite . graphics . clear ( ) ;
+        drawnCustomSprite . graphics . beginGradientFill ( GradientType . LINEAR , drawnColorArray , application . COLOR_DRAWED_ALPHA_ARRAY , application . COLOR_DRAWED_RATIO_ARRAY , drawnMatrix ) ;
+        drawnCustomSprite . graphics . moveTo ( 0 , 0 ) ;
+        drawnCustomSprite . graphics . lineTo ( drawnWidth , 0 ) ;
+        drawnCustomSprite . graphics . lineTo ( drawnWidth , drawnHeight - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        drawnCustomSprite . graphics . curveTo ( drawnWidth , drawnHeight , drawnWidth - application . getPropsDyn ( ) . getAppRadius ( ) , drawnHeight ) ;
+        drawnCustomSprite . graphics . lineTo ( application . getPropsDyn ( ) . getAppRadius ( ) , drawnHeight ) ;
+        drawnCustomSprite . graphics . curveTo ( 0 , drawnHeight , 0 , drawnHeight - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        drawnCustomSprite . graphics . lineTo ( 0 , 0 ) ;
+        drawnCustomSprite . graphics . endFill ( ) ;
+        drawnBitmapData . draw ( drawnCustomSprite ) ;
+        drawnBitmap . bitmapData = drawnBitmapData ;
+      }
+    }
+/*
+** Updates the complementer drawing.
+*/
+    private function draw2Bitmap ( ) : void
+    {
+      if ( drawn2ColorArray && drawn2CustomSprite && drawn2BitmapData && drawn2Bitmap )
+      {
+        drawn2ColorArray . splice ( 0 ) ;
+        drawn2ColorArray = [ application . COLOR_DRAWED_COLOR_ARRAY_BRIGHT , compColorNumber , application . COLOR_DRAWED_COLOR_ARRAY_DARK ] ;
+        drawn2CustomSprite . graphics . clear ( ) ;
+        drawn2CustomSprite . graphics . beginGradientFill ( GradientType . LINEAR , drawn2ColorArray , application . COLOR_DRAWED_ALPHA_ARRAY , application . COLOR_DRAWED_RATIO_ARRAY , drawn2Matrix ) ;
+        drawn2CustomSprite . graphics . moveTo ( 0 , 0 ) ;
+        drawn2CustomSprite . graphics . lineTo ( drawnWidth - application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        drawn2CustomSprite . graphics . curveTo ( drawnWidth , 0 , drawnWidth , drawnHeight - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        drawn2CustomSprite . graphics . lineTo ( drawnWidth , drawnHeight ) ;
+        drawn2CustomSprite . graphics . lineTo ( 0 , drawnHeight ) ;
+        drawn2CustomSprite . graphics . lineTo ( 0 , 0 ) ;
+        drawn2CustomSprite . graphics . endFill ( ) ;
+        drawn2BitmapData . draw ( drawn2CustomSprite ) ;
+        drawn2Bitmap . bitmapData = drawn2BitmapData ;
       }
     }
 /*
 ** Displaying the temporary color. (the actual value of this color object.)
 */
-    private function displayTempColor ( color : Number ) : void
+    private function displayTempAndCompColor ( color : Number ) : void
     {
       if ( panelColorActual != null )
       {
         panelColorActual . graphics . clear ( ) ;
         panelColorActual . graphics . beginFill ( color , application . getPropsApp ( ) . getColorSquareLineAlphaMouseOver ( ) ) ;
-        panelColorActual . graphics . moveTo ( application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
-        panelColorActual . graphics . lineTo ( panelColorActual . getsw ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
-        panelColorActual . graphics . curveTo ( panelColorActual . getsw ( ) , 0 , panelColorActual . getsw ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorActual . graphics . lineTo ( panelColorActual . getsw ( ) , panelColorActual . getsh ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorActual . graphics . curveTo ( panelColorActual . getsw ( ) , panelColorActual . getsh ( ) , panelColorActual . getsw ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) , panelColorActual . getsh ( ) ) ;
+        panelColorActual . graphics . moveTo ( application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        panelColorActual . graphics . lineTo ( panelColorActual . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        panelColorActual . graphics . curveTo ( panelColorActual . getsw ( ) , 0 , panelColorActual . getsw ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorActual . graphics . lineTo ( panelColorActual . getsw ( ) , panelColorActual . getsh ( ) - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorActual . graphics . curveTo ( panelColorActual . getsw ( ) , panelColorActual . getsh ( ) , panelColorActual . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , panelColorActual . getsh ( ) ) ;
         panelColorActual . graphics . lineTo ( 0 , panelColorActual . getsh ( ) ) ;
-        panelColorActual . graphics . lineTo ( 0 , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorActual . graphics . curveTo ( 0 , 0 , application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
+        panelColorActual . graphics . lineTo ( 0 , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorActual . graphics . curveTo ( 0 , 0 , application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
         panelColorActual . graphics . endFill ( ) ;
+      }
+      if ( panelColorComplementer != null )
+      {
+        compColorNumber = 16777215 - color ;
+        panelColorComplementer . graphics . clear ( ) ;
+        panelColorComplementer . graphics . beginFill ( compColorNumber , application . getPropsApp ( ) . getColorSquareLineAlphaMouseOver ( ) ) ;
+        panelColorComplementer . graphics . moveTo ( 0 , 0 ) ;
+        panelColorComplementer . graphics . lineTo ( panelColorComplementer . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        panelColorComplementer . graphics . curveTo ( panelColorComplementer . getsw ( ) , 0 , panelColorComplementer . getsw ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorComplementer . graphics . lineTo ( panelColorComplementer . getsw ( ) , panelColorComplementer . getsh ( ) - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorComplementer . graphics . curveTo ( panelColorComplementer . getsw ( ) , panelColorComplementer . getsh ( ) , panelColorComplementer . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , panelColorComplementer . getsh ( ) ) ;
+        panelColorComplementer . graphics . lineTo ( 0 , panelColorComplementer . getsh ( ) ) ;
+        panelColorComplementer . graphics . lineTo ( 0 , 0 ) ;
+        panelColorComplementer . graphics . endFill ( ) ;
       }
     }
 /*
@@ -668,25 +785,25 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         panelColorDefault . graphics . clear ( ) ;
         panelColorDefault . graphics . beginFill ( color , application . getPropsApp ( ) . getColorSquareLineAlphaMouseOver ( ) ) ;
-        panelColorDefault . graphics . moveTo ( application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
-        panelColorDefault . graphics . lineTo ( panelColorDefault . getsw ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
-        panelColorDefault . graphics . curveTo ( panelColorDefault . getsw ( ) , 0 , panelColorDefault . getsw ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorDefault . graphics . lineTo ( panelColorDefault . getsw ( ) , panelColorDefault . getsh ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorDefault . graphics . curveTo ( panelColorDefault . getsw ( ) , panelColorDefault . getsh ( ) , panelColorDefault . getsw ( ) - application . getPropsDyn ( ) . getAppRadius1 ( ) , panelColorDefault . getsh ( ) ) ;
+        panelColorDefault . graphics . moveTo ( application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        panelColorDefault . graphics . lineTo ( panelColorDefault . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
+        panelColorDefault . graphics . curveTo ( panelColorDefault . getsw ( ) , 0 , panelColorDefault . getsw ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorDefault . graphics . lineTo ( panelColorDefault . getsw ( ) , panelColorDefault . getsh ( ) - application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorDefault . graphics . curveTo ( panelColorDefault . getsw ( ) , panelColorDefault . getsh ( ) , panelColorDefault . getsw ( ) - application . getPropsDyn ( ) . getAppRadius ( ) , panelColorDefault . getsh ( ) ) ;
         panelColorDefault . graphics . lineTo ( 0 , panelColorDefault . getsh ( ) ) ;
-        panelColorDefault . graphics . lineTo ( 0 , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-        panelColorDefault . graphics . curveTo ( 0 , 0 , application . getPropsDyn ( ) . getAppRadius1 ( ) , 0 ) ;
+        panelColorDefault . graphics . lineTo ( 0 , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        panelColorDefault . graphics . curveTo ( 0 , 0 , application . getPropsDyn ( ) . getAppRadius ( ) , 0 ) ;
         panelColorDefault . graphics . endFill ( ) ;
       }
     }
 /*
-** Sets the color immediately when double click on the drawed bitmap.
+** Sets the color immediately when double click on the drawn bitmap.
 */
-    private function drawedCustomSpriteDoubleClick ( e : MouseEvent ) : void
+    private function drawnCustomSpriteDoubleClick ( e : MouseEvent ) : void
     {
-      if ( e != null && drawedBitmapData != null )
+      if ( e != null && drawnBitmapData != null )
       {
-        setRGBColor ( application . colorToString ( drawedBitmapData . getPixel ( e . localX , e . localY ) ) ) ;
+        setRGBColor ( application . colorToString ( drawnBitmapData . getPixel ( e . localX , e . localY ) ) ) ;
       }
     }
 /*
@@ -694,13 +811,14 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function updateBitmapColor ( e : MouseEvent ) : void
     {
-      if ( e != null && drawedBitmapData != null && inputRgb != null )
+      if ( e != null && drawnBitmapData != null && inputRgb != null )
       {
         if ( e . buttonDown )
         {
-          tempColorNumber = drawedBitmapData . getPixel ( e . localX , e . localY ) ;
-          displayTempColor ( tempColorNumber ) ;
+          tempColorNumber = drawnBitmapData . getPixel ( e . localX , e . localY ) ;
+          displayTempAndCompColor ( tempColorNumber ) ;
           inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
+          draw2Bitmap ( ) ;
           markSquare ( ) ;
         }
       }
@@ -713,9 +831,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( inputRgb != null )
       {
         tempColorNumber = Number ( application . COLOR_HEX_TO_NUMBER_STRING + getValue ( ) ) ;
-        displayTempColor ( tempColorNumber ) ;
+        displayTempAndCompColor ( tempColorNumber ) ;
         inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
         drawBitmap ( ) ;
+        draw2Bitmap ( ) ;
         markSquare ( ) ;
       }
     }
@@ -728,9 +847,20 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         inputRgb . setTextToUpperCase ( ) ;
         tempColorNumber = Number ( application . COLOR_HEX_TO_NUMBER_STRING + inputRgb . getText ( ) ) ;
-        displayTempColor ( tempColorNumber ) ;
+        displayTempAndCompColor ( tempColorNumber ) ;
         drawBitmap ( ) ;
+        draw2Bitmap ( ) ;
         markSquare ( ) ;
+      }
+    }
+/*
+** The input Rgb input field is changed. (ENTER was hit.)
+*/
+    private function inputRgbChanged ( e : Event ) : void
+    {
+      if ( inputRgb != null )
+      {
+        acceptNewColorButtonPressed ( ) ;
       }
     }
 /*
@@ -761,10 +891,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         setValue ( s ) ;
         tempColorNumber = Number ( application . COLOR_HEX_TO_NUMBER_STRING + s ) ;
-        displayTempColor ( tempColorNumber ) ;
+        displayTempAndCompColor ( tempColorNumber ) ;
         displayDefaultColor ( tempColorNumber ) ;
         inputRgb . setTextCode ( s ) ;
         drawBitmap ( ) ;
+        draw2Bitmap ( ) ;
         markSquare ( ) ;
       }
       getBaseEventDispatcher ( ) . dispatchEvent ( eventChanged ) ;
@@ -777,6 +908,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( stage != null && inputRgb != null )
       {
         application . getBackground ( ) . stealPixel ( true ) ;
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventColorStealFromStageStart ) ;
         stage . addEventListener ( MouseEvent . MOUSE_UP , getColorFromStage , false , 0 , true ) ;
         stage . addEventListener ( MouseEvent . MOUSE_MOVE , stealPixelMouseMove , false , 0 , true ) ;
         stage . addEventListener ( Event . RESIZE , stageResized , false , 0 , true ) ;
@@ -788,8 +920,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         application . addChild ( stealPixelColorText ) ;
         stealPixelColorText . setTextCode ( application . colorToString ( stealPixelBitmapData . getPixel ( stage . mouseX , stage . mouseY ) ) ) ;
         stealPixelColorText . setcxy ( stage . mouseX + colorStealTextCDelta , stage . mouseY - stealPixelColorText . getsh ( ) - colorStealTextCDelta ) ;
-        stealPixelColorText . background = true ;
-        stealPixelColorText . backgroundColor = Number ( application . COLOR_HEX_TO_NUMBER_STRING + stealPixelColorText . text ) ;
+        stealPixelColorText . getBaseTextField ( ) . background = true ;
+        stealPixelColorText . getBaseTextField ( ) . backgroundColor = Number ( application . COLOR_HEX_TO_NUMBER_STRING + stealPixelColorText . getBaseTextField ( ) . text ) ;
       }
     }
 /*
@@ -800,9 +932,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( inputRgb != null && stealPixelBitmapData != null && stage != null )
       {
         tempColorNumber = stealPixelBitmapData . getPixel ( stage . mouseX , stage . mouseY ) ;
-        displayTempColor ( tempColorNumber ) ;
+        displayTempAndCompColor ( tempColorNumber ) ;
         inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
         drawBitmap ( ) ;
+        draw2Bitmap ( ) ;
         markSquare ( ) ;
         stealPixelStop ( ) ;
       }
@@ -855,8 +988,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( stealPixelColorText != null && stealPixelBitmapData != null && stage != null )
       {
         stealPixelColorText . setTextCode ( application . colorToString ( stealPixelBitmapData . getPixel ( stage . mouseX , stage . mouseY ) ) ) ;
-        stealPixelColorText . backgroundColor = Number ( application . COLOR_HEX_TO_NUMBER_STRING + stealPixelColorText . text ) ;
-        stealPixelColorText . borderColor = stealPixelColorText . backgroundColor ;
+        stealPixelColorText . getBaseTextField ( ) . backgroundColor = Number ( application . COLOR_HEX_TO_NUMBER_STRING + stealPixelColorText . getBaseTextField ( ) . text ) ;
+        stealPixelColorText . getBaseTextField ( ) . borderColor = stealPixelColorText . getBaseTextField ( ) . backgroundColor ;
         stealPixelColorText . setcxy ( stage . mouseX + colorStealTextCDelta , stage . mouseY - stealPixelColorText . getsh ( ) - colorStealTextCDelta ) ;
         if ( stealPixelColorText . getcx ( ) > stage . stageWidth - stealPixelColorText . getsw ( ) )
         {
@@ -900,6 +1033,54 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       stealPixelBitmapData = new BitmapData ( 1 , 1 ) ;
       markSquare ( ) ;
+      getBaseEventDispatcher ( ) . dispatchEvent ( eventColorStealFromStageStop ) ;
+    }
+/*
+** Sets the complementer color to the temp (switch the colors)
+*/
+    private function setComplementerToTemp ( e : MouseEvent ) : void
+    {
+      tempColorNumber = compColorNumber ;
+      displayTempAndCompColor ( tempColorNumber ) ;
+      inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
+      drawBitmap ( ) ;
+      draw2Bitmap ( ) ;
+      markSquare ( ) ;
+    }
+/*
+**  Let the color from complementer bitmap be the temp.
+*/
+    private function update2BitmapColor ( e : MouseEvent ) : void
+    {
+      if ( e != null && drawn2BitmapData != null && inputRgb != null )
+      {
+        if ( e . buttonDown )
+        {
+          tempColorNumber = drawn2BitmapData . getPixel ( e . localX , e . localY ) ;
+          displayTempAndCompColor ( tempColorNumber ) ;
+          inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
+          drawBitmap ( ) ;
+          draw2Bitmap ( ) ;
+          markSquare ( ) ;
+        }
+      }
+    }
+/*
+** Switch between complementer and temporary colors (input field).
+*/
+    private function displayCompColor ( e : MouseEvent ) : void
+    {
+      if ( inputRgb != null )
+      {
+        inputRgb . setTextCode ( application . colorToString ( compColorNumber ) ) ;
+      }
+    }
+    private function displayTempColor ( e : MouseEvent ) : void
+    {
+      if ( inputRgb != null )
+      {
+        inputRgb . setTextCode ( application . colorToString ( tempColorNumber ) ) ;
+      }
     }
 /*
 ** Override of destroy.
@@ -912,9 +1093,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       panelColorActual . removeEventListener ( MouseEvent . CLICK , stealPixel ) ;
       panelColorDefault . removeEventListener ( MouseEvent . CLICK , setDefaultColor ) ;
-      drawedCustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
-      drawedCustomSprite . removeEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
-      drawedCustomSprite . removeEventListener ( MouseEvent . DOUBLE_CLICK , drawedCustomSpriteDoubleClick ) ;
+      drawnCustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , updateBitmapColor ) ;
+      drawnCustomSprite . removeEventListener ( MouseEvent . MOUSE_MOVE , updateBitmapColor ) ;
+      drawnCustomSprite . removeEventListener ( MouseEvent . DOUBLE_CLICK , drawnCustomSpriteDoubleClick ) ;
+      drawn2CustomSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , update2BitmapColor ) ;
+      panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_DOWN , setComplementerToTemp ) ;
+      panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_OVER , displayCompColor ) ;
+      panelColorComplementer . removeEventListener ( MouseEvent . MOUSE_OUT , displayTempColor ) ;
       for ( var i : int = 0 ; i < squareArray . length ; i ++ )
       {
         BaseSprite ( squareArray [ i ] ) . removeEventListener ( MouseEvent . MOUSE_DOWN , drawSquareMouseDown ) ;
@@ -923,6 +1108,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         BaseSprite ( squareArray [ i ] ) . removeEventListener ( MouseEvent . DOUBLE_CLICK , drawSquareDoubleClick ) ;
       }
       inputRgb . removeEventListener ( Event . CHANGE , onChangeInputRgbText ) ;
+      inputRgb . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , inputRgbChanged ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( MouseEvent . MOUSE_UP , getColorFromStage ) ;
@@ -935,23 +1121,40 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         eventChanged . stopImmediatePropagation ( ) ;
       }
-      drawedBitmapData . dispose ( ) ;
+      if ( eventColorStealFromStageStart != null )
+      {
+        eventColorStealFromStageStart . stopImmediatePropagation ( ) ;
+      }
+      if ( eventColorStealFromStageStop != null )
+      {
+        eventColorStealFromStageStop . stopImmediatePropagation ( ) ;
+      }
+      drawnBitmapData . dispose ( ) ;
       stealPixelBitmapData . dispose ( ) ;
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       inputRgb = null ;
       acceptNewColorButton = null ;
-      drawedCustomSprite = null ;
-      drawedColorArray . splice ( 0 ) ;
-      drawedColorArray = null ;
-      drawedMatrix = null ;
-      drawedWidth = 0 ;
-      drawedHeight = 0 ;
-      drawedBitmapData = null ;
-      drawedBitmap = null ;
+      drawnCustomSprite = null ;
+      drawn2CustomSprite = null ;
+      drawnColorArray . splice ( 0 ) ;
+      drawnColorArray = null ;
+      drawnMatrix = null ;
+      drawn2ColorArray . splice ( 0 ) ;
+      drawn2ColorArray = null ;
+      drawn2Matrix = null ;
+      drawnWidth = 0 ;
+      drawnHeight = 0 ;
+      drawnBitmapData = null ;
+      drawnBitmap = null ;
+      drawn2BitmapData = null ;
+      drawn2Bitmap = null ;
+      drawn2BitmapData = null ;
+      drawn2Bitmap = null ;
       panelColorActual = null ;
       panelColorDefault = null ;
+      panelColorComplementer = null ;
       stealPixelBitmapData = null ;
       stealPixelSprite = null ;
       stealPixelColorText = null ;
@@ -973,8 +1176,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       startSquaresX = 0 ;
       startSquaresY = 0 ;
       tempColorNumber = 0 ;
+      compColorNumber = 0 ;
       markedSquareIndex = 0 ;
       eventChanged = null ;
+      eventColorStealFromStageStart = null ;
+      eventColorStealFromStageStop = null ;
     }
   }
 }

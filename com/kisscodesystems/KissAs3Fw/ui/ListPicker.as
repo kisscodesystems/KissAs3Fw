@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ListPicker.
@@ -81,6 +81,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getSelectedIndex ( ) != index )
       {
         list . setSelectedIndexes ( [ index ] ) ;
+        if ( index < 0 )
+        {
+          textLabel . destIcon ( ) ;
+        }
       }
     }
 /*
@@ -89,6 +93,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     public function clearSelectedIndex ( ) : void
     {
       list . clearSelectedIndexes ( ) ;
+      textLabel . destIcon ( ) ;
       textLabel . setTextCode ( "" ) ;
     }
 /*
@@ -99,6 +104,23 @@ package com . kisscodesystems . KissAs3Fw . ui
       return list . getSelectedIndexes ( ) [ 0 ] ;
     }
 /*
+** Gets the selected value itself.
+*/
+    public function getSelectedValue ( ) : String
+    {
+      if ( getSelectedIndex ( ) != - 1 && list != null )
+      {
+        if ( list . getArrayValues ( ) != null )
+        {
+          if ( getSelectedIndex ( ) < list . getArrayValues ( ) . length )
+          {
+            return list . getArrayValues ( ) [ getSelectedIndex ( ) ] ;
+          }
+        }
+      }
+      return "" ;
+    }
+/*
 ** The selected item has been changed.
 */
     private function selectedItemChanged ( e : Event ) : void
@@ -107,9 +129,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getSelectedIndex ( ) != - 1 )
       {
         textLabel . setTextCode ( list . getArrayLabels ( ) [ getSelectedIndex ( ) ] ) ;
+        textLabel . setIcon ( list . getArrayIcons ( ) != null ? list . getArrayIcons ( ) [ getSelectedIndex ( ) ] : "" ) ;
       }
       else
       {
+        textLabel . destIcon ( ) ;
         textLabel . setTextCode ( "" ) ;
       }
       dispatchEventChanged ( ) ;
@@ -134,9 +158,9 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Sets the arrays of the list to be displayed.
 */
-    public function setArrays ( labels : Array , values : Array ) : void
+    public function setArrays ( labels : Array , values : Array , icons : Array = null ) : void
     {
-      list . setArrays ( labels , values ) ;
+      list . setArrays ( labels , values , icons ) ;
     }
 /*
 ** Repositioning the Label.
@@ -179,7 +203,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function getText ( ) : String
     {
-      return textLabel . getPlainText ( ) ;
+      return textLabel . getBaseTextField ( ) . getPlainText ( ) ;
     }
 /*
 ** The labels array.

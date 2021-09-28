@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Foreground.
@@ -51,19 +51,20 @@ package com . kisscodesystems . KissAs3Fw . app
     private var contentsLabel : TextLabel = null ;
     private var contentsListPicker : ListPicker = null ;
 // The login form to be displayed.
-    private var passChFormHeading : TextLabel = null ;
-    private var passChOldPassTextLabel : TextLabel = null ;
-    private var passChOldPassTextInput : TextInput = null ;
-    private var passChNewPass1TextLabel : TextLabel = null ;
-    private var passChNewPass1TextInput : TextInput = null ;
-    private var passChNewPass2TextLabel : TextLabel = null ;
-    private var passChNewPass2TextInput : TextInput = null ;
-    private var passChSubmitButtonText : ButtonText = null ;
-    private var passChCancelOrLogoutButtonLink : ButtonLink = null ;
+    private var passFormHeading : TextLabel = null ;
+    private var passCurrentPassTextLabel : TextLabel = null ;
+    private var passCurrentPassTextInput : TextInput = null ;
+    private var passNewPass1TextLabel : TextLabel = null ;
+    private var passNewPass1TextInput : TextInput = null ;
+    private var passNewPass2TextLabel : TextLabel = null ;
+    private var passNewPass2TextInput : TextInput = null ;
+    private var passSubmitButtonText : ButtonText = null ;
+    private var passCancelOrLogoutButtonLink : ButtonLink = null ;
 // These are events to be able to listen to during password changing.
     private var eventUserPasswordChangeDo : Event = null ;
     private var eventUserPasswordCreateDo : Event = null ;
-    private var eventUserPasswordChangeLogout : Event = null ;
+    private var eventUserPasswordImhereDo : Event = null ;
+    private var eventUserPasswordLogout : Event = null ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -76,12 +77,13 @@ package com . kisscodesystems . KissAs3Fw . app
 // The events to be thrown.
       eventUserPasswordChangeDo = new Event ( application . EVENT_USER_PASSWORD_CHANGE_DO ) ;
       eventUserPasswordCreateDo = new Event ( application . EVENT_USER_PASSWORD_CREATE_DO ) ;
-      eventUserPasswordChangeLogout = new Event ( application . EVENT_TO_LOGOUT ) ;
+      eventUserPasswordImhereDo = new Event ( application . EVENT_USER_PASSWORD_IMHERE_DO ) ;
+      eventUserPasswordLogout = new Event ( application . EVENT_TO_LOGOUT ) ;
     }
 /*
 ** Creating the multi content if it is not visible at this moment.
 */
-    private function createContentMultiple ( ) : void
+    private function createContentMultiple ( fullscreen : Boolean = false ) : void
     {
       if ( contentMultiple == null )
       {
@@ -89,9 +91,16 @@ package com . kisscodesystems . KissAs3Fw . app
         contentMultiple = new ContentMultiple ( application ) ;
         addChild ( contentMultiple ) ;
         contentMultiple . setButtonBarVisible ( false ) ;
-        contentMultiple . setswh ( getsw ( ) * application . getPropsApp ( ) . getPanelAlertWidthFactor ( ) , getsh ( ) * application . getPropsApp ( ) . getPanelAlertHeighthFactor ( ) ) ;
-        reposContentMultiple ( ) ;
       }
+      if ( fullscreen )
+      {
+        contentMultiple . setswh ( getsw ( ) , getsh ( ) ) ;
+      }
+      else
+      {
+        contentMultiple . setswh ( getsw ( ) * ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) ? 1 / 2 : 4 / 5 ) , getsh ( ) * 1 / 2 ) ;
+      }
+      reposContentMultiple ( ) ;
     }
 /*
 ** Clicked elsewhere?
@@ -123,12 +132,12 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** Creates a new alert.
 */
-    public function createAlert ( messageString : String , uniqueString : String , eventOK : Boolean , eventCANCEL : Boolean , prio : Boolean = false ) : void
+    public function createAlert ( messageString : String , uniqueString : String , eventOK : Boolean , eventCANCEL : Boolean , prio : Boolean = false , fullscreen : Boolean = false ) : void
     {
       if ( messageString != null && eventOK )
       {
 // Creating the content multiple if it does not exist.
-        createContentMultiple ( ) ;
+        createContentMultiple ( fullscreen ) ;
         var index : int = contentMultiple . addContent ( uniqueString ) ;
         if ( index > - 1 )
         {
@@ -141,6 +150,7 @@ package com . kisscodesystems . KissAs3Fw . app
           contentMultiple . addToContent ( index , buttonOK , true , 1 ) ;
           buttonOK . setTextCode ( application . getTexts ( ) . OC_OK ) ;
           buttonOK . setCustomEventString ( uniqueString + application . getTexts ( ) . OC_OK ) ;
+          buttonOK . setIcon ( "ok" ) ;
           var buttonCANCEL : ButtonText = null ;
           if ( eventCANCEL )
           {
@@ -148,6 +158,7 @@ package com . kisscodesystems . KissAs3Fw . app
             contentMultiple . addToContent ( index , buttonCANCEL , true , 1 ) ;
             buttonCANCEL . setTextCode ( application . getTexts ( ) . OC_CANCEL ) ;
             buttonCANCEL . setCustomEventString ( uniqueString + application . getTexts ( ) . OC_CANCEL ) ;
+            buttonCANCEL . setIcon ( "cancel" ) ;
           }
           textBox . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
           textBox . setswh ( contentMultiple . getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) , contentMultiple . getsh ( ) - 3 * application . getPropsDyn ( ) . getAppMargin ( ) - buttonOK . getsh ( ) ) ;
@@ -155,10 +166,12 @@ package com . kisscodesystems . KissAs3Fw . app
           {
             buttonOK . setcxy ( ( contentMultiple . getsw ( ) - buttonOK . getsw ( ) - buttonCANCEL . getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) ) / 2 , textBox . getcysh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ) ;
             buttonCANCEL . setcxy ( buttonOK . getcxsw ( ) + application . getPropsDyn ( ) . getAppMargin ( ) , buttonOK . getcy ( ) ) ;
+            application . getSoundManager ( ) . playSound ( "confirm" ) ;
           }
           else
           {
             buttonOK . setcxy ( ( contentMultiple . getsw ( ) - buttonOK . getsw ( ) ) / 2 , textBox . getcysh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+            application . getSoundManager ( ) . playSound ( "message" ) ;
           }
           if ( prio )
           {
@@ -341,111 +354,168 @@ package com . kisscodesystems . KissAs3Fw . app
       setVisibleFalseIfNoMoreObjects ( ) ;
     }
 /*
-** Creates the password change form.
+** Creates the password form.
+** Mandatory: true  - Logout is the other option, **            false - Cancel is available to close the form
+** currentPassword: true  - current password has to be given
+**                  false - cannot be given
+** newPassword: true  - the new password and its confirm have to be given
+**              false - cannot be given
 */
-    public function createPasswordChangeForm ( mandatory : Boolean , oldPassword : Boolean = true ) : void
+    public function createPasswordForm ( mandatory : Boolean , currentPassword : Boolean , newPassword : Boolean ) : void
     {
+// Destroy it if existing.
+      closePasswordForm ( ) ;
 // Creating the content multiple is it does not exist.
       createContentMultiple ( ) ;
       if ( passwordChangeIndex == - 1 )
       {
-        var textInputWidth : int = contentMultiple . getsw ( ) / 2 ;
-        var pos : int = 0 ;
 // All of the elements of the password changing form.
-        passwordChangeIndex = contentMultiple . addContent ( application . getTexts ( ) . CHANGE_PASSWORD_HEADER ) ;
+        passwordChangeIndex = contentMultiple . addContent ( application . getTexts ( ) . PASSWORD_HEADER ) ;
         contentMultiple . setElementsFix ( passwordChangeIndex , 1 ) ;
-        passChFormHeading = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChFormHeading , false , pos ) ;
-        pos ++ ;
-        pos ++ ;
+        passFormHeading = new TextLabel ( application ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passFormHeading , false , 0 , false ) ;
         if ( mandatory )
         {
-          passChFormHeading . setTextCode ( application . getTexts ( ) . CHANGE_PASS_FORM_HEADING_SHOULD ) ;
+          if ( currentPassword )
+          {
+            if ( newPassword )
+            {
+              passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_CHANGE_SHOULD ) ;
+            }
+            else
+            {
+              passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_IMHERE_SHOULD ) ;
+            }
+          }
+          else
+          {
+            passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_CREATE_SHOULD ) ;
+          }
         }
         else
         {
-          passChFormHeading . setTextCode ( application . getTexts ( ) . CHANGE_PASS_FORM_HEADING_CAN ) ;
+          if ( currentPassword )
+          {
+            if ( newPassword )
+            {
+              passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_CHANGE_CAN ) ;
+            }
+            else
+            {
+              passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_IMHERE_CAN ) ;
+            }
+          }
+          else
+          {
+            passFormHeading . setTextCode ( application . getTexts ( ) . PASS_FORM_HEADING_PW_CREATE_CAN ) ;
+          }
         }
-        if ( oldPassword )
+        var w : int = 0 ;
+        if ( currentPassword )
         {
-          passChOldPassTextLabel = new TextLabel ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passChOldPassTextLabel , false , pos ) ;
-          pos ++ ;
-          passChOldPassTextLabel . setTextCode ( application . getTexts ( ) . CHANGE_PASS_FORM_OLD_PASS ) ;
-          passChOldPassTextInput = new TextInput ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passChOldPassTextInput , true , pos ) ;
-          pos ++ ;
-          passChOldPassTextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
-          passChOldPassTextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
-          passChOldPassTextInput . setRestrict ( application . CHARS_PASS ) ;
-          passChOldPassTextInput . setDisplayAsPassword ( true ) ;
-          passChOldPassTextInput . setsw ( textInputWidth ) ;
+          passCurrentPassTextLabel = new TextLabel ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextLabel , false , 4 ) ;
+          passCurrentPassTextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_OLD_PASS ) ;
+          if ( passCurrentPassTextLabel . getsw ( ) > w )
+          {
+            w = passCurrentPassTextLabel . getsw ( ) ;
+          }
         }
-        passChNewPass1TextLabel = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChNewPass1TextLabel , false , pos ) ;
-        pos ++ ;
-        passChNewPass1TextLabel . setTextCode ( application . getTexts ( ) . CHANGE_PASS_FORM_NEW_PASS ) ;
-        passChNewPass1TextInput = new TextInput ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChNewPass1TextInput , true , pos ) ;
-        pos ++ ;
-        passChNewPass1TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
-        passChNewPass1TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
-        passChNewPass1TextInput . setRestrict ( application . CHARS_PASS ) ;
-        passChNewPass1TextInput . setDisplayAsPassword ( true ) ;
-        passChNewPass1TextInput . setsw ( textInputWidth ) ;
-        passChNewPass2TextLabel = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChNewPass2TextLabel , false , pos ) ;
-        pos ++ ;
-        passChNewPass2TextLabel . setTextCode ( application . getTexts ( ) . CHANGE_PASS_FORM_VERIFY_PASS ) ;
-        passChNewPass2TextInput = new TextInput ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChNewPass2TextInput , true , pos ) ;
-        pos ++ ;
-        passChNewPass2TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
-        passChNewPass2TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
-        passChNewPass2TextInput . setRestrict ( application . CHARS_PASS ) ;
-        passChNewPass2TextInput . setDisplayAsPassword ( true ) ;
-        passChNewPass2TextInput . setsw ( textInputWidth ) ;
-        passChCancelOrLogoutButtonLink = new ButtonLink ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChCancelOrLogoutButtonLink , true , pos ) ;
-        pos ++ ;
+        if ( newPassword )
+        {
+          passNewPass1TextLabel = new TextLabel ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextLabel , false , 6 ) ;
+          passNewPass1TextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_NEW_PASS ) ;
+          if ( passNewPass1TextLabel . getsw ( ) > w )
+          {
+            w = passNewPass1TextLabel . getsw ( ) ;
+          }
+          passNewPass2TextLabel = new TextLabel ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextLabel , false , 8 ) ;
+          passNewPass2TextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_CON_PASS ) ;
+          if ( passNewPass2TextLabel . getsw ( ) > w )
+          {
+            w = passNewPass2TextLabel . getsw ( ) ;
+          }
+        }
+        w = contentMultiple . getsw ( ) - w - 3 * application . getPropsDyn ( ) . getAppPadding ( ) ;
+        if ( currentPassword )
+        {
+          passCurrentPassTextInput = new TextInput ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextInput , true , 5 ) ;
+          passCurrentPassTextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
+          passCurrentPassTextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
+          passCurrentPassTextInput . setRestrict ( application . CHARS_PASS ) ;
+          passCurrentPassTextInput . setDisplayAsPassword ( true ) ;
+          passCurrentPassTextInput . setsw ( w ) ;
+        }
+        if ( newPassword )
+        {
+          passNewPass1TextInput = new TextInput ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextInput , true , 7 ) ;
+          passNewPass1TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
+          passNewPass1TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
+          passNewPass1TextInput . setRestrict ( application . CHARS_PASS ) ;
+          passNewPass1TextInput . setDisplayAsPassword ( true ) ;
+          passNewPass1TextInput . setsw ( w ) ;
+          passNewPass2TextInput = new TextInput ( application ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextInput , true , 9 ) ;
+          passNewPass2TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
+          passNewPass2TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
+          passNewPass2TextInput . setRestrict ( application . CHARS_PASS ) ;
+          passNewPass2TextInput . setDisplayAsPassword ( true ) ;
+          passNewPass2TextInput . setsw ( w ) ;
+        }
+        passSubmitButtonText = new ButtonText ( application ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passSubmitButtonText , true , 13 ) ;
+        passSubmitButtonText . setTextCode ( application . getTexts ( ) . OC_OK ) ;
+        passSubmitButtonText . setIcon ( "ok1" ) ;
+        if ( currentPassword )
+        {
+          if ( newPassword )
+          {
+            passSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassChSubmit ) ;
+          }
+          else
+          {
+            passSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassIhSubmit ) ;
+          }
+        }
+        else
+        {
+          passSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassCrSubmit ) ;
+        }
+        passCancelOrLogoutButtonLink = new ButtonLink ( application ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passCancelOrLogoutButtonLink , true , 13 ) ;
 // The button link object has to be prepared here: the label and the action.
         if ( mandatory )
         {
-          passChCancelOrLogoutButtonLink . setTextCode ( application . getTexts ( ) . LOGOUT_BUTTON ) ;
-          passChCancelOrLogoutButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doLogoutSubmit ) ;
+          passCancelOrLogoutButtonLink . setTextCode ( application . getTexts ( ) . LOGOUT_BUTTON ) ;
+          passCancelOrLogoutButtonLink . setIcon ( "logout" ) ;
+          passCancelOrLogoutButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doLogoutSubmit ) ;
         }
         else
         {
-          passChCancelOrLogoutButtonLink . setTextCode ( application . getTexts ( ) . OC_CANCEL ) ;
-          passChCancelOrLogoutButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , destroyPasswordChangeForm ) ;
-        }
-        passChSubmitButtonText = new ButtonText ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passChSubmitButtonText , true , pos ) ;
-        pos ++ ;
-        passChSubmitButtonText . setTextCode ( application . getTexts ( ) . OC_OK ) ;
-        if ( oldPassword )
-        {
-          passChSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassChSubmit ) ;
-        }
-        else
-        {
-          passChSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassCrSubmit ) ;
+          passCancelOrLogoutButtonLink . setTextCode ( application . getTexts ( ) . OC_CANCEL ) ;
+          passCancelOrLogoutButtonLink . setIcon ( "cancel" ) ;
+          passCancelOrLogoutButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , destroyPasswordForm ) ;
         }
         setActiveIndex0 ( ) ;
+        application . getSoundManager ( ) . playSound ( "screenlock" ) ;
       }
     }
-    public function setEnabledLogoutLink ( b : Boolean ) : void
+    public function setEnabledCancelOrLogoutButtonLink ( b : Boolean ) : void
     {
-      if ( passChCancelOrLogoutButtonLink != null )
+      if ( passCancelOrLogoutButtonLink != null )
       {
-        passChCancelOrLogoutButtonLink . setEnabled ( b ) ;
+        passCancelOrLogoutButtonLink . setEnabled ( b ) ;
       }
     }
     public function setEnabledSubmitButtonText ( b : Boolean ) : void
     {
-      if ( passChSubmitButtonText != null )
+      if ( passSubmitButtonText != null )
       {
-        passChSubmitButtonText . setEnabled ( b ) ;
+        passSubmitButtonText . setEnabled ( b ) ;
       }
     }
 /*
@@ -453,87 +523,105 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function doLogoutSubmit ( e : Event ) : void
     {
-      setEnabledLogoutLink ( false ) ;
+      setEnabledCancelOrLogoutButtonLink ( false ) ;
       setEnabledSubmitButtonText ( false ) ;
-      application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserPasswordChangeLogout ) ;
+      application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserPasswordLogout ) ;
     }
     private function doPassChSubmit ( e : Event ) : void
     {
-      setEnabledLogoutLink ( false ) ;
+      setEnabledCancelOrLogoutButtonLink ( false ) ;
       application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserPasswordChangeDo ) ;
     }
     private function doPassCrSubmit ( e : Event ) : void
     {
+      setEnabledCancelOrLogoutButtonLink ( false ) ;
       application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserPasswordCreateDo ) ;
     }
-    private function destroyPasswordChangeForm ( e : Event ) : void
+    private function doPassIhSubmit ( e : Event ) : void
+    {
+      setEnabledCancelOrLogoutButtonLink ( false ) ;
+      application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserPasswordImhereDo ) ;
+    }
+    private function destroyPasswordForm ( e : Event ) : void
     {
       if ( passwordChangeIndex != - 1 )
       {
-        passChFormHeading . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChFormHeading ) ;
-        passChFormHeading = null ;
-        if ( passChOldPassTextLabel != null )
+        passFormHeading . destroy ( ) ;
+        contentMultiple . removeFromContent ( passwordChangeIndex , passFormHeading ) ;
+        passFormHeading = null ;
+        if ( passCurrentPassTextLabel != null )
         {
-          passChOldPassTextLabel . destroy ( ) ;
-          contentMultiple . removeFromContent ( passwordChangeIndex , passChOldPassTextLabel ) ;
-          passChOldPassTextLabel = null ;
+          passCurrentPassTextLabel . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passCurrentPassTextLabel ) ;
+          passCurrentPassTextLabel = null ;
         }
-        if ( passChOldPassTextInput != null )
+        if ( passCurrentPassTextInput != null )
         {
-          passChOldPassTextInput . destroy ( ) ;
-          contentMultiple . removeFromContent ( passwordChangeIndex , passChOldPassTextInput ) ;
-          passChOldPassTextInput = null ;
+          passCurrentPassTextInput . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passCurrentPassTextInput ) ;
+          passCurrentPassTextInput = null ;
         }
-        passChNewPass1TextLabel . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChNewPass1TextLabel ) ;
-        passChNewPass1TextLabel = null ;
-        passChNewPass1TextInput . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChNewPass1TextInput ) ;
-        passChNewPass1TextInput = null ;
-        passChNewPass2TextLabel . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChNewPass2TextLabel ) ;
-        passChNewPass2TextLabel = null ;
-        passChNewPass2TextInput . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChNewPass2TextInput ) ;
-        passChNewPass2TextInput = null ;
-        passChSubmitButtonText . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChSubmitButtonText ) ;
-        passChSubmitButtonText = null ;
-        passChCancelOrLogoutButtonLink . destroy ( ) ;
-        contentMultiple . removeFromContent ( passwordChangeIndex , passChCancelOrLogoutButtonLink ) ;
-        passChCancelOrLogoutButtonLink = null ;
+        if ( passNewPass1TextLabel != null )
+        {
+          passNewPass1TextLabel . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passNewPass1TextLabel ) ;
+          passNewPass1TextLabel = null ;
+        }
+        if ( passNewPass1TextInput != null )
+        {
+          passNewPass1TextInput . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passNewPass1TextInput ) ;
+          passNewPass1TextInput = null ;
+        }
+        if ( passNewPass2TextLabel != null )
+        {
+          passNewPass2TextLabel . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passNewPass2TextLabel ) ;
+          passNewPass2TextLabel = null ;
+        }
+        if ( passNewPass2TextInput != null )
+        {
+          passNewPass2TextInput . destroy ( ) ;
+          contentMultiple . removeFromContent ( passwordChangeIndex , passNewPass2TextInput ) ;
+          passNewPass2TextInput = null ;
+        }
+        passSubmitButtonText . destroy ( ) ;
+        contentMultiple . removeFromContent ( passwordChangeIndex , passSubmitButtonText ) ;
+        passSubmitButtonText = null ;
+        passCancelOrLogoutButtonLink . destroy ( ) ;
+        contentMultiple . removeFromContent ( passwordChangeIndex , passCancelOrLogoutButtonLink ) ;
+        passCancelOrLogoutButtonLink = null ;
         contentMultiple . removeContent ( passwordChangeIndex ) ;
         passwordChangeIndex = - 1 ;
       }
       setVisibleFalseIfNoMoreObjects ( ) ;
     }
-    public function getPasswordOld ( ) : String
+    public function getPasswordCurrent ( ) : String
     {
-      if ( passChOldPassTextInput != null )
+      if ( passCurrentPassTextInput != null )
       {
-        if ( passChOldPassTextInput . getTextIsAtLeastLength ( ) )
+        if ( passCurrentPassTextInput . getTextIsAtLeastLength ( ) )
         {
-          return passChOldPassTextInput . getText ( ) ;
+          return passCurrentPassTextInput . getText ( ) ;
         }
       }
       return "" ;
     }
     public function getPasswordNew ( ) : String
     {
-      if ( passChNewPass1TextInput != null && isVerifiedAndGoodPasswords ( ) )
+      if ( passNewPass1TextInput != null && isVerifiedAndGoodPasswords ( ) )
       {
-        return passChNewPass1TextInput . getText ( ) ;
+        return passNewPass1TextInput . getText ( ) ;
       }
       return "" ;
     }
     private function isVerifiedAndGoodPasswords ( ) : Boolean
     {
-      if ( passChNewPass1TextInput != null && passChNewPass2TextInput != null )
+      if ( passNewPass1TextInput != null && passNewPass2TextInput != null )
       {
-        if ( passChNewPass1TextInput . getTextIsAtLeastLength ( ) && passChNewPass2TextInput . getTextIsAtLeastLength ( ) )
+        if ( passNewPass1TextInput . getTextIsAtLeastLength ( ) && passNewPass2TextInput . getTextIsAtLeastLength ( ) )
         {
-          if ( passChNewPass1TextInput . getText ( ) == passChNewPass2TextInput . getText ( ) )
+          if ( passNewPass1TextInput . getText ( ) == passNewPass2TextInput . getText ( ) )
           {
             return true ;
           }
@@ -541,37 +629,37 @@ package com . kisscodesystems . KissAs3Fw . app
       }
       return false ;
     }
-    public function closePasswordChangeForm ( ) : void
+    public function closePasswordForm ( ) : void
     {
-      destroyPasswordChangeForm ( null ) ;
+      destroyPasswordForm ( null ) ;
     }
-    public function resetPasswordChangeForm ( ) : void
+    public function resetPasswordForm ( ) : void
     {
-      setEnabledLogoutLink ( true ) ;
+      setEnabledCancelOrLogoutButtonLink ( true ) ;
       setEnabledSubmitButtonText ( true ) ;
-      if ( passChNewPass1TextInput != null )
+      if ( passNewPass1TextInput != null )
       {
-        passChNewPass1TextInput . setTextCode ( "" ) ;
+        passNewPass1TextInput . setTextCode ( "" ) ;
       }
-      if ( passChNewPass2TextInput != null )
+      if ( passNewPass2TextInput != null )
       {
-        passChNewPass2TextInput . setTextCode ( "" ) ;
+        passNewPass2TextInput . setTextCode ( "" ) ;
       }
-      if ( passChOldPassTextInput != null )
+      if ( passCurrentPassTextInput != null )
       {
-        passChOldPassTextInput . setTextCode ( "" ) ;
-        passChOldPassTextInput . toFocus ( ) ;
+        passCurrentPassTextInput . setTextCode ( "" ) ;
+        passCurrentPassTextInput . toFocus ( ) ;
       }
-      else if ( passChNewPass1TextInput != null )
+      else if ( passNewPass1TextInput != null )
       {
-        passChNewPass1TextInput . toFocus ( ) ;
+        passNewPass1TextInput . toFocus ( ) ;
       }
     }
-    public function setActivePasswordChangeForm ( ) : void
+    public function setActivePasswordForm ( ) : void
     {
       if ( passwordChangeIndex != - 1 && contentMultiple != null )
       {
-        contentMultiple . setActiveIndex ( contentMultiple . getContentIndexByLabel ( application . getTexts ( ) . CHANGE_PASSWORD_HEADER ) ) ;
+        contentMultiple . setActiveIndex ( contentMultiple . getContentIndexByLabel ( application . getTexts ( ) . PASSWORD_HEADER ) ) ;
       }
     }
 /*
@@ -653,9 +741,13 @@ package com . kisscodesystems . KissAs3Fw . app
       {
         eventUserPasswordCreateDo . stopImmediatePropagation ( ) ;
       }
-      if ( eventUserPasswordChangeLogout != null )
+      if ( eventUserPasswordImhereDo != null )
       {
-        eventUserPasswordChangeLogout . stopImmediatePropagation ( ) ;
+        eventUserPasswordImhereDo . stopImmediatePropagation ( ) ;
+      }
+      if ( eventUserPasswordLogout != null )
+      {
+        eventUserPasswordLogout . stopImmediatePropagation ( ) ;
       }
 // 3: calling the super destroy.
       super . destroy ( ) ;
@@ -669,17 +761,18 @@ package com . kisscodesystems . KissAs3Fw . app
       widgetToBeMoved = null ;
       contentsLabel = null ;
       contentsListPicker = null ;
-      passChFormHeading = null ;
-      passChOldPassTextLabel = null ;
-      passChOldPassTextInput = null ;
-      passChNewPass1TextLabel = null ;
-      passChNewPass1TextInput = null ;
-      passChNewPass2TextLabel = null ;
-      passChNewPass2TextInput = null ;
-      passChSubmitButtonText = null ;
-      passChCancelOrLogoutButtonLink = null ;
+      passFormHeading = null ;
+      passCurrentPassTextLabel = null ;
+      passCurrentPassTextInput = null ;
+      passNewPass1TextLabel = null ;
+      passNewPass1TextInput = null ;
+      passNewPass2TextLabel = null ;
+      passNewPass2TextInput = null ;
+      passSubmitButtonText = null ;
+      passCancelOrLogoutButtonLink = null ;
       eventUserPasswordChangeDo = null ;
       eventUserPasswordCreateDo = null ;
+      eventUserPasswordImhereDo = null ;
     }
   }
 }

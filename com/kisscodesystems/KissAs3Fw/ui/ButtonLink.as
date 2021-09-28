@@ -5,14 +5,14 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ButtonLink.
 ** A clickable link surrounded with a base shape rect.
 **
 ** MAIN FUNCTIONS:
-** - clickable text label with underline (drawed)
+** - clickable text label with underline (drawn)
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
@@ -23,6 +23,8 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . events . Event ;
   import flash . events . MouseEvent ;
   import flash . net . URLRequest ;
+  import flash . net . URLRequestMethod ;
+  import flash . net . URLVariables ;
   import flash . net . navigateToURL ;
   public class ButtonLink extends BaseSprite
   {
@@ -41,6 +43,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var state : int = 2 ;
 // The url to be specified. When it is set then the default browser will navigate to this url.
     private var url : String = null ;
+    private var data : URLVariables = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -67,9 +70,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite . addEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
       foregroundSprite . addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
       foregroundSprite . addEventListener ( MouseEvent . CLICK , click ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_DARK_CHANGED , resize ) ;
+      textLabel . setTextCode ( " " ) ;
+      textLabel . setTextCode ( "" ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , repaintUnderline ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
@@ -87,6 +92,14 @@ package com . kisscodesystems . KissAs3Fw . ui
     public function setTextCode ( newTextCode : String ) : void
     {
       textLabel . setTextCode ( newTextCode ) ;
+    }
+/*
+** Icon can be set.
+*/
+    public function setIcon ( iconType : String ) : void
+    {
+      textLabel . setIcon ( iconType ) ;
+      repaintUnderline ( ) ;
     }
 /*
 ** Sets the state of this linkbutton manually.
@@ -139,19 +152,42 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( url != null )
       {
-        if ( url . length > 0 )
+// Only http or https resources are allowed.
+        if ( url . indexOf ( "http://" ) == 0 || url . indexOf ( "https://" ) == 0 )
         {
-// Now the navigation ti the url with a new browser.
-          navigateToURL ( new URLRequest ( url ) , "_blank" ) ;
+          if ( url . length > 0 )
+          {
+// Now the navigation to the url with a new browser tab.
+            var urlRequest : URLRequest = new URLRequest ( ) ;
+            urlRequest . url = url ;
+            if ( data != null )
+            {
+              urlRequest . method = URLRequestMethod . POST ;
+              urlRequest . data = data ;
+            }
+            navigateToURL ( urlRequest , "_blank" ) ;
+          }
         }
       }
     }
 /*
-** Sets the url.
+** Sets the url and/or data.
 */
     public function setUrl ( s : String ) : void
     {
       url = s ;
+    }
+    public function setPostData ( arrAttrs : Array , arrVals : Array ) : void
+    {
+      if ( arrAttrs != null && arrVals != null && arrAttrs . length == arrVals . length )
+      {
+        data = null ;
+        data = new URLVariables ( ) ;
+        for ( var i : int = 0 ; i < arrAttrs . length ; i ++ )
+        {
+          data [ arrAttrs [ i ] ] = arrVals [ i ] ;
+        }
+      }
     }
 /*
 ** When the resize is needed.
@@ -174,8 +210,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function repaintBackground ( ) : void
     {
       backgroundBaseShape . clear ( ) ;
-      backgroundBaseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-      backgroundBaseShape . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+      backgroundBaseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+      backgroundBaseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       if ( state == - 1 || state == 0 || state == 1 )
       {
         backgroundBaseShape . setdt ( state ) ;
@@ -199,23 +235,36 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Repainting the underline.
 */
-    private function repaintUnderline ( ) : void
+    private function repaintUnderline ( e : Event = null ) : void
     {
-      underlineBaseShape . graphics . clear ( ) ;
-      underlineBaseShape . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppFontColorDark ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-      underlineBaseShape . graphics . moveTo ( textLabel . getcx ( ) , textLabel . getcysh ( ) ) ;
-      underlineBaseShape . graphics . lineTo ( textLabel . getcxsw ( ) , textLabel . getcysh ( ) ) ;
+      if ( underlineBaseShape != null && textLabel != null )
+      {
+        if ( textLabel . getTextCode ( ) != "" && textLabel . getTextCode ( ) != " " && textLabel . getIconType ( ) == "" )
+        {
+          underlineBaseShape . graphics . clear ( ) ;
+          underlineBaseShape . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppFontColorDark ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+          underlineBaseShape . graphics . moveTo ( textLabel . getcx ( ) , textLabel . getcysh ( ) ) ;
+          underlineBaseShape . graphics . lineTo ( textLabel . getcxsw ( ) , textLabel . getcysh ( ) ) ;
+        }
+        else
+        {
+          underlineBaseShape . graphics . clear ( ) ;
+        }
+      }
     }
 /*
 ** Repainting the foreground.
 */
     private function repaintForeground ( ) : void
     {
-      foregroundSprite . graphics . clear ( ) ;
-      foregroundSprite . graphics . lineStyle ( 0 , 0 , 0 ) ;
-      foregroundSprite . graphics . beginFill ( 0 , 0 ) ;
-      foregroundSprite . graphics . drawRoundRect ( 0 , 0 , getsw ( ) , getsh ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) , application . getPropsDyn ( ) . getAppRadius1 ( ) ) ;
-      foregroundSprite . graphics . endFill ( ) ;
+      if ( foregroundSprite != null )
+      {
+        foregroundSprite . graphics . clear ( ) ;
+        foregroundSprite . graphics . lineStyle ( 0 , 0 , 0 ) ;
+        foregroundSprite . graphics . beginFill ( 0 , 0 ) ;
+        foregroundSprite . graphics . drawRoundRect ( 0 , 0 , getsw ( ) , getsh ( ) , application . getPropsDyn ( ) . getAppRadius ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        foregroundSprite . graphics . endFill ( ) ;
+      }
     }
 /*
 ** The set size methods have to have no effects.
@@ -233,9 +282,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
       foregroundSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
       foregroundSprite . removeEventListener ( MouseEvent . CLICK , click ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
@@ -253,6 +302,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite = null ;
       eventClick = null ;
       state = 0 ;
+      data = null ;
       url = null ;
     }
   }

@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ButtonText.
@@ -35,9 +35,12 @@ package com . kisscodesystems . KissAs3Fw . ui
       textLabel = new TextLabel ( application ) ;
       contentSprite . addChild ( textLabel ) ;
       textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
-      labelRepos ( ) ;
+      textLabel . setTextCode ( " " ) ;
       textLabel . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resize ) ;
+      labelRepos ( ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
+      textLabel . setTextCode ( "" ) ;
+      setSoundTypeClick ( "button" ) ;
     }
 /*
 ** click + disabled!
@@ -46,6 +49,13 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       setEnabled ( false ) ;
       super . baseWorkingButtonClick ( ) ;
+    }
+/*
+** Icon can be set.
+*/
+    public function setIcon ( iconType : String ) : void
+    {
+      textLabel . setIcon ( iconType ) ;
     }
 /*
 ** On changing of the padding.
@@ -64,6 +74,13 @@ package com . kisscodesystems . KissAs3Fw . ui
     public function setTextCode ( newTextCode : String ) : void
     {
       textLabel . setTextCode ( newTextCode ) ;
+    }
+/*
+** Gets the label of the button.
+*/
+    public function getTextCode ( ) : String
+    {
+      return textLabel . getTextCode ( ) ;
     }
 /*
 ** Repositioning the label if necessary.

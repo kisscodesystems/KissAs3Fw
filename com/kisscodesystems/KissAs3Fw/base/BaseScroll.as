@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseScroll.
@@ -23,7 +23,7 @@
 ** - the target coordinates ( where to move the content) will be calculated as
 **   slow down the content continuously.
 ** - the size and the initial position of the content can be specified from outside
-** - the outside can liten to the event of application . EVENT_CONTENT_POSITION_CHANGED
+** - the outside can listen to the event of application . EVENT_CONTENT_POSITION_CHANGED
 */
 package com . kisscodesystems . KissAs3Fw . base
 {
@@ -78,6 +78,9 @@ package com . kisscodesystems . KissAs3Fw . base
 // Regular operation false: all of the area of the scroll will behave as the
 // usual scroll to handle really long lists or other contents.
     private var regularOperation : Boolean = true ;
+// Events of the reaches of the tops, bottoms.
+    private var eventTopReached : Event = null ;
+    private var eventBottomReached : Event = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -116,13 +119,16 @@ package com . kisscodesystems . KissAs3Fw . base
 // This event has to be initialized now.
       eventContentPositionChanged = new Event ( application . EVENT_CONTENT_POSITION_CHANGED ) ;
       eventContentCacheBegin = new Event ( application . EVENT_CONTENT_CACHE_BEGIN ) ;
+// The event of the reaching the bottom.
+      eventTopReached = new Event ( application . EVENT_TOP_REACHED ) ;
+      eventBottomReached = new Event ( application . EVENT_BOTTOM_REACHED ) ;
 // Adding this event listeners to the spriteMover.
       spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
 // These have to be zero!
       scw = 0 ;
       sch = 0 ;
@@ -168,9 +174,13 @@ package com . kisscodesystems . KissAs3Fw . base
 */
     private function rollOver ( e : MouseEvent ) : void
     {
-      if ( ! e . buttonDown )
+      if ( e != null )
       {
-        doRollOver ( ) ;
+        if ( ! e . buttonDown )
+        {
+          doRollOver ( ) ;
+        }
+        e . updateAfterEvent ( ) ;
       }
     }
 /*
@@ -178,15 +188,19 @@ package com . kisscodesystems . KissAs3Fw . base
 */
     private function rollOut ( e : MouseEvent ) : void
     {
-      if ( ! e . buttonDown )
+      if ( e != null )
       {
-        if ( spriteMover != null )
+        if ( ! e . buttonDown )
         {
-          spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
-          spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
-          spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
-          spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+          if ( spriteMover != null )
+          {
+            spriteMover . addEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
+            spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
+            spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+            spriteMover . removeEventListener ( MouseEvent . MOUSE_WHEEL , mouseWheel ) ;
+          }
         }
+        e . updateAfterEvent ( ) ;
       }
     }
 /*
@@ -252,6 +266,11 @@ package com . kisscodesystems . KissAs3Fw . base
       calcShapeActualposCoordinatesByContentPos ( ) ;
 // The event of the content position changing has to be dispatched in each frame!
       dispatchEventContentPositionChanged ( ) ;
+// This can improve rendering.
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** The mouse is up!
@@ -317,6 +336,11 @@ package com . kisscodesystems . KissAs3Fw . base
 // These have to be reinitialized.
       mouseDownTime = - 1 ;
       regularOperation = true ;
+// This can improve rendering.
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** Positions the content continuously to the target coordinates.
@@ -371,6 +395,11 @@ package com . kisscodesystems . KissAs3Fw . base
       dispatchEventCacheBegin ( ) ;
       addEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
       removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
+// This can improve rendering.
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** The correction of the target coordiantes.
@@ -425,6 +454,14 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( getBaseEventDispatcher ( ) != null && eventContentPositionChanged != null )
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventContentPositionChanged ) ;
+      }
+      if ( ccy == getsh ( ) - sch )
+      {
+        dispatchEventBottomReached ( ) ;
+      }
+      if ( ccy == 0 )
+      {
+        dispatchEventTopReached ( ) ;
       }
     }
 /*
@@ -606,23 +643,23 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( application != null )
       {
-// The frame is redrawed and repositioned.
-        shapeFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeFrame . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+// The frame is redrawn and repositioned.
+        shapeFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeFrame . drawRect ( ) ;
-// The actual pos moved shape is redrawed and repositioned.
-        shapeActualpos . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeActualpos . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+// The actual pos moved shape is redrawn and repositioned.
+        shapeActualpos . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeActualpos . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeActualpos . setswh ( getsw ( ) - ( scw <= getsw ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) , getsh ( ) - ( sch <= getsh ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) ) ;
         shapeActualpos . drawRect ( ) ;
 // The mask has to be updated too.
-        shapeMask0 . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeMask0 . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        shapeMask0 . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeMask0 . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeMask0 . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getscw ( ) <= getsw ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) , getsh ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getsch ( ) <= getsh ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) ) ;
         shapeMask0 . drawRect ( ) ;
-        shapeMask1 . setccac ( application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFgColor ( ) ) ;
-        shapeMask1 . setsr ( application . getPropsDyn ( ) . getAppRadius2 ( ) ) ;
+        shapeMask1 . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeMask1 . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeMask1 . setswh ( shapeMask0 . getsw ( ) , shapeMask0 . getsh ( ) ) ;
         shapeMask1 . drawRect ( ) ;
 // The spriteMover also has to be repainted and repositioned.
@@ -680,6 +717,27 @@ package com . kisscodesystems . KissAs3Fw . base
       }
     }
 /*
+** Dispatches an event to reached the top or bottom of the content.
+** The formulas of the calculating of the current content position may
+** be not 100% correct, so the top or bottom reaching events are
+** mandatory to be dispatched to get the content exactly to the top
+** or bottom.
+*/
+    protected function dispatchEventTopReached ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && eventTopReached != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventTopReached ) ;
+      }
+    }
+    protected function dispatchEventBottomReached ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null && eventBottomReached != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventBottomReached ) ;
+      }
+    }
+/*
 ** Overwriting this destroy method.
 */
     override public function destroy ( ) : void
@@ -698,8 +756,8 @@ package com . kisscodesystems . KissAs3Fw . base
       removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_BG_COLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FG_COLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventContentPositionChanged != null )
       {
@@ -708,6 +766,14 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( eventContentCacheBegin != null )
       {
         eventContentCacheBegin . stopImmediatePropagation ( ) ;
+      }
+      if ( eventTopReached != null )
+      {
+        eventTopReached . stopImmediatePropagation ( ) ;
+      }
+      if ( eventBottomReached != null )
+      {
+        eventBottomReached . stopImmediatePropagation ( ) ;
       }
 // 3: calling the super destroy.
       super . destroy ( ) ;
@@ -719,6 +785,8 @@ package com . kisscodesystems . KissAs3Fw . base
       spriteMover = null ;
       eventContentPositionChanged = null ;
       eventContentCacheBegin = null ;
+      eventTopReached = null ;
+      eventBottomReached = null ;
       scw = 0 ;
       sch = 0 ;
       ccx = 0 ;

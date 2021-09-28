@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ContentSingle.
@@ -21,6 +21,7 @@
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
+  import com . kisscodesystems . KissAs3Fw . app . Widgets ;
   import com . kisscodesystems . KissAs3Fw . base . BaseScroll ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
@@ -38,6 +39,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var baseScroll : BaseScroll = null ;
 // The array of the elementsArray of content.
     private var elementsArray : Array = new Array ( ) ;
+// The size of the object counts or not (when calculates the width of a row)
+    private var sizeConsidersArray : Array = new Array ( ) ;
 // The position to add the element into. Zero based indexes can be given.
     private var cellIndexesArray : Array = new Array ( ) ;
 // The orientation of the content.
@@ -76,6 +79,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseSprite . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , contentResized ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , contentResized ) ;
     }
 /*
 ** If the content has to be cached as a bitmap.
@@ -141,7 +145,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     }
 /*
 ** Automatic reposition of the elementsArray.
-** One cellIndex can contain multiuple elements!
+** One cellIndex can contain multiple elements!
 */
     private function reposElements ( e : Event = null ) : void
     {
@@ -221,18 +225,22 @@ package com . kisscodesystems . KissAs3Fw . ui
 // vertical (v): sum , horizontal (h): max!
                     if ( v )
                     {
+// Only if it counts!
+                      if ( sizeConsidersArray [ k ] )
+                      {
 // Now add the value to the sum.
-                      if ( elementsArray [ k ] is BaseSprite )
-                      {
-                        maxtemp += BaseSprite ( elementsArray [ k ] ) . getsw ( ) ;
-                      }
-                      else if ( elementsArray [ k ] is BaseTextField )
-                      {
-                        maxtemp += BaseTextField ( elementsArray [ k ] ) . getsw ( ) ;
-                      }
-                      else
-                      {
-                        maxtemp += elementsArray [ k ] . width ;
+                        if ( elementsArray [ k ] is BaseSprite )
+                        {
+                          maxtemp += BaseSprite ( elementsArray [ k ] ) . getsw ( ) ;
+                        }
+                        else if ( elementsArray [ k ] is BaseTextField )
+                        {
+                          maxtemp += BaseTextField ( elementsArray [ k ] ) . getsw ( ) ;
+                        }
+                        else
+                        {
+                          maxtemp += elementsArray [ k ] . width ;
+                        }
                       }
                     }
                     else if ( h )
@@ -320,18 +328,22 @@ package com . kisscodesystems . KissAs3Fw . ui
                     }
                     else if ( h )
                     {
+// Only if it counts!
+                      if ( sizeConsidersArray [ k ] )
+                      {
 // Now add the value to the sum.
-                      if ( elementsArray [ k ] is BaseSprite )
-                      {
-                        maxtemp += BaseSprite ( elementsArray [ k ] ) . getsh ( ) ;
-                      }
-                      else if ( elementsArray [ k ] is BaseTextField )
-                      {
-                        maxtemp += BaseTextField ( elementsArray [ k ] ) . getsh ( ) ;
-                      }
-                      else
-                      {
-                        maxtemp += elementsArray [ k ] . height ;
+                        if ( elementsArray [ k ] is BaseSprite )
+                        {
+                          maxtemp += BaseSprite ( elementsArray [ k ] ) . getsh ( ) ;
+                        }
+                        else if ( elementsArray [ k ] is BaseTextField )
+                        {
+                          maxtemp += BaseTextField ( elementsArray [ k ] ) . getsh ( ) ;
+                        }
+                        else
+                        {
+                          maxtemp += elementsArray [ k ] . height ;
+                        }
                       }
                     }
                   }
@@ -370,35 +382,39 @@ package com . kisscodesystems . KissAs3Fw . ui
 // Same cell if the values are the same.
               if ( cellIndexesArray [ k ] == cellIndexesArray [ i ] )
               {
+// Only if it counts!
+                if ( sizeConsidersArray [ k ] )
+                {
 // vertical: x coordinate is increased, horizontal: y coordinate is increased.
-                if ( v )
-                {
-                  if ( elementsArray [ k ] is BaseSprite )
+                  if ( v )
                   {
-                    currx += BaseSprite ( elementsArray [ k ] ) . getsw ( ) ;
+                    if ( elementsArray [ k ] is BaseSprite )
+                    {
+                      currx += BaseSprite ( elementsArray [ k ] ) . getsw ( ) ;
+                    }
+                    else if ( elementsArray [ k ] is BaseTextField )
+                    {
+                      currx += BaseTextField ( elementsArray [ k ] ) . getsw ( ) ;
+                    }
+                    else
+                    {
+                      currx += elementsArray [ k ] . width ;
+                    }
                   }
-                  else if ( elementsArray [ k ] is BaseTextField )
+                  else if ( h )
                   {
-                    currx += BaseTextField ( elementsArray [ k ] ) . getsw ( ) ;
-                  }
-                  else
-                  {
-                    currx += elementsArray [ k ] . width ;
-                  }
-                }
-                else if ( h )
-                {
-                  if ( elementsArray [ k ] is BaseSprite )
-                  {
-                    curry += BaseSprite ( elementsArray [ k ] ) . getsh ( ) ;
-                  }
-                  else if ( elementsArray [ k ] is BaseTextField )
-                  {
-                    curry += BaseTextField ( elementsArray [ k ] ) . getsh ( ) ;
-                  }
-                  else
-                  {
-                    curry += elementsArray [ k ] . height ;
+                    if ( elementsArray [ k ] is BaseSprite )
+                    {
+                      curry += BaseSprite ( elementsArray [ k ] ) . getsh ( ) ;
+                    }
+                    else if ( elementsArray [ k ] is BaseTextField )
+                    {
+                      curry += BaseTextField ( elementsArray [ k ] ) . getsh ( ) ;
+                    }
+                    else
+                    {
+                      curry += elementsArray [ k ] . height ;
+                    }
                   }
                 }
               }
@@ -445,20 +461,57 @@ package com . kisscodesystems . KissAs3Fw . ui
       backSprite . setcy ( baseScroll . getccy ( ) ) ;
     }
 /*
-** THe size of the content has been changed.
+** The size of the content has been changed.
 */
     private function contentResized ( e : Event ) : void
     {
-      baseScroll . setscwch ( baseSprite . getsw ( ) , baseSprite . getsh ( ) ) ;
+      var one : Boolean = false ;
+      if ( ! application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        if ( parent != null && parent is ContentMultiple )
+        {
+          if ( parent . parent != null && parent . parent is Widgets )
+          {
+            one = true ;
+          }
+        }
+      }
+      if ( baseScroll != null )
+      {
+        if ( one )
+        {
+          baseScroll . setscwch ( 1 , 1 ) ;
+        }
+        else
+        {
+          baseScroll . setscwch ( baseSprite . getsw ( ) , baseSprite . getsh ( ) ) ;
+        }
+      }
+    }
+/*
+** Changes a cell index only.
+*/
+    public function changeCellIndex ( displayObject : DisplayObject , cellIndex : int ) : void
+    {
+      if ( displayObject != null && elementsArray != null && cellIndexesArray != null )
+      {
+        var i : int = elementsArray . indexOf ( displayObject ) ;
+        if ( i > - 1 )
+        {
+          cellIndexesArray [ i ] = cellIndex ;
+          reposElements ( ) ;
+        }
+      }
     }
 /*
 ** Adds an element to the content sprite.
 */
-    public function addToContent ( displayObject : DisplayObject , normal : Boolean , cellIndex : int ) : void
+    public function addToContent ( displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
     {
       if ( ! baseSprite . contains ( displayObject ) && ! backSprite . contains ( displayObject ) )
       {
         elementsArray . push ( displayObject ) ;
+        sizeConsidersArray . push ( sizeConsider ) ;
         cellIndexesArray . push ( cellIndex ) ;
         if ( normal )
         {
@@ -497,6 +550,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         cellIndexesArray . splice ( index , 1 ) ;
         elementsArray . splice ( index , 1 ) ;
+        sizeConsidersArray . splice ( index , 1 ) ;
         reposElements ( ) ;
       }
     }
@@ -506,6 +560,20 @@ package com . kisscodesystems . KissAs3Fw . ui
     public function getBaseScroll ( ) : BaseScroll
     {
       return baseScroll ;
+    }
+/*
+** Gets the reference to the base sprite.
+*/
+    public function getBaseSprite ( ) : BaseSprite
+    {
+      return baseSprite ;
+    }
+/*
+** Gets the reference to the back sprite.
+*/
+    public function getBackSprite ( ) : BaseSprite
+    {
+      return backSprite ;
     }
 /*
 ** Calculating content size.
@@ -617,6 +685,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_MODE_CHANGED , contentResized ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventElementsRepositioned != null )
       {
@@ -630,6 +699,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseScroll = null ;
       elementsArray . splice ( 0 ) ;
       elementsArray = null ;
+      sizeConsidersArray . splice ( 0 ) ;
+      sizeConsidersArray = null ;
       cellIndexesArray . splice ( 0 ) ;
       cellIndexesArray = null ;
       orientation = null ;

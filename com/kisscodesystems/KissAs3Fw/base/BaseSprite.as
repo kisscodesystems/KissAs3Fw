@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseSprite.
@@ -55,6 +55,7 @@ package com . kisscodesystems . KissAs3Fw . base
   import flash . display . DisplayObject ;
   import flash . display . Sprite ;
   import flash . events . Event ;
+  import flash . events . MouseEvent ;
   import flash . system . System ;
   public class BaseSprite extends Sprite
   {
@@ -65,6 +66,9 @@ package com . kisscodesystems . KissAs3Fw . base
     private var cy : int = 0 ;
     private var sw : int = 0 ;
     private var sh : int = 0 ;
+// The previous values (before setSpriteVisible false
+    private var prevsw : int = 0 ;
+    private var prevsh : int = 0 ;
 // The event objects to be constructed and to be dispatched from here.
     private var eventCoordinatesChanged : Event = null ;
     private var eventSizesChanged : Event = null ;
@@ -79,6 +83,8 @@ package com . kisscodesystems . KissAs3Fw . base
     private var followStageHeight : Boolean = false ;
     private var factorStageWidth : Number = 0 ;
     private var factorStageHeight : Number = 0 ;
+// It is possible to play a sound when this event happens.
+    private var soundTypeMouseDown : String = "" ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -105,6 +111,28 @@ package com . kisscodesystems . KissAs3Fw . base
 // Now registering the events of adding and removing this object to and from the stage.
       addEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
       addEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
+    }
+/*
+** When a sound is specified to be heard, this event has to be registered.
+*/
+    public function setSoundTypeClick ( s : String ) : void
+    {
+      if ( s == null || s == "" )
+      {
+        removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+      }
+      else
+      {
+        soundTypeMouseDown = s ;
+        addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+      }
+    }
+    private function mouseDown ( e : MouseEvent ) : void
+    {
+      if ( application != null && application . getSoundManager ( ) != null && getEnabled ( ) )
+      {
+        application . getSoundManager ( ) . playSound ( soundTypeMouseDown ) ;
+      }
     }
 /*
 ** Listener functions: added and removed from stage.
@@ -134,6 +162,8 @@ package com . kisscodesystems . KissAs3Fw . base
       cy = 0 ;
       sw = 0 ;
       sh = 0 ;
+      prevsw = 0 ;
+      prevsh = 0 ;
 // The x and y coordinates have to be 0.
       x = cx ;
       y = cy ;
@@ -207,6 +237,7 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( sw != Math . max ( newsw , application . getPropsApp ( ) . getBaseMinw ( ) ) )
       {
         sw = Math . max ( newsw , application . getPropsApp ( ) . getBaseMinw ( ) ) ;
+        prevsw = sw ;
         calcFactorStageWidth ( ) ;
         doSizeChanged ( ) ;
         dispatchEventSizesChanged ( ) ;
@@ -217,6 +248,7 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( sh != Math . max ( newsh , application . getPropsApp ( ) . getBaseMinh ( ) ) )
       {
         sh = Math . max ( newsh , application . getPropsApp ( ) . getBaseMinh ( ) ) ;
+        prevsh = sh ;
         calcFactorStageHeight ( ) ;
         doSizeChanged ( ) ;
         dispatchEventSizesChanged ( ) ;
@@ -228,6 +260,8 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         sw = Math . max ( newsw , application . getPropsApp ( ) . getBaseMinw ( ) ) ;
         sh = Math . max ( newsh , application . getPropsApp ( ) . getBaseMinh ( ) ) ;
+        prevsw = sw ;
+        prevsh = sh ;
         calcFactorStageWidth ( ) ;
         calcFactorStageHeight ( ) ;
         doSizeChanged ( ) ;
@@ -266,7 +300,7 @@ package com . kisscodesystems . KissAs3Fw . base
       }
       else
       {
-        if ( b && ( ! application . getPropsApp ( ) . getSmartphoneMode ( ) || ! this is Widget ) )
+        if ( b && ! this is Widget )
         {
           followStageWidth = true ;
           calcFactorStageWidth ( ) ;
@@ -518,6 +552,37 @@ package com . kisscodesystems . KissAs3Fw . base
       return enabled ;
     }
 /*
+** Sets the visible of this object.
+** If not visible then the sizes of this object will be reduced to 0,0.
+*/
+    public function setSpriteVisible ( v : Boolean ) : void
+    {
+      if ( v )
+      {
+        if ( ! visible )
+        {
+          visible = true ;
+          sw = prevsw ;
+          sh = prevsh ;
+          calcFactorStageWidth ( ) ;
+          doSizeChanged ( ) ;
+          dispatchEventSizesChanged ( ) ;
+        }
+      }
+      else
+      {
+        if ( visible )
+        {
+          visible = false ;
+          sw = 0 ;
+          sh = 0 ;
+          calcFactorStageWidth ( ) ;
+          doSizeChanged ( ) ;
+          dispatchEventSizesChanged ( ) ;
+        }
+      }
+    }
+/*
 ** If the parent parent object is a content single then this opened object has to be
 ** repositioned to get it visible in all of its size. (so the scroll may be scrolled.)
 */
@@ -586,6 +651,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       removeEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
       removeEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
+      removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( Event . RESIZE , stageResized ) ;
@@ -634,6 +700,7 @@ package com . kisscodesystems . KissAs3Fw . base
       baseEventDispatcher = null ;
       value = null ;
       enabled = false ;
+      soundTypeMouseDown = null ;
       followStageWidth = false ;
       followStageHeight = false ;
       factorStageWidth = 0 ;

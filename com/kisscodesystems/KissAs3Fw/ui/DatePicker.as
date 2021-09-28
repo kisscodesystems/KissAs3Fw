@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** DatePicker.
@@ -78,13 +78,24 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Gets the date format used to display date.
+*/
+    public function getDateFormat ( ) : String
+    {
+      if ( datePanel != null )
+      {
+        return datePanel . getDateFormat ( ) ;
+      }
+      return "" ;
+    }
+/*
 ** Gets the displayed date.
 */
     public function getDisplayedDate ( ) : String
     {
-      if ( datePanel != null )
+      if ( textLabel != null )
       {
-        return datePanel . getDisplayedDate ( ) ;
+        return textLabel . getTextCode ( ) ;
       }
       else
       {
@@ -182,7 +193,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function getText ( ) : String
     {
-      return textLabel . getPlainText ( ) ;
+      return textLabel . getBaseTextField ( ) . getPlainText ( ) ;
     }
 /*
 ** Override open:

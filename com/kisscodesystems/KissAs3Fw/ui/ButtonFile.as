@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** ButtonFile.
@@ -93,6 +93,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
 // Let's start with no filereference.
       destroyFileReference ( ) ;
+// And a file icon.
+      setIcon ( "file" ) ;
+// And a sound type.
+      setSoundTypeClick ( "button" ) ;
     }
 /*
 ** Registering and unregistering the evnet listeners.
@@ -428,7 +432,6 @@ package com . kisscodesystems . KissAs3Fw . ui
           stage . addEventListener ( MouseEvent . MOUSE_DOWN , hasToCloseByMouse , false , 0 , true ) ;
           stage . addEventListener ( KeyboardEvent . KEY_DOWN , hasToCloseByKeyboard , false , 0 , true ) ;
         }
-        toTheHighestDepth ( ) ;
       }
     }
 /*
@@ -484,23 +487,27 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           var arrLabels : Array = new Array ( ) ;
           var arrFiles : Array = new Array ( ) ;
+          var arrIcons : Array = new Array ( ) ;
           var currentDirectoryContent : Array = File ( file ) . getDirectoryListing ( ) . sort ( fileSort ) ;
           arrLabels . push ( ".." ) ;
           arrFiles . push ( File ( file ) . parent ) ;
+          arrIcons . push ( "leftarrow" ) ;
           for ( var i : int = 0 ; i < currentDirectoryContent . length ; i ++ )
           {
             if ( File ( currentDirectoryContent [ i ] ) . isDirectory )
             {
               arrLabels . push ( "+" + currentDirectoryContent [ i ] . name ) ;
               arrFiles . push ( File ( currentDirectoryContent [ i ] ) ) ;
+              arrIcons . push ( "folder" ) ;
             }
             else if ( fileHasGoodExt ( currentDirectoryContent [ i ] . name ) )
             {
               arrLabels . push ( "  " + currentDirectoryContent [ i ] . name ) ;
               arrFiles . push ( File ( currentDirectoryContent [ i ] ) ) ;
+              arrIcons . push ( "file" ) ;
             }
           }
-          fileList . setArrays ( arrLabels , arrFiles ) ;
+          fileList . setArrays ( arrLabels , arrFiles , arrIcons ) ;
         }
       }
     }

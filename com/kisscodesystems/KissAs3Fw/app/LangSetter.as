@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** LangSetter.
@@ -95,6 +95,7 @@ package com . kisscodesystems . KissAs3Fw . app
     private function listPickerChanged ( e : Event ) : void
     {
       application . getTextStock ( ) . setLangCode ( application . getTextStock ( ) . getLangCodes ( ) [ listPicker . getSelectedIndex ( ) ] ) ;
+      application . getMiddleground ( ) . closePanelSettings ( ) ;
     }
 /*
 ** Updates the language codes available in this application.

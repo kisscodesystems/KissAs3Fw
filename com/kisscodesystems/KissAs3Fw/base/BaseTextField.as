@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** BaseTextField.
@@ -252,6 +252,22 @@ package com . kisscodesystems . KissAs3Fw . base
         width = sw ;
         height = sh ;
         doSizeChanged ( ) ;
+        dispatchEventSizesChanged ( ) ;
+      }
+    }
+    public function setswh1 ( newsw : int , newsh : int ) : void
+    {
+      if ( sw != Math . max ( newsw , application . getPropsApp ( ) . getBaseMinw ( ) ) || sh != Math . max ( newsh , application . getPropsApp ( ) . getBaseMinh ( ) ) )
+      {
+        sw = Math . max ( newsw , application . getPropsApp ( ) . getBaseMinw ( ) ) ;
+        sh = Math . max ( newsh , application . getPropsApp ( ) . getBaseMinh ( ) ) ;
+        width = sw ;
+        height = sh ;
+        doSizeChanged ( ) ;
+        dispatchEventSizesChanged ( ) ;
+      }
+      else
+      {
         dispatchEventSizesChanged ( ) ;
       }
     }
@@ -780,7 +796,7 @@ package com . kisscodesystems . KissAs3Fw . base
         {
           height = application . getPropsDyn ( ) . getTextFieldHeight ( textType ) ;
         }
-        setswh ( width , height ) ;
+        setswh1 ( width , height ) ;
       }
     }
 /*

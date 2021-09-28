@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** Widgets.
@@ -30,6 +30,12 @@ package com . kisscodesystems . KissAs3Fw . app
 // The array of the widgets, two dimensional!
 // Needed for the order, contains the references to the added widgets.
     private var widgetsArray : Array = null ;
+// The width and height data have to be saved to switch between desktop and mobile widget mode.
+    private var widgetWidths : Array = null ;
+    private var widgetHeights : Array = null ;
+// Has to be an actual widget which is currently displayed.
+// It is defined by desktops. Null if there is no widget.
+    private var actualWidgets : Array = null ;
 // One dimensipnal array to store the orientations of each contents.
     private var orientationsArray : Array = null ;
 /*
@@ -45,10 +51,17 @@ package com . kisscodesystems . KissAs3Fw . app
       contentMultiple . setButtonBarVisible ( false ) ;
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_ORIENTATIONS_CHANGED , widgetsOrientationChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGETS_ORIENTATION_CHANGED , widgetsOrientationChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , widgetModeChanged ) ;
 // An array is needed to store the references to the widgets.
 // Every loop on widgets should be happened on this array.
       widgetsArray = new Array ( ) ;
+// Sizes.
+      widgetWidths = new Array ( ) ;
+      widgetHeights = new Array ( ) ;
+// Actual widgets.
+      actualWidgets = new Array ( ) ;
+// Orientations.
       orientationsArray = new Array ( ) ;
     }
 /*
@@ -77,6 +90,13 @@ package com . kisscodesystems . KissAs3Fw . app
       return contentMultiple . getNumOfContents ( ) ;
     }
 /*
+** Goes to the actual widget
+*/
+    public function goToTheActualWidget ( ) : void
+    {
+      goToTheWidget ( actualWidgets [ contentMultiple . getActiveIndex ( ) ] ) ;
+    }
+/*
 ** Gets the count of all widgets.
 */
     public function getNumOfAllWidgets ( ) : int
@@ -101,6 +121,7 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( contentMultiple . getActiveIndex ( ) != i )
         {
           contentMultiple . setActiveIndex ( i ) ;
+          goToTheWidget ( actualWidgets [ i ] ) ;
         }
       }
     }
@@ -115,6 +136,7 @@ package com . kisscodesystems . KissAs3Fw . app
         moveAllWidgetsFromContent ( containerId ) ;
         contentMultiple . removeContent ( containerId ) ;
         widgetsArray . splice ( containerId , 1 ) ;
+        actualWidgets . splice ( containerId , 1 ) ;
         orientationsArray . splice ( containerId , 1 ) ;
         setActiveWidgetContainer ( containerId - 1 ) ;
       }
@@ -138,7 +160,9 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function moveWidgetFromContent ( fromContentId : int , toContentId : int , widget : Widget , repositionRequired : Boolean ) : void
     {
-      widgetsArray [ fromContentId ] . splice ( widgetsArray [ fromContentId ] . indexOf ( widget ) , 1 ) ;
+      var indexOnFrom : int = widgetsArray [ fromContentId ] . indexOf ( widget ) ;
+      var countOnFrom : int = widgetsArray [ fromContentId ] . length ;
+      widgetsArray [ fromContentId ] . splice ( indexOnFrom , 1 ) ;
       widgetsArray [ toContentId ] . push ( widget ) ;
       contentMultiple . removeFromContent ( fromContentId , widget ) ;
       contentMultiple . addToContent ( toContentId , widget , true , 0 ) ;
@@ -149,6 +173,19 @@ package com . kisscodesystems . KissAs3Fw . app
         reposWidgets ( toContentId ) ;
       }
       application . getMiddleground ( ) . setActiveWidgetContainer ( toContentId ) ;
+      actualWidgets [ fromContentId ] = countOnFrom > 1 ? Widget ( widgetsArray [ fromContentId ] [ Math . max ( 0 , indexOnFrom - 1 ) ] ) : null ;
+      actualWidgets [ toContentId ] = widget ;
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        widget . setDesktopSizes ( ) ;
+      }
+      else
+      {
+        widget . setMobileSizes ( ) ;
+      }
+      actualizeButtonsVisible ( fromContentId ) ;
+      actualizeButtonsVisible ( toContentId ) ;
+      goToTheWidget ( actualWidgets [ toContentId ] ) ;
     }
 /*
 ** The margin of the application has been changed.
@@ -165,12 +202,45 @@ package com . kisscodesystems . KissAs3Fw . app
       return ++ currentWidgetId ;
     }
 /*
+** Sets the sizes of the widget and goes to the first if needed.
+*/
+    private function resizeAllWidgetsAndGoTo ( ) : void
+    {
+      for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+          {
+            Widget ( widgetsArray [ i ] [ j ] ) . setDesktopSizes ( ) ;
+          }
+          else
+          {
+            Widget ( widgetsArray [ i ] [ j ] ) . setMobileSizes ( ) ;
+          }
+        }
+      }
+      if ( ! application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        application . getPropsDyn ( ) . setAppBackgroundLive ( false ) ;
+      }
+      goToTheWidget ( actualWidgets [ contentMultiple . getActiveIndex ( ) ] ) ;
+    }
+/*
+** When the widget mode has been changed.
+*/
+    private function widgetModeChanged ( e : Event ) : void
+    {
+      resizeAllWidgetsAndGoTo ( ) ;
+    }
+/*
 ** The orientation of the widgets has been changed.
 */
     private function widgetsOrientationChanged ( e : Event ) : void
     {
       orientationsArray [ contentMultiple . getActiveIndex ( ) ] = application . getPropsDyn ( ) . getAppWidgetsOrientation ( ) ;
       reposWidgets ( contentMultiple . getActiveIndex ( ) ) ;
+      goToTheWidget ( actualWidgets [ contentMultiple . getActiveIndex ( ) ] ) ;
     }
 /*
 ** When one or more of the widgets have been resized.
@@ -289,6 +359,7 @@ package com . kisscodesystems . KissAs3Fw . app
 ** except the not null widget.
 ** If the widget is null then everybody (including the not null widget)
 ** will lose their blur filter.
+** Manual orientation: there is no such thing that automatic repositioning.
 */
     private function setOrClearGlow ( contentId : int , widget : Widget ) : void
     {
@@ -310,8 +381,30 @@ package com . kisscodesystems . KissAs3Fw . app
       }
     }
 /*
+** Actualize the buttons of all of the widgets on the content.
+*/
+    private function actualizeButtonsVisible ( contentId : int ) : void
+    {
+      var allWidgets : int = getNumOfAllWidgets ( ) ;
+// Setting the visible of the buttons (header: prev widget, next widget, list widget)
+      for ( var i : int = 0 ; i < widgetsArray [ contentId ] . length ; i ++ )
+      {
+        if ( i == 0 )
+        {
+          Widget ( widgetsArray [ contentId ] [ i ] ) . setButtonsVisible ( false , widgetsArray [ contentId ] . length > 1 , allWidgets > 1 ) ;
+        }
+        else if ( i == widgetsArray [ contentId ] . length - 1 )
+        {
+          Widget ( widgetsArray [ contentId ] [ i ] ) . setButtonsVisible ( true , false , allWidgets > 1 ) ;
+        }
+        else
+        {
+          Widget ( widgetsArray [ contentId ] [ i ] ) . setButtonsVisible ( true , true , allWidgets > 1 ) ;
+        }
+      }
+    }
+/*
 ** Repositions a widget according to the elements being backward of this.
-** In case of manual positioning, it will be called and will call itself recursivelly.
 */
     private function reposWidget ( widget : Widget ) : void
     {
@@ -435,36 +528,6 @@ package com . kisscodesystems . KissAs3Fw . app
             widget . y = toy ;
           }
         }
-// Determining these x y values according to the orientation of the widgets: MANUAL
-// The user can place the widgets but if a widget is on one of the others then the widgets
-// will be slided until none of the widgets are under another.
-// (Direction widget-by-widget: none)
-        else if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_MANUAL )
-        {
-// Goes on all of the widgets.
-          for ( var j : int = 0 ; j < widgetsArray [ contentId ] . length ; j ++ )
-          {
-// If the current is not the widget reference coming from the argument of this function call..
-            if ( Widget ( widgetsArray [ contentId ] [ j ] ) != widget )
-            {
-// If this widget and the widget comes from the function arguments are hit test positive..
-              if ( Widget ( widgetsArray [ contentId ] [ j ] ) . hitTestObject ( widget ) )
-              {
-// The current widget has to be dragged out in the direction which is shorter than the other.
-                if ( Widget ( widgetsArray [ contentId ] [ j ] ) . width > Widget ( widgetsArray [ contentId ] [ j ] ) . height )
-                {
-                  Widget ( widgetsArray [ contentId ] [ j ] ) . x = widget . x + widget . width + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
-                }
-                else
-                {
-                  Widget ( widgetsArray [ contentId ] [ j ] ) . y = widget . y + widget . height + application . getPropsApp ( ) . getWidgetsMargin ( ) ;
-                }
-// Because this widget is moved, it may be on other widgets so it has to be passed to another function call!
-                reposWidget ( Widget ( widgetsArray [ contentId ] [ j ] ) ) ;
-              }
-            }
-          }
-        }
       }
     }
 /*
@@ -535,6 +598,32 @@ package com . kisscodesystems . KissAs3Fw . app
       return widget ;
     }
 /*
+** Getting a Widget by its id. (in any widget containers)
+*/
+    public function getWidgetByValue ( val : String ) : Widget
+    {
+      var widget : Widget = null ;
+      all : for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
+      {
+        for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
+        {
+          try
+          {
+            if ( Widget ( widgetsArray [ i ] [ j ] ) . getValue ( ) . toString ( ) == val )
+            {
+              widget = Widget ( widgetsArray [ i ] [ j ] ) ;
+              break all ;
+            }
+          }
+          catch ( e : * )
+          {
+            continue ;
+          }
+        }
+      }
+      return widget ;
+    }
+/*
 ** Gets the headers of the widgets. (in any widget containers)
 */
     public function getWidgetHeaders ( ) : Array
@@ -576,7 +665,7 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           if ( i > 0 )
           {
-            contentMultiple . getBaseScroll ( contentId ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i - 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i - 1 ] ) . getcy ( ) ) ;
+            goToTheWidget ( Widget ( widgetsArray [ contentId ] [ i - 1 ] ) ) ;
             break ;
           }
         }
@@ -591,7 +680,7 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           if ( i < widgetsArray [ contentId ] . length - 1 )
           {
-            contentMultiple . getBaseScroll ( contentId ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i + 1 ] ) . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - Widget ( widgetsArray [ contentId ] [ i + 1 ] ) . getcy ( ) ) ;
+            goToTheWidget ( Widget ( widgetsArray [ contentId ] [ i + 1 ] ) ) ;
             break ;
           }
         }
@@ -602,33 +691,59 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function goToTheWidget ( widget : Widget ) : void
     {
-      setActiveWidgetContainer ( widget . getContentId ( ) ) ;
-      application . getMiddleground ( ) . setActiveWidgetContainer ( widget . getContentId ( ) ) ;
-      contentMultiple . getBaseScroll ( widget . getContentId ( ) ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcy ( ) ) ;
+      if ( widget != null )
+      {
+        actualWidgets [ widget . getContentId ( ) ] = widget ;
+        setActiveWidgetContainer ( widget . getContentId ( ) ) ;
+        application . getMiddleground ( ) . setActiveWidgetContainer ( widget . getContentId ( ) ) ;
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+        {
+          contentMultiple . getBaseScroll ( widget . getContentId ( ) ) . setccxcy ( application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcx ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) - widget . getcy ( ) ) ;
+        }
+        else
+        {
+          contentMultiple . getBaseSprite ( widget . getContentId ( ) ) . setcxy ( - widget . getcx ( ) , - widget . getcy ( ) ) ;
+        }
+      }
     }
 /*
 ** Adds a widget into the widgets.
 */
     public function addWidget ( contentId : int , widget : Widget ) : void
     {
-      widget . setContentId ( contentId ) ;
-      contentMultiple . addToContent ( contentId , widget , true , widgetsArray . length ) ;
-      widgetsArray [ contentId ] . push ( widget ) ;
-      widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
-      widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;
-      widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_CLOSE_ME , widgetCloseMe ) ;
-      widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_START , widgetDragStart ) ;
-      widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_STOP , widgetDragStop ) ;
-      widget . setWidgetId ( getNextWidgetId ( ) ) ;
-      widget . setButtonMoveVisible ( getNumOfContents ( ) != 1 ) ;
-      if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_MANUAL )
+      if ( widget != null )
       {
-        widget . setcxy ( application . getPropsApp ( ) . getWidgetsMargin ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) ) ;
-        reposWidgets ( contentId ) ;
-      }
-      else
-      {
-        reposWidget ( widget ) ;
+        widget . setContentId ( contentId ) ;
+        contentMultiple . addToContent ( contentId , widget , true , widgetsArray . length ) ;
+        widgetsArray [ contentId ] . push ( widget ) ;
+        widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
+        widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;
+        widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_CLOSE_ME , widgetCloseMe ) ;
+        widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_START , widgetDragStart ) ;
+        widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_DRAG_STOP , widgetDragStop ) ;
+        widget . setWidgetId ( getNextWidgetId ( ) ) ;
+        widget . setButtonMoveVisible ( getNumOfContents ( ) != 1 ) ;
+        if ( orientationsArray [ contentId ] == application . getTexts ( ) . ORIENTATION_MANUAL )
+        {
+          widget . setcxy ( application . getPropsApp ( ) . getWidgetsMargin ( ) , application . getPropsApp ( ) . getWidgetsMargin ( ) ) ;
+          reposWidgets ( contentId ) ;
+        }
+        else
+        {
+          reposWidget ( widget ) ;
+          widget . updatecxy ( ) ;
+          application . callContentSizeRecalc ( widget ) ;
+        }
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+        {
+          widget . setDesktopSizes ( ) ;
+        }
+        else
+        {
+          widget . setMobileSizes ( ) ;
+        }
+        actualizeButtonsVisible ( contentId ) ;
+        goToTheWidget ( widget ) ;
       }
     }
 /*
@@ -655,6 +770,7 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( widget . onClose ( ) )
         {
           var contentId : int = widget . getContentId ( ) ;
+          var widgetIndex : int = widgetsArray [ contentId ] . indexOf ( widget ) ;
           widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
           widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;
           widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_CLOSE_ME , widgetCloseMe ) ;
@@ -662,10 +778,51 @@ package com . kisscodesystems . KissAs3Fw . app
           widget . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_DRAG_STOP , widgetDragStop ) ;
           widget . destroy ( ) ;
           contentMultiple . removeFromContent ( contentId , widget ) ;
-          widgetsArray [ contentId ] . splice ( widgetsArray [ contentId ] . indexOf ( widget ) , 1 ) ;
+          widgetsArray [ contentId ] . splice ( widgetIndex , 1 ) ;
+          widgetWidths . splice ( widgetWidths . indexOf ( widget ) , 1 ) ;
+          widgetHeights . splice ( widgetHeights . indexOf ( widget ) , 1 ) ;
           reposWidgets ( contentId ) ;
+          if ( actualWidgets [ contentId ] == widget )
+          {
+            if ( widgetIndex > 0 )
+            {
+              actualWidgets [ contentId ] = widgetsArray [ contentId ] [ widgetIndex - 1 ] ;
+            }
+            else
+            {
+              actualWidgets [ contentId ] = null ;
+            }
+          }
+          goToTheWidget ( actualWidgets [ contentId ] ) ;
         }
       }
+    }
+/*
+** The size of the widget has to be saved sometimes.
+*/
+    public function saveWidgetSizes ( widget : Widget , width : int , height : int ) : void
+    {
+      if ( widget != null )
+      {
+        widgetWidths [ widget ] = width ;
+        widgetHeights [ widget ] = height ;
+      }
+    }
+    public function getWidgetSavedWidth ( widget : Widget ) : int
+    {
+      if ( widget != null )
+      {
+        return widgetWidths [ widget ] ;
+      }
+      return application . getPropsApp ( ) . getWidgetSizeMinWidth ( ) ;
+    }
+    public function getWidgetSavedHeight ( widget : Widget ) : int
+    {
+      if ( widget != null )
+      {
+        return widgetHeights [ widget ] ;
+      }
+      return application . getPropsApp ( ) . getWidgetSizeMinHeight ( ) ;
     }
 /*
 ** Overriding the setsw setsh and setswh functions.
@@ -678,34 +835,11 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function widgetsRePosSize ( ) : void
     {
-      if ( application != null )
-      {
-        if ( application . getMiddleground ( ) != null )
-        {
-          setcxy ( 0 , application . getMiddleground ( ) . getHeaderh ( ) ) ;
-          super . setswh ( application . getsw ( ) , application . getMiddleground ( ) . getWidgetsh ( ) ) ;
-          contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
-          contentMultiple . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
-          if ( application . getPropsApp ( ) . getSmartphoneMode ( ) )
-          {
-            for ( var i : int = 0 ; i < widgetsArray . length ; i ++ )
-            {
-              for ( var j : int = 0 ; j < widgetsArray [ i ] . length ; j ++ )
-              {
-                Widget ( widgetsArray [ i ] [ j ] ) . setswh ( Widget ( widgetsArray [ i ] [ j ] ) . getswFromParentContent ( ) , Widget ( widgetsArray [ i ] [ j ] ) . getshFromParentContent ( ) ) ;
-              }
-              reposWidgets ( i ) ;
-            }
-          }
-        }
-      }
-    }
-/*
-** Sets the smartphone mode.
-*/
-    public function toSmartphone ( ) : void
-    {
-      widgetsRePosSize ( ) ;
+      setcxy ( 0 , application . getsh ( ) - application . getMiddleground ( ) . getWidgetsh ( ) ) ;
+      super . setswh ( application . getsw ( ) , application . getMiddleground ( ) . getWidgetsh ( ) ) ;
+      contentMultiple . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+      contentMultiple . setswh ( getsw ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 , getsh ( ) - application . getPropsDyn ( ) . getAppMargin ( ) * 2 ) ;
+      resizeAllWidgetsAndGoTo ( ) ;
     }
 /*
 ** Destroying this application.
@@ -714,7 +848,8 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_ORIENTATIONS_CHANGED , widgetsOrientationChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGETS_ORIENTATION_CHANGED , widgetsOrientationChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_WIDGET_MODE_CHANGED , widgetModeChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;
@@ -731,6 +866,12 @@ package com . kisscodesystems . KissAs3Fw . app
       }
       widgetsArray . splice ( 0 ) ;
       widgetsArray = null ;
+      widgetWidths . splice ( 0 ) ;
+      widgetWidths = null ;
+      widgetHeights . splice ( 0 ) ;
+      widgetHeights = null ;
+      actualWidgets . splice ( 0 ) ;
+      actualWidgets = null ;
       orientationsArray . splice ( 0 ) ;
       orientationsArray = null ;
     }

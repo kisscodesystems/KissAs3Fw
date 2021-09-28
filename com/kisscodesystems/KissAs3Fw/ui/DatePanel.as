@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3FwDemos
+** https://github.com/kisscodesystems/KissAs3Ds
 **
 ** DESCRIPTION:
 ** DatePanel.
@@ -99,8 +99,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The date formatter object at first!
       dateFormatter = new DateTimeFormatter ( "en-US" ) ;
 // The date format by default.
-      setDateFormat ( application . getTexts ( ) . DF_VALUE_YMDT ) ;
-// The dates has to be initialized as the current date.
+      setDateFormat ( application . ASDATEFORMAT ) ;
+// The dates has to be initialized as the zero.
       currentDateObject = new Date ( ) ;
 // This events are required now. (application baselist basescroll)
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
@@ -181,7 +181,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         label2 . setTextCode ( String ( currentNumberOfWeek ) ) ;
       }
       reposElements ( ) ;
-      dateDisplay ( ) ;
+      setSelectedDate ( currentDateObject ) ;
     }
 /*
 ** When the size of any of the label buttons has been changed.
@@ -389,27 +389,24 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** To set the dateformat.
 */
-    public function setDateFormat ( s : String ) : void
+    public function setDateFormat ( df : String ) : void
     {
-      if ( application . getTexts ( ) . getDateFormatValues ( ) . indexOf ( s ) > - 1 )
-      {
-        dateFormat = application . getTexts ( ) . translateDateFormatFromDBtoAS ( s , false ) ;
-        dateFormatter . setDateTimePattern ( dateFormat ) ;
-        dateDisplay ( ) ;
-      }
+      dateFormat = df ;
+      dateFormatter . setDateTimePattern ( dateFormat ) ;
+      dateDisplay ( ) ;
+    }
+    public function getDateFormat ( ) : String
+    {
+      return dateFormat ;
     }
 /*
 ** Displaying the actual date.
 */
     private function dateDisplay ( ) : void
     {
-      if ( dateTextLabel != null && dateFormatter != null && currentDateObject != null )
+      if ( dateTextLabel != null && dateFormatter != null )
       {
         var dateToDisplay : String = dateFormatter . format ( currentDateObject ) ;
-        if ( hoursAndMinutes && hoursListPicker != null && minutesListPicker != null )
-        {
-          dateToDisplay += " " + hoursLabelArray [ hoursListPicker . getSelectedIndex ( ) ] + ":" + minutesLabelArray [ minutesListPicker . getSelectedIndex ( ) ] ;
-        }
         dateTextLabel . setTextCode ( dateToDisplay ) ;
       }
       paintDatesToBackground ( false ) ;
@@ -419,63 +416,64 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function firstButtonTextClicked ( e : Event ) : void
     {
-      if ( firstButtonText != null && currentDateObject != null )
+      if ( firstButtonText != null )
       {
-        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) - 1 , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) ) ) ;
+        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) - 1 , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
         firstButtonText . setEnabled ( true ) ;
       }
     }
     private function leftButtonTextClicked ( e : Event ) : void
     {
-      if ( leftButtonText != null && currentDateObject != null )
+      if ( leftButtonText != null )
       {
-        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) - 1 , currentDateObject . getDate ( ) ) ) ;
+        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) - 1 , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
         leftButtonText . setEnabled ( true ) ;
       }
     }
     private function rightButtonTextClicked ( e : Event ) : void
     {
-      if ( rightButtonText != null && currentDateObject != null )
+      if ( rightButtonText != null )
       {
-        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) + 1 , currentDateObject . getDate ( ) ) ) ;
+        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) + 1 , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
         rightButtonText . setEnabled ( true ) ;
       }
     }
     private function lastButtonTextClicked ( e : Event ) : void
     {
-      if ( lastButtonText != null && currentDateObject != null )
+      if ( lastButtonText != null )
       {
-        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) + 1 , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) ) ) ;
+        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) + 1 , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
         lastButtonText . setEnabled ( true ) ;
       }
     }
     private function todayButtonLinkClicked ( e : Event ) : void
     {
       setSelectedDate ( new Date ( ) ) ;
+      dispatchSelectedChanged ( ) ;
     }
     private function dayClicked ( e : MouseEvent ) : void
     {
-      if ( getEnabled ( ) && currentDateObject != null && e != null && e . target is TextLabel )
+      if ( getEnabled ( ) && e != null && e . target != null && e . target . parent is TextLabel )
       {
-        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) , TextLabel ( e . target ) . getTextCode ( ) ) ) ;
+        setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) , TextLabel ( e . target . parent ) . getTextCode ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
         dispatchSelectedChanged ( ) ;
       }
     }
     private function dayMouseOver ( e : MouseEvent ) : void
     {
-      if ( getEnabled ( ) && background != null && e != null && e . target is TextLabel )
+      if ( getEnabled ( ) && background != null && e != null && e . target != null && e . target . parent is TextLabel )
       {
         background . graphics . clear ( ) ;
-        paintRect ( TextLabel ( e . target ) , false , application . getPropsApp ( ) . getDatePanelAlphaMouseOver ( ) ) ;
+        paintRect ( TextLabel ( e . target . parent ) , false , application . getPropsApp ( ) . getDatePanelAlphaMouseOver ( ) ) ;
         paintDatesToBackground ( false ) ;
       }
     }
     private function dayMouseDown ( e : MouseEvent ) : void
     {
-      if ( getEnabled ( ) && background != null && e != null && e . target is TextLabel )
+      if ( getEnabled ( ) && background != null && e != null && e . target != null && e . target . parent is TextLabel )
       {
         background . graphics . clear ( ) ;
-        paintRect ( TextLabel ( e . target ) , false , application . getPropsApp ( ) . getDatePanelAlphaMouseDown ( ) ) ;
+        paintRect ( TextLabel ( e . target . parent ) , false , application . getPropsApp ( ) . getDatePanelAlphaMouseDown ( ) ) ;
         paintDatesToBackground ( false ) ;
       }
     }
@@ -507,7 +505,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function paintDatesToBackground ( toClear : Boolean ) : void
     {
 // The background and the date object to calculate are necessary of course.
-      if ( background != null && currentDateObject != null && daysElementsArray != null )
+      if ( background != null && daysElementsArray != null )
       {
 // Clearing the background shape is specified.
         if ( toClear )
@@ -536,7 +534,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function getFirstDayDelta ( ) : int
     {
-      if ( currentDateObject != null && weekdaysElementsArray != null )
+      if ( weekdaysElementsArray != null )
       {
         var date0 : Date = new Date ( currentDateObject . getFullYear ( ) , currentDateObject . month , 1 ) ;
         return ( date0 . getDay ( ) - 1 + weekdaysElementsArray . length ) % weekdaysElementsArray . length ;
@@ -609,6 +607,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( ! hoursAndMinutes )
         {
           removeElementsOfHoursAndMinutes ( ) ;
+          setDateFormat ( application . ASDATEFORMAT ) ;
         }
         else
         {
@@ -620,7 +619,7 @@ package com . kisscodesystems . KissAs3Fw . ui
             hoursListPicker . setArrays ( hoursLabelArray , hoursValueArray ) ;
             hoursListPicker . setSelectedIndex ( 0 ) ;
             hoursListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , hoursOrMinutesResized ) ;
-            hoursListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , hoursOrMinutesChanged ) ;
+            hoursListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , hoursChanged ) ;
           }
           if ( hmSepTextLabel == null )
           {
@@ -637,10 +636,11 @@ package com . kisscodesystems . KissAs3Fw . ui
             minutesListPicker . setArrays ( minutesLabelArray , minutesValueArray ) ;
             minutesListPicker . setSelectedIndex ( 0 ) ;
             minutesListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , hoursOrMinutesResized ) ;
-            minutesListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , hoursOrMinutesChanged ) ;
+            minutesListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , minutesChanged ) ;
+            minutesListPicker . setAlwaysDispatchSelectedEvent ( true ) ;
           }
+          setDateFormat ( application . ASMINSFORMAT ) ;
         }
-        dateDisplay ( ) ;
         reposElements ( ) ;
       }
     }
@@ -654,16 +654,38 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The hours or minutes changed so the date displaying might be necessary.
 */
-    private function hoursOrMinutesChanged ( e : Event ) : void
+    private function hoursChanged ( e : Event ) : void
     {
+      setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
       dateDisplay ( ) ;
+    }
+    private function minutesChanged ( e : Event ) : void
+    {
+      setSelectedDate ( new Date ( currentDateObject . getFullYear ( ) , currentDateObject . getMonth ( ) , currentDateObject . getDate ( ) , ( hoursAndMinutes && hoursListPicker != null ) ? hoursListPicker . getSelectedIndex ( ) : 0 , ( hoursAndMinutes && minutesListPicker != null ) ? minutesListPicker . getSelectedIndex ( ) : 0 ) ) ;
+      dateDisplay ( ) ;
+      dispatchSelectedChanged ( ) ;
     }
 /*
 ** Sets the selected date.
 */
     public function setSelectedDate ( date : Date ) : void
     {
-      currentDateObject = new Date ( date . getFullYear ( ) , date . getMonth ( ) , date . getDate ( ) ) ;
+      if ( date == null )
+      {
+        currentDateObject = new Date ( ) ;
+      }
+      else
+      {
+        currentDateObject = new Date ( date . getFullYear ( ) , date . getMonth ( ) , date . getDate ( ) , hoursAndMinutes ? date . getHours ( ) : 0 , hoursAndMinutes ? date . getMinutes ( ) : 0 ) ;
+      }
+      if ( hoursAndMinutes && hoursListPicker != null )
+      {
+        hoursListPicker . setSelectedIndex ( date . getHours ( ) ) ;
+      }
+      if ( hoursAndMinutes && minutesListPicker != null )
+      {
+        minutesListPicker . setSelectedIndex ( date . getMinutes ( ) ) ;
+      }
       reposDaysWeeksWeekdays ( ) ;
       dateDisplay ( ) ;
       paintDatesToBackground ( true ) ;
@@ -675,7 +697,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( dateTextLabel != null )
       {
-        return dateTextLabel . getPlainText ( ) ;
+        return dateTextLabel . getBaseTextField ( ) . getPlainText ( ) ;
       }
       else
       {
@@ -687,41 +709,34 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     public function getSelectedDateObject ( ) : Date
     {
-      return currentDateObject ;
+      return new Date ( currentDateObject ) ;
     }
 /*
 ** Gets the selected date (string).
 */
     public function getSelectedDate ( ) : String
     {
-      if ( currentDateObject != null )
+      var theDate : String = "" ;
+      var month : String = "" + ( currentDateObject . getMonth ( ) + 1 ) ;
+      if ( month . length < 2 )
       {
-        var theDate : String = "" ;
-        var month : String = "" + ( currentDateObject . getMonth ( ) + 1 ) ;
-        if ( month . length < 2 )
-        {
-          month = "0" + month ;
-        }
-        var date : String = "" + currentDateObject . getDate ( ) ;
-        if ( date . length < 2 )
-        {
-          date = "0" + date ;
-        }
-        theDate = currentDateObject . getFullYear ( ) + "-" + month + "-" + date ;
-        if ( hoursAndMinutes && hoursLabelArray != null && hoursListPicker != null && minutesLabelArray != null && minutesListPicker != null )
-        {
-          var hour : String = hoursLabelArray [ hoursListPicker . getSelectedIndex ( ) ] ;
-          var minute : String = minutesLabelArray [ minutesListPicker . getSelectedIndex ( ) ] ;
-          return theDate + " " + hour + ":" + minute + ":00" ;
-        }
-        else
-        {
-          return theDate ;
-        }
+        month = "0" + month ;
+      }
+      var date : String = "" + currentDateObject . getDate ( ) ;
+      if ( date . length < 2 )
+      {
+        date = "0" + date ;
+      }
+      theDate = currentDateObject . getFullYear ( ) + "-" + month + "-" + date ;
+      if ( hoursAndMinutes && hoursLabelArray != null && minutesLabelArray != null )
+      {
+        var hour : String = hoursLabelArray [ currentDateObject . getHours ( ) ] ;
+        var minute : String = minutesLabelArray [ currentDateObject . getMinutes ( ) ] ;
+        return theDate + " " + hour + ":" + minute ;
       }
       else
       {
-        return "" ;
+        return theDate ;
       }
     }
 /*
@@ -764,29 +779,15 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function getCurrentDate ( ) : String
     {
-      if ( currentDateObject != null )
-      {
-        return String ( currentDateObject . getDate ( ) ) . length == 1 ? "0" + String ( currentDateObject . getDate ( ) ) : String ( currentDateObject . getDate ( ) ) ;
-      }
-      else
-      {
-        return "" ;
-      }
+      return String ( currentDateObject . getDate ( ) ) . length == 1 ? "0" + String ( currentDateObject . getDate ( ) ) : String ( currentDateObject . getDate ( ) ) ;
     }
     private function getCurrentMonth ( ) : String
     {
-      if ( currentDateObject != null )
-      {
-        return String ( currentDateObject . getMonth ( ) + 1 ) . length == 1 ? "0" + String ( currentDateObject . getMonth ( ) + 1 ) : String ( currentDateObject . getMonth ( ) + 1 ) ;
-      }
-      else
-      {
-        return "" ;
-      }
+      return String ( currentDateObject . getMonth ( ) + 1 ) . length == 1 ? "0" + String ( currentDateObject . getMonth ( ) + 1 ) : String ( currentDateObject . getMonth ( ) + 1 ) ;
     }
     private function getCurrentMonthLetters ( ) : String
     {
-      if ( currentDateObject != null && application != null )
+      if ( application != null )
       {
         return application . getTextStock ( ) . getText ( monthsCodesArray [ int ( currentDateObject . getMonth ( ) ) ] ) ;
       }
@@ -797,14 +798,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     }
     private function getCurrentYear ( ) : String
     {
-      if ( currentDateObject != null )
-      {
-        return String ( currentDateObject . getFullYear ( ) ) ;
-      }
-      else
-      {
-        return "" ;
-      }
+      return String ( currentDateObject . getFullYear ( ) ) ;
     }
 /*
 ** The year is a leap year or not.
