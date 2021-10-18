@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** PropsApp.
@@ -23,9 +23,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The name of the application.
     protected var applicationName : String = "Application" ;
 // The version of this application.
-    protected var applicationVersion : String = "version 1.9" ;
+    protected var applicationVersion : String = "version 1.10" ;
 // The release date of this version
-    protected var applicationReleaseDate : String = "2021.09.28" ;
+    protected var applicationReleaseDate : String = "2021-10-17" ;
 // The homepage of this application
     protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;

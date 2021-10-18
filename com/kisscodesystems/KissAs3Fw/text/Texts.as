@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** Texts.
@@ -167,5 +167,7 @@ package com . kisscodesystems . KissAs3Fw . text
     public const DRAW : String = BTC + "DRAW" + ETC ;
     public const RUBBER : String = BTC + "RUBBER" + ETC ;
     public const REALLY_WANT_TO_CLEAR_DRAWN_CONTENT : String = BTC + "REALLY_WANT_TO_CLEAR_DRAWN_CONTENT" + ETC ;
+    public const REQUIRED_PERMISSIONS_ALERT : String = BTC + "REQUIRED_PERMISSIONS_ALERT" + ETC ;
+    public const MORE : String = BTC + "MORE" + ETC ;
   }
 }

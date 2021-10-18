@@ -11,15 +11,23 @@ package com . kisscodesystems . KissAs3Fw . ui
     [ Embed ( source = "../../../../../res/icons/copy.png" ) ]
     private var CopyClass : Class ;
     private var copyBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/list.png" ) ] protected var ListClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/list.png" ) ]
+    protected var ListClass : Class ;
     protected var listBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/logout.png" ) ] protected var LogoutClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/logout.png" ) ]
+    protected var LogoutClass : Class ;
     protected var logoutBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/watch.png" ) ] protected var WatchClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/more.png" ) ]
+     protected var MoreClass : Class ;
+    protected var moreBitmap : Bitmap ;
+    [ Embed ( source = "../../../../../res/icons/watch.png" ) ]
+    protected var WatchClass : Class ;
     protected var watchBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/downarrow1.png" ) ] protected var Downarrow1Class : Class ;
+    [ Embed ( source = "../../../../../res/icons/downarrow1.png" ) ]
+    protected var Downarrow1Class : Class ;
     protected var downarrow1Bitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/uparrow1.png" ) ] protected var Uparrow1Class : Class ;
+    [ Embed ( source = "../../../../../res/icons/uparrow1.png" ) ]
+    protected var Uparrow1Class : Class ;
     protected var uparrow1Bitmap : Bitmap ;
     [ Embed ( source = "../../../../../res/icons/starblank.png" ) ]
     private var StarblankClass : Class ;
@@ -113,6 +121,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       copyBitmap = new CopyClass ( ) as Bitmap ;
       listBitmap = new ListClass ( ) as Bitmap ;
       logoutBitmap = new LogoutClass ( ) as Bitmap ;
+      moreBitmap = new MoreClass ( ) as Bitmap ;
       watchBitmap = new WatchClass ( ) as Bitmap ;
       downarrow1Bitmap = new Downarrow1Class ( ) as Bitmap ;
       uparrow1Bitmap = new Uparrow1Class ( ) as Bitmap ;
@@ -187,6 +196,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       else if ( iconType == "logout" )
       {
         return transformBitmapData ( logoutBitmap , textType , iconSize ) ;
+      }
+      else if ( iconType == "more" )
+      {
+        return transformBitmapData ( moreBitmap , textType , iconSize ) ;
       }
       else if ( iconType == "watch" )
       {

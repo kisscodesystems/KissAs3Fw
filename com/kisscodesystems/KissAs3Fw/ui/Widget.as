@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** Widget.
@@ -534,6 +534,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       prevMouseX = 0 ;
       prevMouseY = 0 ;
       mouseDownHappened = "" ;
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
+      }
     }
 /*
 ** The overriding of the set size methods.
@@ -1113,7 +1117,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** To create confirm and alert easier from widgets.
+** To create confirm and alert easier.
 */
     protected function showConfirm ( messageString : String ) : void
     {

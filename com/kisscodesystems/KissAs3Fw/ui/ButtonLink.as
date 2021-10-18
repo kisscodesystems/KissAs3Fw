@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** ButtonLink.
@@ -143,6 +143,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         setState ( 1 ) ;
         navigateToUrlIfNotEmpy ( ) ;
         baseWorkingButtonClick ( ) ;
+      }
+      if ( e != null )
+      {
+        e . updateAfterEvent ( ) ;
       }
     }
 /*

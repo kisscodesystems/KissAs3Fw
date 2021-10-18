@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** TextStock.
@@ -169,6 +169,7 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ application . getTexts ( ) . SETTING_SOUND_PLAYING_ON ] = [ "Soundeffects." ] ;
       texts [ application . getTexts ( ) . SETTING_SOUND_PLAYING_OFF ] = [ "Soundeffects." ] ;
       texts [ application . getTexts ( ) . DEFAULT_CONTENT ] = [ "Default content" ] ;
+      texts [ application . getTexts ( ) . REQUIRED_PERMISSIONS_ALERT ] = [ "This application needs Camera, Storage and Network permissions.\nPlease, check your settings and grant these permissions to this application for proper working. Perhaps, you need to restart your application." ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_BASIC ] = [ "Basic" ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_DIGITAL ] = [ "Digital" ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_ANALOG ] = [ "Analog" ] ;
@@ -245,6 +246,7 @@ package com . kisscodesystems . KissAs3Fw . text
       + "</ul>" 
       + application . EMPTY_HTML_PARAGRAPH
       ] ;
+      texts [ application . getTexts ( ) . MORE ] = [ "More" ] ;
       texts [ application . getTexts ( ) . SELECTED_FILE ] = [ "Selected: " ] ;
       texts [ application . getTexts ( ) . UPLOADED_FILE ] = [ "Uploaded: " ] ;
       texts [ application . getTexts ( ) . BROWSE ] = [ "browse.." ] ;

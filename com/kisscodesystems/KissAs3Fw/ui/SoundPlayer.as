@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** SoundPlayer.
@@ -130,6 +130,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , redrawBufferDraw ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SOUND_VOLUME_CHANGED , soundVolumeChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
     }
 /*
 ** The volume of the sound has been changed from the PropsDyn. ( from the settings panel for example )
@@ -649,6 +651,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , redrawBufferDraw ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_SOUND_VOLUME_CHANGED , soundVolumeChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( MouseEvent . MOUSE_UP , stageMouseUp ) ;

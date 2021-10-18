@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** Application.
@@ -15,7 +15,7 @@
 **
 ** Published       : 07.31.2017
 **
-** Current version : 1.9
+** Current version : 1.10
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -57,6 +57,11 @@
 **                   Board object is added
 **                   SoundManager is added to application to play several sounds for example
 **                   by clicking a button or display a confirm dialog.
+**                   1.10 - 17.oct.2021
+**                   Smaller bug fixes for example for rendering the application using gpu
+**                   Smaller improvemnets such as the Board now contains the UI elements
+**                   on the above of the board and not below it.
+**                   The Other widget has the privacy link from now.
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.

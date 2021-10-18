@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** Camera.
@@ -125,6 +125,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var bitmapData : BitmapData = null ;
 // Camera is attached event.
     private var cameraIsAttachedEvent : Event = null ;
+// To the alert if necessary. (not)
+    private var alertOK : Function = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -820,8 +822,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           camera = flash . media . Camera . getCamera ( ) ;
         }
-// Now ew hope that we have got a valid reference to a camera.
-        if ( camera != null )
+// Now new hope that we have got a valid reference to a camera.
+        if ( camera != null && ! camera . muted )
         {
 // Mode and quality settings.
           camera . setMode ( cameraWidth , cameraHeight , cameraFps ) ;
@@ -841,6 +843,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         else
         {
+// Alert to the user to check its settings.
+          showAlert ( application . getTexts ( ) . REQUIRED_PERMISSIONS_ALERT ) ;
 // Just to be sure.
           detachCamera ( null ) ;
         }
@@ -866,15 +870,13 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function permissionHandler ( e : Event ) : void
     {
-      if ( camera != null )
+      if ( camera != null && ! camera . muted )
       {
-        if ( camera . muted )
-        {
-          detachCamera ( null ) ;
-        }
+// Camera is ready
       }
       else
       {
+// No camera, just to be sure, detach it.
         detachCamera ( null ) ;
       }
     }
@@ -943,6 +945,25 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function setsw ( newsw : int ) : void { }
     override public function setsh ( newsh : int ) : void { }
     override public function setswh ( newsw : int , newsh : int ) : void { }
+/*
+** To create alert easier.
+*/
+    protected function showAlert ( messageString : String , fullscreen : Boolean = false ) : void
+    {
+      var uniqueString : String = "" + new Date ( ) . time ;
+      var okFunction : Function = function ( e : Event ) : void
+      {
+        application . getForeground ( ) . closeAlert ( uniqueString ) ;
+        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
+        if ( alertOK != null )
+        {
+          alertOK ( ) ;
+        }
+        e . stopImmediatePropagation ( ) ;
+      }
+      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
+      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , false , false , fullscreen ) ;
+    }
 /*
 ** Override of destroy.
 */

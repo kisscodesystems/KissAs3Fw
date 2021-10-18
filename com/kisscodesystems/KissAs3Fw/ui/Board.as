@@ -5,7 +5,7 @@
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
-** https://github.com/kisscodesystems/KissAs3Ds
+** https://github.com/kisscodesystems/KissAs3Dm
 **
 ** DESCRIPTION:
 ** Board.
@@ -98,15 +98,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       drawnFrame . setdb ( false ) ;
       drawnFrame . setdf ( true ) ;
       drawnFrame . setdt ( 0 ) ;
-// And this is the object which can be drawable.
-      drawnContainer = new BaseSprite ( application ) ;
-      addChild ( drawnContainer ) ;
-      drawnSprite = new BaseSprite ( application ) ;
-      drawnContainer . addChild ( drawnSprite ) ;
-      drawnSprite . addEventListener ( MouseEvent . MOUSE_DOWN , drawnSpriteMouseDown ) ;
-      drawnMask = new BaseSprite ( application ) ;
-      drawnContainer . addChild ( drawnMask ) ;
-      drawnSprite . mask = drawnMask ;
 // A text label to name this board
       textLabel = new TextLabel ( application ) ;
       addChild ( textLabel ) ;
@@ -137,6 +128,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       clearButtonLink . setTextCode ( application . getTexts ( ) . CLEAR ) ;
       clearButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , clearButtonLinkClicked ) ;
       clearButtonLink . setEventDispatcherObjectToThis ( ) ;
+// And this is the object which can be drawable.
+      drawnContainer = new BaseSprite ( application ) ;
+      addChild ( drawnContainer ) ;
+      drawnSprite = new BaseSprite ( application ) ;
+      drawnContainer . addChild ( drawnSprite ) ;
+      drawnSprite . addEventListener ( MouseEvent . MOUSE_DOWN , drawnSpriteMouseDown ) ;
+      drawnMask = new BaseSprite ( application ) ;
+      drawnContainer . addChild ( drawnMask ) ;
+      drawnSprite . mask = drawnMask ;
 // These have to be registered to keep up to date displaying according to the application level.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , insideElementsSizesChanged ) ;
@@ -541,7 +541,7 @@ package com . kisscodesystems . KissAs3Fw . ui
           textLabel . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , application . getPropsDyn ( ) . getAppPadding ( ) ) ;
           if ( backgroundColorPicker != null )
           {
-            backgroundColorPicker . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , getsh ( ) - application . getPropsDyn ( ) . getAppPadding ( ) - backgroundColorPicker . getsh ( ) ) ;
+            backgroundColorPicker . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , textLabel . getcyshap ( ) ) ;
             if ( lineColorPicker != null )
             {
               lineColorPicker . setcxy ( backgroundColorPicker . getcxsw ( ) , backgroundColorPicker . getcy ( ) ) ;
@@ -557,16 +557,16 @@ package com . kisscodesystems . KissAs3Fw . ui
                   }
                 }
               }
-              if ( drawnFrame != null )
+            }
+            if ( drawnFrame != null )
+            {
+              drawnFrame . x = application . getPropsDyn ( ) . getAppPadding ( ) ;
+              drawnFrame . y = backgroundColorPicker . getcysh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ;
+              drawnFrame . setswh ( getsw ( ) - 2 * drawnFrame . x , getsh ( ) - drawnFrame . y - application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+              if ( drawnContainer != null )
               {
-                drawnFrame . x = application . getPropsDyn ( ) . getAppPadding ( ) ;
-                drawnFrame . y = textLabel . getcysh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ;
-                drawnFrame . setswh ( getsw ( ) - 2 * drawnFrame . x , getsh ( ) - drawnFrame . y - ( getsh ( ) - backgroundColorPicker . getcy ( ) ) ) ;
-                if ( drawnContainer != null )
-                {
-                  drawnContainer . setcxy ( drawnFrame . x , drawnFrame . y ) ;
-                  clearDrawnSprite ( ) ;
-                }
+                drawnContainer . setcxy ( drawnFrame . x , drawnFrame . y ) ;
+                clearDrawnSprite ( ) ;
               }
             }
           }
@@ -605,50 +605,50 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( textLabel != null )
       {
         textLabel . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-        if ( drawnFrame != null )
+        if ( backgroundColorPicker != null )
         {
-          drawnFrame . x = application . getPropsDyn ( ) . getAppPadding ( ) ;
-          drawnFrame . y = textLabel . getcysh ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ;
-          if ( drawnContainer != null )
+          backgroundColorPicker . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , textLabel . getcyshap ( ) ) ;
+          if ( lineColorPicker != null )
           {
-            drawnContainer . setcxy ( drawnFrame . x , drawnFrame . y ) ;
-            if ( backgroundColorPicker != null )
+            lineColorPicker . setcxy ( backgroundColorPicker . getcxsw ( ) , backgroundColorPicker . getcy ( ) ) ;
+            if ( lineThicknessPotmeter != null )
             {
-              backgroundColorPicker . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , drawnContainer . getcysh ( ) ) ;
-              if ( lineColorPicker != null )
+              lineThicknessPotmeter . setcxy ( lineColorPicker . getcxsw ( ) , lineColorPicker . getcy ( ) ) ;
+              if ( drawSwitcher != null )
               {
-                lineColorPicker . setcxy ( backgroundColorPicker . getcxsw ( ) , backgroundColorPicker . getcy ( ) ) ;
-                if ( lineThicknessPotmeter != null )
+                drawSwitcher . setcxy ( lineThicknessPotmeter . getcxsw ( ) , lineThicknessPotmeter . getcy ( ) ) ;
+                if ( clearButtonLink != null )
                 {
-                  lineThicknessPotmeter . setcxy ( lineColorPicker . getcxsw ( ) , lineColorPicker . getcy ( ) ) ;
-                  if ( drawSwitcher != null )
+                  clearButtonLink . setcxy ( drawSwitcher . getcxsw ( ) , drawSwitcher . getcy ( ) ) ;
+                  var maxh : int = 0 ;
+                  if ( backgroundColorPicker . getsh ( ) > maxh )
                   {
-                    drawSwitcher . setcxy ( lineThicknessPotmeter . getcxsw ( ) , lineThicknessPotmeter . getcy ( ) ) ;
-                    if ( clearButtonLink != null )
+                    maxh = backgroundColorPicker . getcyshap ( ) ;
+                  }
+                  if ( lineColorPicker . getsh ( ) > maxh )
+                  {
+                    maxh = lineColorPicker . getcyshap ( ) ;
+                  }
+                  if ( lineThicknessPotmeter . getsh ( ) > maxh )
+                  {
+                    maxh = lineThicknessPotmeter . getcyshap ( ) ;
+                  }
+                  if ( drawSwitcher . getsh ( ) > maxh )
+                  {
+                    maxh = drawSwitcher . getcyshap ( ) ;
+                  }
+                  if ( clearButtonLink . getsh ( ) > maxh )
+                  {
+                    maxh = clearButtonLink . getcyshap ( ) ;
+                  }
+                  if ( drawnFrame != null )
+                  {
+                    drawnFrame . x = application . getPropsDyn ( ) . getAppPadding ( ) ;
+                    if ( drawnContainer != null )
                     {
-                      clearButtonLink . setcxy ( drawSwitcher . getcxsw ( ) , drawSwitcher . getcy ( ) ) ;
-                      var maxh : int = 0 ;
-                      if ( backgroundColorPicker . getsh ( ) > maxh )
-                      {
-                        maxh = backgroundColorPicker . getcyshap ( ) ;
-                      }
-                      if ( lineColorPicker . getsh ( ) > maxh )
-                      {
-                        maxh = lineColorPicker . getcyshap ( ) ;
-                      }
-                      if ( lineThicknessPotmeter . getsh ( ) > maxh )
-                      {
-                        maxh = lineThicknessPotmeter . getcyshap ( ) ;
-                      }
-                      if ( drawSwitcher . getsh ( ) > maxh )
-                      {
-                        maxh = drawSwitcher . getcyshap ( ) ;
-                      }
-                      if ( clearButtonLink . getsh ( ) > maxh )
-                      {
-                        maxh = clearButtonLink . getcyshap ( ) ;
-                      }
-                      super . setswh ( Math . max ( clearButtonLink . getcxswap ( ) , drawnContainer . getcxswap ( ) ) , maxh ) ;
+                      drawnFrame . y = maxh ;
+                      drawnContainer . setcxy ( drawnFrame . x , drawnFrame . y ) ;
+                      super . setswh ( Math . max ( clearButtonLink . getcxswap ( ) , drawnContainer . getcxswap ( ) ) , drawnContainer . getcyshap ( ) ) ;
                     }
                   }
                 }
