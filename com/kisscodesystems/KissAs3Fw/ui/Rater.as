@@ -234,7 +234,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function fillAlphaChanged ( e : Event ) : void
     {
-// So we have to redraw the header.
+// So, we have to redraw.
       bgfgRedraw ( ) ;
     }
 /*

@@ -21,6 +21,7 @@
 ** - Clear all messages
 ** - Hide / unhide the tracer elements
 ** - Pauses further messages
+** - No framework elements used but basic flash objects
 */
 package com . kisscodesystems . KissAs3Fw . app
 {
@@ -40,7 +41,7 @@ package com . kisscodesystems . KissAs3Fw . app
     private const FILLALPHA : Number = 0.7 ;
     private const TEXTCOLOR : Number = 0xbbbbbb ;
     private const LINKCOLOR : Number = 0xdddddd ;
-    private const FONT_SIZE : Number = 16 ;
+    private const FONT_SIZE : Number = 18 ;
     private var backgroundShape : Shape = null ;
     private var textFormat : TextFormat = null ;
     private var linkVisibBack : Shape = null ;

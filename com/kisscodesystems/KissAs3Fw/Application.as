@@ -1,7 +1,7 @@
 /*
 ** This class is a part of the KissAs3Fw actionscrip framework.
 ** See the header comment lines of the
-** com . kisscodesystems . KissAs3Fw . KissAs3FwMain
+** com . kisscodesystems . KissAs3Fw . Application
 ** The whole framework is available at:
 ** https://github.com/kisscodesystems/KissAs3Fw
 ** Demo applications:
@@ -13,9 +13,9 @@
 ** Every application built using this framework should extend this class.
 ** Has contained 42 classes initially and this is not an accident.
 **
-** Published       : 07.31.2017
+** Published       : 2021.11.04
 **
-** Current version : 1.10
+** Current version : 1.11
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -62,6 +62,14 @@
 **                   Smaller improvemnets such as the Board now contains the UI elements
 **                   on the above of the board and not below it.
 **                   The Other widget has the privacy link from now.
+**                   1.11 - 04.nov.2021
+**                   Smaller improvements
+**                   - permission handling on iOS devices
+**                   - app prefixies (D:dev, T:tst blank:prd)
+**                   - easier to grab the Widgets area
+**                   - Potmeter now displays its value continuously
+**                   - Use Harman sdk to build from now
+**                   - Permission handling improvements
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -135,8 +143,6 @@ package com . kisscodesystems . KissAs3Fw
   import flash . media . Camera ;
   import flash . media . Microphone ;
   import flash . net . navigateToURL ;
-  import flash . net . NetConnection ;
-  import flash . net . NetStream ;
   import flash . net . URLRequest ;
   import flash . text . TextFieldAutoSize ;
   import flash . ui . ContextMenu ;
@@ -341,6 +347,11 @@ package com . kisscodesystems . KissAs3Fw
     private var lastCalculatedFontSize : int = 0 ;
 // If we asked for it before, we will not do that again.
     private var askedForCameraPermission : Boolean = false ;
+    private var askedForMicrophonePermission : Boolean = false ;
+    private var askedForFilePermission : Boolean = false ;
+// The prefix for the application name
+// For example: D: developer version, T: testing version, blank: release version
+    protected var applicationType : String = "" ;
 /*
 ** The constructor, does the initialization of the whole application.
 */
@@ -374,6 +385,13 @@ package com . kisscodesystems . KissAs3Fw
       soundManager = new SoundManager ( application ) ;
       getBaseEventDispatcher ( ) . setParentObject ( this ) ;
       application . trace ( "App started and initialized." , 1 ) ;
+    }
+/*
+** Gets the type of this application.
+*/
+    public function getApplicationType ( ) : String
+    {
+      return applicationType ;
     }
 /*
 ** Gets the urls.
@@ -935,21 +953,24 @@ package com . kisscodesystems . KissAs3Fw
     {
       if ( ! askedForCameraPermission )
       {
-        var nc : NetConnection = new NetConnection ( ) ;
-        nc . connect ( null ) ;
-        var ns : NetStream = new NetStream ( nc ) ;
-        var cam : Camera = Camera . getCamera ( ) ;
-        var mic : Microphone = Microphone . getMicrophone ( ) ;
-        ns . publish ( "live" , "live" ) ;
-        ns . attachCamera ( cam ) ;
-        ns . attachAudio ( mic ) ;
-        ns . attachCamera ( null ) ;
-        ns . attachAudio ( null ) ;
-        ns . close ( ) ;
-        nc . close ( ) ;
-        cam = null ;
-        mic = null ;
         askedForCameraPermission = true ;
+        Camera . permissionManager . requestPermission ( ) ;
+      }
+    }
+    public function askForMicrophonePermission ( ) : void
+    {
+      if ( ! askedForMicrophonePermission )
+      {
+        askedForMicrophonePermission = true ;
+        Microphone . permissionManager . requestPermission ( ) ;
+      }
+    }
+    public function askForFilePermission ( ) : void
+    {
+      if ( ! askedForFilePermission && fileClassIsUsable )
+      {
+        askedForFilePermission = true ;
+        File . userDirectory . requestPermission ( ) ;
       }
     }
   }

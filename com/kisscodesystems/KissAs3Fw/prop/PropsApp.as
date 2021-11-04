@@ -21,11 +21,11 @@ package com . kisscodesystems . KissAs3Fw . prop
 // IN THE CONSTRUCTOR IN THE EXTENDING CLASS OF THE APPLICATION.
 // PLEASE NOTE THAT THIS VALUE CHANGING WILL DISPATCH NO EVENTS
 // The name of the application.
-    protected var applicationName : String = "Application" ;
+    public var applicationName : String = "Application" ;
 // The version of this application.
-    protected var applicationVersion : String = "version 1.10" ;
+    public var applicationVersion : String = "version 1.11" ;
 // The release date of this version
-    protected var applicationReleaseDate : String = "2021-10-17" ;
+    public var applicationReleaseDate : String = "2021-11-04" ;
 // The homepage of this application
     protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
@@ -66,7 +66,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The maximum number of widgets in the first line/column (orientation horizontal/vertical).
     protected var widgetsElementsFix : int = 3 ;
 // The margin of the widgets.
-    protected var widgetsMargin : int = 32 ;
+    protected var widgetsMargin : int = 42 ;
+// The margin of resizing the widget or board (the margin around the object to grab to resize it).
+    protected var resizeMargin : int = 12 ;
 // The minimum sizes of a widget.
     protected var widgetSizeMinWidth : int = 200 ;
     protected var widgetSizeMinHeight : int = 150 ;
@@ -79,8 +81,6 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var widgetEnableManualResize : Boolean = true ;
 // Enable or disable the closure of the widgets.
     protected var widgetEnableManualClose : Boolean = true ;
-// The margin of resizing the widget or board (the margin around the object to grab to resize it).
-    protected var resizeMargin : int = 14 ;
 // The font size from the stage is calculated by this value if appFontSize == 0.
     protected var fontSizeFactorMobile : Number = 1 / 20 ;
     protected var fontSizeFactorDesktop : Number = 1 / 50 ;

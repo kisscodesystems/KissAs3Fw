@@ -132,7 +132,14 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( application != null && applicationName != null )
       {
-        applicationName . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        if ( application . getApplicationType ( ) != "" )
+        {
+          applicationName . setTextCode ( application . getApplicationType ( ) + " " + application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        }
+        else
+        {
+          applicationName . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        }
         if ( iconName != null && iconName != "" )
         {
           applicationName . setIcon ( iconName ) ;
@@ -141,6 +148,10 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           applicationName . destIcon ( ) ;
         }
+      }
+      if ( panelSettings != null )
+      {
+        panelSettings . refreshAbout ( ) ;
       }
     }
 /*

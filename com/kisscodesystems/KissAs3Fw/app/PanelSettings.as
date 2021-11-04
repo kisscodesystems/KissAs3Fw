@@ -487,16 +487,14 @@ package com . kisscodesystems . KissAs3Fw . app
 // ABOUT
       applicationNameLAB = new TextLabel ( application ) ;
       contentMultiple . addToContent ( indexAbout , applicationNameLAB , false , 0 ) ;
-      applicationNameLAB . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
       applicationNameLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
       applicationVersionLAB = new TextLabel ( application ) ;
       contentMultiple . addToContent ( indexAbout , applicationVersionLAB , false , 1 ) ;
-      applicationVersionLAB . setTextCode ( application . getPropsApp ( ) . getApplicationVersion ( ) ) ;
       applicationVersionLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
       applicationReleaseDateLAB = new TextLabel ( application ) ;
       contentMultiple . addToContent ( indexAbout , applicationReleaseDateLAB , false , 2 ) ;
-      applicationReleaseDateLAB . setTextCode ( application . getPropsApp ( ) . getApplicationReleaseDate ( ) ) ;
       applicationReleaseDateLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
+      refreshAbout ( ) ;
       for ( var j : int = 0 ; j < Math . min ( 10 , application . getPropsApp ( ) . getApplicationSoftwareHomepageTxt ( ) . length ) ; j ++ )
       {
         var buttonLink : ButtonLink = new ButtonLink ( application ) ;
@@ -599,6 +597,31 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , fontColorDarkChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_BOLD_CHANGED , fontBoldChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_ITALIC_CHANGED , fontItalicChangedOutside ) ;
+    }
+/*
+** It may be necessary to refresh these values.
+*/
+    public function refreshAbout ( ) : void
+    {
+      if ( applicationNameLAB != null )
+      {
+        if ( application . getApplicationType ( ) != "" )
+        {
+          applicationNameLAB . setTextCode ( application . getApplicationType ( ) + " " + application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        }
+        else
+        {
+          applicationNameLAB . setTextCode ( application . getPropsApp ( ) . getApplicationName ( ) ) ;
+        }
+      }
+      if ( applicationVersionLAB != null )
+      {
+        applicationVersionLAB . setTextCode ( application . getPropsApp ( ) . getApplicationVersion ( ) ) ;
+      }
+      if ( applicationReleaseDateLAB != null )
+      {
+        applicationReleaseDateLAB . setTextCode ( application . getPropsApp ( ) . getApplicationReleaseDate ( ) ) ;
+      }
     }
 /*
 ** The settings panel has to be invisible during the color stealing.

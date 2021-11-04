@@ -99,6 +99,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       setSoundTypeClick ( "button" ) ;
     }
 /*
+** Check for File permission immediately.
+*/
+    override protected function addedToStage ( e : Event ) : void
+    {
+// Calling the addedToStage of parent.
+      super . addedToStage ( e ) ;
+// And the file permission
+      application . askForFilePermission ( ) ;
+    }
+/*
 ** Registering and unregistering the evnet listeners.
 */
     private function addEventListenersFileReference ( ) : void
@@ -425,7 +435,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         fileList . setNumOfElements ( application . getPropsApp ( ) . getFileBrowseMaxElements ( ) ) ;
         fileList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , fileListSelected ) ;
         fileList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , fileListSChanged ) ;
-        selectDirectory ( File . documentsDirectory ) ;
+        selectDirectory ( File . userDirectory ) ;
         setBaseButtonVisible ( false ) ;
         if ( stage != null )
         {

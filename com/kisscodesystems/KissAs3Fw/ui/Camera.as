@@ -272,6 +272,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       resizeResolutionListPicker ( null ) ;
     }
 /*
+** Check for Camera permission immediately.
+*/
+    override protected function addedToStage ( e : Event ) : void
+    {
+// Calling the addedToStage of parent.
+      super . addedToStage ( e ) ;
+// And the camera permission
+      application . askForCameraPermission ( ) ;
+    }
+/*
 ** The wide property of the camera has been changed.
 ** Destroys the camera view, does some modification and creates the camera again.
 */
@@ -516,6 +526,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // JPEG encoding will happen with 100% quality.
         bitmapData . encode ( new Rectangle ( 0 , 0 , cameraWidth , cameraHeight ) , new PNGEncoderOptions ( false ) , savedPictureByteArray ) ;
 // And the file saving. There will be differences between air and web contexts.
+/*
         if ( application . getFileClassIsUsable ( ) )
         {
           saveByteArrayFile ( ) ;
@@ -524,8 +535,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           saveByteArrayFileReference ( ) ;
         }
+*/
       }
 // The button now has to be enabled again.
+// If there are any previous problem then this will not be executed.
       takePicture . setEnabled ( true ) ;
     }
 /*
@@ -652,10 +665,10 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** The savings of the bytearray.
 ** air: saving into the documents directory
 ** web: saving where the user wants to
-*/
     private function saveByteArrayFile ( ) : void
     {
-      file = File . documentsDirectory . resolvePath ( savedPictureName ) ;
+      file = File . userDirectory . resolvePath ( savedPictureName ) ;
+      file . requestPermission ( ) ;
       var fileStream : FileStream = new FileStream ( ) ;
       fileStream . open ( File ( file ) , FileMode . WRITE ) ;
       fileStream . writeBytes ( savedPictureByteArray ) ;
@@ -673,6 +686,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       fileReference . removeEventListener ( Event . COMPLETE , savedFromFileReference ) ;
       dispatchSavedEvent ( ) ;
     }
+*/
 /*
 ** Recalculating and resizing the camera.
 ** After changing the wide or width property.
@@ -974,10 +988,12 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         stage . removeEventListener ( MouseEvent . MOUSE_DOWN , stageMouseDown ) ;
       }
+/*
       if ( fileReference != null )
       {
         fileReference . removeEventListener ( Event . COMPLETE , savedFromFileReference ) ;
       }
+*/
       if ( clickSprite != null )
       {
         clickSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , clickSpriteMouseDown ) ;

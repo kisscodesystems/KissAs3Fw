@@ -22,12 +22,13 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
-  import flash . filters . GlowFilter ;
   import flash . geom . Matrix ;
   public class Potmeter extends BaseSprite
   {
 // The event of the changing of the selected items.
     private var eventChanged : Event = null ;
+// Stuff to be visible this object.
+    private var background : BaseShape = null ;
 // The mover object.
     private var spriteMover : BaseSprite = null ;
 // The label object to display the actual state.
@@ -35,10 +36,6 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The drawn shapes.
     private var sprite : BaseSprite = null ;
     private var icon : Icon = null ;
-// And the container of the shapes.
-    private var drawContainer : BaseSprite = null ;
-// The glow filter of the potmeter.
-    private var glowFilter : GlowFilter = null ;
 // The values of this object. min-max values and the increase and the current and temp value.
     private var minValue : Number = 0 ;
     private var maxValue : Number = 0 ;
@@ -62,46 +59,102 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Super.
       super ( applicationRef ) ;
-// The container first.
-      drawContainer = new BaseSprite ( application ) ;
-      addChild ( drawContainer ) ;
+// Bg.
+      background = new BaseShape ( application ) ;
+      addChild ( background ) ;
 // The drawn shapes.
       sprite = new BaseSprite ( application ) ;
-      drawContainer . addChild ( sprite ) ;
+      addChild ( sprite ) ;
 // This will be the rotated element.
       icon = new Icon ( application ) ;
       sprite . addChild ( icon ) ;
 // The label of the displayed value (when mouse is down -> visible is false by default)
       textLabel = new TextLabel ( application ) ;
       addChild ( textLabel ) ;
-      textLabel . visible = false ;
       textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
+      textLabel . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resize ) ;
 // And then mover finally.
       spriteMover = new BaseSprite ( application ) ;
       addChild ( spriteMover ) ;
-      spriteMover . addEventListener ( MouseEvent . ROLL_OVER , spriteMoverRollOver ) ;
-      spriteMover . addEventListener ( MouseEvent . ROLL_OUT , spriteMoverRollOut ) ;
       spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , spriteMoverMouseDown ) ;
-      spriteMover . addEventListener ( MouseEvent . CLICK , spriteMoverClick ) ;
 // The event needs to be constructed.
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
 // Events to listen to.
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
 // The initial drawing of the shapes.
       resize ( null ) ;
+      stageMouseUp ( null ) ;
+    }
+/*
+** AddedToStage
+*/
+    override protected function addedToStage ( e : Event ) : void
+    {
+      super . addedToStage ( e ) ;
+      stage . addEventListener ( MouseEvent . MOUSE_UP , stageMouseUp ) ;
+    }
+/*
+** The radius of the application has been changed.
+*/
+    private function radiusChanged ( e : Event ) : void
+    {
+// So we have to redraw and resize.
+      bgRedraw ( ) ;
+    }
+/*
+** The filler color (background) of the background has been changed.
+*/
+    private function backgroundBgColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      bgRedraw ( ) ;
+    }
+/*
+** The filler color (foreground) of the background has been changed.
+*/
+    private function backgroundFgColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      bgRedraw ( ) ;
+    }
+/*
+** The alpha of the filler color of the background has been changed.
+*/
+    private function fillAlphaChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      bgRedraw ( ) ;
+    }
+/*
+** This is the base of drawing this rater object, bg fg only.
+** after sizes, or radius or bg fg colors-alpha changing
+*/
+    private function bgRedraw ( ) : void
+    {
+      if ( background != null && textLabel != null )
+      {
+        var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
+        background . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        background . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        background . setswh ( textLabel . getcxswap ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+        background . drawRect ( ) ;
+      }
     }
 /*
 ** The mouse events on the mover.
 */
-    private function spriteMoverRollOver ( e : MouseEvent ) : void
+    private function stageMouseUp ( e : MouseEvent ) : void
     {
-      textLabel . visible = true ;
-    }
-    private function spriteMoverRollOut ( e : MouseEvent ) : void
-    {
-      textLabel . visible = false ;
+      var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
+      if ( textLabel != null )
+      {
+        super . setswh ( textLabel . getcxsw ( ) + application . getPropsDyn ( ) . getAppPadding ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+      }
       moverReset ( ) ;
     }
     private function spriteMoverMouseDown ( e : MouseEvent ) : void
@@ -112,10 +165,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         spriteMover . startDrag ( ) ;
         toTheHighestDepth ( ) ;
       }
-    }
-    private function spriteMoverClick ( e : MouseEvent ) : void
-    {
-      moverReset ( ) ;
     }
 /*
 ** Sets the precision of the potmeter.
@@ -165,6 +214,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       spriteMover . x = 0 ;
       spriteMover . y = 0 ;
+      updateShapes ( ) ;
     }
 /*
 ** When the resizing is needed.
@@ -175,18 +225,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       icon . drawBitmapData ( "potmeter" , textLabel . getTextType ( ) , tfh ) ;
       icon . setcxy ( - tfh / 2 , - tfh / 2 ) ;
       sprite . setcxy ( tfh / 2 + application . getPropsDyn ( ) . getAppPadding ( ) , tfh / 2 + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-      super . setswh ( tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-      recreateGlowFilter ( Math . round ( ( curValue - minValue ) / ( maxValue - minValue ) * application . getPropsApp ( ) . getMaxBlur ( ) ) ) ;
-      updateShapes ( ) ;
       reposTextLabel ( ) ;
-    }
-/*
-** Recreates a glow filter based on the factor.
-*/
-    private function recreateGlowFilter ( blur : int ) : void
-    {
-      glowFilter = new GlowFilter ( application . getPropsDyn ( ) . getAppFontColorBright ( ) , blur / application . getPropsApp ( ) . getMaxBlur ( ) , blur , blur , blur , 3 ) ;
-      filters = [ glowFilter ] ;
+      updateShapes ( ) ;
     }
 /*
 ** Only the rotating and the glow filter will be updated.
@@ -198,10 +238,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         factor = ( val - minValue ) / ( maxValue - minValue ) ;
         sprite . rotation = 240 * factor - 120 ;
-        if ( glowFilter . blurX != Math . round ( application . getPropsApp ( ) . getMaxBlur ( ) * factor ) )
-        {
-          recreateGlowFilter ( Math . round ( application . getPropsApp ( ) . getMaxBlur ( ) * factor ) ) ;
-        }
         textLabel . setTextCode ( "" + val ) ;
         reposTextLabel ( ) ;
       }
@@ -211,27 +247,22 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function reposTextLabel ( ) : void
     {
-      textLabel . setcxy ( ( getsw ( ) - textLabel . getsw ( ) ) / 2 , ( getsh ( ) - textLabel . getsh ( ) ) / 2 ) ;
+      var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
+      textLabel . setcxy ( tfh + application . getPropsDyn ( ) . getAppPadding ( ) , ( tfh + application . getPropsDyn ( ) . getAppPadding ( ) * 2 - textLabel . getsh ( ) ) / 2 ) ;
     }
 /*
 ** Redrawing the shape objects. ( draw and mask)
 */
     private function updateShapes ( ) : void
     {
+      var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
       spriteMover . graphics . clear ( ) ;
       spriteMover . graphics . lineStyle ( 0 , 0 , 0 ) ;
       spriteMover . graphics . beginFill ( 0 , 0 ) ;
-      spriteMover . graphics . drawRect ( 0 , 0 , getsw ( ) , getsh ( ) ) ;
+      spriteMover . graphics . drawRect ( 0 , 0 , textLabel . getcxswap ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
       spriteMover . graphics . endFill ( ) ;
-      if ( application . brightShadowToApply ( application . getPropsDyn ( ) . getAppFontColorMid ( ) . toString ( 16 ) ) )
-      {
-        drawContainer . filters = application . TEXT_DROP_SHADOW_ARRAY_BRIGHT ;
-      }
-      else
-      {
-        drawContainer . filters = application . TEXT_DROP_SHADOW_ARRAY_DARK ;
-      }
       calcPxsPerInc ( ) ;
+      bgRedraw ( ) ;
     }
 /*
 ** Sets the min-max-inc values.
@@ -295,30 +326,32 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
-      spriteMover . removeEventListener ( MouseEvent . ROLL_OVER , spriteMoverRollOver ) ;
-      spriteMover . removeEventListener ( MouseEvent . ROLL_OUT , spriteMoverRollOut ) ;
       spriteMover . removeEventListener ( MouseEvent . MOUSE_DOWN , spriteMoverMouseDown ) ;
-      spriteMover . removeEventListener ( MouseEvent . CLICK , spriteMoverClick ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
+      if ( stage != null )
+      {
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , stageMouseUp ) ;
+      }
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
       removeEventListener ( Event . ENTER_FRAME , updatePotmeter ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventChanged != null )
       {
         eventChanged . stopImmediatePropagation ( ) ;
       }
-      filters = null ;
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       eventChanged = null ;
+      background = null ;
       spriteMover = null ;
       textLabel = null ;
       sprite = null ;
       icon = null ;
-      drawContainer = null ;
-      glowFilter = null ;
       minValue = 0 ;
       maxValue = 0 ;
       incValue = 0 ;
