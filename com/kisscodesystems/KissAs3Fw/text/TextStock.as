@@ -281,6 +281,8 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ application . getTexts ( ) . DRAW ] = [ "Draw" ] ;
       texts [ application . getTexts ( ) . RUBBER ] = [ "Rubber" ] ;
       texts [ application . getTexts ( ) . REALLY_WANT_TO_CLEAR_DRAWN_CONTENT ] = [ "Do you really want to clear the drawn content?" ] ;
+      texts [ application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES ] = [ "Mobile device?\nRotate to landscape view." ] ;
+      texts [ application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES2 ] = [ "Rotate mobile device to landscape." ] ;
     }
 /*
 ** Destroying this application.

@@ -13,9 +13,9 @@
 ** Every application built using this framework should extend this class.
 ** Has contained 42 classes initially and this is not an accident.
 **
-** Published       : 2021.11.04
+** Published       : 2021.11.22
 **
-** Current version : 1.11
+** Current version : 1.12
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -70,6 +70,8 @@
 **                   - Potmeter now displays its value continuously
 **                   - Use Harman sdk to build from now
 **                   - Permission handling improvements
+**                   1.12 - 22.nov.2021
+**                   Smaller improvements
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.

@@ -169,5 +169,7 @@ package com . kisscodesystems . KissAs3Fw . text
     public const REALLY_WANT_TO_CLEAR_DRAWN_CONTENT : String = BTC + "REALLY_WANT_TO_CLEAR_DRAWN_CONTENT" + ETC ;
     public const REQUIRED_PERMISSIONS_ALERT : String = BTC + "REQUIRED_PERMISSIONS_ALERT" + ETC ;
     public const MORE : String = BTC + "MORE" + ETC ;
+    public const CAMERA_ON_MOBILE_DEVICES : String = BTC + "CAMERA_ON_MOBILE_DEVICES" + ETC ;
+    public const CAMERA_ON_MOBILE_DEVICES2 : String = BTC + "CAMERA_ON_MOBILE_DEVICES2" + ETC ;
   }
 }

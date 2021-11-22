@@ -89,6 +89,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var takePicture : ButtonText = null ;
     private var pictureSaved : TextLabel = null ;
     private var cameraListPicker : ListPicker = null ;
+    private var rotateToLandscapeTextLabel : TextLabel = null ;
 // The button link of resetting the filters and all of the camera properties
     private var resetButtonLink : ButtonLink = null ;
 // This will be the default filename to save the photo.
@@ -99,7 +100,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var video : flash . media . Video = null ;
 // The available sizes of the camera.
     private var cameraResolution : String = RES_43 ;
-    private var cameraWidth : int = 2 * WDELTA ;
+    private var cameraWidth : int = 4 * WDELTA ;
     private var cameraHeight : int = cameraWidth * 3 / 4 ;
 // The available fps of the camera:
     private var cameraFps : int = 24 ;
@@ -200,7 +201,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       sizeTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_SIZE ) ;
       sizePotmeter = new Potmeter ( application ) ;
       fg . addToContent ( sizePotmeter , true , 4 ) ;
-      sizePotmeter . setMinMaxIncValues ( 2 * WDELTA , 8 * WDELTA , WDELTA ) ;
+      sizePotmeter . setMinMaxIncValues ( 3 * WDELTA , 8 * WDELTA , WDELTA ) ;
       sizePotmeter . setCurValue ( cameraWidth ) ;
       sizePotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , sizePotmeterChanged ) ;
       cameraListPicker = new ListPicker ( application ) ;
@@ -269,6 +270,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       filterPotmeterCB . setDecimalPrecision ( 2 ) ;
       filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
       filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeResolutionListPicker ) ;
+      rotateToLandscapeTextLabel = new TextLabel ( application ) ;
+      fg . addToContent ( rotateToLandscapeTextLabel , false , 15 , false ) ;
+      rotateToLandscapeTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES ) ;
       resizeResolutionListPicker ( null ) ;
     }
 /*
@@ -1031,6 +1035,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       filterPotmeterCG = null ;
       filterPotmeterCB = null ;
       filterPotmeterCA = null ;
+      rotateToLandscapeTextLabel = null ;
       resetButtonLink = null ;
       takePicture = null ;
       pictureSaved = null ;

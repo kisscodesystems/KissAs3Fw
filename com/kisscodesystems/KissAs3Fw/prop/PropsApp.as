@@ -23,9 +23,9 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The name of the application.
     public var applicationName : String = "Application" ;
 // The version of this application.
-    public var applicationVersion : String = "version 1.11" ;
+    public var applicationVersion : String = "version 1.12" ;
 // The release date of this version
-    public var applicationReleaseDate : String = "2021-11-04" ;
+    public var applicationReleaseDate : String = "2021-11-22" ;
 // The homepage of this application
     protected var applicationSoftwareHomepageTxt : Array = new Array ( ) ;
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
