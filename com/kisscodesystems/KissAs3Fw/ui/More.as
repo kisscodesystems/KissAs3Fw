@@ -18,7 +18,7 @@
  **   such as buttons, links, and others.
  ** - hidable panel resizes automatically if one of its element resizes,
  **   or when an element is added or removed.
- */
+*/
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
@@ -26,9 +26,9 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import com . kisscodesystems . KissAs3Fw . base . BaseTextField ;
+  import flash . display . DisplayObject ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
-  import flash . display . DisplayObject ;
   public class More extends BaseOpen
   {
 // The label object on the button.
@@ -58,8 +58,9 @@ package com . kisscodesystems . KissAs3Fw . ui
 // Events to listen to.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resizeContent ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShape ) ;
     }
 /*
 ** The label resized.
@@ -82,7 +83,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( shapeBgFrame != null )
       {
-        shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgFrame . drawRect ( ) ;
@@ -212,8 +213,9 @@ package com . kisscodesystems . KissAs3Fw . ui
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resizeContent ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShape ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;
@@ -223,4 +225,3 @@ package com . kisscodesystems . KissAs3Fw . ui
     }
   }
 }
-

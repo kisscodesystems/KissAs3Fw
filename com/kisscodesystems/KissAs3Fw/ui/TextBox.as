@@ -36,15 +36,19 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Super.
       super ( applicationRef ) ;
+// Unable to scroll using thisi object.
+      mouseDownForScrollingEnabled = false ;
 // Adding the textfield first.
       baseTextField = new BaseTextField ( application ) ;
       addChild ( baseTextField ) ;
       baseTextField . setAutoSizeNone ( ) ;
+      baseTextField . mouseDownForScrollingEnabled = false ;
 // This has to be a multiline textfield.
       baseTextField . multiline = true ;
 // And adding the scroll object.
       baseScroll = new BaseScroll ( application ) ;
       addChild ( baseScroll ) ;
+      baseScroll . getMover ( ) . mouseDownForScrollingEnabled = false ;
 // This event is required for us now.
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposText ) ;
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TOP_REACHED , dispatchEventTopReached ) ;
@@ -52,7 +56,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , doSizeOrTextChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , doSizeOrTextChanged ) ;
 // Setting the mask ( but not necessary since the textfield always will have the size of the mask).
-      baseTextField . mask = baseScroll . getMask0 ( ) ;
+      baseTextField . mask = baseScroll . getMask ( ) ;
     }
 /*
 ** The width has to be at least the minimum.
@@ -121,8 +125,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     protected function baseTextFieldPos ( ) : void
     {
 // Positioning the textfield.
-      baseTextField . x = baseScroll . getMask0 ( ) . x + application . getPropsDyn ( ) . getAppPadding ( ) ;
-      baseTextField . y = baseScroll . getMask0 ( ) . y + application . getPropsDyn ( ) . getAppPadding ( ) ;
+      baseTextField . x = baseScroll . getMask ( ) . x + application . getPropsDyn ( ) . getAppPadding ( ) ;
+      baseTextField . y = baseScroll . getMask ( ) . y + application . getPropsDyn ( ) . getAppPadding ( ) ;
     }
 /*
 ** This is the method runs after the changing of the size of this object.

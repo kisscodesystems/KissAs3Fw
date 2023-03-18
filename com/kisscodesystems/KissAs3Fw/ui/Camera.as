@@ -31,6 +31,7 @@
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseAlerter ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import flash . display . BitmapData ;
@@ -50,7 +51,7 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . media . Video ;
   import flash . net . FileReference ;
   import flash . utils . ByteArray ;
-  public class Camera extends BaseSprite
+  public class Camera extends BaseAlerter
   {
 // The resolutions available.
     private const RES_11 : String = "1:1" ;
@@ -89,7 +90,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var takePicture : ButtonText = null ;
     private var pictureSaved : TextLabel = null ;
     private var cameraListPicker : ListPicker = null ;
-    private var rotateToLandscapeTextLabel : TextLabel = null ;
 // The button link of resetting the filters and all of the camera properties
     private var resetButtonLink : ButtonLink = null ;
 // This will be the default filename to save the photo.
@@ -126,8 +126,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var bitmapData : BitmapData = null ;
 // Camera is attached event.
     private var cameraIsAttachedEvent : Event = null ;
-// To the alert if necessary. (not)
-    private var alertOK : Function = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -147,7 +145,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       shapeBgMask = new BaseShape ( application ) ;
       addChild ( shapeBgMask ) ;
       shapeBgMask . setdb ( false ) ;
-      shapeBgMask . setdt ( 0 ) ;
+      shapeBgMask . setdt ( 1 ) ;
       bg . mask = shapeBgMask ;
 // A frame around the video.
       shapeBgFrame = new BaseShape ( application ) ;
@@ -160,8 +158,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       clickSprite . addEventListener ( MouseEvent . MOUSE_DOWN , clickSpriteMouseDown ) ;
 // The events are necessary to listen to.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShapes ) ;
 // The event of the successfully saving.
       savedEvent = new Event ( application . EVENT_SAVED ) ;
 // The event of the camrea attaching.
@@ -185,94 +184,92 @@ package com . kisscodesystems . KissAs3Fw . ui
       fg . setswh ( getsw ( ) , getsh ( ) ) ;
       fg . visible = false ;
       fg . setElementsFix ( 2 ) ;
+      fg . enableScrollingFromOthers = false ;
 // Creation of the elements to customize the camera view.
       cameraDetachButtonLink = new ButtonLink ( application ) ;
-      fg . addToContent ( cameraDetachButtonLink , true , 0 ) ;
+      fg . addToContent ( cameraDetachButtonLink , 0 ) ;
       cameraDetachButtonLink . setTextCode ( application . getTexts ( ) . RELEASE_CAMERA ) ;
       cameraDetachButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , detachCamera ) ;
       cameraDetachButtonLink . visible = false ;
       takePicture = new ButtonText ( application ) ;
-      fg . addToContent ( takePicture , true , 2 ) ;
+      fg . addToContent ( takePicture , 2 ) ;
       takePicture . setTextCode ( application . getTexts ( ) . CAMERA_TAKE_PICTURE ) ;
       takePicture . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , takePictureClick ) ;
       takePicture . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , takePictureSizeChanged ) ;
       sizeTextLabel = new TextLabel ( application ) ;
-      fg . addToContent ( sizeTextLabel , false , 3 ) ;
+      fg . addToContent ( sizeTextLabel , 3 ) ;
       sizeTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_SIZE ) ;
       sizePotmeter = new Potmeter ( application ) ;
-      fg . addToContent ( sizePotmeter , true , 4 ) ;
+      fg . addToContent ( sizePotmeter , 4 ) ;
       sizePotmeter . setMinMaxIncValues ( 3 * WDELTA , 8 * WDELTA , WDELTA ) ;
       sizePotmeter . setCurValue ( cameraWidth ) ;
       sizePotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , sizePotmeterChanged ) ;
       cameraListPicker = new ListPicker ( application ) ;
-      fg . addToContent ( cameraListPicker , true , 5 ) ;
+      fg . addToContent ( cameraListPicker , 5 ) ;
       cameraListPicker . setArrays ( cameraDevices , cameraDevices ) ;
       cameraListPicker . setSelectedIndex ( 0 ) ;
       cameraListPicker . setNumOfElements ( 5 ) ;
       cameraListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , cameraListPickerChanged ) ;
       takePictureSizeChanged ( null ) ;
       fpsTextLabel = new TextLabel ( application ) ;
-      fg . addToContent ( fpsTextLabel , false , 6 ) ;
+      fg . addToContent ( fpsTextLabel , 6 ) ;
       fpsTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_FPS ) ;
       fpsPotmeter = new Potmeter ( application ) ;
-      fg . addToContent ( fpsPotmeter , true , 7 ) ;
+      fg . addToContent ( fpsPotmeter , 7 ) ;
       fpsPotmeter . setMinMaxIncValues ( 10 , 42 , 1 ) ;
       fpsPotmeter . setCurValue ( cameraFps ) ;
       fpsPotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , fpsChanged ) ;
       resetButtonLink = new ButtonLink ( application ) ;
-      fg . addToContent ( resetButtonLink , true , 8 ) ;
+      fg . addToContent ( resetButtonLink , 8 ) ;
       resetButtonLink . setTextCode ( application . getTexts ( ) . RESET ) ;
       resetButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , resetCamera ) ;
       qualityTextLabel = new TextLabel ( application ) ;
-      fg . addToContent ( qualityTextLabel , false , 9 ) ;
+      fg . addToContent ( qualityTextLabel , 9 ) ;
       qualityTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_QUALITY ) ;
       qualityPotmeter = new Potmeter ( application ) ;
-      fg . addToContent ( qualityPotmeter , true , 10 ) ;
+      fg . addToContent ( qualityPotmeter , 10 ) ;
       qualityPotmeter . setMinMaxIncValues ( 42 , 100 , 1 ) ;
       qualityPotmeter . setCurValue ( cameraQuality ) ;
       qualityPotmeter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , qualityChanged ) ;
       resolutionListPicker = new ListPicker ( application ) ;
-      fg . addToContent ( resolutionListPicker , true , 11 ) ;
+      fg . addToContent ( resolutionListPicker , 11 ) ;
       resolutionListPicker . setArrays ( resolutionsArray , resolutionsArray ) ;
       resolutionListPicker . setNumOfElements ( resolutionsArray . length ) ;
       resolutionListPicker . setSelectedIndex ( resolutionsArray . indexOf ( cameraResolution ) ) ;
       resolutionListPicker . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , resolutionListPickerChanged ) ;
       filterTextLabel = new TextLabel ( application ) ;
-      fg . addToContent ( filterTextLabel , false , 12 ) ;
+      fg . addToContent ( filterTextLabel , 12 ) ;
       filterTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_FILTER ) ;
       filterPotmeterB = new Potmeter ( application ) ;
-      fg . addToContent ( filterPotmeterB , true , 13 ) ;
+      fg . addToContent ( filterPotmeterB , 13 ) ;
       filterPotmeterB . setMinMaxIncValues ( 0 , 16 , 1 ) ;
       filterPotmeterB . setCurValue ( 0 ) ;
       filterPotmeterB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterBChanged ) ;
       filterPotmeterCA = new Potmeter ( application ) ;
-      fg . addToContent ( filterPotmeterCA , true , 14 ) ;
+      fg . addToContent ( filterPotmeterCA , 14 ) ;
       filterPotmeterCA . setMinMaxIncValues ( 0 , 1 , 0.01 ) ;
       filterPotmeterCA . setCurValue ( 1 ) ;
       filterPotmeterCA . setDecimalPrecision ( 2 ) ;
       filterPotmeterCA . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
       filterPotmeterCR = new Potmeter ( application ) ;
-      fg . addToContent ( filterPotmeterCR , true , 14 ) ;
+      fg . addToContent ( filterPotmeterCR , 14 ) ;
       filterPotmeterCR . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
       filterPotmeterCR . setCurValue ( 1 ) ;
       filterPotmeterCR . setDecimalPrecision ( 2 ) ;
       filterPotmeterCR . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
       filterPotmeterCG = new Potmeter ( application ) ;
-      fg . addToContent ( filterPotmeterCG , true , 14 ) ;
+      fg . addToContent ( filterPotmeterCG , 14 ) ;
       filterPotmeterCG . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
       filterPotmeterCG . setCurValue ( 1 ) ;
       filterPotmeterCG . setDecimalPrecision ( 2 ) ;
       filterPotmeterCG . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
       filterPotmeterCB = new Potmeter ( application ) ;
-      fg . addToContent ( filterPotmeterCB , true , 14 ) ;
+      fg . addToContent ( filterPotmeterCB , 14 ) ;
       filterPotmeterCB . setMinMaxIncValues ( 0 , 2 , 0.01 ) ;
       filterPotmeterCB . setCurValue ( 1 ) ;
       filterPotmeterCB . setDecimalPrecision ( 2 ) ;
       filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , filterPotmeterCChanged ) ;
       filterPotmeterCB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resizeResolutionListPicker ) ;
-      rotateToLandscapeTextLabel = new TextLabel ( application ) ;
-      fg . addToContent ( rotateToLandscapeTextLabel , false , 15 , false ) ;
-      rotateToLandscapeTextLabel . setTextCode ( application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES ) ;
       resizeResolutionListPicker ( null ) ;
     }
 /*
@@ -282,8 +279,21 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Calling the addedToStage of parent.
       super . addedToStage ( e ) ;
+// This is needed to determine if the camera is usable.
+      stage . addEventListener ( Event . RESIZE , stageResized ) ;
 // And the camera permission
       application . askForCameraPermission ( ) ;
+    }
+    private function stageResized ( e : Event ) : void
+    {
+      if ( ! ( stage != null && stage . stageWidth > stage . stageHeight ) )
+      {
+        if ( camera != null )
+        {
+          showAlert ( application . getTexts ( ) . CAMERA_IS_USABLE_IN_HORIZONTAL ) ;
+        }
+        detachCamera ( null ) ;
+      }
     }
 /*
 ** The wide property of the camera has been changed.
@@ -527,7 +537,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         showLastPicture ( ) ;
 // The bytearray will contain the data of the picture to be saved.
         savedPictureByteArray = new ByteArray ( ) ;
-// JPEG encoding will happen with 100% quality.
+// PNG encoding will happen.
         bitmapData . encode ( new Rectangle ( 0 , 0 , cameraWidth , cameraHeight ) , new PNGEncoderOptions ( false ) , savedPictureByteArray ) ;
 // And the file saving. There will be differences between air and web contexts.
 /*
@@ -753,11 +763,11 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( application != null )
       {
-        shapeBgMask . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgMask . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeBgMask . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgMask . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgMask . drawRect ( ) ;
-        shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgFrame . drawRect ( ) ;
@@ -828,44 +838,53 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function attachCamera ( e : Event ) : void
     {
-// Both have to be null!
-      if ( camera == null && video == null && cameraListPicker != null )
+// Only in true desktop mode
+      if ( stage != null && stage . stageWidth > stage . stageHeight )
       {
+// Both have to be null!
+        if ( camera == null && video == null && cameraListPicker != null )
+        {
 // It would be good to disappear.
-        clearLastPicture ( ) ;
+          clearLastPicture ( ) ;
 // Getting the camera object marked by the cameraListPicker.
-        camera = flash . media . Camera . getCamera ( String ( cameraListPicker . getSelectedIndex ( ) ) ) ;
+          camera = flash . media . Camera . getCamera ( "" + cameraListPicker . getSelectedIndex ( ) ) ;
 // Null means that the previous operation was not successful so the default camera object will be used.
-        if ( camera == null )
-        {
-          camera = flash . media . Camera . getCamera ( ) ;
-        }
-// Now new hope that we have got a valid reference to a camera.
-        if ( camera != null && ! camera . muted )
-        {
-// Mode and quality settings.
-          camera . setMode ( cameraWidth , cameraHeight , cameraFps ) ;
-          camera . setQuality ( 0 , cameraQuality ) ;
-// We have to know that the user or the system allows to use this device.
-          camera . addEventListener ( StatusEvent . STATUS , permissionHandler ) ;
-// We need a video object to display the view of the cam.
-          createVideo ( ) ;
-// The visibility of the linkbutton objects has to be changed!
-          cameraAttachButtonLink . visible = false ;
-          cameraDetachButtonLink . visible = true ;
-// An event has to be dispatched now.
-          if ( getBaseEventDispatcher ( ) != null )
+          if ( camera == null )
           {
-            getBaseEventDispatcher ( ) . dispatchEvent ( cameraIsAttachedEvent ) ;
+            camera = flash . media . Camera . getCamera ( ) ;
+          }
+// Now new hope that we have got a valid reference to a camera.
+          if ( camera != null && ! camera . muted )
+          {
+// Mode and quality settings.
+            camera . setMode ( cameraWidth , cameraHeight , cameraFps ) ;
+            camera . setQuality ( 0 , cameraQuality ) ;
+// We have to know that the user or the system allows to use this device.
+            camera . addEventListener ( StatusEvent . STATUS , permissionHandler ) ;
+// We need a video object to display the view of the cam.
+            createVideo ( ) ;
+// The visibility of the linkbutton objects has to be changed!
+            cameraAttachButtonLink . visible = false ;
+            cameraDetachButtonLink . visible = true ;
+// An event has to be dispatched now.
+            if ( getBaseEventDispatcher ( ) != null )
+            {
+              getBaseEventDispatcher ( ) . dispatchEvent ( cameraIsAttachedEvent ) ;
+            }
+          }
+          else
+          {
+// Alert to the user to check its settings.
+            showAlert ( application . getTexts ( ) . REQUIRED_PERMISSIONS_ALERT ) ;
+// Just to be sure.
+            detachCamera ( null ) ;
           }
         }
-        else
-        {
-// Alert to the user to check its settings.
-          showAlert ( application . getTexts ( ) . REQUIRED_PERMISSIONS_ALERT ) ;
-// Just to be sure.
-          detachCamera ( null ) ;
-        }
+      }
+      else
+      {
+// Alert to inform the user that the camera is usable only in landscape mode.
+        showAlert ( application . getTexts ( ) . CAMERA_IS_USABLE_IN_HORIZONTAL ) ;
       }
     }
 /*
@@ -964,25 +983,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function setsh ( newsh : int ) : void { }
     override public function setswh ( newsw : int , newsh : int ) : void { }
 /*
-** To create alert easier.
-*/
-    protected function showAlert ( messageString : String , fullscreen : Boolean = false ) : void
-    {
-      var uniqueString : String = "" + new Date ( ) . time ;
-      var okFunction : Function = function ( e : Event ) : void
-      {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        if ( alertOK != null )
-        {
-          alertOK ( ) ;
-        }
-        e . stopImmediatePropagation ( ) ;
-      }
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , false , false , fullscreen ) ;
-    }
-/*
 ** Override of destroy.
 */
     override public function destroy ( ) : void
@@ -991,6 +991,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( stage != null )
       {
         stage . removeEventListener ( MouseEvent . MOUSE_DOWN , stageMouseDown ) ;
+        stage . removeEventListener ( Event . RESIZE , stageResized ) ;
       }
 /*
       if ( fileReference != null )
@@ -1003,8 +1004,9 @@ package com . kisscodesystems . KissAs3Fw . ui
         clickSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , clickSpriteMouseDown ) ;
       }
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShapes ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       detachCamera ( null ) ;
       if ( savedEvent != null )
@@ -1035,7 +1037,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       filterPotmeterCG = null ;
       filterPotmeterCB = null ;
       filterPotmeterCA = null ;
-      rotateToLandscapeTextLabel = null ;
       resetButtonLink = null ;
       takePicture = null ;
       pictureSaved = null ;

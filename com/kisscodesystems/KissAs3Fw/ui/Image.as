@@ -11,6 +11,7 @@
 ** Image.
 ** Can load external images.
 ** It can read images from outside.
+** It can display image in a BaseSprite object or in fullscreen.
 **
 ** MAIN FEATURES:
 ** - image to display from the internet
@@ -26,6 +27,7 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import flash . display . BitmapData ;
   import flash . display . Loader ;
+  import flash . display . Sprite ;
   import flash . events . Event ;
   import flash . events . IOErrorEvent ;
   import flash . events . SecurityErrorEvent ;
@@ -59,9 +61,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 // A frame was requested or not, it will store that.
     private var frame : Boolean = false ;
 // The painting will be happened to here.
-    private var canvas : BaseShape = null ;
+    private var canvas : Sprite = null ;
 // The background of the mage.
     private var background : BaseShape = null ;
+// An invisible layer to the top
+    private var foreground : BaseSprite = null ;
 // The image can be resized or not.
     private var resizable : Boolean = true ;
 // Thumb version of image is also possible.
@@ -70,6 +74,19 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var timer : Timer = null ;
 // Has to display the image in a square.
     private var inSquare : Boolean = false ;
+// It is necessary to separate the elements to a predefined layer structure.
+    private var layerBackground : BaseSprite = null ;
+    private var layerImage : BaseSprite = null ;
+    private var layerOthers : BaseSprite = null ;
+// Elements to display image in fullscreen mode.
+    private var fullscrButtonLinkToFullscreen : ButtonLink = null ;
+    private var fullscrButtonLinkBack : ButtonLink = null ;
+    private var fullscrStageBackground : BaseShape = null ;
+    private var fullscrStageImage : BaseShape = null ;
+    private var fullscrOrigX : int = 0 ;
+    private var fullscrOrigY : int = 0 ;
+    private var fullscrOrigW : int = 320 ;
+    private var fullscrOrigH : int = 240 ;
 /*
 ** Initializing this object. The not null app reference is necessary as usual.
 */
@@ -77,9 +94,19 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Let's store this reference to the Application object.
       super ( applicationRef ) ;
+// Let's add the layers
+      layerBackground = new BaseSprite ( application ) ;
+      addChild ( layerBackground ) ;
+      layerImage = new BaseSprite ( application ) ;
+      addChild ( layerImage ) ;
+      layerOthers = new BaseSprite ( application ) ;
+      addChild ( layerOthers ) ;
 // The canvas to paint.
-      canvas = new BaseShape ( application ) ;
-      addChild ( canvas ) ;
+      canvas = new Sprite ( ) ;
+      layerImage . addChild ( canvas ) ;
+// A BaseSprite to the front.
+      foreground = new BaseSprite ( application ) ;
+      layerOthers . addChild ( foreground ) ;
 // The event object needed to inform the outside world about loading.
       eventFileLoaded = new Event ( application . EVENT_FILE_LOADED ) ;
     }
@@ -126,7 +153,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** Sets the ID of the file and session IDs to the server.
 ** Use as you want: the ID-s can be used as you implement the server side code.
 */
-    public function setParamsAndLoadImage ( pId : String , sId : String , fUrl : String , delayed : int = 0 , thumb : Boolean = false ) : void
+    public function setParamsAndLoadImage ( pId : String , sId : String , fUrl : String , thumb : Boolean = false , delayed : int = 0 ) : void
     {
 // The ids.
       serverId = pId ;
@@ -170,9 +197,30 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Clears the image.
 */
+    public function canvasClear ( ) : void
+    {
+      if ( canvas != null )
+      {
+        canvas . graphics . clear ( ) ;
+      }
+      if ( foreground != null )
+      {
+        foreground . graphics . clear ( ) ;
+      }
+    }
     public function clear ( ) : void
     {
-      graphics . clear ( ) ;
+      canvasClear ( ) ;
+      bitmapDataDispose ( ) ;
+      bitmapData = new BitmapData ( 1 , 1 ) ;
+      repaintReposImage ( ) ;
+      destroyTimer ( ) ;
+      resetImageLoading ( ) ;
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventFileLoaded ) ;
+      }
+      destroyFullscrToFullscrButtonLink ( ) ;
     }
 /*
 ** Loads the image from the server after constructing the request.
@@ -187,25 +235,46 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // The loader has to be null.
 // If not, a download is in progress.
-      if ( loader == null && sessionId != null && sessionId != "" && fileUrl != null && fileUrl != "" )
+      if ( fileUrl != null && fileUrl != "" )
       {
+// Let's see if it has a cached object
+        if ( isThumb && application . getThumbs ( ) [ fileUrl ] != undefined )
+        {
+// All of the tasks have to be done as in case of imageLoadSuccess!
+          bitmapDataDispose ( ) ;
+          bitmapData = BitmapData ( application . getThumbs ( ) [ fileUrl ] ) . clone ( ) ;
+          repaintReposImage ( ) ;
+          if ( getBaseEventDispatcher ( ) != null )
+          {
+            getBaseEventDispatcher ( ) . dispatchEvent ( eventFileLoaded ) ;
+          }
+          destroyTimer ( ) ;
+          resetImageLoading ( ) ;
+          destroyFullscrToFullscrButtonLink ( ) ;
+        }
+        else
+        {
+          if ( loader == null && sessionId != null && sessionId != "" )
+          {
 // Construction of the necessary objects.
-        loader = new Loader ( ) ;
-        urlRequest = new URLRequest ( ) ;
-        urlVariables = new URLVariables ( ) ;
-        urlVariables [ "pid" ] = serverId ;
-        urlVariables [ "sid" ] = sessionId ;
-        urlVariables [ "fileurl" ] = fileUrl ;
-        urlVariables [ "thumb" ] = isThumb ? "y" : "n" ;
-        urlRequest . data = urlVariables ;
-        urlRequest . method = URLRequestMethod . POST ;
-        urlRequest . url = application . getUrlFiles ( ) ;
+            loader = new Loader ( ) ;
+            urlRequest = new URLRequest ( ) ;
+            urlVariables = new URLVariables ( ) ;
+            urlVariables [ "pid" ] = serverId ;
+            urlVariables [ "sid" ] = sessionId ;
+            urlVariables [ "fileurl" ] = fileUrl ;
+            urlVariables [ "thumb" ] = isThumb ? "y" : "n" ;
+            urlRequest . data = urlVariables ;
+            urlRequest . method = URLRequestMethod . POST ;
+            urlRequest . url = application . getUrlFiles ( ) ;
 // These events have to be registered!
-        loader . contentLoaderInfo . addEventListener ( Event . INIT , imageLoadSuccess , false , 0 , true ) ;
-        loader . contentLoaderInfo . addEventListener ( IOErrorEvent . IO_ERROR , imageLoadFail , false , 0 , true ) ;
-        loader . contentLoaderInfo . addEventListener ( SecurityErrorEvent . SECURITY_ERROR , imageLoadFail , false , 0 , true ) ;
+            loader . contentLoaderInfo . addEventListener ( Event . INIT , imageLoadSuccess , false , 0 , true ) ;
+            loader . contentLoaderInfo . addEventListener ( IOErrorEvent . IO_ERROR , imageLoadFail , false , 0 , true ) ;
+            loader . contentLoaderInfo . addEventListener ( SecurityErrorEvent . SECURITY_ERROR , imageLoadFail , false , 0 , true ) ;
 // Now the loading.
-        loader . load ( urlRequest ) ;
+            loader . load ( urlRequest ) ;
+          }
+        }
       }
     }
 /*
@@ -220,13 +289,20 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         bitmapData = new BitmapData ( e . target . content . width , e . target . content . height ) ;
         bitmapData . draw ( e . target . content ) ;
+        if ( getsw ( ) == 0 && getsh ( ) == 0 )
+        {
+          super . setswh ( e . target . content . width , e . target . content . height ) ;
+        }
       }
       catch ( e : * )
       {
         bitmapData = new BitmapData ( 1 , 1 ) ;
       }
-// The loader objects are not necessary any more.
-      resetImageLoading ( ) ;
+// Cache it if it is a thumb
+      if ( isThumb )
+      {
+        application . getThumbs ( ) [ fileUrl ] = bitmapData . clone ( ) ;
+      }
 // The image is ready to be painted.
       repaintReposImage ( ) ;
 // An event has to be dispatched!
@@ -234,8 +310,19 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventFileLoaded ) ;
       }
+// fullscreen button if it is not a thumb.
+      if ( isThumb )
+      {
+        destroyFullscrToFullscrButtonLink ( ) ;
+      }
+      else
+      {
+        createFullscrButtonLinkToFullscreen ( ) ;
+      }
 // Timer has to be stopped.
       destroyTimer ( ) ;
+// The loader objects are not necessary any more.
+      resetImageLoading ( ) ;
     }
 /*
 ** IOError or SecurityError occurred.
@@ -244,9 +331,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       bitmapDataDispose ( ) ;
       bitmapData = new BitmapData ( 1 , 1 ) ;
-      resetImageLoading ( ) ;
       repaintReposImage ( ) ;
       destroyTimer ( ) ;
+      resetImageLoading ( ) ;
     }
 /*
 ** The image loader objects can be released.
@@ -291,68 +378,70 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function repaintReposImage ( ) : void
     {
       var radius : int = application . getPropsDyn ( ) . getAppRadius ( ) ;
-      if ( canvas != null )
+      if ( canvas != null && foreground != null && bitmapData != null )
       {
         canvas . graphics . clear ( ) ;
-        if ( bitmapData != null )
+        foreground . graphics . clear ( ) ;
+        var deltaWidth : int = 0 ;
+        var deltaHeight : int = 0 ;
+        if ( frame )
         {
-          var deltaWidth : int = 0 ;
-          var deltaHeight : int = 0 ;
-          if ( frame )
+          deltaWidth = 2 * radius ;
+          deltaHeight = 2 * radius ;
+        }
+        matrix = new Matrix ( ) ;
+        tempWidth = bitmapData . width ;
+        tempHeight = bitmapData . height ;
+        if ( resizable )
+        {
+          if ( getsw ( ) - deltaWidth < tempWidth )
           {
-            deltaWidth = 2 * radius ;
-            deltaHeight = 2 * radius ;
+            tempHeight = Math . round ( ( getsw ( ) - deltaWidth ) / tempWidth * tempHeight ) ;
+            tempWidth = getsw ( ) - deltaWidth ;
           }
-          matrix = new Matrix ( ) ;
-          tempWidth = bitmapData . width ;
-          tempHeight = bitmapData . height ;
-          if ( resizable )
+          if ( getsh ( ) - deltaHeight < tempHeight )
           {
-            if ( getsw ( ) - deltaWidth < tempWidth )
-            {
-              tempHeight = Math . round ( ( getsw ( ) - deltaWidth ) / tempWidth * tempHeight ) ;
-              tempWidth = getsw ( ) - deltaWidth ;
-            }
-            if ( getsh ( ) - deltaHeight < tempHeight )
-            {
-              tempWidth = Math . round ( ( getsh ( ) - deltaHeight ) / tempHeight * tempWidth ) ;
-              tempHeight = getsh ( ) - deltaHeight ;
-            }
+            tempWidth = Math . round ( ( getsh ( ) - deltaHeight ) / tempHeight * tempWidth ) ;
+            tempHeight = getsh ( ) - deltaHeight ;
           }
-          matrix . scale ( tempWidth / bitmapData . width , tempHeight / bitmapData . height ) ;
-          canvas . graphics . clear ( ) ;
-          canvas . graphics . beginBitmapFill ( bitmapData , matrix , false , true ) ;
-          canvas . graphics . drawRoundRect ( 0 , 0 , tempWidth , tempHeight , radius , radius ) ;
-          canvas . graphics . endFill ( ) ;
-          if ( frame )
+        }
+        matrix . scale ( tempWidth / bitmapData . width , tempHeight / bitmapData . height ) ;
+        canvas . graphics . clear ( ) ;
+        canvas . graphics . beginBitmapFill ( bitmapData , matrix , false , true ) ;
+        canvas . graphics . drawRoundRect ( 0 , 0 , tempWidth , tempHeight , radius , radius ) ;
+        canvas . graphics . endFill ( ) ;
+        if ( frame )
+        {
+          canvas . x = radius ;
+          canvas . y = radius ;
+        }
+        else
+        {
+          canvas . x = 0 ;
+          canvas . y = 0 ;
+          foreground . graphics . clear ( ) ;
+          foreground . graphics . beginFill ( 0 , 0 ) ;
+          foreground . graphics . drawRoundRect ( 0 , 0 , tempWidth , tempHeight , radius , radius ) ;
+          foreground . graphics . endFill ( ) ;
+        }
+        if ( inSquare )
+        {
+          if ( getsw ( ) > getsh ( ) )
           {
-            canvas . x = radius ;
-            canvas . y = radius ;
+            canvas . x = int ( ( getsw ( ) - tempWidth ) / 2 ) ;
+            canvas . y = 0 ;
+            super . setswh ( getsw ( ) , getsw ( ) ) ;
           }
           else
           {
             canvas . x = 0 ;
-            canvas . y = 0 ;
+            canvas . y = int ( ( getsh ( ) - tempHeight ) / 2 ) ;
+            super . setswh ( getsh ( ) , getsh ( ) ) ;
           }
-          if ( inSquare )
-          {
-            if ( getsw ( ) > getsh ( ) )
-            {
-              canvas . x = int ( ( getsw ( ) - tempWidth ) / 2 ) ;
-              canvas . y = 0 ;
-              super . setswh ( getsw ( ) , getsw ( ) ) ;
-            }
-            else
-            {
-              canvas . x = 0 ;
-              canvas . y = int ( ( getsh ( ) - tempHeight ) / 2 ) ;
-              super . setswh ( getsh ( ) , getsh ( ) ) ;
-            }
-          }
-          else
-          {
-            super . setswh ( tempWidth + deltaWidth , tempHeight + deltaHeight ) ;
-          }
+        }
+        else
+        {
+          super . setswh ( tempWidth + deltaWidth , tempHeight + deltaHeight ) ;
         }
       }
       if ( frame )
@@ -360,22 +449,29 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( background == null )
         {
           background = new BaseShape ( application ) ;
-          addChild ( background ) ;
+          layerBackground . addChild ( background ) ;
           background . setdb ( true ) ;
           background . setdt ( 1 ) ;
           addListeners ( ) ;
         }
-        background . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        background . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         background . setsr ( radius ) ;
         background . setswh ( getsw ( ) , getsh ( ) ) ;
         background . drawRect ( ) ;
+        if ( foreground != null )
+        {
+          foreground . graphics . clear ( ) ;
+          foreground . graphics . beginFill ( 0 , 0 ) ;
+          foreground . graphics . drawRoundRect ( 0 , 0 , getsw ( ) , getsh ( ) , radius , radius ) ;
+          foreground . graphics . endFill ( ) ;
+        }
       }
       else
       {
         if ( background != null )
         {
           resetListeners ( ) ;
-          removeChild ( background ) ;
+          layerBackground . removeChild ( background ) ;
           background = null ;
         }
       }
@@ -422,9 +518,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function addListeners ( ) : void
     {
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , resize ) ;
     }
 /*
 ** Resets the listener: no registers for
@@ -432,9 +529,170 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function resetListeners ( ) : void
     {
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , resize ) ;
+    }
+/*
+** To display fullscreen and go back.
+*/
+    private function destroyFullscrToFullscrButtonLink ( ) : void
+    {
+      if ( fullscrButtonLinkToFullscreen != null )
+      {
+        fullscrButtonLinkToFullscreen . destroy ( ) ;
+        if ( layerOthers != null && layerOthers . contains ( fullscrButtonLinkToFullscreen ) )
+        {
+          layerOthers . removeChild ( fullscrButtonLinkToFullscreen ) ;
+        }
+        fullscrButtonLinkToFullscreen = null ;
+      }
+    }
+    private function destroyFullscrStageElements ( ) : void
+    {
+      if ( stage != null )
+      {
+        if ( fullscrButtonLinkBack != null )
+        {
+          fullscrButtonLinkBack . destroy ( ) ;
+          if ( stage . contains ( fullscrButtonLinkBack ) )
+          {
+            stage . removeChild ( fullscrButtonLinkBack ) ;
+          }
+          fullscrButtonLinkBack = null ;
+        }
+        if ( fullscrStageBackground != null )
+        {
+          fullscrStageBackground . destroy ( ) ;
+          fullscrStageBackground . graphics . clear ( ) ;
+          if ( stage . contains ( fullscrStageBackground ) )
+          {
+            stage . removeChild ( fullscrStageBackground ) ;
+          }
+          fullscrStageBackground = null ;
+        }
+        if ( fullscrStageImage != null )
+        {
+          fullscrStageImage . destroy ( ) ;
+          fullscrStageImage . graphics . clear ( ) ;
+          if ( stage . contains ( fullscrStageImage ) )
+          {
+            stage . removeChild ( fullscrStageImage ) ;
+          }
+          fullscrStageImage = null ;
+        }
+      }
+    }
+    private function createFullscrButtonLinkToFullscreen ( ) : void
+    {
+      if ( fullscrButtonLinkToFullscreen == null )
+      {
+        fullscrButtonLinkToFullscreen = new ButtonLink ( application ) ;
+        layerOthers . addChild ( fullscrButtonLinkToFullscreen ) ;
+        fullscrButtonLinkToFullscreen . setIcon ( "maximize" ) ;
+        fullscrButtonLinkToFullscreen . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , toFullscreen ) ;
+        fullscrButtonLinkToFullscreen . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , fullscrButtonLinkToFullscreenResized ) ;
+      }
+      reposFullscrButtonLinkToFullscreen ( ) ;
+    }
+    private function toFullscreen ( e : Event ) : void
+    {
+      if ( canvas != null && stage != null && layerImage != null )
+      {
+        fullscrOrigX = canvas . x ;
+        fullscrOrigY = canvas . y ;
+        fullscrOrigW = canvas . width ;
+        fullscrOrigH = canvas . height ;
+        if ( fullscrStageBackground == null )
+        {
+          fullscrStageBackground = new BaseShape ( application ) ;
+          stage . addChild ( fullscrStageBackground ) ;
+        }
+        if ( fullscrStageImage == null )
+        {
+          fullscrStageImage = new BaseShape ( application ) ;
+          stage . addChild ( fullscrStageImage ) ;
+        }
+        if ( fullscrButtonLinkBack == null )
+        {
+          fullscrButtonLinkBack = new ButtonLink ( application ) ;
+          stage . addChild ( fullscrButtonLinkBack ) ;
+          fullscrButtonLinkBack . setIcon ( "minimize" ) ;
+          fullscrButtonLinkBack . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , fromFullscreen ) ;
+        }
+        stage . addEventListener ( Event . RESIZE , stageResized ) ;
+        reposImageFullscreen ( ) ;
+      }
+    }
+    private function stageResized ( e : Event ) : void
+    {
+      reposImageFullscreen ( ) ;
+    }
+    private function fromFullscreen ( e : Event ) : void
+    {
+      if ( stage != null )
+      {
+        stage . removeEventListener ( Event . RESIZE , stageResized ) ;
+        destroyFullscrStageElements ( ) ;
+      }
+    }
+    private function reposImageFullscreen ( ) : void
+    {
+      if ( stage != null )
+      {
+        if ( fullscrStageBackground != null )
+        {
+          fullscrStageBackground . graphics . clear ( ) ;
+          fullscrStageBackground . graphics . beginFill ( 0x000000 , 1 ) ;
+          fullscrStageBackground . graphics . moveTo ( 0 , 0 ) ;
+          fullscrStageBackground . graphics . drawRect ( 0 , 0 , stage . stageWidth , stage . stageHeight ) ;
+        }
+        if ( fullscrStageImage != null && bitmapData != null )
+        {
+          var matrix : Matrix = new Matrix ( ) ;
+          var tempWidth : int = bitmapData . width ;
+          var tempHeight : int = bitmapData . height ;
+          if ( stage . stageWidth < tempWidth )
+          {
+            tempHeight = Math . round ( ( stage . stageWidth ) / tempWidth * tempHeight ) ;
+            tempWidth = stage . stageWidth ;
+          }
+          if ( stage . stageHeight < tempHeight )
+          {
+            tempWidth = Math . round ( ( stage . stageHeight ) / tempHeight * tempWidth ) ;
+            tempHeight = stage . stageHeight ;
+          }
+          matrix . scale ( tempWidth / bitmapData . width , tempHeight / bitmapData . height ) ;
+          fullscrStageImage . graphics . clear ( ) ;
+          fullscrStageImage . graphics . beginBitmapFill ( bitmapData , matrix , false , true ) ;
+          fullscrStageImage . graphics . drawRect ( 0 , 0 , tempWidth , tempHeight ) ;
+          fullscrStageImage . graphics . endFill ( ) ;
+          fullscrStageImage . x = ( stage . stageWidth - tempWidth ) / 2 ;
+          fullscrStageImage . y = ( stage . stageHeight - tempHeight ) / 2 ;
+        }
+        reposFullscrButtonLinkBack ( ) ;
+      }
+    }
+    private function fullscrButtonLinkToFullscreenResized ( e : Event ) : void
+    {
+      reposFullscrButtonLinkToFullscreen ( ) ;
+    }
+    private function reposFullscrButtonLinkToFullscreen ( ) : void
+    {
+      if ( canvas != null && fullscrButtonLinkToFullscreen != null )
+      {
+        fullscrButtonLinkToFullscreen . setcxy ( canvas . x + canvas . width - fullscrButtonLinkToFullscreen . getsw ( ) ,
+            canvas . y ) ;
+      }
+    }
+    private function reposFullscrButtonLinkBack ( ) : void
+    {
+      if ( fullscrStageImage != null && fullscrButtonLinkBack != null )
+      {
+        fullscrButtonLinkBack . setcxy ( fullscrStageImage . x + fullscrStageImage . width - fullscrButtonLinkBack . getsw ( ) ,
+            fullscrStageImage . y ) ;
+      }
     }
 /*
 ** Destroying this application.
@@ -447,10 +705,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       destroyTimer ( ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       bitmapDataDispose ( ) ;
+      canvasClear ( ) ;
       if ( eventFileLoaded != null )
       {
         eventFileLoaded . stopImmediatePropagation ( ) ;
       }
+      destroyFullscrToFullscrButtonLink ( ) ;
+      destroyFullscrStageElements ( ) ;
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
@@ -471,6 +732,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       resizable = false ;
       isThumb = false ;
       inSquare = false ;
+      layerBackground = null ;
+      layerImage = null ;
+      layerOthers = null ;
+      fullscrButtonLinkToFullscreen = null ;
+      fullscrButtonLinkBack = null ;
+      fullscrStageBackground = null ;
+      fullscrStageImage = null ;
+      fullscrOrigX = 0 ;
+      fullscrOrigY = 0 ;
+      fullscrOrigW = 0 ;
+      fullscrOrigH = 0 ;
     }
   }
 }

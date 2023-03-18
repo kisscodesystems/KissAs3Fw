@@ -12,7 +12,9 @@
 ** A clickable link surrounded with a base shape rect.
 **
 ** MAIN FUNCTIONS:
-** - clickable text label with underline (drawn)
+** - clickable text label
+** - goes to a web browser page if it specified
+**   but handles POST data as GET if we are in air application.
 */
 package com . kisscodesystems . KissAs3Fw . ui
 {
@@ -30,8 +32,6 @@ package com . kisscodesystems . KissAs3Fw . ui
   {
 // The background of the button.
     private var backgroundBaseShape : BaseShape = null ;
-// The link underground of the baseShape.
-    private var underlineBaseShape : BaseShape = null ;
 // The label of the button.
     protected var textLabel : TextLabel = null ;
 // The foreground of the button
@@ -58,8 +58,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( backgroundBaseShape ) ;
       backgroundBaseShape . setdb ( true ) ;
       backgroundBaseShape . setdt ( 0 ) ;
-      underlineBaseShape = new BaseShape ( application ) ;
-      addChild ( underlineBaseShape ) ;
       textLabel = new TextLabel ( application ) ;
       addChild ( textLabel ) ;
       textLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
@@ -72,12 +70,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite . addEventListener ( MouseEvent . CLICK , click ) ;
       textLabel . setTextCode ( " " ) ;
       textLabel . setTextCode ( "" ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , repaintUnderline ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , resize ) ;
     }
 /*
 ** Gets the code of the text forom the label.
@@ -96,10 +96,13 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Icon can be set.
 */
+    public function destIcon ( ) : void
+    {
+      textLabel . destIcon ( ) ;
+    }
     public function setIcon ( iconType : String ) : void
     {
       textLabel . setIcon ( iconType ) ;
-      repaintUnderline ( ) ;
     }
 /*
 ** Sets the state of this linkbutton manually.
@@ -115,6 +118,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
       }
     }
+    public function getState ( ) : int
+    {
+      return state ;
+    }
 /*
 ** Mouse events on the foreground.
 */
@@ -123,6 +130,13 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getEnabled ( ) )
       {
         setState ( 1 ) ;
+      }
+    }
+    public function onRollOut ( ) : void
+    {
+      if ( foregroundSprite != null )
+      {
+        foregroundSprite . dispatchEvent ( new MouseEvent ( MouseEvent . ROLL_OUT ) ) ;
       }
     }
     private function rollOut ( e : MouseEvent ) : void
@@ -140,9 +154,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( getEnabled ( ) )
       {
-        setState ( 1 ) ;
-        navigateToUrlIfNotEmpy ( ) ;
-        baseWorkingButtonClick ( ) ;
+        if ( getState ( ) == - 1 )
+        {
+          setState ( 1 ) ;
+          navigateToUrlIfNotEmpy ( ) ;
+          baseWorkingButtonClick ( ) ;
+        }
       }
       if ( e != null )
       {
@@ -159,18 +176,15 @@ package com . kisscodesystems . KissAs3Fw . ui
 // Only http or https resources are allowed.
         if ( url . indexOf ( "http://" ) == 0 || url . indexOf ( "https://" ) == 0 )
         {
-          if ( url . length > 0 )
-          {
 // Now the navigation to the url with a new browser tab.
-            var urlRequest : URLRequest = new URLRequest ( ) ;
-            urlRequest . url = url ;
-            if ( data != null )
-            {
-              urlRequest . method = URLRequestMethod . POST ;
-              urlRequest . data = data ;
-            }
-            navigateToURL ( urlRequest , "_blank" ) ;
+          var urlRequest : URLRequest = new URLRequest ( ) ;
+          if ( data != null )
+          {
+            urlRequest . data = data ;
           }
+          urlRequest . method = URLRequestMethod . POST ;
+          urlRequest . url = url ;
+          navigateToURL ( urlRequest , "_blank" ) ;
         }
       }
     }
@@ -204,7 +218,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         backgroundBaseShape . setswh ( getsw ( ) , getsh ( ) ) ;
         labelRepos ( ) ;
         repaintBackground ( ) ;
-        repaintUnderline ( ) ;
         repaintForeground ( ) ;
       }
     }
@@ -214,8 +227,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function repaintBackground ( ) : void
     {
       backgroundBaseShape . clear ( ) ;
-      backgroundBaseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+      backgroundBaseShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
       backgroundBaseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+      backgroundBaseShape . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
       if ( state == - 1 || state == 0 || state == 1 )
       {
         backgroundBaseShape . setdt ( state ) ;
@@ -227,7 +241,17 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function labelRepos ( ) : void
     {
-      textLabel . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) - 1 , application . getPropsDyn ( ) . getAppPadding ( ) - 1 ) ;
+      textLabel . setcxy ( application . getPropsDyn ( ) . getAppPadding ( ) , application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+    }
+/*
+** Sets the maxWidth of the label.
+*/
+    public function setMaxWidth ( newWidth : int , allowMultiline : Boolean ) : void
+    {
+      if ( textLabel != null )
+      {
+        textLabel . setMaxWidth ( newWidth , allowMultiline ) ;
+      }
     }
 /*
 ** This will be called when the button is clicked.
@@ -237,24 +261,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       getBaseEventDispatcher ( ) . dispatchEvent ( eventClick ) ;
     }
 /*
-** Repainting the underline.
+** Gets the type of the currently displayed icon.
 */
-    private function repaintUnderline ( e : Event = null ) : void
+    public function getIconType ( ) : String
     {
-      if ( underlineBaseShape != null && textLabel != null )
+      if ( textLabel != null )
       {
-        if ( textLabel . getTextCode ( ) != "" && textLabel . getTextCode ( ) != " " && textLabel . getIconType ( ) == "" )
-        {
-          underlineBaseShape . graphics . clear ( ) ;
-          underlineBaseShape . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppFontColorDark ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          underlineBaseShape . graphics . moveTo ( textLabel . getcx ( ) , textLabel . getcysh ( ) ) ;
-          underlineBaseShape . graphics . lineTo ( textLabel . getcxsw ( ) , textLabel . getcysh ( ) ) ;
-        }
-        else
-        {
-          underlineBaseShape . graphics . clear ( ) ;
-        }
+        return textLabel . getIconType ( ) ;
       }
+      return "" ;
     }
 /*
 ** Repainting the foreground.
@@ -286,12 +301,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       foregroundSprite . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
       foregroundSprite . removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
       foregroundSprite . removeEventListener ( MouseEvent . CLICK , click ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_FRAME_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_CORNER_CHANGED , resize ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventClick != null )
       {
@@ -301,7 +318,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       backgroundBaseShape = null ;
-      underlineBaseShape = null ;
       textLabel = null ;
       foregroundSprite = null ;
       eventClick = null ;

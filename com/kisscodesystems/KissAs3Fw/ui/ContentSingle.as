@@ -14,7 +14,6 @@
 ** MAIN FEATURES:
 ** - two sprites to add the elements into:
 **   baseSprite: the elements can be used in it
-**   backSprite: the elements can be only displayed and no user interaction.
 ** - automatic element reposition according to the
      orientation , elementsFix and cellIndexesArray
 */
@@ -30,9 +29,6 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . events . Event ;
   public class ContentSingle extends BaseSprite
   {
-// The back content: adding content here withto have no interaction and not to stpo the mover of scroll!
-// for example text label.
-    private var backSprite : BaseSprite = null ;
 // The content of the Content.
     private var baseSprite : BaseSprite = null ;
 // The scroll of the Content.
@@ -50,6 +46,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 // orientation == application . getTexts ( ) . ORIENTATION_MANUAL || elementsFix == -1 means no automatic positioning.
     private var elementsFix : int = - 1 ;
     private var eventElementsRepositioned : Event = null ;
+// Counts or not when mouse down happened on an object and have to be scrolled.
+    public var enableScrollingFromOthers : Boolean = true ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -61,9 +59,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       eventElementsRepositioned = new Event ( application . EVENT_ELEMENTS_REPOSITIONED ) ;
 // The orientation is manual by default.
       orientation = application . getTexts ( ) . ORIENTATION_VERTICAL ;
-// The back sprite!
-      backSprite = new BaseSprite ( application ) ;
-      addChild ( backSprite ) ;
 // Creating the new scroll object.
       baseScroll = new BaseScroll ( application ) ;
       addChild ( baseScroll ) ;
@@ -71,8 +66,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseSprite = new BaseSprite ( application ) ;
       addChild ( baseSprite ) ;
 // Masking of the content!
-      backSprite . mask = baseScroll . getMask0 ( ) ;
-      baseSprite . mask = baseScroll . getMask1 ( ) ;
+      baseSprite . mask = baseScroll . getMask ( ) ;
 // This events are required to listen to.
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_CACHE_BEGIN , cacheBeginContent ) ;
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposContent ) ;
@@ -82,12 +76,28 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , contentResized ) ;
     }
 /*
+** To be able to set the coordinates of the content!
+*/
+    public function setccx ( newccx : int ) : void
+    {
+      if ( baseScroll != null )
+      {
+        baseScroll . setccx ( newccx ) ;
+      }
+    }
+    public function setccy ( newccy : int ) : void
+    {
+      if ( baseScroll != null )
+      {
+        baseScroll . setccy ( newccy ) ;
+      }
+    }
+/*
 ** If the content has to be cached as a bitmap.
 */
     private function cacheBeginContent ( e : Event ) : void
     {
       baseSprite . cacheAsBitmap = true ;
-      backSprite . cacheAsBitmap = true ;
     }
 /*
 ** The margin of the application has been changed.
@@ -457,8 +467,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       baseSprite . setcx ( baseScroll . getccx ( ) ) ;
       baseSprite . setcy ( baseScroll . getccy ( ) ) ;
-      backSprite . setcx ( baseScroll . getccx ( ) ) ;
-      backSprite . setcy ( baseScroll . getccy ( ) ) ;
     }
 /*
 ** The size of the content has been changed.
@@ -504,22 +512,39 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Returns the cell index of an element.
+*/
+    public function getCellIndex ( displayObject : DisplayObject ) : int
+    {
+      if ( cellIndexesArray != null && elementsArray != null )
+      {
+        for ( var i : int = 0 ; i < elementsArray . length ; i ++ )
+        {
+          if ( elementsArray [ i ] == displayObject )
+          {
+            return cellIndexesArray [ i ] ;
+          }
+        }
+      }
+      return - 1 ;
+    }
+/*
 ** Adds an element to the content sprite.
 */
-    public function addToContent ( displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
+    public function addToContent ( displayObject : DisplayObject , cellIndex : int , sizeConsider : Boolean = true , to0 : Boolean = false ) : void
     {
-      if ( ! baseSprite . contains ( displayObject ) && ! backSprite . contains ( displayObject ) )
+      if ( ! baseSprite . contains ( displayObject ) )
       {
         elementsArray . push ( displayObject ) ;
         sizeConsidersArray . push ( sizeConsider ) ;
         cellIndexesArray . push ( cellIndex ) ;
-        if ( normal )
+        if ( ! to0 )
         {
           baseSprite . addChild ( displayObject ) ;
         }
         else
         {
-          backSprite . addChild ( displayObject ) ;
+          baseSprite . addChildAt ( displayObject , 0 ) ;
         }
         if ( displayObject is BaseSprite )
         {
@@ -533,7 +558,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** Removes an element from the content (baseSprite or backSprite) sprite.
+** Removes an element from the content sprite.
 */
     public function removeFromContent ( displayObject : DisplayObject ) : void
     {
@@ -543,10 +568,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( baseSprite . contains ( displayObject ) )
         {
           baseSprite . removeChild ( displayObject ) ;
-        }
-        if ( backSprite . contains ( displayObject ) )
-        {
-          backSprite . removeChild ( displayObject ) ;
         }
         cellIndexesArray . splice ( index , 1 ) ;
         elementsArray . splice ( index , 1 ) ;
@@ -569,13 +590,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       return baseSprite ;
     }
 /*
-** Gets the reference to the back sprite.
-*/
-    public function getBackSprite ( ) : BaseSprite
-    {
-      return backSprite ;
-    }
-/*
 ** Calculating content size.
 ** Happens automatically for example if a BaseSprite or BaseShape
 ** or BaseTextField is added into the content base sprite.
@@ -586,23 +600,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       var maxw : int = 0 ;
       var maxh : int = 0 ;
       var sizesArrayBase : Array = contentSizeRecalcOnSprite ( baseSprite ) ;
-      var sizesArrayBack : Array = contentSizeRecalcOnSprite ( backSprite ) ;
-      if ( sizesArrayBase [ 0 ] > sizesArrayBack [ 0 ] )
-      {
-        maxw = sizesArrayBase [ 0 ] ;
-      }
-      else
-      {
-        maxw = sizesArrayBack [ 0 ] ;
-      }
-      if ( sizesArrayBase [ 1 ] > sizesArrayBack [ 1 ] )
-      {
-        maxh = sizesArrayBase [ 1 ] ;
-      }
-      else
-      {
-        maxh = sizesArrayBack [ 1 ] ;
-      }
+      maxw = sizesArrayBase [ 0 ] ;
+      maxh = sizesArrayBase [ 1 ] ;
       baseSprite . setswh ( maxw , maxh ) ;
     }
     private function contentSizeRecalcOnSprite ( sprite : BaseSprite ) : Array
@@ -678,6 +677,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** Sends the scroll to the bottom.
+*/
+    public function toBottom ( ) : void
+    {
+      if ( baseScroll != null )
+      {
+        baseScroll . setccy ( getsh ( ) - baseScroll . getsch ( ) ) ;
+      }
+    }
+/*
 ** Overriding this destroy method.
 */
     override public function destroy ( ) : void
@@ -694,7 +703,6 @@ package com . kisscodesystems . KissAs3Fw . ui
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
-      backSprite = null ;
       baseSprite = null ;
       baseScroll = null ;
       elementsArray . splice ( 0 ) ;

@@ -23,7 +23,31 @@ package com . kisscodesystems . KissAs3Fw . ui
         graphics . drawRect ( 0 , 0 , iconSize , iconSize ) ;
         graphics . endFill ( ) ;
       }
+      filters = undefined ;
+      if ( textType == application . getTexts ( ) . TEXT_TYPE_MID )
+      {
+        setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorMid ( ) ) ;
+      }
+      else if ( textType == application . getTexts ( ) . TEXT_TYPE_DARK )
+      {
+        setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorDark ( ) ) ;
+      }
+      else
+      {
+        setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorBright ( ) ) ;
+      }
       super . setswh ( iconSize , iconSize ) ;
+    }
+    private function setDropShadowFilter ( color : Number ) : void
+    {
+      if ( application . brightShadowToApply ( color . toString ( 16 ) ) )
+      {
+        filters = application . TEXT_DROP_SHADOW_ARRAY_BRIGHT ;
+      }
+      else
+      {
+        filters = application . TEXT_DROP_SHADOW_ARRAY_DARK ;
+      }
     }
     public function destBitmapData ( ) : void
     {
@@ -41,6 +65,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       destBitmapData ( ) ;
       super . destroy ( ) ;
+      filters = undefined ;
     }
   }
 }

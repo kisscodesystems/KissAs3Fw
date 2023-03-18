@@ -521,6 +521,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           drawn2CustomSprite = new BaseSprite ( application ) ;
           addChild ( drawn2CustomSprite ) ;
+          drawn2CustomSprite . mouseDownForScrollingEnabled = false ;
         }
         if ( drawn2BitmapData != null )
         {
@@ -538,6 +539,7 @@ package com . kisscodesystems . KissAs3Fw . ui
           drawnCustomSprite = new BaseSprite ( application ) ;
           addChild ( drawnCustomSprite ) ;
           drawnCustomSprite . doubleClickEnabled = true ;
+          drawnCustomSprite . mouseDownForScrollingEnabled = false ;
         }
         if ( drawnBitmapData != null )
         {
@@ -763,7 +765,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       if ( panelColorComplementer != null )
       {
-        compColorNumber = 16777215 - color ;
+        compColorNumber = application . COLOR_TO_CALC_COMPLEMENTER - color ;
         panelColorComplementer . graphics . clear ( ) ;
         panelColorComplementer . graphics . beginFill ( compColorNumber , application . getPropsApp ( ) . getColorSquareLineAlphaMouseOver ( ) ) ;
         panelColorComplementer . graphics . moveTo ( 0 , 0 ) ;

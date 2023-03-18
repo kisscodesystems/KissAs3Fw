@@ -35,6 +35,11 @@ package com . kisscodesystems . KissAs3Fw . text
     public const BACKGROUND_ALIGN_CENTER2 : String = BTC + "BACKGROUND_ALIGN_CENTER2" + ETC ;
     public const BACKGROUND_ALIGN_CENTER3 : String = BTC + "BACKGROUND_ALIGN_CENTER3" + ETC ;
     public const BACKGROUND_ALIGN_MOSAIC : String = BTC + "BACKGROUND_ALIGN_MOSAIC" + ETC ;
+// The possible frames of the box
+    public const BOX_FRAME_FULL : String = BTC + "BOX_FRAME_FULL" + ETC ;
+    public const BOX_FRAME_HORIZONTAL : String = BTC + "BOX_FRAME_HORIZONTAL" + ETC ;
+    public const BOX_FRAME_VERTICAL : String = BTC + "BOX_FRAME_VERTICAL" + ETC ;
+    public const BOX_FRAME_NONE : String = BTC + "BOX_FRAME_NONE" + ETC ;
 // The types of the text types (formats) usable in this application.
     public const TEXT_TYPE_BRIGHT : String = BTC + "TEXT_TYPE_BRIGHT" + ETC ;
     public const TEXT_TYPE_MID : String = BTC + "TEXT_TYPE_MID" + ETC ;
@@ -51,7 +56,7 @@ package com . kisscodesystems . KissAs3Fw . text
     public const WATCH_SHOW_SECONDS : String = BTC + "WATCH_SHOW_SECONDS" + ETC ;
     public const WATCH_WITHOUT_SECONDS : String = BTC + "WATCH_WITHOUT_SECONDS" + ETC ;
 // The displayable styles by default.
-    public const DISPLAYING_STYLE_VIEW : String = BTC + "DISPLAYING_STYLE_VIEW" + ETC ;
+    public const DISPLAYING_STYLE_DEFAULT : String = BTC + "DISPLAYING_STYLE_DEFAULT" + ETC ;
 // Types of the widgets.
     public const WIDGET_TYPE_GENERAL : String = BTC + "WIDGET_TYPE_GENERAL" + ETC ;
 // The headers of the widgets.
@@ -80,10 +85,11 @@ package com . kisscodesystems . KissAs3Fw . text
     public const SETTING_MARGIN : String = BTC + "SETTING_MARGIN" + ETC ;
     public const SETTING_PADDING : String = BTC + "SETTING_PADDING" + ETC ;
     public const SETTING_RADIUS : String = BTC + "SETTING_RADIUS" + ETC ;
-    public const SETTING_BACKGROUND_BG_COLOR : String = BTC + "SETTING_BACKGROUND_BG_COLOR" + ETC ;
-    public const SETTING_BACKGROUND_FG_COLOR : String = BTC + "SETTING_BACKGROUND_FG_COLOR" + ETC ;
+    public const SETTING_BOX_CORNER : String = BTC + "SETTING_BOX_CORNER" + ETC ;
+    public const SETTING_BOX_FRAME : String = BTC + "SETTING_BOX_FRAME" + ETC ;
+    public const SETTING_BACKGROUND_COLORS : String = BTC + "SETTING_BACKGROUND_COLORS" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_ALPHA : String = BTC + "SETTING_BACKGROUND_COLOR_ALPHA" + ETC ;
     public const SETTING_BACKGROUND_BLUR : String = BTC + "SETTING_BACKGROUND_BLUR" + ETC ;
-    public const SETTING_BACKGROUND_FILL_ALPHA : String = BTC + "SETTING_BACKGROUND_FILL_ALPHA" + ETC ;
     public const SETTING_BACKGROUND_ALIGN : String = BTC + "SETTING_BACKGROUND_ALIGN" + ETC ;
     public const SETTING_BACKGROUND_ALPHA : String = BTC + "SETTING_BACKGROUND_ALPHA" + ETC ;
     public const SETTING_BACKGROUND_LIVE : String = BTC + "SETTING_BACKGROUND_LIVE" + ETC ;
@@ -99,6 +105,18 @@ package com . kisscodesystems . KissAs3Fw . text
     public const SETTING_FONT_THICKNESS : String = BTC + "SETTING_FONT_THICKNESS" + ETC ;
     public const SETTING_SOUND_PLAYING_ON : String = BTC + "SETTING_SOUND_PLAYING_ON" + ETC ;
     public const SETTING_SOUND_PLAYING_OFF : String = BTC + "SETTING_SOUND_PLAYING_OFF" + ETC ;
+    public const SETTING_GET_NEW_FONT_COLORSCHEMA : String = BTC + "SETTING_GET_NEW_FONT_COLORSCHEMA" + ETC ;
+    public const SETTING_GET_NEW_BACKGROUND_COLORSCHEMA : String = BTC + "SETTING_GET_NEW_BACKGROUND_COLORSCHEMA" + ETC ;
+    public const SETTING_FONT_COLOR_CHANGE : String = BTC + "SETTING_FONT_COLOR_CHANGE" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_CHANGE : String = BTC + "SETTING_BACKGROUND_COLOR_CHANGE" + ETC ;
+    public const SETTING_FONT_COLOR_REMAIN : String = BTC + "SETTING_FONT_COLOR_REMAIN" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_REMAIN : String = BTC + "SETTING_BACKGROUND_COLOR_REMAIN" + ETC ;
+    public const SETTING_FONT_COLOR_RANDOMNESS : String = BTC + "SETTING_FONT_COLOR_RANDOMNESS" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_RANDOMNESS : String = BTC + "SETTING_BACKGROUND_COLOR_RANDOMNESS" + ETC ;
+    public const SETTING_FONT_COLOR_RANDOM : String = BTC + "SETTING_FONT_COLOR_RANDOM" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_RANDOM : String = BTC + "SETTING_BACKGROUND_COLOR_RANDOM" + ETC ;
+    public const SETTING_FONT_COLOR_NORMAL : String = BTC + "SETTING_FONT_COLOR_NORMAL" + ETC ;
+    public const SETTING_BACKGROUND_COLOR_NORMAL : String = BTC + "SETTING_BACKGROUND_COLOR_NORMAL" + ETC ;
 // The default content of the multiple content component.
     public const DEFAULT_CONTENT : String = BTC + "DEFAULT_CONTENT" + ETC ;
 // The usage of the components.
@@ -168,8 +186,8 @@ package com . kisscodesystems . KissAs3Fw . text
     public const RUBBER : String = BTC + "RUBBER" + ETC ;
     public const REALLY_WANT_TO_CLEAR_DRAWN_CONTENT : String = BTC + "REALLY_WANT_TO_CLEAR_DRAWN_CONTENT" + ETC ;
     public const REQUIRED_PERMISSIONS_ALERT : String = BTC + "REQUIRED_PERMISSIONS_ALERT" + ETC ;
+    public const REQUIRED_ATTACHED_CAMERA_ALERT : String = BTC + "REQUIRED_ATTACHED_CAMERA_ALERT" + ETC ;
+    public const CAMERA_IS_USABLE_IN_HORIZONTAL : String = BTC + "CAMERA_IS_USABLE_IN_HORIZONTAL" + ETC ;
     public const MORE : String = BTC + "MORE" + ETC ;
-    public const CAMERA_ON_MOBILE_DEVICES : String = BTC + "CAMERA_ON_MOBILE_DEVICES" + ETC ;
-    public const CAMERA_ON_MOBILE_DEVICES2 : String = BTC + "CAMERA_ON_MOBILE_DEVICES2" + ETC ;
   }
 }

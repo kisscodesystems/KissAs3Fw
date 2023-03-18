@@ -14,9 +14,9 @@
 **
 ** MAIN FEATURES:
 ** - contains the layers:
-**     - a backShape shape which can be colored to getAppBackgroundFillBgColor ( ) , alpha : 1
+**     - a backShape shape which can be colored to getAppBackgroundColorDark ( ) , alpha : 1
 **     - a backgroundImageShape which can be painted with the background image, alpha: 0 - 1
-**     - a backgroundColorShape  which can be colored to getAppBackgroundFillBgColor ( ) and getAppBackgroundFillFgColor ( ) , alpha: 0 - 1
+**     - a backgroundColorShape  which can be colored to getAppBackgroundColorDark ( ) and getAppBackgroundColorBright ( ) , alpha: 0 - 1
 ** - live property: the background image can follow the mouse pointer slowly
 ** - the background is fixed automatically if a color object steals pixel from the stage
 ** - external image loading is available to get the bitmap from
@@ -71,9 +71,10 @@ package com . kisscodesystems . KissAs3Fw . app
       backgroundColorShape = new BaseShape ( application ) ;
       addChild ( backgroundColorShape ) ;
 // Registering onto the events which can modify this object.
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_CHANGED , backgroundImageChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALIGN_CHANGED , backgroundImageChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALPHA_CHANGED , backgroundImageChanged ) ;
@@ -118,7 +119,15 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw the color shape.
+      drawBackgroundColorShape ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So, we have to redraw the color shape.
       drawBackgroundColorShape ( ) ;
@@ -126,7 +135,7 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So, we have to redraw the color shape.
       drawBackgroundColorShape ( ) ;
@@ -192,7 +201,7 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function canBackgroundMove ( ) : Boolean
     {
-      return ! pixelStealing && application . getPropsDyn ( ) . getAppBackgroundLive ( ) && application . getPropsDyn ( ) . getAppBackgroundAlign ( ) != application . getTexts ( ) . BACKGROUND_ALIGN_NONE && application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) < 1 && application . getPropsDyn ( ) . getAppBackgroundAlpha ( ) > 0 ;
+      return ! pixelStealing && application . getPropsDyn ( ) . getAppBackgroundLive ( ) && application . getPropsDyn ( ) . getAppBackgroundAlign ( ) != application . getTexts ( ) . BACKGROUND_ALIGN_NONE && application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) < 1 && application . getPropsDyn ( ) . getAppBackgroundAlpha ( ) > 0 ;
     }
 /*
 ** Registering for the background image moving if possible,
@@ -235,13 +244,13 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( application != null )
       {
 // Reinitializing and positioning.
-        backgroundColorShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        backgroundColorShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         backgroundColorShape . x = 0 ;
         backgroundColorShape . y = 0 ;
         backgroundColorShape . setsr ( 0 ) ;
         backgroundColorShape . setswh ( getsw ( ) , getsh ( ) ) ;
         backgroundColorShape . setdb ( true ) ;
-        backgroundColorShape . setdt ( 0 ) ;
+        backgroundColorShape . setdt ( 1 ) ;
 // Redrawing the rectangle.
         backgroundColorShape . drawRect ( ) ;
       }
@@ -257,7 +266,7 @@ package com . kisscodesystems . KissAs3Fw . app
         backShape . y = 0 ;
         backShape . graphics . clear ( ) ;
         backShape . graphics . lineStyle ( 0 , 0 , 0 ) ;
-        backShape . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 1 ) ;
+        backShape . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , 1 ) ;
         backShape . graphics . drawRect ( 0 , 0 , application . getsw ( ) , application . getsh ( ) ) ;
         backShape . graphics . endFill ( ) ;
       }
@@ -448,9 +457,10 @@ package com . kisscodesystems . KissAs3Fw . app
         stage . removeEventListener ( MouseEvent . MOUSE_DOWN , stageMouseDown ) ;
         stage . removeEventListener ( MouseEvent . MOUSE_MOVE , posBackgroundImageForBackgroundLive ) ;
       }
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_IMAGE_CHANGED , backgroundImageChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_ALIGN_CHANGED , backgroundImageChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_ALPHA_CHANGED , backgroundImageChanged ) ;

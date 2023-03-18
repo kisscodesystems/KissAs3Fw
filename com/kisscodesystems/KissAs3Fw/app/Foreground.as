@@ -21,7 +21,6 @@ package com . kisscodesystems . KissAs3Fw . app
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonText ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentMultiple ;
@@ -143,11 +142,11 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           contentMultiple . setElementsFix ( index , 0 ) ;
           var textBox : TextBox = new TextBox ( application ) ;
-          contentMultiple . addToContent ( index , textBox , true , 0 ) ;
+          contentMultiple . addToContent ( index , textBox , 0 ) ;
           textBox . setTextCode ( messageString ) ;
           textBox . setWordWrap ( true ) ;
           var buttonOK : ButtonText = new ButtonText ( application ) ;
-          contentMultiple . addToContent ( index , buttonOK , true , 1 ) ;
+          contentMultiple . addToContent ( index , buttonOK , 1 ) ;
           buttonOK . setTextCode ( application . getTexts ( ) . OC_OK ) ;
           buttonOK . setCustomEventString ( uniqueString + application . getTexts ( ) . OC_OK ) ;
           buttonOK . setIcon ( "ok" ) ;
@@ -155,7 +154,7 @@ package com . kisscodesystems . KissAs3Fw . app
           if ( eventCANCEL )
           {
             buttonCANCEL = new ButtonText ( application ) ;
-            contentMultiple . addToContent ( index , buttonCANCEL , true , 1 ) ;
+            contentMultiple . addToContent ( index , buttonCANCEL , 1 ) ;
             buttonCANCEL . setTextCode ( application . getTexts ( ) . OC_CANCEL ) ;
             buttonCANCEL . setCustomEventString ( uniqueString + application . getTexts ( ) . OC_CANCEL ) ;
             buttonCANCEL . setIcon ( "cancel" ) ;
@@ -210,12 +209,12 @@ package com . kisscodesystems . KissAs3Fw . app
         widgetListIndex = contentMultiple . addContent ( application . getTexts ( ) . LISTS_OF_THE_WIDGETS ) ;
         contentMultiple . setElementsFix ( widgetListIndex , 0 ) ;
         widgetsLabel = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( widgetListIndex , widgetsLabel , false , 0 ) ;
+        contentMultiple . addToContent ( widgetListIndex , widgetsLabel , 0 ) ;
         widgetsLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
         widgetsLabel . setTextCode ( application . getTexts ( ) . LISTS_OF_THE_WIDGETS ) ;
         widgetsLabel . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         widgetsList = new ListPanel ( application ) ;
-        contentMultiple . addToContent ( widgetListIndex , widgetsList , true , 1 ) ;
+        contentMultiple . addToContent ( widgetListIndex , widgetsList , 1 ) ;
         widgetsList . setsw ( contentMultiple . getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         widgetsList . setcxy ( widgetsLabel . getcx ( ) , widgetsLabel . getcysh ( ) + application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         widgetsList . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , goToTheWidget ) ;
@@ -288,12 +287,12 @@ package com . kisscodesystems . KissAs3Fw . app
         widgetMoveIndex = contentMultiple . addContent ( application . getTexts ( ) . LISTS_OF_THE_CONTENTS_TO_MOVE_INTO ) ;
         contentMultiple . setElementsFix ( widgetMoveIndex , 0 ) ;
         contentsLabel = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( widgetMoveIndex , contentsLabel , false , 0 ) ;
+        contentMultiple . addToContent ( widgetMoveIndex , contentsLabel , 0 ) ;
         contentsLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
         contentsLabel . setTextCode ( application . getTexts ( ) . LISTS_OF_THE_CONTENTS_TO_MOVE_INTO ) ;
         contentsLabel . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         contentsListPicker = new ListPicker ( application ) ;
-        contentMultiple . addToContent ( widgetMoveIndex , contentsListPicker , true , 1 ) ;
+        contentMultiple . addToContent ( widgetMoveIndex , contentsListPicker , 1 ) ;
         contentsListPicker . setsw ( contentsLabel . getsw ( ) ) ;
         var array : Array = new Array ( ) ;
         for ( var i : int = 0 ; i < application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) ; i ++ )
@@ -373,7 +372,7 @@ package com . kisscodesystems . KissAs3Fw . app
         passwordChangeIndex = contentMultiple . addContent ( application . getTexts ( ) . PASSWORD_HEADER ) ;
         contentMultiple . setElementsFix ( passwordChangeIndex , 1 ) ;
         passFormHeading = new TextLabel ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passFormHeading , false , 0 , false ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passFormHeading , 0 , false ) ;
         if ( mandatory )
         {
           if ( currentPassword )
@@ -414,7 +413,7 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( currentPassword )
         {
           passCurrentPassTextLabel = new TextLabel ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextLabel , false , 4 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextLabel , 4 ) ;
           passCurrentPassTextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_OLD_PASS ) ;
           if ( passCurrentPassTextLabel . getsw ( ) > w )
           {
@@ -424,14 +423,14 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( newPassword )
         {
           passNewPass1TextLabel = new TextLabel ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextLabel , false , 6 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextLabel , 6 ) ;
           passNewPass1TextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_NEW_PASS ) ;
           if ( passNewPass1TextLabel . getsw ( ) > w )
           {
             w = passNewPass1TextLabel . getsw ( ) ;
           }
           passNewPass2TextLabel = new TextLabel ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextLabel , false , 8 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextLabel , 8 ) ;
           passNewPass2TextLabel . setTextCode ( application . getTexts ( ) . PASS_FORM_CON_PASS ) ;
           if ( passNewPass2TextLabel . getsw ( ) > w )
           {
@@ -442,7 +441,7 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( currentPassword )
         {
           passCurrentPassTextInput = new TextInput ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextInput , true , 5 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passCurrentPassTextInput , 5 ) ;
           passCurrentPassTextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
           passCurrentPassTextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
           passCurrentPassTextInput . setRestrict ( application . CHARS_PASS ) ;
@@ -452,14 +451,14 @@ package com . kisscodesystems . KissAs3Fw . app
         if ( newPassword )
         {
           passNewPass1TextInput = new TextInput ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextInput , true , 7 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass1TextInput , 7 ) ;
           passNewPass1TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
           passNewPass1TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
           passNewPass1TextInput . setRestrict ( application . CHARS_PASS ) ;
           passNewPass1TextInput . setDisplayAsPassword ( true ) ;
           passNewPass1TextInput . setsw ( w ) ;
           passNewPass2TextInput = new TextInput ( application ) ;
-          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextInput , true , 9 ) ;
+          contentMultiple . addToContent ( passwordChangeIndex , passNewPass2TextInput , 9 ) ;
           passNewPass2TextInput . setMinChars ( application . LENGTHS_PASS [ 0 ] ) ;
           passNewPass2TextInput . setMaxChars ( application . LENGTHS_PASS [ 1 ] ) ;
           passNewPass2TextInput . setRestrict ( application . CHARS_PASS ) ;
@@ -467,7 +466,7 @@ package com . kisscodesystems . KissAs3Fw . app
           passNewPass2TextInput . setsw ( w ) ;
         }
         passSubmitButtonText = new ButtonText ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passSubmitButtonText , true , 13 ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passSubmitButtonText , 13 ) ;
         passSubmitButtonText . setTextCode ( application . getTexts ( ) . OC_OK ) ;
         passSubmitButtonText . setIcon ( "ok1" ) ;
         if ( currentPassword )
@@ -486,7 +485,7 @@ package com . kisscodesystems . KissAs3Fw . app
           passSubmitButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doPassCrSubmit ) ;
         }
         passCancelOrLogoutButtonLink = new ButtonLink ( application ) ;
-        contentMultiple . addToContent ( passwordChangeIndex , passCancelOrLogoutButtonLink , true , 13 ) ;
+        contentMultiple . addToContent ( passwordChangeIndex , passCancelOrLogoutButtonLink , 13 ) ;
 // The button link object has to be prepared here: the label and the action.
         if ( mandatory )
         {

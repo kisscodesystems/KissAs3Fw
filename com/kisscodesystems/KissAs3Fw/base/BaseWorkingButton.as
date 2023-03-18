@@ -104,6 +104,13 @@ package com . kisscodesystems . KissAs3Fw . base
         e . updateAfterEvent ( ) ;
       }
     }
+    public function onRollOut ( ) : void
+    {
+      if ( foregroundSprite != null )
+      {
+        foregroundSprite . dispatchEvent ( new MouseEvent ( MouseEvent . ROLL_OUT ) ) ;
+      }
+    }
     private function rollOut ( e : MouseEvent ) : void
     {
       baseButton . setState ( 0 ) ;
@@ -129,13 +136,16 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( getEnabled ( ) )
       {
-        baseButton . setState ( 0 ) ;
-        contentSprite . setcxy ( 0 , 0 ) ;
-        try
+        if ( baseButton . getState ( ) == 2 )
         {
-          baseWorkingButtonClick ( ) ;
+          baseButton . setState ( 0 ) ;
+          contentSprite . setcxy ( 0 , 0 ) ;
+          try
+          {
+            baseWorkingButtonClick ( ) ;
+          }
+          catch ( e : * ) { }
         }
-        catch ( e : * ) { }
       }
       if ( e != null )
       {

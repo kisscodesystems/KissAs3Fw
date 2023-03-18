@@ -60,10 +60,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseScroll = new BaseScroll ( application ) ;
       addChild ( baseScroll ) ;
 // Masking of the content!
-      content . mask = baseScroll . getMask0 ( ) ;
+      content . mask = baseScroll . getMask ( ) ;
 // This events needed.
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . ROLL_OVER , moverRollOver ) ;
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . ROLL_OUT , moverRollOut ) ;
+      baseScroll . getMover ( ) . mouseDownForScrollingEnabled = false ;
 // This events are required now.
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposContent ) ;
       content . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , contentResized ) ;
@@ -273,14 +274,54 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Adds a button to the list of the buttons.
 */
-    public function addButton ( label : String ) : void
+    public function addButton ( label : String , it : String = "" ) : void
     {
       var buttonLink : ButtonLink = new ButtonLink ( application ) ;
       content . addChildAt ( buttonLink , 0 ) ;
       buttonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , resize ) ;
       buttonLink . setTextCode ( label ) ;
+      if ( it != "" )
+      {
+        buttonLink . setIcon ( it ) ;
+      }
       buttonLinksArray . push ( buttonLink ) ;
       reposButtons ( ) ;
+    }
+/*
+** Sets the icon of the button link by the specified index.
+*/
+    public function destIcon ( index : int ) : void
+    {
+      if ( buttonLinksArray != null && index < buttonLinksArray . length )
+      {
+        if ( buttonLinksArray [ index ] is ButtonLink )
+        {
+          ButtonLink ( buttonLinksArray [ index ] ) . destIcon ( ) ;
+        }
+      }
+    }
+    public function setIcon ( index : int , it : String ) : void
+    {
+      if ( buttonLinksArray != null && index < buttonLinksArray . length )
+      {
+        if ( buttonLinksArray [ index ] is ButtonLink )
+        {
+          ButtonLink ( buttonLinksArray [ index ] ) . setIcon ( it ) ;
+        }
+      }
+    }
+    public function setIconIfNotActive ( index : int , it : String ) : void
+    {
+      if ( buttonLinksArray != null && index < buttonLinksArray . length )
+      {
+        if ( buttonLinksArray [ index ] is ButtonLink )
+        {
+          if ( activeIndex != index )
+          {
+            ButtonLink ( buttonLinksArray [ index ] ) . setIcon ( it ) ;
+          }
+        }
+      }
     }
 /*
 ** Removes a button from the list.

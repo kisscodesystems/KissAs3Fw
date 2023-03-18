@@ -156,8 +156,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       spriteFg . addEventListener ( MouseEvent . CLICK , open ) ;
 // These have to be registered to keep up to date displaying according to the application level.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawReposShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawReposShapes ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawReposShapes ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_SIZE_CHANGED , fontSizeChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_BRIGHT_CHANGED , fontColorChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
@@ -317,7 +320,7 @@ package com . kisscodesystems . KissAs3Fw . ui
           spriteWatch . addChild ( analogTimeBaseSprite ) ;
           analogFrame = new BaseShape ( application ) ;
           analogTimeBaseSprite . addChild ( analogFrame ) ;
-          analogFrame . setdb ( true ) ;
+          analogFrame . setdb ( false ) ;
           analogFrame . setdt ( 0 ) ;
           analogH = new BaseSprite ( application ) ;
           analogTimeBaseSprite . addChild ( analogH ) ;
@@ -685,7 +688,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         if ( shapeFgFrame != null )
         {
-          shapeFgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+          shapeFgFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
           shapeFgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
           shapeFgFrame . drawRect ( ) ;
           shapeFgFrame . x = getsw ( ) - shapeFgFrame . getsw ( ) ;
@@ -694,7 +697,7 @@ package com . kisscodesystems . KissAs3Fw . ui
         }
         if ( shapeBgFrame != null )
         {
-          shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , ( application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+          shapeBgFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , ( application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
           shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
           shapeBgFrame . drawRect ( ) ;
           shapeBgFrame . x = 0 ;
@@ -713,7 +716,35 @@ package com . kisscodesystems . KissAs3Fw . ui
       paintAnalog ( ) ;
       paintBinary ( ) ;
       update ( ) ;
+      if ( analogTimeBaseSprite != null && binaryTimeBaseSprite != null && digitalTimeBaseSprite != null )
+      {
+        analogTimeBaseSprite . filters = undefined ;
+        binaryTimeBaseSprite . filters = undefined ;
+        digitalTimeBaseSprite . filters = undefined ;
+        setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorBright ( ) ) ;
+      }
     }
+    private function setDropShadowFilter ( color : Number ) : void
+    {
+      if ( analogTimeBaseSprite != null && binaryTimeBaseSprite != null && digitalTimeBaseSprite != null )
+      {
+        if ( application . brightShadowToApply ( color . toString ( 16 ) ) )
+        {
+          analogTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_BRIGHT ;
+          digitalTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_BRIGHT ;
+          binaryTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_BRIGHT ;
+        }
+        else
+        {
+          analogTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_DARK ;
+          digitalTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_DARK ;
+          binaryTimeBaseSprite . filters = application . TEXT_DROP_SHADOW_ARRAY_DARK ;
+        }
+      }
+    }
+/*
+** Creates the drop shadow to the drawn elements.
+*/
 /*
 ** Sets enabled or disabled.
 */
@@ -1068,8 +1099,9 @@ package com . kisscodesystems . KissAs3Fw . ui
         analogFrame . setswh ( shapeFgFrame . getsh ( ) - 4 , shapeFgFrame . getsh ( ) - 4 ) ;
         analogFrame . x = ( shapeFgFrame . getsw ( ) - analogFrame . getsw ( ) ) / 2 ;
         analogFrame . y = 2 ;
-        analogFrame . setccac ( application . getPropsDyn ( ) . getAppFontColorBright ( ) , application . getPropsDyn ( ) . getAppFontColorBright ( ) , 0 , application . getPropsDyn ( ) . getAppFontColorBright ( ) ) ;
+        analogFrame . setcccac ( application . getPropsDyn ( ) . getAppFontColorBright ( ) , application . getPropsDyn ( ) . getAppFontColorBright ( ) , application . getPropsDyn ( ) . getAppFontColorBright ( ) , 0 , application . getPropsDyn ( ) . getAppFontColorBright ( ) ) ;
         analogFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        analogFrame . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
         analogFrame . drawRect ( ) ;
         if ( analogH != null )
         {
@@ -1400,11 +1432,26 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function destroy ( ) : void
     {
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawReposShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawReposShapes ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_CORNER_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_FRAME_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawReposShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawReposShapes ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_FONT_SIZE_CHANGED , fontSizeChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_FONT_COLOR_BRIGHT_CHANGED , fontColorChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
+      if ( analogTimeBaseSprite != null )
+      {
+        analogTimeBaseSprite . filters = undefined ;
+      }
+      if ( digitalTimeBaseSprite != null )
+      {
+        digitalTimeBaseSprite . filters = undefined ;
+      }
+      if ( binaryTimeBaseSprite != null )
+      {
+        binaryTimeBaseSprite . filters = undefined ;
+      }
       if ( timer != null )
       {
         timer . stop ( ) ;

@@ -51,8 +51,8 @@ package com . kisscodesystems . KissAs3Fw . base
       textType = application . getTexts ( ) . TEXT_TYPE_BRIGHT ;
 // This events are required.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
     }
 /*
 ** The radius of the application has been changed.
@@ -95,11 +95,11 @@ package com . kisscodesystems . KissAs3Fw . base
 // If 1 or 2 is the state of the current element then paint that otherwise the mark of this element remains blank.
           if ( textMarkedArray [ i ] == 1 )
           {
-            drawMark ( Math . max ( application . getPropsApp ( ) . getBaseListMarkMinAlpha1 ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) * application . getPropsApp ( ) . getBaseListMarkAlpha1Factor ( ) ) , i ) ;
+            drawMark ( Math . max ( application . getPropsApp ( ) . getBaseListMarkMinAlpha1 ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) * application . getPropsApp ( ) . getBaseListMarkAlpha1Factor ( ) ) , i ) ;
           }
           else if ( textMarkedArray [ i ] == 2 )
           {
-            drawMark ( Math . max ( application . getPropsApp ( ) . getBaseListMarkMinAlpha2 ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) * application . getPropsApp ( ) . getBaseListMarkAlpha2Factor ( ) ) , i ) ;
+            drawMark ( Math . max ( application . getPropsApp ( ) . getBaseListMarkMinAlpha2 ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) * application . getPropsApp ( ) . getBaseListMarkAlpha2Factor ( ) ) , i ) ;
           }
         }
       }
@@ -109,7 +109,7 @@ package com . kisscodesystems . KissAs3Fw . base
 */
     private function drawMark ( a : Number , i : int ) : void
     {
-      mark . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) , a ) ;
+      mark . graphics . beginFill ( application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) , a ) ;
       mark . graphics . drawRoundRect ( 0 , TextLabel ( textLabelArray [ i ] ) . getcy ( ) , TextLabel ( textLabelArray [ i ] ) . getsw ( ) , TextLabel ( textLabelArray [ i ] ) . getsh ( ) , application . getPropsDyn ( ) . getAppRadius ( ) , application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       mark . graphics . endFill ( ) ;
     }
@@ -186,8 +186,6 @@ package com . kisscodesystems . KissAs3Fw . base
       }
       textLabelArray . splice ( index ) ;
       textMarkedArray . splice ( index ) ;
-// The height has to be recalculated.
-      setHeight ( ) ;
     }
 /*
 ** When the size of the text label has been changed.
@@ -210,7 +208,7 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       for ( var i : int = 0 ; i < textLabelArray . length ; i ++ )
       {
-        TextLabel ( textLabelArray [ i ] ) . setcxy ( 0 , i * application . getPropsDyn ( ) . getTextFieldHeight ( textType ) ) ;
+        TextLabel ( textLabelArray [ i ] ) . setcy ( i * application . getPropsDyn ( ) . getTextFieldHeight ( textType ) ) ;
       }
       markElements ( ) ;
       super . setsh ( textLabelArray . length * application . getPropsDyn ( ) . getTextFieldHeight ( textType ) ) ;
@@ -247,11 +245,12 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** Sets the text code of the list element at index i.
 */
-    public function setTextCode ( i : int , newTextCode : String , newIconType : String = null ) : void
+    public function setTextCode ( i : int , newTextCode : String , newIconType : String = null , newTabcnt : int = 0 ) : void
     {
 // Sets the text code in case of valid index.
       if ( i < textLabelArray . length && i > - 1 )
       {
+        TextLabel ( textLabelArray [ i ] ) . setcx ( newTabcnt * TextLabel ( textLabelArray [ i ] ) . getsh ( ) ) ;
         TextLabel ( textLabelArray [ i ] ) . setTextCode ( newTextCode ) ;
         if ( newIconType != null && newIconType != "" )
         {
@@ -305,8 +304,8 @@ package com . kisscodesystems . KissAs3Fw . base
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;

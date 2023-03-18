@@ -39,7 +39,6 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var iniTextChanged : Boolean = false ;
 // Content and its original y position has to be saved if it is mobile mode.
     private var contentSprite : BaseSprite = null ;
-    private var backSprite : BaseSprite = null ;
     private var origContentPos : int = 0 ;
 /*
 ** The constructor doing the initialization of this object as usual.
@@ -53,7 +52,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChildAt ( baseShape , 0 ) ;
       baseShape . setdb ( false ) ;
       baseShape . setdt ( - 1 ) ;
-      baseShape . mask = baseScroll . getMask0 ( ) ;
+      baseShape . mask = baseScroll . getMask ( ) ;
 // The scroll needs these.
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . CLICK , moverMouseClick ) ;
@@ -61,9 +60,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // This is the initial state:
       setModeScroller ( ) ;
 // This is the default text type of the multiline text input.
@@ -123,7 +123,15 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      baseShapeRepaint ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       baseShapeRepaint ( ) ;
@@ -131,7 +139,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       baseShapeRepaint ( ) ;
@@ -151,7 +159,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( application != null )
       {
-        baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        baseShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         baseShape . drawRect ( ) ;
       }
@@ -176,11 +184,19 @@ package com . kisscodesystems . KissAs3Fw . ui
       origMouseY = int ( mouseY ) ;
     }
 /*
+** Get this into the focus the same way as it would be a mouse click on it.
+*/
+    public function toFocus ( ) : void
+    {
+// As the click event happened.
+      moverMouseClick ( null ) ;
+    }
+/*
 ** Click on the mover.
 */
     private function moverMouseClick ( e : MouseEvent ) : void
     {
-      if ( getEnabled ( ) && int ( mouseX ) == origMouseX && int ( mouseY ) == origMouseY && getEnabled ( ) )
+      if ( getEnabled ( ) && ( ( int ( mouseX ) == origMouseX && int ( mouseY ) == origMouseY && getEnabled ( ) ) || e == null ) )
       {
 // If everything is ready then we can enter into edit mode.
         setModeEditor ( ) ;
@@ -195,6 +211,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( stage != null )
         {
           stage . focus = baseTextField ;
+          if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+          {
+            toBeVisible ( ) ;
+          }
         }
       }
     }
@@ -255,12 +275,10 @@ package com . kisscodesystems . KissAs3Fw . ui
                 }
                 var contentSingle : ContentSingle = ContentSingle ( currentParent ) ;
                 contentSprite = ContentSingle ( currentParent ) . getBaseSprite ( ) ;
-                backSprite = ContentSingle ( currentParent ) . getBackSprite ( ) ;
-                if ( contentSingle != null && contentSprite != null && backSprite != null )
+                if ( contentSingle != null && contentSprite != null )
                 {
                   origContentPos = contentSprite . y ;
                   contentSprite . y = application . getPropsApp ( ) . getScrollMargin ( ) + application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) - dist + contentSingle . getBaseScroll ( ) . getccy ( ) ;
-                  backSprite . y = contentSprite . y ;
                 }
                 break ;
               }
@@ -292,10 +310,6 @@ package com . kisscodesystems . KissAs3Fw . ui
         if ( contentSprite != null )
         {
           contentSprite . y = origContentPos ;
-        }
-        if ( backSprite != null )
-        {
-          backSprite . y = origContentPos ;
         }
       }
     }
@@ -381,9 +395,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       baseTextField . removeEventListener ( FocusEvent . FOCUS_OUT , focusOut ) ;
       baseTextField . removeEventListener ( FocusEvent . FOCUS_IN , focusIn ) ;
       baseTextField . removeEventListener ( TextEvent . TEXT_INPUT , textInput ) ;
@@ -397,7 +412,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       origMouseY = 0 ;
       iniTextChanged = false ;
       contentSprite = null ;
-      backSprite = null ;
       origContentPos = 0 ;
     }
   }

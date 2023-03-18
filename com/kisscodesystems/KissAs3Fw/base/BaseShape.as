@@ -36,14 +36,20 @@ package com . kisscodesystems . KissAs3Fw . base
     protected var application : Application = null ;
 // The matrix used for drawing a little bright layer to the shape.
     private var brightMatrix : Matrix = null ;
+// This matrix will be used to draw the base with 2 colors.
+    private var baseMatrix : Matrix = null ;
 // The matrix used for drawing the curve (bright-to-dark)
     private var lineMatrix : Matrix = null ;
 // The color of the line.
     private var lineColor : Number = 0 ;
-// The color of the filling.
-    private var fillColor : Number = 0 ;
+// The colors of the filling.
+    private var fillColor1 : Number = 0 ;
+    private var fillColor2 : Number = 0 ;
 // The alpha of the filling.
     private var fillAlpha : Number = 0 ;
+// The box properties, count only general boxing (0).
+    private var boxCorner : int = 0 ;
+    private var boxFrame : String = "" ;
 // The color of the bright.
     private var brightColor1 : Number = 0 ;
 // Radius. (of the corners)
@@ -76,6 +82,9 @@ package com . kisscodesystems . KissAs3Fw . base
       {
         System . exit ( 1 ) ;
       }
+// These are initialized now.
+      boxCorner = 8 ;
+      boxFrame = application . getTexts ( ) . BOX_FRAME_FULL ;
 // Now registering the events of adding and removing this object to and from the stage.
       addEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
       addEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
@@ -106,22 +115,33 @@ package com . kisscodesystems . KissAs3Fw . base
     }
 /*
 ** Sets the colors of the drawing.
-** (ccac: color color alpha color)
+** (cccac: color color alpha color)
 ** The object has to be redrawn after this!
 */
-    public function setccac ( lineColor : Number , fillColor : Number , fillAlpha : Number , brightColor1 : Number ) : void
+    public function setcccac ( lineColor : Number , fillColor1 : Number , fillColor2 : Number , fillAlpha : Number , brightColor1 : Number ) : void
     {
       this . lineColor = lineColor ;
-      this . fillColor = fillColor ;
+      this . fillColor1 = fillColor1 ;
+      this . fillColor2 = fillColor2 ;
       this . fillAlpha = fillAlpha ;
       this . brightColor1 = brightColor1 ;
     }
 /*
 ** Sets the sr (radius).
+** The object has to be redrawn after this!
 */
     public function setsr ( sr : int ) : void
     {
       this . sr = sr ;
+    }
+/*
+** Sets the sb (box) properties.
+** The object has to be redrawn after this!
+*/
+    public function setsb ( boxCorner : int , boxFrame : String ) : void
+    {
+      this . boxCorner = boxCorner ;
+      this . boxFrame = boxFrame ;
     }
 /*
 ** Sets the r radius and the w and h sizes.
@@ -197,7 +217,9 @@ package com . kisscodesystems . KissAs3Fw . base
 // Begin of filling.
         if ( df )
         {
-          graphics . beginFill ( fillColor , fillAlpha ) ;
+          baseMatrix = new Matrix ( ) ;
+          baseMatrix . createGradientBox ( sw * 2 , sh , Math . PI / 2 , - sw / 2 , 0 ) ;
+          graphics . beginGradientFill ( GradientType . LINEAR , [ fillColor1 , fillColor2 ] , [ fillAlpha , fillAlpha ] , [ application . getPropsApp ( ) . getLinearRatio1 ( ) , application . getPropsApp ( ) . getLinearRatio2 ( ) ] , baseMatrix , SpreadMethod . PAD , InterpolationMethod . RGB ) ;
         }
 // Really drawing the rect, with line drawing.
         drawThatRect ( true ) ;
@@ -211,7 +233,7 @@ package com . kisscodesystems . KissAs3Fw . base
         {
 // The matrix has to be reconstructed.
           brightMatrix = new Matrix ( ) ;
-          brightMatrix . createGradientBox ( sw * 2 , sh , Math . PI / 2 , - sw / 2 , 0 ) ;
+          brightMatrix . createGradientBox ( sw , sh , Math . PI / 2 , 0 , 0 ) ;
 // Begin of filling.
           graphics . beginGradientFill ( GradientType . RADIAL , [ brightColor1 , application . getPropsApp ( ) . getBrightColor2 ( ) ] , [ application . getPropsApp ( ) . getGradientAlpha1 ( ) , application . getPropsApp ( ) . getGradientAlpha2 ( ) ] , [ application . getPropsApp ( ) . getGradientRatio1 ( ) , application . getPropsApp ( ) . getGradientRatio2 ( ) ] , brightMatrix , SpreadMethod . PAD , InterpolationMethod . RGB , application . getPropsApp ( ) . getFocalPointRatio ( ) ) ;
 // Drawing the rect again but without line.
@@ -240,168 +262,391 @@ package com . kisscodesystems . KissAs3Fw . base
 */
     private function drawThatRect ( lineNeeded : Boolean ) : void
     {
-// If the radius has been set to 0..
-      if ( sr == 0 )
+      var lineColor1 : Number = application . getPropsApp ( ) . getLineColor1 ( ) ;
+      var lineColor2 : Number = application . getPropsApp ( ) . getLineColor2 ( ) ;
+      var pixelHinting : Boolean = application . getPropsApp ( ) . getPixelHinting ( ) ;
+      var lineThickness : Number = application . getPropsDyn ( ) . getAppLineThickness ( ) ;
+      var lineAlpha : Number = lineThickness == 0 ? 0 : application . getPropsApp ( ) . getLineAlpha ( ) ;
+// 1
+      if ( lineNeeded )
       {
-// Then we can do it easier. (just 4 line.)
-        if ( lineNeeded )
+        if ( dt == - 1 )
         {
-          if ( dt == - 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
         }
         else
         {
-          graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , 0 , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
         }
-        graphics . moveTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        graphics . lineTo ( sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . lineTo ( sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        graphics . lineTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . lineTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
       }
       else
       {
-// OK, we need curving on the corners..
-        if ( lineNeeded )
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . moveTo ( Math . max ( sr , lineThickness / 2 ) , lineThickness / 2 ) ;
+      graphics . lineTo ( Math . max ( boxCorner , lineThickness / 2 , sr ) , lineThickness / 2 ) ;
+// 2
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
         {
-          if ( dt == - 1 )
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          if ( boxFrame == application . getTexts ( ) . BOX_FRAME_FULL || boxFrame == application . getTexts ( ) . BOX_FRAME_HORIZONTAL )
           {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+            graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
           }
           else
           {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+            graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+          }
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( Math . min ( sw - boxCorner , sw - sr , sw - lineThickness / 2 ) , lineThickness / 2 ) ;
+// 3
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( Math . min ( sw - sr , sw - lineThickness / 2 ) , lineThickness / 2 ) ;
+// 4
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 || dt == 1 )
+        {
+// .. and in this cases, the brighting of the curves.
+          lineMatrix = new Matrix ( ) ;
+          lineMatrix . createGradientBox ( sr , sr , 0 , sw - sr - lineThickness / 2 , lineThickness / 2 ) ;
+          if ( dt == 1 )
+          {
+            graphics . lineGradientStyle ( GradientType . LINEAR , [ lineColor2 , lineColor1 ] , [ lineAlpha , lineAlpha ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
+          }
+          else
+          {
+            graphics . lineGradientStyle ( GradientType . LINEAR , [ lineColor1 , lineColor2 ] , [ lineAlpha , lineAlpha ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
           }
         }
         else
         {
-          graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , 0 , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
         }
-        graphics . moveTo ( sr + application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        graphics . lineTo ( sw - sr - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 || dt == 1 )
-          {
-// .. and in this cases, the brighting of the curves.
-            lineMatrix = new Matrix ( ) ;
-            lineMatrix . createGradientBox ( sr , sr , 0 , sw - sr - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-            if ( dt == 1 )
-            {
-              graphics . lineGradientStyle ( GradientType . LINEAR , [ application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineColor1 ( ) ] , [ application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getLineAlpha ( ) ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
-            }
-            else
-            {
-              graphics . lineGradientStyle ( GradientType . LINEAR , [ application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineColor2 ( ) ] , [ application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getLineAlpha ( ) ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
-            }
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . curveTo ( sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sr + application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . lineTo ( sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 - sr ) ;
-        graphics . curveTo ( sw - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sw - sr - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        graphics . lineTo ( sr + application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 || dt == 1 )
-          {
-            lineMatrix = new Matrix ( ) ;
-            lineMatrix . createGradientBox ( sr , sr , 0 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - sr - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-            if ( dt == 1 )
-            {
-              graphics . lineGradientStyle ( GradientType . LINEAR , [ application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineColor1 ( ) ] , [ application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getLineAlpha ( ) ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
-            }
-            else
-            {
-              graphics . lineGradientStyle ( GradientType . LINEAR , [ application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineColor2 ( ) ] , [ application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getLineAlpha ( ) ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
-            }
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . curveTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sh - sr - application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        if ( lineNeeded )
-        {
-          if ( dt == - 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor1 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else if ( dt == 1 )
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsApp ( ) . getLineColor2 ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-          else
-          {
-            graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , lineColor , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
-          }
-        }
-        graphics . lineTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sr + application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
-        graphics . curveTo ( application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , sr + application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 , application . getPropsDyn ( ) . getAppLineThickness ( ) / 2 ) ;
       }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . curveTo ( sw - lineThickness / 2 , lineThickness / 2
+                         , sw - lineThickness / 2 , Math . max ( sr , lineThickness / 2 ) ) ;
+// 5
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( sw - lineThickness / 2 , Math . max ( boxCorner , sr , lineThickness / 2 ) ) ;
+// 6
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          if ( boxFrame == application . getTexts ( ) . BOX_FRAME_FULL || boxFrame == application . getTexts ( ) . BOX_FRAME_VERTICAL )
+          {
+            graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+          }
+          else
+          {
+            graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+          }
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( sw - lineThickness / 2 , Math . min ( sh - boxCorner , sh - sr , sh - lineThickness / 2 ) ) ;
+// 7
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( sw - lineThickness / 2 , Math . min ( sh - sr , sh - lineThickness / 2 ) ) ;
+// 8
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . curveTo ( sw - lineThickness / 2 , sh - lineThickness / 2 
+                         , Math . min ( sw - sr , sw - lineThickness / 2 ) , sh - lineThickness / 2 ) ;
+// 9
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( Math . min ( sw - boxCorner , sw - sr , sw - lineThickness / 2 ) , sh - lineThickness / 2 ) ;
+// 10
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          if ( boxFrame == application . getTexts ( ) . BOX_FRAME_FULL || boxFrame == application . getTexts ( ) . BOX_FRAME_HORIZONTAL )
+          {
+            graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+          }
+          else
+          {
+            graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+          }
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( Math . max ( boxCorner , sr , lineThickness / 2 ) , sh - lineThickness / 2 ) ;
+// 11
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( Math . max ( sr , lineThickness / 2 ) , sh - lineThickness / 2 ) ;
+// 12
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 || dt == 1 )
+        {
+          lineMatrix = new Matrix ( ) ;
+          lineMatrix . createGradientBox ( sr , sr , 0 , lineThickness / 2 , sh - sr - lineThickness / 2 ) ;
+          if ( dt == 1 )
+          {
+            graphics . lineGradientStyle ( GradientType . LINEAR , [ lineColor2 , lineColor1 ] , [ lineAlpha , lineAlpha ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
+          }
+          else
+          {
+            graphics . lineGradientStyle ( GradientType . LINEAR , [ lineColor1 , lineColor2 ] , [ lineAlpha , lineAlpha ] , [ application . getPropsApp ( ) . getLineRatio1 ( ) , application . getPropsApp ( ) . getLineRatio2 ( ) ] , lineMatrix ) ;
+          }
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . curveTo ( lineThickness / 2 , sh - lineThickness / 2
+                         , lineThickness / 2 , Math . min ( sh - sr , sh - lineThickness / 2 ) ) ;
+// 13
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( lineThickness / 2 , Math . min ( sh - boxCorner , sh - sr , sh - lineThickness / 2 ) ) ;
+// 14
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          if ( boxFrame == application . getTexts ( ) . BOX_FRAME_FULL || boxFrame == application . getTexts ( ) . BOX_FRAME_VERTICAL )
+          {
+            graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+          }
+          else
+          {
+            graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+          }
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( lineThickness / 2 , Math . max ( boxCorner , sr , lineThickness / 2 ) ) ;
+// 15
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . lineTo ( lineThickness / 2 , Math . max ( sr , lineThickness / 2 ) ) ;
+// 16
+      if ( lineNeeded )
+      {
+        if ( dt == - 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor1 , lineAlpha , pixelHinting ) ;
+        }
+        else if ( dt == 1 )
+        {
+          graphics . lineStyle ( lineThickness , lineColor2 , lineAlpha , pixelHinting ) ;
+        }
+        else
+        {
+          graphics . lineStyle ( lineThickness , lineColor , lineAlpha , pixelHinting ) ;
+        }
+      }
+      else
+      {
+        graphics . lineStyle ( lineThickness , lineColor , 0 , pixelHinting ) ;
+      }
+      graphics . curveTo ( lineThickness / 2 , lineThickness / 2
+                         , Math . max ( sr , lineThickness / 2 ) , lineThickness / 2 ) ;
     }
 /*
 ** Destroying this object by calling this method.
@@ -417,10 +662,12 @@ package com . kisscodesystems . KissAs3Fw . base
       filters = null ;
 // 3: calling the super destroy.
 // 4: every reference and value should be resetted to null, 0 or false.
+      baseMatrix = null ;
       brightMatrix = null ;
       lineMatrix = null ;
       lineColor = 0 ;
-      fillColor = 0 ;
+      fillColor1 = 0 ;
+      fillColor2 = 0 ;
       fillAlpha = 0 ;
       brightColor1 = 0 ;
       sr = 0 ;

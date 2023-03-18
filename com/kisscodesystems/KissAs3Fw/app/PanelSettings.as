@@ -26,7 +26,7 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . app . LangSetter ;
   import com . kisscodesystems . KissAs3Fw . base . BasePanel ;
-  import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
   import com . kisscodesystems . KissAs3Fw . ui . ColorPicker ;
   import com . kisscodesystems . KissAs3Fw . ui . ListPicker ;
@@ -37,9 +37,6 @@ package com . kisscodesystems . KissAs3Fw . app
   import flash . events . MouseEvent ;
   public class PanelSettings extends BasePanel
   {
-// And after the user background file changing.
-    private var eventUserBackgroundFileSelected : Event = null ;
-    private var eventUserBackgroundFileCancelled : Event = null ;
 // The identifiers of the contents are:
     private var indexGeneral : int = - 1 ;
     private var indexLining : int = - 1 ;
@@ -54,9 +51,6 @@ package com . kisscodesystems . KissAs3Fw . app
 // langCode
     private var langCodeLAB : TextLabel = null ;
     private var langCodeOBJ : LangSetter = null ;
-// predefined disdplaying styles
-    private var displayingStyleLAB : TextLabel = null ;
-    private var displayingStyleOBJ : ListPicker = null ;
 // The number of the widget containers.
     private var numOfWidgetcontainersLAB : TextLabel = null ;
     private var numOfWidgetcontainersOBJ : ListPicker = null ;
@@ -81,7 +75,7 @@ package com . kisscodesystems . KissAs3Fw . app
 // appLineThickness
     private var appLineThicknessLAB : TextLabel = null ;
     private var appLineThicknessOBJ : Potmeter = null ;
-    private const appLineThicknessMIN : Number = 1 ;
+    private const appLineThicknessMIN : Number = 0 ;
     private const appLineThicknessMAX : Number = 5 ;
     private const appLineThicknessINC : Number = 1 ;
 // appMargin
@@ -102,18 +96,38 @@ package com . kisscodesystems . KissAs3Fw . app
     private const appRadiusMIN : Number = 0 ;
     private const appRadiusMAX : Number = 12 ;
     private const appRadiusINC : Number = 1 ;
-// appBackgroundFillBgColor
-    private var appBackgroundFillBgColorLAB : TextLabel = null ;
-    private var appBackgroundFillBgColorOBJ : ColorPicker = null ;
-// appBackgroundFillFgColor
-    private var appBackgroundFillFgColorLAB : TextLabel = null ;
-    private var appBackgroundFillFgColorOBJ : ColorPicker = null ;
-// appBackgroundFillAlpha
-    private var appBackgroundFillAlphaLAB : TextLabel = null ;
-    private var appBackgroundFillAlphaOBJ : Potmeter = null ;
-    private const appBackgroundFillAlphaMIN : Number = 0 ;
-    private const appBackgroundFillAlphaMAX : Number = 1 ;
-    private const appBackgroundFillAlphaINC : Number = 0.01 ;
+// appBoxMinCorner
+    private var appBoxCornerLAB : TextLabel = null ;
+    private var appBoxCornerOBJ : Potmeter = null ;
+    private const appBoxCornerMIN : Number = 0 ;
+    private const appBoxCornerMAX : Number = 22 ;
+    private const appBoxCornerINC : Number = 1 ;
+// appBoxFrame
+    private var appBoxFrameLAB : TextLabel = null ;
+    private var appBoxFrameOBJ : ListPicker = null ;
+// predefined disdplaying styles
+    private var displayingStyleLAB : TextLabel = null ;
+    private var displayingStyleOBJ : ListPicker = null ;
+    private var appBackgroundColorsLAB : TextLabel = null ;
+// appBackgroundColorDark
+    private var appBackgroundColorDarkOBJ : ColorPicker = null ;
+// appBackgroundColorMid
+    private var appBackgroundColorMidOBJ : ColorPicker = null ;
+// appBackgroundColorBright
+    private var appBackgroundColorBrightOBJ : ColorPicker = null ;
+// appBackgroundColorAlpha
+    private var appBackgroundColorAlphaLAB : TextLabel = null ;
+    private var appBackgroundColorAlphaOBJ : Potmeter = null ;
+    private const appBackgroundColorAlphaMIN : Number = 0 ;
+    private const appBackgroundColorAlphaMAX : Number = 1 ;
+    private const appBackgroundColorAlphaINC : Number = 0.01 ;
+// appBackgroundColorRand
+    private var appBackgroundColorRandOBJ : Switcher = null ;
+    private var appBackgroundColorRandLAB : TextLabel = null ;
+// appBackgroundColorToFont
+    private var appBackgroundColorToFontOBJ : Switcher = null ;
+// appBackgroundColorGetNewSchema
+    private var appBackgroundColorGetNewSchema : ButtonLink = null ;
 // appBackgroundImage
     private var appBackgroundImageVAL : TextLabel = null ;
 // appBackgroundAlign
@@ -134,8 +148,8 @@ package com . kisscodesystems . KissAs3Fw . app
 // appBackgroundLive
     private var appBackgroundLiveOBJ : Switcher = null ;
     private var appBackgroundLiveLAB : TextLabel = null ;
-// userBgButtonFile
-    private var userBgButtonFile : ButtonFile = null ;
+// userBgHandler
+    private var userBgHandler : BaseSprite = null ;
 // appFontFace
     private var appFontFaceLAB : TextLabel = null ;
     private var appFontFaceOBJ : ListPicker = null ;
@@ -144,9 +158,9 @@ package com . kisscodesystems . KissAs3Fw . app
     private var appFontSizeOBJ : ListPicker = null ;
 // appFontColorBright
     private var appFontColorBrightOBJ : ColorPicker = null ;
-// appFontColorBright
+// appFontColorMid
     private var appFontColorMidOBJ : ColorPicker = null ;
-// appFontColorBright
+// appFontColorDark
     private var appFontColorDarkOBJ : ColorPicker = null ;
     private var appFontColorsLAB : TextLabel = null ;
 // appFontBold
@@ -155,6 +169,13 @@ package com . kisscodesystems . KissAs3Fw . app
 // appFontItalic
     private var appFontItalicOBJ : Switcher = null ;
     private var appFontItalicLAB : TextLabel = null ;
+// appFontColorRand
+    private var appFontColorRandOBJ : Switcher = null ;
+    private var appFontColorRandLAB : TextLabel = null ;
+// appFontColorToBackground
+    private var appFontColorToBackgroundOBJ : Switcher = null ;
+// appFontColorGetNewSchema
+    private var appFontColorGetNewSchema : ButtonLink = null ;
 // ABOUT
     private var applicationNameLAB : TextLabel = null ;
     private var applicationVersionLAB : TextLabel = null ;
@@ -166,9 +187,6 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // Let's store this reference to the Application object.
       super ( applicationRef ) ;
-// And about the file changing (background)
-      eventUserBackgroundFileSelected = new Event ( application . EVENT_USER_BACKGROUND_FILE_SELECTED ) ;
-      eventUserBackgroundFileCancelled = new Event ( application . EVENT_USER_BACKGROUND_FILE_CANCELLED ) ;
 // The array of the widget containers.
       numOfWidgetcontainersARR = new Array ( ) ;
       for ( var i : int = 1 ; i <= application . getPropsApp ( ) . getMaxNumOfWidgetcontainers ( ) ; i ++ )
@@ -187,10 +205,6 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( langCodeOBJ != null )
       {
         langCodeOBJ . setEnabled ( getEnabled ( ) ) ;
-      }
-      if ( displayingStyleOBJ != null )
-      {
-        displayingStyleOBJ . setEnabled ( getEnabled ( ) ) ;
       }
       if ( numOfWidgetcontainersOBJ != null )
       {
@@ -228,17 +242,37 @@ package com . kisscodesystems . KissAs3Fw . app
       {
         appPaddingOBJ . setEnabled ( getEnabled ( ) ) ;
       }
-      if ( appBackgroundFillBgColorOBJ != null )
+      if ( displayingStyleOBJ != null )
       {
-        appBackgroundFillBgColorOBJ . setEnabled ( getEnabled ( ) ) ;
+        displayingStyleOBJ . setEnabled ( getEnabled ( ) ) ;
       }
-      if ( appBackgroundFillFgColorOBJ != null )
+      if ( appBackgroundColorDarkOBJ != null )
       {
-        appBackgroundFillFgColorOBJ . setEnabled ( getEnabled ( ) ) ;
+        appBackgroundColorDarkOBJ . setEnabled ( getEnabled ( ) ) ;
       }
-      if ( appBackgroundFillAlphaOBJ != null )
+      if ( appBackgroundColorMidOBJ != null )
       {
-        appBackgroundFillAlphaOBJ . setEnabled ( getEnabled ( ) ) ;
+        appBackgroundColorMidOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appBackgroundColorBrightOBJ != null )
+      {
+        appBackgroundColorBrightOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appBackgroundColorAlphaOBJ != null )
+      {
+        appBackgroundColorAlphaOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appBackgroundColorRandOBJ != null )
+      {
+        appBackgroundColorRandOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appBackgroundColorToFontOBJ != null )
+      {
+        appBackgroundColorToFontOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appBackgroundColorGetNewSchema != null )
+      {
+        appBackgroundColorGetNewSchema . setEnabled ( getEnabled ( ) ) ;
       }
       if ( appBackgroundAlignOBJ != null )
       {
@@ -276,6 +310,18 @@ package com . kisscodesystems . KissAs3Fw . app
       {
         appFontColorDarkOBJ . setEnabled ( getEnabled ( ) ) ;
       }
+      if ( appFontColorRandOBJ != null )
+      {
+        appFontColorRandOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appFontColorToBackgroundOBJ != null )
+      {
+        appFontColorToBackgroundOBJ . setEnabled ( getEnabled ( ) ) ;
+      }
+      if ( appFontColorGetNewSchema != null )
+      {
+        appFontColorGetNewSchema . setEnabled ( getEnabled ( ) ) ;
+      }
       if ( appFontBoldOBJ != null )
       {
         appFontBoldOBJ . setEnabled ( getEnabled ( ) ) ;
@@ -304,201 +350,265 @@ package com . kisscodesystems . KissAs3Fw . app
       contentMultiple . setElementsFix ( indexFonting , 1 ) ;
       contentMultiple . setElementsFix ( indexAbout , 0 ) ;
       contentMultiple . setActiveIndex ( 0 ) ;
+// The current index to use for adding new objects to the panel.
+      var curr : int = 0 ;
 // langCode
       langCodeOBJ = new LangSetter ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , langCodeOBJ , true , 0 ) ;
+      contentMultiple . addToContent ( indexGeneral , langCodeOBJ , curr ) ;
+      curr ++ ;
       langCodeLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , langCodeLAB , false , 1 ) ;
+      contentMultiple . addToContent ( indexGeneral , langCodeLAB , curr ) ;
+      curr ++ ;
       langCodeLAB . setTextCode ( application . getTexts ( ) . SETTING_LANGUAGE ) ;
-// Predefined disdplaying styles
-      displayingStyleOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , displayingStyleOBJ , true , 2 ) ;
-      displayingStyleOBJ . setNumOfElements ( listPickerCNT ) ;
-      setElementsOfDisplayingStylesOBJ ( ) ;
-      displayingStyleLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , displayingStyleLAB , false , 3 ) ;
-      displayingStyleLAB . setTextCode ( application . getTexts ( ) . SETTING_DISPLAYING_STYLE ) ;
 // The number of the widget containers.
-      numOfWidgetcontainersOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , numOfWidgetcontainersOBJ , true , 4 ) ;
-      numOfWidgetcontainersOBJ . setNumOfElements ( listPickerCNT ) ;
-      numOfWidgetcontainersOBJ . setArrays ( numOfWidgetcontainersARR , numOfWidgetcontainersARR ) ;
-      numOfWidgetcontainersOBJ . setSelectedIndex ( 0 ) ;
-      numOfWidgetcontainersLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , numOfWidgetcontainersLAB , false , 5 ) ;
-      numOfWidgetcontainersLAB . setTextCode ( application . getTexts ( ) . SETTING_NUM_OF_WIDGETCONTAINERS ) ;
+      if ( application . getPropsApp ( ) . getPanelSettingsEnableMaxDesktops ( ) )
+      {
+        numOfWidgetcontainersOBJ = new ListPicker ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , numOfWidgetcontainersOBJ , curr ) ;
+        curr ++ ;
+        numOfWidgetcontainersOBJ . setNumOfElements ( listPickerCNT ) ;
+        numOfWidgetcontainersOBJ . setArrays ( numOfWidgetcontainersARR , numOfWidgetcontainersARR ) ;
+        numOfWidgetcontainersOBJ . setSelectedIndex ( 0 ) ;
+        numOfWidgetcontainersLAB = new TextLabel ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , numOfWidgetcontainersLAB , curr ) ;
+        curr ++ ;
+        numOfWidgetcontainersLAB . setTextCode ( application . getTexts ( ) . SETTING_NUM_OF_WIDGETCONTAINERS ) ;
+      }
 // The current widget container.
-      currWidgetcontainerOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , currWidgetcontainerOBJ , true , 6 ) ;
-      currWidgetcontainerOBJ . setNumOfElements ( listPickerCNT ) ;
-      setArraysCurrWidgetcontainerOBJ ( ) ;
-      currWidgetcontainerOBJ . setSelectedIndex ( 0 ) ;
-      currWidgetcontainerLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , currWidgetcontainerLAB , false , 7 ) ;
-      currWidgetcontainerLAB . setTextCode ( application . getTexts ( ) . SETTING_CURR_WIDGETCONTAINER ) ;
+      if ( application . getPropsApp ( ) . getPanelSettingsEnableCurrDesktop ( ) )
+      {
+        currWidgetcontainerOBJ = new ListPicker ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , currWidgetcontainerOBJ , curr ) ;
+        curr ++ ;
+        currWidgetcontainerOBJ . setNumOfElements ( listPickerCNT ) ;
+        setArraysCurrWidgetcontainerOBJ ( ) ;
+        currWidgetcontainerOBJ . setSelectedIndex ( 0 ) ;
+        currWidgetcontainerLAB = new TextLabel ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , currWidgetcontainerLAB , curr ) ;
+        curr ++ ;
+        currWidgetcontainerLAB . setTextCode ( application . getTexts ( ) . SETTING_CURR_WIDGETCONTAINER ) ;
+      }
 // appWidgetsOrientation
-      appWidgetsOrientationOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appWidgetsOrientationOBJ , true , 8 ) ;
-      appWidgetsOrientationOBJ . setNumOfElements ( listPickerCNT ) ;
-      appWidgetsOrientationOBJ . setArrays ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) , application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) ) ;
-      appWidgetsOrientationLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appWidgetsOrientationLAB , false , 9 ) ;
-      appWidgetsOrientationLAB . setTextCode ( application . getTexts ( ) . SETTING_WIDGETS_ORIENTATION ) ;
+      if ( application . getPropsApp ( ) . getPanelSettingsEnableWidgetsOrientation ( ) )
+      {
+        appWidgetsOrientationOBJ = new ListPicker ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , appWidgetsOrientationOBJ , curr ) ;
+        curr ++ ;
+        appWidgetsOrientationOBJ . setNumOfElements ( listPickerCNT ) ;
+        appWidgetsOrientationOBJ . setArrays ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) , application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) ) ;
+        appWidgetsOrientationLAB = new TextLabel ( application ) ;
+        contentMultiple . addToContent ( indexGeneral , appWidgetsOrientationLAB , curr ) ;
+        curr ++ ;
+        appWidgetsOrientationLAB . setTextCode ( application . getTexts ( ) . SETTING_WIDGETS_ORIENTATION ) ;
+      }
 // appWidgetMode
       appWidgetModeOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appWidgetModeOBJ , true , 10 ) ;
+      contentMultiple . addToContent ( indexGeneral , appWidgetModeOBJ , curr ) ;
+      curr ++ ;
       appWidgetModeOBJ . setNumOfElements ( 3 ) ;
       appWidgetModeOBJ . setArrays ( application . getTextStock ( ) . getTextCodesWidgetModes ( ) , application . getTextStock ( ) . getTextCodesWidgetModes ( ) ) ;
       appWidgetModeLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appWidgetModeLAB , false , 11 ) ;
+      contentMultiple . addToContent ( indexGeneral , appWidgetModeLAB , curr ) ;
+      curr ++ ;
       appWidgetModeLAB . setTextCode ( application . getTexts ( ) . SETTING_WIDGET_MODE ) ;
 // sound
       appSoundPlayingOBJ = new Switcher ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appSoundPlayingOBJ , true , 12 ) ;
+      contentMultiple . addToContent ( indexGeneral , appSoundPlayingOBJ , curr ) ;
+      curr ++ ;
       appSoundPlayingOBJ . setTextCodes ( application . getTexts ( ) . SETTING_SOUND_PLAYING_ON , application . getTexts ( ) . SETTING_SOUND_PLAYING_OFF ) ;
       appSoundVolumeOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexGeneral , appSoundVolumeOBJ , true , 13 ) ;
+      contentMultiple . addToContent ( indexGeneral , appSoundVolumeOBJ , curr ) ;
+      curr ++ ;
       appSoundVolumeOBJ . setMinMaxIncValues ( appSoundVolumeMIN , appSoundVolumeMAX , appSoundVolumeINC ) ;
 // appLineThickness
       appLineThicknessOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexLining , appLineThicknessOBJ , true , 0 ) ;
+      contentMultiple . addToContent ( indexLining , appLineThicknessOBJ , 0 ) ;
       appLineThicknessOBJ . setMinMaxIncValues ( appLineThicknessMIN , appLineThicknessMAX , appLineThicknessINC ) ;
       appLineThicknessLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexLining , appLineThicknessLAB , false , 2 ) ;
+      contentMultiple . addToContent ( indexLining , appLineThicknessLAB , 2 ) ;
       appLineThicknessLAB . setTextCode ( application . getTexts ( ) . SETTING_LINE_THICKNESS ) ;
 // appMargin
       appMarginOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexLining , appMarginOBJ , true , 3 ) ;
+      contentMultiple . addToContent ( indexLining , appMarginOBJ , 3 ) ;
       appMarginOBJ . setMinMaxIncValues ( appMarginMIN , appMarginMAX , appMarginINC ) ;
       appMarginLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexLining , appMarginLAB , false , 5 ) ;
+      contentMultiple . addToContent ( indexLining , appMarginLAB , 5 ) ;
       appMarginLAB . setTextCode ( application . getTexts ( ) . SETTING_MARGIN ) ;
 // appPadding
       appPaddingOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexLining , appPaddingOBJ , true , 6 ) ;
+      contentMultiple . addToContent ( indexLining , appPaddingOBJ , 6 ) ;
       appPaddingOBJ . setMinMaxIncValues ( appPaddingMIN , appPaddingMAX , appPaddingINC ) ;
       appPaddingLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexLining , appPaddingLAB , false , 8 ) ;
+      contentMultiple . addToContent ( indexLining , appPaddingLAB , 8 ) ;
       appPaddingLAB . setTextCode ( application . getTexts ( ) . SETTING_PADDING ) ;
 // appRadius
       appRadiusOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexLining , appRadiusOBJ , true , 9 ) ;
+      contentMultiple . addToContent ( indexLining , appRadiusOBJ , 9 ) ;
       appRadiusOBJ . setMinMaxIncValues ( appRadiusMIN , appRadiusMAX , appRadiusINC ) ;
       appRadiusLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexLining , appRadiusLAB , false , 11 ) ;
+      contentMultiple . addToContent ( indexLining , appRadiusLAB , 11 ) ;
       appRadiusLAB . setTextCode ( application . getTexts ( ) . SETTING_RADIUS ) ;
-// appBackgroundFillBgColor
-      appBackgroundFillBgColorOBJ = new ColorPicker ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillBgColorOBJ , true , 0 ) ;
-      appBackgroundFillBgColorLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillBgColorLAB , false , 1 ) ;
-      appBackgroundFillBgColorLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_BG_COLOR ) ;
-// appBackgroundFillFgColor
-      appBackgroundFillFgColorOBJ = new ColorPicker ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillFgColorOBJ , true , 2 ) ;
-      appBackgroundFillFgColorLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillFgColorLAB , false , 3 ) ;
-      appBackgroundFillFgColorLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_FG_COLOR ) ;
-// appBackgroundFillAlpha
-      appBackgroundFillAlphaOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillAlphaOBJ , true , 4 ) ;
-      appBackgroundFillAlphaOBJ . setMinMaxIncValues ( appBackgroundFillAlphaMIN , appBackgroundFillAlphaMAX , appBackgroundFillAlphaINC ) ;
-      appBackgroundFillAlphaLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexColoring , appBackgroundFillAlphaLAB , false , 5 ) ;
-      appBackgroundFillAlphaLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_FILL_ALPHA ) ;
-// userBgButtonFile
-      userBgButtonFile = new ButtonFile ( application ) ;
-      contentMultiple . addToContent ( indexImaging , userBgButtonFile , true , 0 ) ;
-      userBgButtonFile . setEnabled ( false ) ;
-      userBgButtonFile . setFileFilters ( [ userBgButtonFile . fileFilterImgs ] ) ;
+// appBoxCorner
+      appBoxCornerOBJ = new Potmeter ( application ) ;
+      contentMultiple . addToContent ( indexLining , appBoxCornerOBJ , 12 ) ;
+      appBoxCornerOBJ . setMinMaxIncValues ( appBoxCornerMIN , appBoxCornerMAX , appBoxCornerINC ) ;
+      appBoxCornerLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexLining , appBoxCornerLAB , 14 ) ;
+      appBoxCornerLAB . setTextCode ( application . getTexts ( ) . SETTING_BOX_CORNER ) ;
+// appBoxFrame
+      appBoxFrameOBJ = new ListPicker ( application ) ;
+      contentMultiple . addToContent ( indexLining , appBoxFrameOBJ , 15 ) ;
+      appBoxFrameOBJ . setNumOfElements ( 4 ) ;
+      appBoxFrameOBJ . setArrays ( application . getTextStock ( ) . getTextCodesBoxFrames ( ) , application . getTextStock ( ) . getTextCodesBoxFrames ( ) ) ;
+      appBoxFrameLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexLining , appBoxFrameLAB , 17 ) ;
+      appBoxFrameLAB . setTextCode ( application . getTexts ( ) . SETTING_BOX_FRAME ) ;
+// Predefined disdplaying styles
+      displayingStyleOBJ = new ListPicker ( application ) ;
+      contentMultiple . addToContent ( indexColoring , displayingStyleOBJ , 0 ) ;
+      displayingStyleOBJ . setNumOfElements ( listPickerCNT ) ;
+      setElementsOfDisplayingStylesOBJ ( ) ;
+      displayingStyleLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexColoring , displayingStyleLAB , 1 ) ;
+      displayingStyleLAB . setTextCode ( application . getTexts ( ) . SETTING_DISPLAYING_STYLE ) ;
+// appBackgroundColorBright, Mid , Dark
+      appBackgroundColorBrightOBJ = new ColorPicker ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorBrightOBJ , 2 ) ;
+      appBackgroundColorMidOBJ = new ColorPicker ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorMidOBJ , 2 ) ;
+      appBackgroundColorDarkOBJ = new ColorPicker ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorDarkOBJ , 2 ) ;
+      appBackgroundColorsLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorsLAB , 3 ) ;
+      appBackgroundColorsLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_COLORS ) ;
+// appBackgroundColorAlpha
+      appBackgroundColorAlphaOBJ = new Potmeter ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorAlphaOBJ , 4 ) ;
+      appBackgroundColorAlphaOBJ . setMinMaxIncValues ( appBackgroundColorAlphaMIN , appBackgroundColorAlphaMAX , appBackgroundColorAlphaINC ) ;
+      appBackgroundColorAlphaLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorAlphaLAB , 5 ) ;
+      appBackgroundColorAlphaLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_COLOR_ALPHA ) ;
+// appBackgroundColorRand
+      appBackgroundColorRandOBJ = new Switcher ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorRandOBJ , 6 ) ;
+      appBackgroundColorRandOBJ . setTextCodes ( application . getTexts ( ) . SETTING_BACKGROUND_COLOR_RANDOM , application . getTexts ( ) . SETTING_BACKGROUND_COLOR_NORMAL ) ;
+      appBackgroundColorRandLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorRandLAB , 7 ) ;
+      appBackgroundColorRandLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_COLOR_RANDOMNESS ) ;
+// appBackgroundColorToBackground
+      appBackgroundColorToFontOBJ = new Switcher ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorToFontOBJ , 8 ) ;
+      appBackgroundColorToFontOBJ . setTextCodes ( application . getTexts ( ) . SETTING_FONT_COLOR_CHANGE , application . getTexts ( ) . SETTING_FONT_COLOR_REMAIN ) ;
+// appBackgroundColorGetNewSchema
+      appBackgroundColorGetNewSchema = new ButtonLink ( application ) ;
+      contentMultiple . addToContent ( indexColoring , appBackgroundColorGetNewSchema , 9 ) ;
+      appBackgroundColorGetNewSchema . setTextCode ( application . getTexts ( ) . SETTING_GET_NEW_BACKGROUND_COLORSCHEMA ) ;
+      appBackgroundColorGetNewSchema . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , getNewRandomBackgroundColorSchema ) ;
 // appBackgroundImage
       appBackgroundImageVAL = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundImageVAL , false , 1 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundImageVAL , 0 ) ;
       appBackgroundImageVAL . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
+// userBgHandler
 // appBackgroundAlign
       appBackgroundAlignOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundAlignOBJ , true , 2 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundAlignOBJ , 2 ) ;
       appBackgroundAlignOBJ . setNumOfElements ( listPickerCNT ) ;
       appBackgroundAlignOBJ . setArrays ( application . getTextStock ( ) . getTextCodesBgImageAligns ( ) , application . getTextStock ( ) . getTextCodesBgImageAligns ( ) ) ;
       appBackgroundAlignLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundAlignLAB , false , 3 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundAlignLAB , 3 ) ;
       appBackgroundAlignLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_ALIGN ) ;
 // appBackgroundAlpha
       appBackgroundAlphaOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundAlphaOBJ , true , 4 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundAlphaOBJ , 4 ) ;
       appBackgroundAlphaOBJ . setMinMaxIncValues ( appBackgroundAlphaMIN , appBackgroundAlphaMAX , appBackgroundAlphaINC ) ;
       appBackgroundAlphaLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundAlphaLAB , false , 5 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundAlphaLAB , 5 ) ;
       appBackgroundAlphaLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_ALPHA ) ;
 // appBackgroundBlur
       appBackgroundBlurOBJ = new Potmeter ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundBlurOBJ , true , 6 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundBlurOBJ , 6 ) ;
       appBackgroundBlurOBJ . setMinMaxIncValues ( appBackgroundBlurMIN , appBackgroundBlurMAX , appBackgroundBlurINC ) ;
       appBackgroundBlurLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundBlurLAB , false , 7 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundBlurLAB , 7 ) ;
       appBackgroundBlurLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_BLUR ) ;
 // appBackgroundLive
       appBackgroundLiveOBJ = new Switcher ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundLiveOBJ , true , 8 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundLiveOBJ , 8 ) ;
       appBackgroundLiveOBJ . setTextCodes ( application . getTexts ( ) . SETTING_BACKGROUND_LIVE , application . getTexts ( ) . SETTING_BACKGROUND_FIXED ) ;
       appBackgroundLiveLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexImaging , appBackgroundLiveLAB , false , 9 ) ;
+      contentMultiple . addToContent ( indexImaging , appBackgroundLiveLAB , 9 ) ;
       appBackgroundLiveLAB . setTextCode ( application . getTexts ( ) . SETTING_BACKGROUND_MOVEMENT ) ;
 // appFontFace
       appFontFaceOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontFaceOBJ , true , 0 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontFaceOBJ , 0 ) ;
       appFontFaceOBJ . setNumOfElements ( listPickerCNT ) ;
       setElementsOfAppFontFacesOBJ ( ) ;
       appFontFaceLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontFaceLAB , false , 1 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontFaceLAB , 1 ) ;
       appFontFaceLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_FACE ) ;
 // appFontSize
       appFontSizeOBJ = new ListPicker ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontSizeOBJ , true , 2 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontSizeOBJ , 2 ) ;
       appFontSizeOBJ . setNumOfElements ( listPickerCNT ) ;
       appFontSizeOBJ . setArrays ( application . getPropsDyn ( ) . getFontSizes ( ) , application . getPropsDyn ( ) . getFontSizes ( ) ) ;
       appFontSizeLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontSizeLAB , false , 3 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontSizeLAB , 3 ) ;
       appFontSizeLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_SIZE ) ;
-// appFontColorBright
+// appFontColorBright, Mid, Dark
       appFontColorBrightOBJ = new ColorPicker ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontColorBrightOBJ , true , 4 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorBrightOBJ , 4 ) ;
       appFontColorMidOBJ = new ColorPicker ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontColorMidOBJ , true , 4 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorMidOBJ , 4 ) ;
       appFontColorDarkOBJ = new ColorPicker ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontColorDarkOBJ , true , 4 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorDarkOBJ , 4 ) ;
       appFontColorsLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontColorsLAB , false , 5 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorsLAB , 5 ) ;
       appFontColorsLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_COLORS ) ;
 // appFontBold
       appFontBoldOBJ = new Switcher ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontBoldOBJ , true , 6 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontBoldOBJ , 6 ) ;
       appFontBoldOBJ . setTextCodes ( application . getTexts ( ) . SETTING_FONT_BOLD , application . getTexts ( ) . SETTING_FONT_NORMAL ) ;
       appFontBoldLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontBoldLAB , false , 7 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontBoldLAB , 7 ) ;
       appFontBoldLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_THICKNESS ) ;
 // appFontItalic
       appFontItalicOBJ = new Switcher ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontItalicOBJ , true , 8 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontItalicOBJ , 8 ) ;
       appFontItalicOBJ . setTextCodes ( application . getTexts ( ) . SETTING_FONT_ITALIC , application . getTexts ( ) . SETTING_FONT_NORMAL ) ;
       appFontItalicLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexFonting , appFontItalicLAB , false , 9 ) ;
+      contentMultiple . addToContent ( indexFonting , appFontItalicLAB , 9 ) ;
       appFontItalicLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_SKEWNESS ) ;
+// appFontColorRand
+      appFontColorRandOBJ = new Switcher ( application ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorRandOBJ , 10 ) ;
+      appFontColorRandOBJ . setTextCodes ( application . getTexts ( ) . SETTING_FONT_COLOR_RANDOM , application . getTexts ( ) . SETTING_FONT_COLOR_NORMAL ) ;
+      appFontColorRandLAB = new TextLabel ( application ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorRandLAB , 11 ) ;
+      appFontColorRandLAB . setTextCode ( application . getTexts ( ) . SETTING_FONT_COLOR_RANDOMNESS ) ;
+// appFontColorToBackground
+      appFontColorToBackgroundOBJ = new Switcher ( application ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorToBackgroundOBJ , 12 ) ;
+      appFontColorToBackgroundOBJ . setTextCodes ( application . getTexts ( ) . SETTING_BACKGROUND_COLOR_CHANGE , application . getTexts ( ) . SETTING_BACKGROUND_COLOR_REMAIN ) ;
+// appFontColorGetNewSchema
+      appFontColorGetNewSchema = new ButtonLink ( application ) ;
+      contentMultiple . addToContent ( indexFonting , appFontColorGetNewSchema , 13 ) ;
+      appFontColorGetNewSchema . setTextCode ( application . getTexts ( ) . SETTING_GET_NEW_FONT_COLORSCHEMA ) ;
+      appFontColorGetNewSchema . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , getNewRandomFontColorSchema ) ;
 // ABOUT
       applicationNameLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexAbout , applicationNameLAB , false , 0 ) ;
+      contentMultiple . addToContent ( indexAbout , applicationNameLAB , 0 ) ;
       applicationNameLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
       applicationVersionLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexAbout , applicationVersionLAB , false , 1 ) ;
+      contentMultiple . addToContent ( indexAbout , applicationVersionLAB , 1 ) ;
       applicationVersionLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
       applicationReleaseDateLAB = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( indexAbout , applicationReleaseDateLAB , false , 2 ) ;
+      contentMultiple . addToContent ( indexAbout , applicationReleaseDateLAB , 2 ) ;
       applicationReleaseDateLAB . setTextType ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
       refreshAbout ( ) ;
       for ( var j : int = 0 ; j < Math . min ( 10 , application . getPropsApp ( ) . getApplicationSoftwareHomepageTxt ( ) . length ) ; j ++ )
       {
         var buttonLink : ButtonLink = new ButtonLink ( application ) ;
-        contentMultiple . addToContent ( indexAbout , buttonLink , true , 5 + j ) ;
+        contentMultiple . addToContent ( indexAbout , buttonLink , 5 + j ) ;
         buttonLink . setTextCode ( application . getPropsApp ( ) . getApplicationSoftwareHomepageTxt ( ) [ j ] ) ;
         buttonLink . setUrl ( application . getPropsApp ( ) . getApplicationSoftwareHomepageUrl ( ) [ j ] ) ;
       }
@@ -512,8 +622,11 @@ package com . kisscodesystems . KissAs3Fw . app
       marginChangedOutside ( null ) ;
       paddingChangedOutside ( null ) ;
       radiusChangedOutside ( null ) ;
-      backgroundFillBgColorChangedOutside ( null ) ;
-      backgroundFillFgColorChangedOutside ( null ) ;
+      boxCornerChangedOutside ( null ) ;
+      boxFrameChangedOutside ( null ) ;
+      backgroundColorDarkChangedOutside ( null ) ;
+      backgroundColorMidChangedOutside ( null ) ;
+      backgroundColorBrightChangedOutside ( null ) ;
       backgroundFillAlphaChangedOutside ( null ) ;
       backgroundImageChangedOutside ( null ) ;
       backgroundAlignChangedOutside ( null ) ;
@@ -527,14 +640,23 @@ package com . kisscodesystems . KissAs3Fw . app
       fontColorDarkChangedOutside ( null ) ;
       fontBoldChangedOutside ( null ) ;
       fontItalicChangedOutside ( null ) ;
-// Default picker sizes on the general tab.
+// Default picker sizes.
       resizeListPickers ( ) ;
+      appBackgroundAlignLABResized ( null ) ;
 // This is at the end!
 // Events that will be thrown when the object changes its value.
-      displayingStyleOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , displayingStyleOBJChanged ) ;
-      numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
-      currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
-      appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
+      if ( numOfWidgetcontainersOBJ != null )
+      {
+        numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
+      }
+      if ( currWidgetcontainerOBJ != null )
+      {
+        currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
+      }
+      if ( appWidgetsOrientationOBJ != null )
+      {
+        appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
+      }
       appWidgetModeOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appWidgetModeOBJChanged ) ;
       appSoundVolumeOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appSoundVolumeOBJchanged ) ;
       appSoundPlayingOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appSoundPlayingOBJresized ) ;
@@ -543,37 +665,49 @@ package com . kisscodesystems . KissAs3Fw . app
       appMarginOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appMarginOBJchanged ) ;
       appPaddingOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appPaddingOBJchanged ) ;
       appRadiusOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appRadiusOBJchanged ) ;
-      appBackgroundFillBgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundFillBgColorOBJChanged ) ;
-      appBackgroundFillBgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
-      appBackgroundFillBgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
-      appBackgroundFillFgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundFillFgColorOBJChanged ) ;
-      appBackgroundFillFgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
-      appBackgroundFillFgColorOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
-      appBackgroundFillAlphaOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundFillAlphaOBJchanged ) ;
+      appBoxCornerOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBoxCornerOBJchanged ) ;
+      appBoxFrameOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBoxFrameOBJchanged ) ;
+      displayingStyleOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , displayingStyleOBJChanged ) ;
+      appBackgroundAlignLAB . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appBackgroundAlignLABResized ) ;
+      appBackgroundColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorDarkOBJChanged ) ;
+      appBackgroundColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
+      appBackgroundColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
+      appBackgroundColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appBackgroundColorsOBJSizesChanged ) ;
+      appBackgroundColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorMidOBJChanged ) ;
+      appBackgroundColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
+      appBackgroundColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
+      appBackgroundColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appBackgroundColorsOBJSizesChanged ) ;
+      appBackgroundColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorBrightOBJChanged ) ;
+      appBackgroundColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
+      appBackgroundColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
+      appBackgroundColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appBackgroundColorsOBJSizesChanged ) ;
+      appBackgroundColorAlphaOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorAlphaOBJchanged ) ;
       appBackgroundAlignOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundAlignOBJChanged ) ;
       appBackgroundAlphaOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundAlphaOBJchanged ) ;
       appBackgroundBlurOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundBlurOBJchanged ) ;
       appBackgroundLiveOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundLiveOBJChanged ) ;
-      userBgButtonFile . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , userBgButtonFileChanged ) ;
-      userBgButtonFile . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FILE_REFERENCE_CANCEL , userBgButtonFileCancelled ) ;
-      userBgButtonFile . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , userBgButtonFileSizesChanged ) ;
+      appBackgroundColorRandOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorRandOBJChanged ) ;
+      appBackgroundColorToFontOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appBackgroundColorToFontOBJChanged ) ;
       appFontFaceOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontFaceOBJChanged ) ;
       appFontSizeOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontSizeOBJChanged ) ;
       appFontColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontColorBrightOBJChanged ) ;
       appFontColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
       appFontColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
+      appFontColorBrightOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appFontColorsOBJSizesChanged ) ;
       appFontColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontColorMidOBJChanged ) ;
       appFontColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
       appFontColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
+      appFontColorMidOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appFontColorsOBJSizesChanged ) ;
       appFontColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontColorDarkOBJChanged ) ;
       appFontColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_START , colorStealStart ) ;
       appFontColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COLOR_STEAL_FROM_STAGE_STOP , colorStealStop ) ;
-      appFontColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appFontColorDarkOBJSizesChanged ) ;
+      appFontColorDarkOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , appFontColorsOBJSizesChanged ) ;
+      appFontColorRandOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontColorRandOBJChanged ) ;
+      appFontColorToBackgroundOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontColorToBackgroundOBJChanged ) ;
       appFontBoldOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontBoldOBJChanged ) ;
       appFontItalicOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appFontItalicOBJChanged ) ;
 // And then these are the events which can be thrown by the PropsDyn,
 // so, the value has to be actualized.
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_DISPLAYING_STYLE_CHANGED , displayingStyleChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGETS_ORIENTATION_CHANGED , widgetsOrientationChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , widgetModeChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SOUND_PLAYING_CHANGED , soundPlayingChangedOutside ) ;
@@ -582,9 +716,15 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChangedOutside ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundFillBgColorChangedOutside ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFillFgColorChangedOutside ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , backgroundFillAlphaChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , boxCornerChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , boxFrameChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_DISPLAYING_STYLE_CHANGED , displayingStyleChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_RAND_CHANGED , backgroundColorRandChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_TO_FONT_CHANGED , backgroundColorToFontChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundColorDarkChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundColorMidChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundColorBrightChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , backgroundFillAlphaChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_IMAGE_CHANGED , backgroundImageChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALIGN_CHANGED , backgroundAlignChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_ALPHA_CHANGED , backgroundAlphaChangedOutside ) ;
@@ -592,11 +732,35 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_LIVE_CHANGED , backgroundLiveChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_FACE_CHANGED , fontFaceChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_SIZE_CHANGED , fontSizeChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_RAND_CHANGED , fontColorRandChangedOutside ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_TO_BACKGROUND_CHANGED , fontColorToBackgroundChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_BRIGHT_CHANGED , fontColorBrightChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_MID_CHANGED , fontColorMidChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_COLOR_DARK_CHANGED , fontColorDarkChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_BOLD_CHANGED , fontBoldChangedOutside ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FONT_ITALIC_CHANGED , fontItalicChangedOutside ) ;
+    }
+/*
+** To add later a custom user background handler object.
+*/
+    public function addUserBgHandler ( baseSprite : BaseSprite ) : void
+    {
+      if ( contentMultiple != null && indexImaging > - 1 && baseSprite != null )
+      {
+        userBgHandler = baseSprite ;
+        contentMultiple . addToContent ( indexImaging , baseSprite , 1 ) ;
+      }
+    }
+/*
+** To get a new font or background color schema from the background image.
+*/
+    private function getNewRandomFontColorSchema ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . getNewRandomFontColorSchema ( ) ;
+    }
+    private function getNewRandomBackgroundColorSchema ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . getNewRandomBackgroundColorSchema ( ) ;
     }
 /*
 ** It may be necessary to refresh these values.
@@ -704,25 +868,46 @@ package com . kisscodesystems . KissAs3Fw . app
         appRadiusOBJ . setCurValue ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       }
     }
-    private function backgroundFillBgColorChangedOutside ( e : Event ) : void
+    private function boxCornerChangedOutside ( e : Event ) : void
     {
-      if ( appBackgroundFillBgColorOBJ != null )
+      if ( appBoxCornerOBJ != null )
       {
-        appBackgroundFillBgColorOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) . toString ( 16 ) ) ;
+        appBoxCornerOBJ . setCurValue ( application . getPropsDyn ( ) . getAppBoxCorner ( ) ) ;
       }
     }
-    private function backgroundFillFgColorChangedOutside ( e : Event ) : void
+    private function boxFrameChangedOutside ( e : Event ) : void
     {
-      if ( appBackgroundFillFgColorOBJ != null )
+      if ( appBoxFrameOBJ != null )
       {
-        appBackgroundFillFgColorOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) . toString ( 16 ) ) ;
+        appBoxFrameOBJ . setSelectedIndex ( application . getTextStock ( ) . getTextCodesBoxFrames ( ) . indexOf ( application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ) ;
+      }
+    }
+    private function backgroundColorDarkChangedOutside ( e : Event ) : void
+    {
+      if ( appBackgroundColorDarkOBJ != null )
+      {
+        appBackgroundColorDarkOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) . toString ( 16 ) ) ;
+      }
+    }
+    private function backgroundColorMidChangedOutside ( e : Event ) : void
+    {
+      if ( appBackgroundColorMidOBJ != null )
+      {
+        appBackgroundColorMidOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) . toString ( 16 ) ) ;
+      }
+    }
+    private function backgroundColorBrightChangedOutside ( e : Event ) : void
+    {
+      if ( appBackgroundColorBrightOBJ != null )
+      {
+        appBackgroundColorBrightOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) . toString ( 16 ) ) ;
       }
     }
     private function backgroundFillAlphaChangedOutside ( e : Event ) : void
     {
-      if ( appBackgroundFillAlphaOBJ != null )
+      if ( appBackgroundColorAlphaOBJ != null )
       {
-        appBackgroundFillAlphaOBJ . setCurValue ( application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) ) ;
+        appBackgroundColorAlphaOBJ . setCurValue ( application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) ) ;
       }
     }
     private function backgroundImageChangedOutside ( e : Event ) : void
@@ -795,6 +980,34 @@ package com . kisscodesystems . KissAs3Fw . app
         appFontColorDarkOBJ . setRGBColor ( application . getPropsDyn ( ) . getAppFontColorDark ( ) . toString ( 16 ) ) ;
       }
     }
+    private function backgroundColorRandChangedOutside ( e : Event ) : void
+    {
+      if ( appBackgroundColorRandOBJ != null )
+      {
+        appBackgroundColorRandOBJ . setUp ( application . getPropsDyn ( ) . getAppBackgroundColorRand ( ) ) ;
+      }
+    }
+    private function backgroundColorToFontChangedOutside ( e : Event ) : void
+    {
+      if ( appBackgroundColorToFontOBJ != null )
+      {
+        appBackgroundColorToFontOBJ . setUp ( application . getPropsDyn ( ) . getAppBackgroundColorToFont ( ) ) ;
+      }
+    }
+    private function fontColorRandChangedOutside ( e : Event ) : void
+    {
+      if ( appFontColorRandOBJ != null )
+      {
+        appFontColorRandOBJ . setUp ( application . getPropsDyn ( ) . getAppFontColorRand ( ) ) ;
+      }
+    }
+    private function fontColorToBackgroundChangedOutside ( e : Event ) : void
+    {
+      if ( appFontColorToBackgroundOBJ != null )
+      {
+        appFontColorToBackgroundOBJ . setUp ( application . getPropsDyn ( ) . getAppFontColorToBackground ( ) ) ;
+      }
+    }
     private function fontBoldChangedOutside ( e : Event ) : void
     {
       if ( appFontBoldOBJ != null )
@@ -812,11 +1025,11 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** The enabled and disabled has to be set separately on this object.
 */
-    public function setUserBgButtonFileEnabled ( b : Boolean ) : void
+    public function setUserBgHandlerVisible ( b : Boolean ) : void
     {
-      if ( userBgButtonFile != null )
+      if ( userBgHandler != null )
       {
-        userBgButtonFile . setEnabled ( b ) ;
+        userBgHandler . setSpriteVisible ( b ) ;
       }
     }
 /*
@@ -847,11 +1060,14 @@ package com . kisscodesystems . KissAs3Fw . app
     private function setArraysCurrWidgetcontainerOBJ ( ) : void
     {
       currWidgetcontainerARR = new Array ( ) ;
-      for ( var i : int = 1 ; i <= numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 ; i ++ )
+      if ( numOfWidgetcontainersOBJ != null && currWidgetcontainerOBJ != null )
       {
-        currWidgetcontainerARR [ i - 1 ] = i ;
+        for ( var i : int = 1 ; i <= numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 ; i ++ )
+        {
+          currWidgetcontainerARR [ i - 1 ] = i ;
+        }
+        currWidgetcontainerOBJ . setArrays ( currWidgetcontainerARR , currWidgetcontainerARR ) ;
       }
-      currWidgetcontainerOBJ . setArrays ( currWidgetcontainerARR , currWidgetcontainerARR ) ;
     }
 /*
 ** This would be in a public function because more fonts are available to add later.
@@ -869,7 +1085,10 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     public function showWidgetContainer ( i : int ) : void
     {
-      currWidgetcontainerOBJ . setSelectedIndex ( i ) ;
+      if ( currWidgetcontainerOBJ != null )
+      {
+        currWidgetcontainerOBJ . setSelectedIndex ( i ) ;
+      }
     }
 /*
 ** The style which is currently selected.
@@ -893,69 +1112,78 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function numOfWidgetcontainersOBJChanged ( e : Event ) : void
     {
-      if ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) > numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+      if ( numOfWidgetcontainersOBJ != null )
       {
-        var messageString : String = application . getTexts ( ) . SETTING_REALLY_REDUCE_NUM_OF_WIDGET_CONTAINERS ;
-        var uniqueString : String = "" + new Date ( ) . time ;
-        var alertOkButtonBar : Function = function ( e : Event ) : void
+        if ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) > numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
         {
-          application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertOkButtonBar ) ;
-          application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertCancelButtonBar ) ;
-          application . getForeground ( ) . closeAlert ( uniqueString ) ;
+          var messageString : String = application . getTexts ( ) . SETTING_REALLY_REDUCE_NUM_OF_WIDGET_CONTAINERS ;
+          var uniqueString : String = "" + new Date ( ) . time ;
+          var alertOkButtonBar : Function = function ( e : Event ) : void
+          {
+            application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertOkButtonBar ) ;
+            application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertCancelButtonBar ) ;
+            application . getForeground ( ) . closeAlert ( uniqueString ) ;
+            changeMaxWidgetContainers ( ) ;
+            application . getMiddleground ( ) . openPanelSettings ( ) ;
+            e . stopImmediatePropagation ( ) ;
+          }
+          var alertCancelButtonBar : Function = function ( e : Event ) : void
+          {
+            application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertOkButtonBar ) ;
+            application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertCancelButtonBar ) ;
+            application . getForeground ( ) . closeAlert ( uniqueString ) ;
+            numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
+            numOfWidgetcontainersOBJ . setSelectedIndex ( numOfWidgetcontainersOBJprevIndex ) ;
+            numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
+            application . getMiddleground ( ) . openPanelSettings ( ) ;
+            e . stopImmediatePropagation ( ) ;
+          }
+          application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , alertOkButtonBar ) ;
+          application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , alertCancelButtonBar ) ;
+          application . getForeground ( ) . createAlert ( messageString , uniqueString , true , true ) ;
+        }
+        else
+        {
           changeMaxWidgetContainers ( ) ;
-          application . getMiddleground ( ) . openPanelSettings ( ) ;
-          e . stopImmediatePropagation ( ) ;
         }
-        var alertCancelButtonBar : Function = function ( e : Event ) : void
-        {
-          application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertOkButtonBar ) ;
-          application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , alertCancelButtonBar ) ;
-          application . getForeground ( ) . closeAlert ( uniqueString ) ;
-          numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
-          numOfWidgetcontainersOBJ . setSelectedIndex ( numOfWidgetcontainersOBJprevIndex ) ;
-          numOfWidgetcontainersOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , numOfWidgetcontainersOBJChanged ) ;
-          application . getMiddleground ( ) . openPanelSettings ( ) ;
-          e . stopImmediatePropagation ( ) ;
-        }
-        application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , alertOkButtonBar ) ;
-        application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , alertCancelButtonBar ) ;
-        application . getForeground ( ) . createAlert ( messageString , uniqueString , true , true ) ;
-      }
-      else
-      {
-        changeMaxWidgetContainers ( ) ;
       }
     }
     private function changeMaxWidgetContainers ( ) : void
     {
-      if ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) > numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+      if ( numOfWidgetcontainersOBJ != null && currWidgetcontainerOBJ != null && appWidgetsOrientationOBJ != null )
       {
-        while ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) != numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+        if ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) > numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
         {
-          application . getMiddleground ( ) . getWidgets ( ) . removeWidgetContainer ( ) ;
+          while ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) != numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+          {
+            application . getMiddleground ( ) . getWidgets ( ) . removeWidgetContainer ( ) ;
+          }
         }
-      }
-      else
-      {
-        while ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) != numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+        else
         {
-          application . getMiddleground ( ) . getWidgets ( ) . addWidgetContainer ( ) ;
+          while ( application . getMiddleground ( ) . getWidgets ( ) . getNumOfContents ( ) != numOfWidgetcontainersOBJ . getSelectedIndex ( ) + 1 )
+          {
+            application . getMiddleground ( ) . getWidgets ( ) . addWidgetContainer ( ) ;
+          }
         }
+        numOfWidgetcontainersOBJprevIndex = numOfWidgetcontainersOBJ . getSelectedIndex ( ) ;
+        currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
+        setArraysCurrWidgetcontainerOBJ ( ) ;
+        currWidgetcontainerOBJ . setSelectedIndex ( numOfWidgetcontainersOBJ . getSelectedIndex ( ) ) ;
+        currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
+        appWidgetsOrientationOBJ . setSelectedIndex ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) . indexOf ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetOrientation ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ) ) ;
+        application . getMiddleground ( ) . getWidgets ( ) . changeButtonMoveVisibleOnAllWidgets ( ) ;
       }
-      numOfWidgetcontainersOBJprevIndex = numOfWidgetcontainersOBJ . getSelectedIndex ( ) ;
-      currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
-      setArraysCurrWidgetcontainerOBJ ( ) ;
-      currWidgetcontainerOBJ . setSelectedIndex ( numOfWidgetcontainersOBJ . getSelectedIndex ( ) ) ;
-      currWidgetcontainerOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , currWidgetcontainerOBJChanged ) ;
-      appWidgetsOrientationOBJ . setSelectedIndex ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) . indexOf ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetOrientation ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ) ) ;
-      application . getMiddleground ( ) . getWidgets ( ) . changeButtonMoveVisibleOnAllWidgets ( ) ;
     }
     private function currWidgetcontainerOBJChanged ( e : Event ) : void
     {
-      application . getMiddleground ( ) . getWidgets ( ) . setActiveWidgetContainer ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ;
-      appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
-      appWidgetsOrientationOBJ . setSelectedIndex ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) . indexOf ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetOrientation ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ) ) ;
-      appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
+      if ( currWidgetcontainerOBJ != null && appWidgetsOrientationOBJ != null )
+      {
+        application . getMiddleground ( ) . getWidgets ( ) . setActiveWidgetContainer ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ;
+        appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
+        appWidgetsOrientationOBJ . setSelectedIndex ( application . getTextStock ( ) . getTextCodesWidgetsOrientations ( ) . indexOf ( application . getMiddleground ( ) . getWidgets ( ) . getWidgetOrientation ( currWidgetcontainerOBJ . getSelectedIndex ( ) ) ) ) ;
+        appWidgetsOrientationOBJ . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , appWidgetsOrientationOBJChanged ) ;
+      }
     }
 /*
 ** The working of the displaying!
@@ -963,8 +1191,11 @@ package com . kisscodesystems . KissAs3Fw . app
 */
     private function appWidgetsOrientationOBJChanged ( e : Event ) : void
     {
-      application . getPropsDyn ( ) . setAppWidgetsOrientation ( appWidgetsOrientationOBJ . getArrayValues ( ) [ appWidgetsOrientationOBJ . getSelectedIndex ( ) ] ) ;
-      application . getMiddleground ( ) . closePanelSettings ( ) ;
+      if ( appWidgetsOrientationOBJ != null )
+      {
+        application . getPropsDyn ( ) . setAppWidgetsOrientation ( appWidgetsOrientationOBJ . getArrayValues ( ) [ appWidgetsOrientationOBJ . getSelectedIndex ( ) ] ) ;
+        application . getMiddleground ( ) . closePanelSettings ( ) ;
+      }
     }
     private function appWidgetModeOBJChanged ( e : Event ) : void
     {
@@ -997,17 +1228,32 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       application . getPropsDyn ( ) . setAppRadius ( int ( appRadiusOBJ . getCurValue ( ) ) ) ;
     }
-    private function appBackgroundFillBgColorOBJChanged ( e : Event ) : void
+    private function appBoxCornerOBJchanged ( e : Event ) : void
     {
-      application . getPropsDyn ( ) . setAppBackgroundFillBgColor ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appBackgroundFillBgColorOBJ . getRGBColor ( ) ) ) ;
+      application . getPropsDyn ( ) . setAppBoxCorner ( int ( appBoxCornerOBJ . getCurValue ( ) ) ) ;
     }
-    private function appBackgroundFillFgColorOBJChanged ( e : Event ) : void
+    private function appBoxFrameOBJchanged ( e : Event ) : void
     {
-      application . getPropsDyn ( ) . setAppBackgroundFillFgColor ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appBackgroundFillFgColorOBJ . getRGBColor ( ) ) ) ;
+      if ( appBoxFrameOBJ != null )
+      {
+        application . getPropsDyn ( ) . setAppBoxFrame ( appBoxFrameOBJ . getArrayValues ( ) [ appBoxFrameOBJ . getSelectedIndex ( ) ] ) ;
+      }
     }
-    private function appBackgroundFillAlphaOBJchanged ( e : Event ) : void
+    private function appBackgroundColorDarkOBJChanged ( e : Event ) : void
     {
-      application . getPropsDyn ( ) . setAppBackgroundFillAlpha ( appBackgroundFillAlphaOBJ . getCurValue ( ) ) ;
+      application . getPropsDyn ( ) . setAppBackgroundColorDark ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appBackgroundColorDarkOBJ . getRGBColor ( ) ) ) ;
+    }
+    private function appBackgroundColorMidOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppBackgroundColorMid ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appBackgroundColorMidOBJ . getRGBColor ( ) ) ) ;
+    }
+    private function appBackgroundColorBrightOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppBackgroundColorBright ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appBackgroundColorBrightOBJ . getRGBColor ( ) ) ) ;
+    }
+    private function appBackgroundColorAlphaOBJchanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppBackgroundColorAlpha ( appBackgroundColorAlphaOBJ . getCurValue ( ) ) ;
     }
     private function appBackgroundAlignOBJChanged ( e : Event ) : void
     {
@@ -1045,6 +1291,22 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       application . getPropsDyn ( ) . setAppFontColorDark ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appFontColorDarkOBJ . getRGBColor ( ) ) ) ;
     }
+    private function appBackgroundColorRandOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppBackgroundColorRand ( appBackgroundColorRandOBJ . getUp ( ) ) ;
+    }
+    private function appBackgroundColorToFontOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppBackgroundColorToFont ( appBackgroundColorToFontOBJ . getUp ( ) ) ;
+    }
+    private function appFontColorRandOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppFontColorRand ( appFontColorRandOBJ . getUp ( ) ) ;
+    }
+    private function appFontColorToBackgroundOBJChanged ( e : Event ) : void
+    {
+      application . getPropsDyn ( ) . setAppFontColorToBackground ( appFontColorToBackgroundOBJ . getUp ( ) ) ;
+    }
     private function appFontBoldOBJChanged ( e : Event ) : void
     {
       application . getPropsDyn ( ) . setAppFontBold ( appFontBoldOBJ . getUp ( ) ) ;
@@ -1067,43 +1329,9 @@ package com . kisscodesystems . KissAs3Fw . app
 ** Gets the reference to the background user image.
 ** May be necessary in extender applications to access to this reference.
 */
-    public function getUserBgButtonFile ( ) : ButtonFile
+    public function getUserBgHandler ( ) : BaseSprite
     {
-      return userBgButtonFile ;
-    }
-/*
-** When the user browses a new image.
-*/
-    private function userBgButtonFileChanged ( e : Event ) : void
-    {
-      application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserBackgroundFileSelected ) ;
-    }
-/*
-** When the user cancels the dialog of the file browsing.
-*/
-    private function userBgButtonFileCancelled ( e : Event ) : void
-    {
-      var uniqueString : String = "" + new Date ( ) . time ;
-      var okFunction : Function = null ;
-      var cancelFunction : Function = null ;
-      okFunction = function ( e : Event ) : void
-      {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventUserBackgroundFileCancelled ) ;
-        e . stopImmediatePropagation ( ) ;
-      }
-      cancelFunction = function ( e : Event ) : void
-      {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        e . stopImmediatePropagation ( ) ;
-      }
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , cancelFunction ) ;
-      application . getForeground ( ) . createAlert ( application . getTexts ( ) . SETTINGS_PANEL_REALLY_DELETE_EXISTING_BGIMAGE , uniqueString , true , true ) ;
+      return userBgHandler ;
     }
 /*
 ** Sets the active container.
@@ -1156,33 +1384,26 @@ package com . kisscodesystems . KissAs3Fw . app
         {
           appWidgetModeOBJ . setsw ( appSoundPlayingOBJ . getsw ( ) ) ;
         }
-        if ( displayingStyleOBJ != null )
+        if ( appBoxFrameOBJ != null )
         {
-          displayingStyleOBJ . setsw ( appSoundPlayingOBJ . getsw ( ) ) ;
+          appBoxFrameOBJ . setsw ( appSoundPlayingOBJ . getsw ( ) ) ;
         }
       }
     }
 /*
-** When the sizes of the button file are changed.
+** When the size of its label changed.
 */
-    private function userBgButtonFileSizesChanged ( e : Event ) : void
+    private function appBackgroundAlignLABResized ( e : Event ) : void
     {
-      if ( appBackgroundAlignOBJ != null )
+      if ( appBackgroundAlignOBJ != null && appBackgroundAlignLAB != null )
       {
-        if ( userBgButtonFile != null )
-        {
-          appBackgroundAlignOBJ . setsw ( userBgButtonFile . getsw ( ) ) ;
-        }
-        else
-        {
-          appBackgroundAlignOBJ . setsw ( getsw ( ) * listPickerFAC ) ;
-        }
+        appBackgroundAlignOBJ . setsw ( appBackgroundAlignLAB . getsw ( ) ) ;
       }
     }
 /*
 ** When the sizes of the dark font color object is changed.
 */
-    private function appFontColorDarkOBJSizesChanged ( e : Event ) : void
+    private function appFontColorsOBJSizesChanged ( e : Event ) : void
     {
       if ( appFontFaceOBJ != null )
       {
@@ -1208,6 +1429,23 @@ package com . kisscodesystems . KissAs3Fw . app
       }
     }
 /*
+** When the sizes of the dark font color object is changed.
+*/
+    private function appBackgroundColorsOBJSizesChanged ( e : Event ) : void
+    {
+      if ( displayingStyleOBJ != null )
+      {
+        if ( appBackgroundColorBrightOBJ != null && appBackgroundColorDarkOBJ != null )
+        {
+          displayingStyleOBJ . setsw ( appBackgroundColorDarkOBJ . getcxsw ( ) - appBackgroundColorBrightOBJ . getcx ( ) ) ;
+        }
+        else
+        {
+          displayingStyleOBJ . setsw ( getsw ( ) * listPickerFAC ) ;
+        }
+      }
+    }
+/*
 ** Overriding the setsw setsh and setswh functions.
 ** Do the same but it is necessary to reposition the actualpos shape.
 */
@@ -1216,8 +1454,8 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( getsw ( ) != newsw )
       {
         super . setsw ( newsw ) ;
-        userBgButtonFileSizesChanged ( null ) ;
-        appFontColorDarkOBJSizesChanged ( null ) ;
+        appBackgroundColorsOBJSizesChanged ( null ) ;
+        appFontColorsOBJSizesChanged ( null ) ;
       }
     }
     override public function setswh ( newsw : int , newsh : int ) : void
@@ -1225,8 +1463,8 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( getsw ( ) != newsw || getsh ( ) != newsh )
       {
         super . setswh ( newsw , newsh ) ;
-        userBgButtonFileSizesChanged ( null ) ;
-        appFontColorDarkOBJSizesChanged ( null ) ;
+        appBackgroundColorsOBJSizesChanged ( null ) ;
+        appFontColorsOBJSizesChanged ( null ) ;
       }
     }
 /*
@@ -1243,19 +1481,9 @@ package com . kisscodesystems . KissAs3Fw . app
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
-      if ( eventUserBackgroundFileSelected != null )
-      {
-        eventUserBackgroundFileSelected . stopImmediatePropagation ( ) ;
-      }
-      if ( eventUserBackgroundFileCancelled != null )
-      {
-        eventUserBackgroundFileCancelled . stopImmediatePropagation ( ) ;
-      }
 // 3: calling the super destroy.
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
-      eventUserBackgroundFileSelected = null ;
-      eventUserBackgroundFileCancelled = null ;
       indexGeneral = 0 ;
       indexLining = 0 ;
       indexColoring = 0 ;
@@ -1287,12 +1515,16 @@ package com . kisscodesystems . KissAs3Fw . app
       appPaddingOBJ = null ;
       appRadiusLAB = null ;
       appRadiusOBJ = null ;
-      appBackgroundFillBgColorLAB = null ;
-      appBackgroundFillBgColorOBJ = null ;
-      appBackgroundFillFgColorLAB = null ;
-      appBackgroundFillFgColorOBJ = null ;
-      appBackgroundFillAlphaLAB = null ;
-      appBackgroundFillAlphaOBJ = null ;
+      appBoxCornerLAB = null ;
+      appBoxCornerOBJ = null ;
+      appBoxFrameLAB = null ;
+      appBoxFrameOBJ = null ;
+      appBackgroundColorsLAB = null ;
+      appBackgroundColorDarkOBJ = null ;
+      appBackgroundColorMidOBJ = null ;
+      appBackgroundColorBrightOBJ = null ;
+      appBackgroundColorAlphaLAB = null ;
+      appBackgroundColorAlphaOBJ = null ;
       appBackgroundImageVAL = null ;
       appBackgroundAlignLAB = null ;
       appBackgroundAlignOBJ = null ;
@@ -1302,7 +1534,7 @@ package com . kisscodesystems . KissAs3Fw . app
       appBackgroundBlurOBJ = null ;
       appBackgroundLiveLAB = null ;
       appBackgroundLiveOBJ = null ;
-      userBgButtonFile = null ;
+      userBgHandler = null ;
       appFontFaceLAB = null ;
       appFontFaceOBJ = null ;
       appFontSizeLAB = null ;
@@ -1311,6 +1543,14 @@ package com . kisscodesystems . KissAs3Fw . app
       appFontColorMidOBJ = null ;
       appFontColorDarkOBJ = null ;
       appFontColorsLAB = null ;
+      appBackgroundColorRandOBJ = null ;
+      appBackgroundColorToFontOBJ = null ;
+      appBackgroundColorGetNewSchema = null ;
+      appBackgroundColorRandLAB = null ;
+      appFontColorRandOBJ = null ;
+      appFontColorToBackgroundOBJ = null ;
+      appFontColorGetNewSchema = null ;
+      appFontColorRandLAB = null ;
       appFontBoldOBJ = null ;
       appFontBoldLAB = null ;
       appFontItalicOBJ = null ;

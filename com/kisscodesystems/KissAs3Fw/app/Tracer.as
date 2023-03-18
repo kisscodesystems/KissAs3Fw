@@ -25,6 +25,7 @@
 */
 package com . kisscodesystems . KissAs3Fw . app
 {
+  import com . kisscodesystems . KissAs3Fw . Application ;
   import flash . display . Shape ;
   import flash . display . Sprite ;
   import flash . events . Event ;
@@ -41,7 +42,6 @@ package com . kisscodesystems . KissAs3Fw . app
     private const FILLALPHA : Number = 0.7 ;
     private const TEXTCOLOR : Number = 0xbbbbbb ;
     private const LINKCOLOR : Number = 0xdddddd ;
-    private const FONT_SIZE : Number = 18 ;
     private var backgroundShape : Shape = null ;
     private var textFormat : TextFormat = null ;
     private var linkVisibBack : Shape = null ;
@@ -56,17 +56,22 @@ package com . kisscodesystems . KissAs3Fw . app
     private var filteredString : String = "" ;
     private var regexp : RegExp = null ;
     private var paused : Boolean = false ;
-    public function Tracer ( ) : void
+    private var application : Application ;
+    public function Tracer ( applicationRef : Application ) : void
     {
       super ( ) ;
-      addEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
-      addEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
       textFormat = new TextFormat ( ) ;
-      textFormat . size = FONT_SIZE ;
+      if ( applicationRef != null )
+      {
+        application = applicationRef ;
+        addEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
+        addEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
+      }
     }
     private function addedToStage ( e : Event ) : void
     {
       stage . addEventListener ( Event . RESIZE , stageResized ) ;
+      stageResized ( null ) ;
     }
     private function removedFromStage ( e : Event ) : void
     {
@@ -77,6 +82,10 @@ package com . kisscodesystems . KissAs3Fw . app
     }
     private function stageResized ( e : Event ) : void
     {
+      if ( application != null && textFormat != null )
+      {
+        textFormat . size = application . calcFontSizeFromStageSize ( ) ;
+      }
       resizeReposElements ( ) ;
     }
     public function trace ( message : String ) : void
@@ -164,6 +173,7 @@ package com . kisscodesystems . KissAs3Fw . app
       traceTextField . border = true ;
       traceTextField . borderColor = LINKCOLOR ;
       traceTextField . defaultTextFormat = textFormat ;
+      traceTextField . setTextFormat ( textFormat ) ;
       filteTextField = new TextField ( ) ;
       addChild ( filteTextField ) ;
       filteTextField . text = "" ;
@@ -175,6 +185,7 @@ package com . kisscodesystems . KissAs3Fw . app
       filteTextField . borderColor = LINKCOLOR ;
       filteTextField . addEventListener ( KeyboardEvent . KEY_UP , keyUp ) ;
       filteTextField . defaultTextFormat = textFormat ;
+      filteTextField . setTextFormat ( textFormat ) ;
       linkClearBack = new Shape ( ) ;
       addChild ( linkClearBack ) ;
       linkClearText = new TextField ( ) ;
@@ -188,6 +199,7 @@ package com . kisscodesystems . KissAs3Fw . app
       linkClearText . border = true ;
       linkClearText . borderColor = LINKCOLOR ;
       linkClearText . defaultTextFormat = textFormat ;
+      linkClearText . setTextFormat ( textFormat ) ;
       linkClearFore = new Sprite ( ) ;
       addChild ( linkClearFore ) ;
       linkClearFore . addEventListener ( MouseEvent . CLICK , linkClearForeClicked ) ;
@@ -205,6 +217,7 @@ package com . kisscodesystems . KissAs3Fw . app
       linkVisibText . border = true ;
       linkVisibText . borderColor = LINKCOLOR ;
       linkVisibText . defaultTextFormat = textFormat ;
+      linkVisibText . setTextFormat ( textFormat ) ;
       linkVisibFore = new Sprite ( ) ;
       addChild ( linkVisibFore ) ;
       linkVisibFore . addEventListener ( MouseEvent . CLICK , linkVisibForeClicked ) ;
@@ -225,6 +238,8 @@ package com . kisscodesystems . KissAs3Fw . app
         }
         if ( linkVisibText != null )
         {
+          linkVisibText . defaultTextFormat = textFormat ;
+          linkVisibText . setTextFormat ( textFormat ) ;
           linkVisibText . x = stage . stageWidth - linkVisibText . width ;
           linkVisibText . y = stage . stageHeight - linkVisibText . height ;
           if ( linkVisibFore != null )
@@ -247,12 +262,16 @@ package com . kisscodesystems . KissAs3Fw . app
           }
           if ( traceTextField != null )
           {
+            traceTextField . defaultTextFormat = textFormat ;
+            traceTextField . setTextFormat ( textFormat ) ;
             traceTextField . width = stage . stageWidth ;
             traceTextField . height = stage . stageHeight - linkVisibText . height ;
             scrollToBottom ( ) ;
           }
           if ( linkClearText != null )
           {
+            linkClearText . defaultTextFormat = textFormat ;
+            linkClearText . setTextFormat ( textFormat ) ;
             linkClearText . x = stage . stageWidth - linkVisibText . width - linkClearText . width ;
             linkClearText . y = linkVisibText . y ;
             if ( linkClearFore != null )
@@ -275,6 +294,8 @@ package com . kisscodesystems . KissAs3Fw . app
             }
             if ( filteTextField != null )
             {
+              filteTextField . defaultTextFormat = textFormat ;
+              filteTextField . setTextFormat ( textFormat ) ;
               filteTextField . x = 0 ;
               filteTextField . y = linkClearText . y ;
               filteTextField . width = linkClearText . x ;
@@ -288,6 +309,7 @@ package com . kisscodesystems . KissAs3Fw . app
     {
       if ( backgroundShape != null )
       {
+        stageResized ( null ) ;
         setVisible ( ! backgroundShape . visible ) ;
       }
       else

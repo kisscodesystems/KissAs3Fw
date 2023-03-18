@@ -60,6 +60,53 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** To be able to set the coordinates of the content!
+*/
+    public function setccx ( index , newccx : int ) : void
+    {
+      if ( arrayContentSinges [ index ] is ContentSingle )
+      {
+        if ( ContentSingle ( arrayContentSinges [ index ] ) . getBaseScroll ( ) != null )
+        {
+          ContentSingle ( arrayContentSinges [ index ] ) . getBaseScroll ( ) . setccx ( newccx ) ;
+        }
+      }
+    }
+    public function setccy ( index , newccy : int ) : void
+    {
+      if ( arrayContentSinges [ index ] is ContentSingle )
+      {
+        if ( ContentSingle ( arrayContentSinges [ index ] ) . getBaseScroll ( ) != null )
+        {
+          ContentSingle ( arrayContentSinges [ index ] ) . getBaseScroll ( ) . setccy ( newccy ) ;
+        }
+      }
+    }
+/*
+** Changes the icon of a button link on the button bar.
+*/
+    public function destIcon ( index : int ) : void
+    {
+      if ( buttonBar != null )
+      {
+        buttonBar . destIcon ( index ) ;
+      }
+    }
+    public function setIcon ( index : int , it : String ) : void
+    {
+      if ( buttonBar != null )
+      {
+        buttonBar . setIcon ( index , it ) ;
+      }
+    }
+    public function setIconIfNotActive ( index : int , it : String ) : void
+    {
+      if ( buttonBar != null )
+      {
+        buttonBar . setIconIfNotActive ( index , it ) ;
+      }
+    }
+/*
 ** Sets the default content.
 */
     public function setDefaultContent ( ) : void
@@ -178,11 +225,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** Adds a content and returns the index of the content.
 ** Unique elements can be added as the labels of the buttons.
 */
-    public function addContent ( label : String ) : int
+    public function addContent ( label : String , it : String = "" ) : int
     {
       if ( buttonBar . getIndexByLabel ( label ) == - 1 )
       {
-        buttonBar . addButton ( label ) ;
+        buttonBar . addButton ( label , it ) ;
         var contentSingle : ContentSingle = new ContentSingle ( application ) ;
         addChildAt ( contentSingle , 0 ) ;
         contentSingle . visible = false ;
@@ -247,13 +294,24 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** Adds an element to the content sprite.
+** Returns the cell index of an element.
 */
-    public function addToContent ( i : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
+    public function getCellIndex ( i : int , displayObject : DisplayObject ) : int
     {
       if ( i >= 0 && i < arrayContentSinges . length )
       {
-        ContentSingle ( arrayContentSinges [ i ] ) . addToContent ( displayObject , normal , cellIndex , sizeConsider ) ;
+        return ContentSingle ( arrayContentSinges [ i ] ) . getCellIndex ( displayObject ) ;
+      }
+      return - 1 ;
+    }
+/*
+** Adds an element to the content sprite.
+*/
+    public function addToContent ( i : int , displayObject : DisplayObject , cellIndex : int , sizeConsider : Boolean = true , to0 : Boolean = false ) : void
+    {
+      if ( i >= 0 && i < arrayContentSinges . length )
+      {
+        ContentSingle ( arrayContentSinges [ i ] ) . addToContent ( displayObject , cellIndex , sizeConsider , to0 ) ;
       }
     }
 /*

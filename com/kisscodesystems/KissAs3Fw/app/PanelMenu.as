@@ -143,12 +143,12 @@ package com . kisscodesystems . KissAs3Fw . app
       dropElements ( ) ;
 // In mobile mode, this can be very handy.
       buttonLinkClos = new ButtonLink ( application ) ;
-      contentMultiple . addToContent ( 0 , buttonLinkClos , true , 0 ) ;
+      contentMultiple . addToContent ( 0 , buttonLinkClos , 0 ) ;
       buttonLinkClos . setIcon ( "close" ) ;
       buttonLinkClos . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , buttonLinkClosClick ) ;
 // Name and nickname, and other data.
       dataTextLabel = new TextLabel ( application ) ;
-      contentMultiple . addToContent ( 0 , dataTextLabel , true , 1 ) ;
+      contentMultiple . addToContent ( 0 , dataTextLabel , 1 ) ;
       dataTextLabel . setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
       dataTextLabel . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
 // The name and nickname text label should act as the profile image.
@@ -161,7 +161,7 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( guestMode )
       {
         registerButtonText = new ButtonText ( application ) ;
-        contentMultiple . addToContent ( 0 , registerButtonText , true , 4 ) ;
+        contentMultiple . addToContent ( 0 , registerButtonText , 4 ) ;
         registerButtonText . setTextCode ( application . getTexts ( ) . REGISTER_BUTTON ) ;
         registerButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doRegisterSubmit ) ;
         registerButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
@@ -173,7 +173,7 @@ package com . kisscodesystems . KissAs3Fw . app
       }
 // Logout button is essential.
       logoutButtonText = new ButtonText ( application ) ;
-      contentMultiple . addToContent ( 0 , logoutButtonText , true , 4 ) ;
+      contentMultiple . addToContent ( 0 , logoutButtonText , 4 ) ;
       logoutButtonText . setTextCode ( application . getTexts ( ) . LOGOUT_BUTTON ) ;
       logoutButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , doLogoutSubmit ) ;
       logoutButtonText . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
@@ -186,12 +186,12 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( ! application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
       {
         langSetter = new LangSetter ( application ) ;
-        contentMultiple . addToContent ( 0 , langSetter , true , 5 ) ;
+        contentMultiple . addToContent ( 0 , langSetter , 5 ) ;
         langSetter . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , elementsResize ) ;
       }
 // Displaying the menu.
       xmlLister = new XmlLister ( application ) ;
-      contentMultiple . addToContent ( 0 , xmlLister , true , 6 , false ) ;
+      contentMultiple . addToContent ( 0 , xmlLister , 6 , false ) ;
       xmlLister . setAlwaysDispatchSelectedEvent ( true ) ;
       xmlLister . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , xmlListerChanged ) ;
       xmlLister . setsw ( contentMultiple . getsw ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ) ;
@@ -332,7 +332,7 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( ! guestMode && profilePicSid != "" && profilePicUrl != "" )
       {
         profileImage = new Image ( application ) ;
-        contentMultiple . addToContent ( 0 , profileImage , true , 2 ) ;
+        contentMultiple . addToContent ( 0 , profileImage , 2 ) ;
         profileImage . setswh ( getsw ( ) / 2 , getsw ( ) / 2 ) ;
         profileImage . setsw ( 5 * ( application . getPropsDyn ( ) . getAppFontSize ( ) == 0 ? application . calcFontSizeFromStageSize ( ) : application . getPropsDyn ( ) . getAppFontSize ( ) ) ) ;
         profileImage . setParamsAndLoadImage ( profilePicPid , profilePicSid , profilePicUrl ) ;

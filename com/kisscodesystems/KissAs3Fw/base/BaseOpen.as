@@ -30,6 +30,10 @@ package com . kisscodesystems . KissAs3Fw . base
     protected var baseWorkingButton : BaseWorkingButton = null ;
 // This will contain the opened object. Its size has to be updated!
     protected var contentSprite : BaseSprite = null ;
+// The mobile mode needs to an extra outside click before close it,
+// because the user may scroll and we do not want to close these
+// objects during it.
+    private var mobileModeClickCounter : int = 0 ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -110,12 +114,33 @@ package com . kisscodesystems . KissAs3Fw . base
     }
 /*
 ** This method will decide to close the contentSprite or not (by mouse).
+** If the application is in mobile mode, then not to close immediately.
 */
     protected function hasToCloseByMouse ( e : MouseEvent ) : void
     {
       if ( ! mouseIsOnTheContentSprite ( ) )
       {
-        close ( ) ;
+        if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+        {
+          mobileModeClickCounter = 0 ;
+          close ( ) ;
+        }
+        else
+        {
+          if ( mobileModeClickCounter == 0 )
+          {
+            mobileModeClickCounter = 1 ;
+          }
+          else
+          {
+            mobileModeClickCounter = 0 ;
+            close ( ) ;
+          }
+        }
+      }
+      else
+      {
+        mobileModeClickCounter = 0 ;
       }
     }
 /*
@@ -157,7 +182,7 @@ package com . kisscodesystems . KissAs3Fw . base
       contentSprite . visible = false ;
       baseWorkingButton . visible = true ;
 // To the highest depth!
-      toTheLowestDepth ( ) ;
+      //toTheLowestDepth ( ) ;
     }
 /*
 ** Is the component opened?
@@ -185,6 +210,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // 4: every reference and value should be resetted to null, 0 or false.
       baseWorkingButton = null ;
       contentSprite = null ;
+      mobileModeClickCounter = 0 ;
     }
   }
 }

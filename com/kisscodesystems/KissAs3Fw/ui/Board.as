@@ -22,6 +22,7 @@
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseAlerter ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
@@ -29,11 +30,13 @@ package com . kisscodesystems . KissAs3Fw . ui
   import com . kisscodesystems . KissAs3Fw . ui . Potmeter ;
   import com . kisscodesystems . KissAs3Fw . ui . Switcher ;
   import com . kisscodesystems . KissAs3Fw . ui . TextLabel ;
+  import flash . display . BitmapData ;
+  import flash . display . PNGEncoderOptions ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
-  import flash . events . TimerEvent ;
-  import flash . utils . Timer ;
-  public class Board extends BaseSprite
+  import flash . geom . Rectangle ;
+  import flash . utils . ByteArray ;
+  public class Board extends BaseAlerter
   {
 // The actual behavior: can we draw or not.
     private var ableToDraw : Boolean = true ;
@@ -72,9 +75,15 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var drawSwitcher : Switcher = null ;
 // This clears all of the drawable area of this board
     private var clearButtonLink : ButtonLink = null ;
-// To be run while using the confirm dialog
-    private var confirmOK : Function = null ;
-    private var confirmCancel : Function = null ;
+// To send the content of this board.
+    private var byteArray : ByteArray = null ;
+    private var bitmapData : BitmapData = null ;
+// The event object to be dispatched when it is changed.
+    private var eventChanged : Event = null ;
+// The event object to be dispatched when it is cleared (by clear button).
+    private var eventCleared : Event = null ;
+// The drawing is currently in progress or not.
+    private var drawingIsInProgress : Boolean = false ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -88,6 +97,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       frame . setdb ( false ) ;
       frame . setdf ( false ) ;
       frame . setdt ( 1 ) ;
+// This event will trigger the change of the selection to the outside world.
+      eventChanged = new Event ( application . EVENT_CHANGED ) ;
+      eventCleared = new Event ( application . EVENT_CLEARED ) ;
 // This is a resizer just like on the widget objects.
       resizer = new BaseSprite ( application ) ;
       addChild ( resizer ) ;
@@ -120,14 +132,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       lineThicknessPotmeter . setCurValue ( application . BOARD_LINE_THICKNESS ) ;
       drawSwitcher = new Switcher ( application ) ;
       elements . addChild ( drawSwitcher ) ;
-      drawSwitcher . setTextCodes ( application . getTexts ( ) . DRAW , application . getTexts ( ) . RUBBER ) ;
       drawSwitcher . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CHANGED , drawSwitcherChanged ) ;
       drawSwitcher . setUp ( true ) ;
+      drawSwitcher . setIcons ( "drawer" , "rubber" ) ;
       clearButtonLink = new ButtonLink ( application ) ;
       elements . addChild ( clearButtonLink ) ;
-      clearButtonLink . setTextCode ( application . getTexts ( ) . CLEAR ) ;
       clearButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CLICK , clearButtonLinkClicked ) ;
       clearButtonLink . setEventDispatcherObjectToThis ( ) ;
+      clearButtonLink . setIcon ( "clearer" ) ;
 // And this is the object which can be drawable.
       drawnContainer = new BaseSprite ( application ) ;
       addChild ( drawnContainer ) ;
@@ -139,6 +151,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       drawnSprite . mask = drawnMask ;
 // These have to be registered to keep up to date displaying according to the application level.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , redrawShapes ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , insideElementsSizesChanged ) ;
 // The object have to be listen only from now.
       textLabel . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , insideElementsSizesChanged ) ;
@@ -149,6 +163,46 @@ package com . kisscodesystems . KissAs3Fw . ui
       clearButtonLink . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , insideElementsSizesChanged ) ;
 // Initializes the drawable area.
       clearDrawnSprite ( ) ;
+    }
+/*
+** If there is a bitmapdata object than it is necessary to clear before use or when destroying this whole thing.
+*/
+    private function destroyBitmapData ( ) : void
+    {
+      if ( bitmapData != null )
+      {
+        bitmapData . dispose ( ) ;
+        bitmapData = null ;
+      }
+    }
+/*
+** Get the content of this canvas!
+*/
+    public function getCanvasBarr ( ) : ByteArray
+    {
+      destroyBitmapData ( ) ;
+      bitmapData = new BitmapData ( drawnContainer . getsw ( ) , drawnContainer . getsh ( ) , true , 0 ) ;
+      bitmapData . draw ( drawnFrame ) ;
+      bitmapData . draw ( drawnContainer ) ;
+      byteArray = new ByteArray ( ) ;
+      bitmapData . encode ( new Rectangle ( 0 , 0 , drawnContainer . getsw ( ) , drawnContainer . getsh ( ) ) , new PNGEncoderOptions ( false ) , byteArray ) ;
+      return byteArray ;
+    }
+    public function getCanvasWidth ( ) : int
+    {
+      if ( drawnContainer != null )
+      {
+        return drawnContainer . getsw ( ) ;
+      }
+      return 0 ;
+    }
+    public function getCanvasHeight ( ) : int
+    {
+      if ( drawnContainer != null )
+      {
+        return drawnContainer . getsh ( ) ;
+      }
+      return 0 ;
     }
 /*
 ** This method will be called if the object is being added to the stage.
@@ -172,9 +226,24 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Event listeners to get colors and others working.
 */
+    private function dispatchEventChanged ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventChanged ) ;
+      }
+    }
+    private function dispatchEventCleared ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventCleared ) ;
+      }
+    }
     private function backgroundColorPickerChanged ( e : Event ) : void
     {
       redrawDrawnFrame ( ) ;
+      dispatchEventChanged ( ) ;
     }
     private function lineColorPickerChanged ( e : Event ) : void
     {
@@ -348,16 +417,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       ableToDraw = b ;
     }
 /*
-** Gets and sets the content.
-** Will handle the content of this board by b64 encoded byte array.
-*/
-    public function setContent ( s : String ) : void { }
-    public function getContent ( ) : String
-    {
-      var content : String = "" ;
-      return content ;
-    }
-/*
 ** Clears the content of the drawing,
 ** can display a dialog before delete.
 */
@@ -395,6 +454,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         setBackgroundEnabled ( true ) ;
       }
       contentIsEmpty = true ;
+      dispatchEventChanged ( ) ;
+      dispatchEventCleared ( ) ;
     }
 /*
 ** Grabs the board on the resizer area.
@@ -418,7 +479,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( resizer != null )
       {
         resizer . graphics . clear ( ) ;
-        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
         resizer . graphics . drawRect ( - application . getPropsApp ( ) . getResizeMargin ( ) , - application . getPropsApp ( ) . getResizeMargin ( ) , getsw ( ) + mouseX - prevMouseX + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) , getsh ( ) + mouseY - prevMouseY + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
       }
     }
@@ -445,7 +506,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( frame != null && textLabel != null )
       {
-        frame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , ( application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        frame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , ( application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         frame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         frame . drawRect ( ) ;
       }
@@ -458,8 +519,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( drawnFrame != null && textLabel != null && backgroundColorPicker != null )
       {
-        drawnFrame . setccac ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + backgroundColorPicker . getRGBColor ( ) ) , Number ( application . COLOR_HEX_TO_NUMBER_STRING + backgroundColorPicker . getRGBColor ( ) ) , 1 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        drawnFrame . setcccac ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + backgroundColorPicker . getRGBColor ( ) ) , Number ( application . COLOR_HEX_TO_NUMBER_STRING + backgroundColorPicker . getRGBColor ( ) ) , Number ( application . COLOR_HEX_TO_NUMBER_STRING + backgroundColorPicker . getRGBColor ( ) ) , 1 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         drawnFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        drawnFrame . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
         drawnFrame . drawRect ( ) ;
       }
     }
@@ -472,6 +534,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         super . setsw ( newsw ) ;
         resizeReposAll ( ) ;
+        dispatchEventChanged ( ) ;
       }
     }
     override public function setsh ( newsh : int ) : void
@@ -480,6 +543,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         super . setsh ( newsh ) ;
         resizeReposAll ( ) ;
+        dispatchEventChanged ( ) ;
       }
     }
     override public function setswh ( newsw : int , newsh : int ) : void
@@ -488,6 +552,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       {
         super . setswh ( newsw , newsh ) ;
         resizeReposAll ( ) ;
+        dispatchEventChanged ( ) ;
       }
     }
 /*
@@ -503,6 +568,7 @@ package com . kisscodesystems . KissAs3Fw . ui
           clearDrawnSprite ( ) ;
         }
         insideElementsSizesChanged ( null ) ;
+        dispatchEventChanged ( ) ;
       }
     }
     public function getswContent ( ) : int
@@ -680,6 +746,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( drawnSprite != null )
       {
+        drawingIsInProgress = true ;
         contentIsEmpty = false ;
         setBackgroundEnabled ( false ) ;
         drawnSprite . graphics . moveTo ( drawnSprite . mouseX , drawnSprite . mouseY ) ;
@@ -696,6 +763,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function stopDraw ( ) : void
     {
       removeEventListener ( Event . ENTER_FRAME , drawing ) ;
+      dispatchEventChanged ( ) ;
+      drawingIsInProgress = false ;
     }
 /*
 ** When the mouse is up on stage.
@@ -721,41 +790,10 @@ package com . kisscodesystems . KissAs3Fw . ui
         prevMouseX = 0 ;
         prevMouseY = 0 ;
       }
-      stopDraw ( ) ;
-    }
-/*
-** To show a confirm dialog.
-*/
-    private function showConfirm ( messageString : String ) : void
-    {
-      var uniqueString : String = "" + new Date ( ) . time ;
-      var okFunction : Function = null ;
-      var cancelFunction : Function = null ;
-      okFunction = function ( e : Event ) : void
+      if ( drawingIsInProgress )
       {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        if ( confirmOK != null )
-        {
-          confirmOK ( ) ;
-        }
-        e . stopImmediatePropagation ( ) ;
+        stopDraw ( ) ;
       }
-      cancelFunction = function ( e : Event ) : void
-      {
-        if ( confirmCancel != null )
-        {
-          confirmCancel ( ) ;
-        }
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        e . stopImmediatePropagation ( ) ;
-      }
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , cancelFunction ) ;
-      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , true ) ;
     }
 /*
 ** Destroy
@@ -773,7 +811,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       removeEventListener ( Event . ENTER_FRAME , enterFrameUpdateResizer ) ;
       removeEventListener ( Event . ENTER_FRAME , drawing ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_CORNER_CHANGED , redrawShapes ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_FRAME_CHANGED , redrawShapes ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , insideElementsSizesChanged ) ;
+      destroyBitmapData ( ) ;
       super . destroy ( ) ;
       ableToDraw = false ;
       resizeIsPossible = false ;
@@ -796,6 +837,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       clearButtonLink = null ;
       confirmOK = null ;
       confirmCancel = null ;
+      byteArray = null ;
+      bitmapData = null ;
     }
   }
 }

@@ -29,8 +29,10 @@ package com . kisscodesystems . KissAs3Fw . ui
   import flash . events . FocusEvent ;
   import flash . events . KeyboardEvent ;
   import flash . events . TextEvent ;
+  import flash . events . TimerEvent ;
   import flash . text . TextFieldType ;
   import flash . ui . Keyboard ;
+  import flash . utils . Timer ;
   public class TextInput extends BaseSprite
   {
 // The textfield to write in.
@@ -55,8 +57,9 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var eventChanged : Event = null ;
 // Content and its original y position has to be saved if it is mobile mode.
     private var contentSprite : BaseSprite = null ;
-    private var backSprite : BaseSprite = null ;
     private var origContentPos : int = 0 ;
+// To not leave immediately this field.
+    private var focusoutTimer : Timer = null ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -64,6 +67,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
 // Super.
       super ( applicationRef ) ;
+// Unable to scroll using thisi object.
+      mouseDownForScrollingEnabled = false ;
 // The changed event.
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
 // Now the background.
@@ -82,14 +87,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseTextField . addEventListener ( FocusEvent . FOCUS_IN , focusIn ) ;
       baseTextField . addEventListener ( KeyboardEvent . KEY_UP , keyUp ) ;
       baseTextField . addEventListener ( TextEvent . TEXT_INPUT , textInput ) ;
+      baseTextField . mouseDownForScrollingEnabled = false ;
       baseTextFieldRepos ( ) ;
 // This events are required for us.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , resize ) ;
     }
 /*
 ** The type of the basetextfield has to be changed.
@@ -175,12 +182,10 @@ package com . kisscodesystems . KissAs3Fw . ui
                 }
                 var contentSingle : ContentSingle = ContentSingle ( currentParent ) ;
                 contentSprite = ContentSingle ( currentParent ) . getBaseSprite ( ) ;
-                backSprite = ContentSingle ( currentParent ) . getBackSprite ( ) ;
-                if ( contentSingle != null && contentSprite != null && backSprite != null )
+                if ( contentSingle != null && contentSprite != null )
                 {
                   origContentPos = contentSprite . y ;
                   contentSprite . y = application . getPropsApp ( ) . getScrollMargin ( ) + application . getPropsDyn ( ) . getTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) - dist + contentSingle . getBaseScroll ( ) . getccy ( ) ;
-                  backSprite . y = contentSprite . y ;
                 }
                 break ;
               }
@@ -201,6 +206,37 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function focusOut ( e : FocusEvent ) : void
     {
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
+        theFocusOut ( ) ;
+      }
+      else
+      {
+        createFocusoutTimer ( ) ;
+      }
+    }
+    private function dropFocusoutTimer ( ) : void
+    {
+      if ( focusoutTimer != null )
+      {
+        focusoutTimer . stop ( ) ;
+        focusoutTimer . removeEventListener ( TimerEvent . TIMER , focusoutTimerHandler ) ;
+        focusoutTimer = null ;
+      }
+    }
+    private function createFocusoutTimer ( ) : void
+    {
+      dropFocusoutTimer ( ) ;
+      focusoutTimer = new Timer ( application . INPUT_TIMER_DELAY ) ;
+      focusoutTimer . start ( ) ;
+      focusoutTimer . addEventListener ( TimerEvent . TIMER , focusoutTimerHandler ) ;
+    }
+    private function focusoutTimerHandler ( e : TimerEvent ) : void
+    {
+      theFocusOut ( ) ;
+    }
+    private function theFocusOut ( ) : void
+    {
       if ( autoCompleteList != null )
       {
         if ( ! ( mouseX >= autoCompleteList . getcx ( ) && mouseX <= autoCompleteList . getcxsw ( ) && mouseY >= autoCompleteList . getcy ( ) && mouseY <= autoCompleteList . getcysh ( ) ) )
@@ -214,18 +250,16 @@ package com . kisscodesystems . KissAs3Fw . ui
         {
           contentSprite . y = origContentPos ;
         }
-        if ( backSprite != null )
-        {
-          backSprite . y = origContentPos ;
-        }
       }
+      dropFocusoutTimer ( ) ;
     }
 /*
 ** Dispatches the event about the changing of the text. (Usually ENTER was hit.)
+** Enabled input texts can do this.
 */
     private function dispatchEventChanged ( ) : void
     {
-      if ( getBaseEventDispatcher ( ) != null )
+      if ( getEnabled ( ) && getBaseEventDispatcher ( ) != null )
       {
         getBaseEventDispatcher ( ) . dispatchEvent ( eventChanged ) ;
       }
@@ -432,7 +466,11 @@ package com . kisscodesystems . KissAs3Fw . ui
         baseTextField . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppPadding ( ) , application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) ) ;
         super . setsh ( baseTextField . getsh ( ) + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         baseTextFieldRepos ( ) ;
-        baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        baseShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( )
+        , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) 
+        , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) 
+        , Math . max ( application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) , application . getPropsApp ( ) . getMinTextInputAlpha ( ) )
+        , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
         baseShape . drawRect ( ) ;
@@ -455,11 +493,20 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function setsh ( newsh : int ) : void { }
     override public function setswh ( newsw : int , newsh : int ) : void { }
 /*
-** Sets the label of the button.
+** Sets the new text code.
+** If it ends with newline character, it will dispatch the changed event.
+**
 */
     public function setTextCode ( newTextCode : String ) : void
     {
       baseTextField . setTextCode ( newTextCode ) ;
+      if ( newTextCode != null )
+      {
+        if ( newTextCode . charAt ( newTextCode . length - 1 ) == "\n" )
+        {
+          dispatchEventChanged ( ) ;
+        }
+      }
     }
 /*
 ** Repositioning the label if necessary.
@@ -514,9 +561,11 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , resize ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , resize ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , resize ) ;
+      dropFocusoutTimer ( ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( autoCompleteCurrents != null )
       {
@@ -544,7 +593,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       toAutoComplete1 = null ;
       eventChanged = null ;
       contentSprite = null ;
-      backSprite = null ;
       origContentPos = 0 ;
     }
   }

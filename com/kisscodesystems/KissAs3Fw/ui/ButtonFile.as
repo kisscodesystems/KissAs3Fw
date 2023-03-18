@@ -74,6 +74,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     public const fileFilterPres : FileFilter = new FileFilter ( "Presentation Files (*.ppt, *.pptx, *.odp)" , "*.ppt; *.pptx; *.odp" ) ;
     public const fileFilterExcs : FileFilter = new FileFilter ( "Calculate Files (*.xls, *.xlsx, *.ods)" , "*.xls; *.xlsx; *.ods" ) ;
     public const fileFilterComs : FileFilter = new FileFilter ( "Compressed Files (*.zip, *.rar, *.tar, *.gz)" , "*.zip; *.rar; *.tar; *.gz" ) ;
+// Use external method to browse for file is File class is usable. (air context)
+// True means that a list will be built in this application.
+// False means using of tools of operating system to select a file.
+    private var useExternalFileBrowsingMethod : Boolean = true ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -97,6 +101,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       setIcon ( "file" ) ;
 // And a sound type.
       setSoundTypeClick ( "button" ) ;
+    }
+/*
+** Get and set using of external browsing method.
+*/
+    public function setUseExternalFileBrowsingMethod ( b : Boolean ) : void
+    {
+      useExternalFileBrowsingMethod = b ;
+    }
+    public function getUseExternalFileBrowsingMethod ( ) : Boolean
+    {
+      return useExternalFileBrowsingMethod ;
     }
 /*
 ** Check for File permission immediately.
@@ -414,7 +429,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       if ( application . getFileClassIsUsable ( ) )
       {
-        createFileBrowse ( ) ;
+        if ( useExternalFileBrowsingMethod )
+        {
+          createFileBrowse ( ) ;
+        }
+        else
+        {
+          file . browseForOpen ( "Select your file" , fileFilters ) ;
+        }
       }
       else
       {

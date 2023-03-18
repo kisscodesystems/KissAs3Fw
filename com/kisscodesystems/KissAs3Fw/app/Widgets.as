@@ -165,7 +165,7 @@ package com . kisscodesystems . KissAs3Fw . app
       widgetsArray [ fromContentId ] . splice ( indexOnFrom , 1 ) ;
       widgetsArray [ toContentId ] . push ( widget ) ;
       contentMultiple . removeFromContent ( fromContentId , widget ) ;
-      contentMultiple . addToContent ( toContentId , widget , true , 0 ) ;
+      contentMultiple . addToContent ( toContentId , widget , 0 ) ;
       widget . setContentId ( toContentId ) ;
       if ( repositionRequired )
       {
@@ -714,7 +714,7 @@ package com . kisscodesystems . KissAs3Fw . app
       if ( widget != null )
       {
         widget . setContentId ( contentId ) ;
-        contentMultiple . addToContent ( contentId , widget , true , widgetsArray . length ) ;
+        contentMultiple . addToContent ( contentId , widget , widgetsArray . length ) ;
         widgetsArray [ contentId ] . push ( widget ) ;
         widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , widgetResized ) ;
         widget . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_COORDINATES_CHANGED , widgetRepositioned ) ;

@@ -42,8 +42,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // Setting its coordinates can be hppened by sdetting its x and y coordinates (and not using setcxy())!
     private var shapeActualpos : BaseShape = null ;
 // The mask objects of the content.
-    private var shapeMask0 : BaseShape = null ;
-    private var shapeMask1 : BaseShape = null ;
+    private var shapeMask : BaseShape = null ;
 // This is the positioner of the external displayable object.
 // If this is moved then it will be returned immediately to the 0-0 coordinates.
 // The x and y property will be used instead of getcxy because this object will be dragged.
@@ -81,6 +80,8 @@ package com . kisscodesystems . KissAs3Fw . base
 // Events of the reaches of the tops, bottoms.
     private var eventTopReached : Event = null ;
     private var eventBottomReached : Event = null ;
+// The scroll is dragged or not. If yes than cannot start drag again.
+    private var scrolled : Boolean = false ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -101,19 +102,13 @@ package com . kisscodesystems . KissAs3Fw . base
       shapeActualpos . y = 0 ;
       shapeActualpos . setdb ( false ) ;
       shapeActualpos . setdt ( 0 ) ;
-      shapeMask0 = new BaseShape ( application ) ;
-      addChild ( shapeMask0 ) ;
-      shapeMask0 . x = 0 ;
-      shapeMask0 . y = 0 ;
-      shapeMask0 . setdb ( false ) ;
-      shapeMask0 . setdt ( 0 ) ;
-      shapeMask1 = new BaseShape ( application ) ;
-      addChild ( shapeMask1 ) ;
-      shapeMask1 . x = 0 ;
-      shapeMask1 . y = 0 ;
-      shapeMask1 . setdb ( false ) ;
-      shapeMask1 . setdt ( 0 ) ;
-      shapeMask1 . visible = false ;
+      shapeMask = new BaseShape ( application ) ;
+      addChild ( shapeMask ) ;
+      shapeMask . x = 0 ;
+      shapeMask . y = 0 ;
+      shapeMask . setdb ( false ) ;
+      shapeMask . setdt ( 1 ) ;
+      shapeMask . visible = false ;
       spriteMover = new BaseSprite ( application ) ;
       addChild ( spriteMover ) ;
 // This event has to be initialized now.
@@ -127,8 +122,11 @@ package com . kisscodesystems . KissAs3Fw . base
 // Registering onto these.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
 // These have to be zero!
       scw = 0 ;
       sch = 0 ;
@@ -206,26 +204,35 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** Mouse down on the mover sprite.
 */
-    private function mouseDown ( e : MouseEvent ) : void
+    public function mouseDown ( e : MouseEvent ) : void
     {
-// The previous moving is stopping and a new one can be started.
-      removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
-      addEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
-// This is the time when the mouse is down.
-      mouseDownTime = getTimer ( ) ;
-// Regular operation by default.
-      regularOperation = true ;
-// Cache the content!
-      dispatchEventCacheBegin ( ) ;
-      ccxPrev = ccx ;
-      ccyPrev = ccy ;
-      if ( stage != null )
+      if ( ! scrolled )
       {
-        stage . addEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
-        stage . addEventListener ( MouseEvent . MOUSE_UP , mouseUp ) ;
-      }
+// It is scrolled now.
+        scrolled = true ;
+// The previous moving is stopping and a new one can be started.
+        removeEventListener ( Event . ENTER_FRAME , enterFrameMoveContent ) ;
+        addEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
+// This is the time when the mouse is down.
+        mouseDownTime = getTimer ( ) ;
+// Regular operation by default.
+        regularOperation = true ;
+// Cache the content!
+        dispatchEventCacheBegin ( ) ;
+        ccxPrev = ccx ;
+        ccyPrev = ccy ;
+        if ( stage != null )
+        {
+          stage . addEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
+          stage . addEventListener ( MouseEvent . MOUSE_UP , mouseUp ) ;
+        }
 // Starts drag the spriteMover shape.
-      spriteMover . startDrag ( ) ;
+        spriteMover . startDrag ( ) ;
+      }
+    }
+    public function isScrolled ( ) : Boolean
+    {
+      return scrolled ;
     }
 /*
 ** Saves the actual position of the mover.
@@ -372,6 +379,7 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( spriteMover != null )
       {
+        scrolled = false ;
         spriteMover . stopDrag ( ) ;
         spriteMover . x = 0 ;
         spriteMover . y = 0 ;
@@ -427,17 +435,11 @@ package com . kisscodesystems . KissAs3Fw . base
 ** Gets the reference to the masks.
 ** If this is a continuous content (like the content of the widget for example)
 ** then this has to be the mask of that content.
-** There are two because the front and the back content sprite of the ContentSingle
-** need different masks! These two have to be resized and repositioned in the same way.
 */
-    public function getMask0 ( ) : BaseShape
+    public function getMask ( ) : BaseShape
     {
-      return shapeMask0 ;
-    }
-    public function getMask1 ( ) : BaseShape
-    {
-      shapeMask1 . visible = true ;
-      return shapeMask1 ;
+      shapeMask . visible = true ;
+      return shapeMask ;
     }
 /*
 ** Gets the reference to the spriteMover sprite.
@@ -588,6 +590,14 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The radius of the application has been changed.
 */
+    private function boxChanged ( e : Event ) : void
+    {
+// So we have to redraw.
+      redrawShapesMover ( ) ;
+    }
+/*
+** The radius of the application has been changed.
+*/
     private function radiusChanged ( e : Event ) : void
     {
 // So we have to redraw.
@@ -596,7 +606,15 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So we have to redraw.
+      redrawShapesMover ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So we have to redraw.
       redrawShapesMover ( ) ;
@@ -604,7 +622,7 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So we have to redraw.
       redrawShapesMover ( ) ;
@@ -644,24 +662,22 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( application != null )
       {
 // The frame is redrawn and repositioned.
-        shapeFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        shapeFrame . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
         shapeFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeFrame . drawRect ( ) ;
 // The actual pos moved shape is redrawn and repositioned.
-        shapeActualpos . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeActualpos . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeActualpos . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        shapeActualpos . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
         shapeActualpos . setswh ( getsw ( ) - ( scw <= getsw ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) , getsh ( ) - ( sch <= getsh ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) ) ;
         shapeActualpos . drawRect ( ) ;
 // The mask has to be updated too.
-        shapeMask0 . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
-        shapeMask0 . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
-        shapeMask0 . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getscw ( ) <= getsw ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) , getsh ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getsch ( ) <= getsh ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) ) ;
-        shapeMask0 . drawRect ( ) ;
-        shapeMask1 . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
-        shapeMask1 . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
-        shapeMask1 . setswh ( shapeMask0 . getsw ( ) , shapeMask0 . getsh ( ) ) ;
-        shapeMask1 . drawRect ( ) ;
+        shapeMask . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
+        shapeMask . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        shapeMask . setswh ( getsw ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getscw ( ) <= getsw ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) , getsh ( ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) - ( getsch ( ) <= getsh ( ) ? 0 : application . getPropsApp ( ) . getScrollMargin ( ) ) ) ;
+        shapeMask . drawRect ( ) ;
 // The spriteMover also has to be repainted and repositioned.
         spriteMover . graphics . clear ( ) ;
         spriteMover . graphics . lineStyle ( 0 , 0 , 0 ) ;
@@ -672,6 +688,7 @@ package com . kisscodesystems . KissAs3Fw . base
         spriteMover . y = 0 ;
         spriteMover . setswh ( getsw ( ) , getsh ( ) ) ;
         spriteMover . stopDrag ( ) ;
+        scrolled = false ;
       }
     }
 /*
@@ -710,10 +727,8 @@ package com . kisscodesystems . KissAs3Fw . base
           ccy = getsh ( ) - sch ;
           ccyTarget = ccy ;
         }
-        shapeMask0 . x = shapeActualpos . x + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
-        shapeMask0 . y = shapeActualpos . y + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
-        shapeMask1 . x = shapeActualpos . x + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
-        shapeMask1 . y = shapeActualpos . y + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
+        shapeMask . x = shapeActualpos . x + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
+        shapeMask . y = shapeActualpos . y + application . getPropsDyn ( ) . getAppLineThickness ( ) ;
       }
     }
 /*
@@ -756,8 +771,11 @@ package com . kisscodesystems . KissAs3Fw . base
       removeEventListener ( Event . ENTER_FRAME , enterFrameSaveMoverPos ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_CORNER_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_FRAME_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventContentPositionChanged != null )
       {
@@ -779,8 +797,7 @@ package com . kisscodesystems . KissAs3Fw . base
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       shapeFrame = null ;
-      shapeMask0 = null ;
-      shapeMask1 = null ;
+      shapeMask = null ;
       shapeActualpos = null ;
       spriteMover = null ;
       eventContentPositionChanged = null ;

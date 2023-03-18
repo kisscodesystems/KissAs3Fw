@@ -50,9 +50,10 @@ package com . kisscodesystems . KissAs3Fw . base
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // Closed by default.
       visible = false ;
     }
@@ -121,7 +122,15 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So we have to redraw and resize.
+      stuffsResize ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So we have to redraw and resize.
       stuffsResize ( ) ;
@@ -129,7 +138,7 @@ package com . kisscodesystems . KissAs3Fw . base
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So we have to redraw and resize.
       stuffsResize ( ) ;
@@ -149,7 +158,7 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( application != null )
       {
-        baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , ( application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        baseShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , ( application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) + ( 1 - application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) ) * 3 / 4 ) , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         baseShape . setswh ( getsw ( ) , getsh ( ) ) ;
         baseShape . drawRect ( ) ;
@@ -215,9 +224,10 @@ package com . kisscodesystems . KissAs3Fw . base
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventClosed != null )
       {

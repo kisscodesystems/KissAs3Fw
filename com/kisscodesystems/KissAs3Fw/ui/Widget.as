@@ -17,7 +17,7 @@
 **   - repositioned (implemented in Widgets class)
 **   - closed and removed from the content of the widgets (implemented in Widgets clas)
 **   - resized
-**   - minimised (content hide, only the header is visible)
+**   - minimized (content hide, only the header is visible)
 ** - new widgets should extend this
 ** - can have an id and a type and these can be set once.
 ** - an info content can be displayed to help users.
@@ -27,13 +27,14 @@ package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . app . Widgets ;
+  import com . kisscodesystems . KissAs3Fw . base . BaseAlerter ;
   import com . kisscodesystems . KissAs3Fw . base . BaseEventDispatcher ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
   import flash . display . DisplayObject ;
   import flash . events . Event ;
   import flash . events . MouseEvent ;
-  public class Widget extends BaseSprite
+  public class Widget extends BaseAlerter
   {
 // To insert a tab to a specific TextValue values
     protected const tab : String = "  " ;
@@ -92,14 +93,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var buttonClosEventPossible : Boolean = true ;
 // The text label to inform the user, for example while loading something into the widget.
     private var infoTextLabel : TextLabel = null ;
-// To create the alert and the confirm dialogs, these will be the actions can be overridden.
-    protected var alertOK : Function = null ;
-    protected var confirmOK : Function = null ;
-    protected var confirmCancel : Function = null ;
 // The sizes of the initialized widget, these should be set in every extender Widget.
 // These should be defined as the font size would be 16.
 // If this is not, then the initialization size will be changed depending on the actual font size.
-    protected var iniSizeWidth : int = 543
+    protected var iniSizeWidth : int = 543 ;
     protected var iniSizeHeight : int = 432 ;
 // It is necessary to save the currently (or lastly) mode to display.
     protected var widgetMode : String = "" ;
@@ -138,6 +135,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       mover = new BaseSprite ( application ) ;
       addChild ( mover ) ;
       mover . addEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
+      mover . mouseDownForScrollingEnabled = false ;
 // info buttonlink
       buttonLinkInfo = new ButtonLink ( application ) ;
       addChild ( buttonLinkInfo ) ;
@@ -183,9 +181,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // The event of closing itself or drag start or drag stop.
       eventWidgetCloseMe = new Event ( application . EVENT_WIDGET_CLOSE_ME ) ;
       eventWidgetDragStart = new Event ( application . EVENT_WIDGET_DRAG_START ) ;
@@ -201,7 +200,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Sets the info content. This is a hint to the user how to use this widget.
 */
-    protected function setInfoContent ( tc : String , html : Boolean = false ) : void
+    public function setInfoContent ( tc : String , html : Boolean = false ) : void
     {
       if ( hintTextBox == null )
       {
@@ -307,10 +306,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
       iniSizeWidthModified = currFontSize / origFontSize * factor * iniSizeWidth ;
       iniSizeHeightModified = currFontSize / origFontSize * factor * iniSizeHeight ;
+      if ( application . getPropsDyn ( ) . weAreInDesktopMode ( ) )
+      {
 // Sets to the initialized size.
-      super . setswh ( iniSizeWidthModified , iniSizeHeightModified ) ;
+        super . setswh ( iniSizeWidthModified , iniSizeHeightModified ) ;
 // And, also saved to the container.
-      application . getMiddleground ( ) . getWidgets ( ) . saveWidgetSizes ( this , iniSizeWidthModified , iniSizeHeightModified ) ;
+        application . getMiddleground ( ) . getWidgets ( ) . saveWidgetSizes ( this , iniSizeWidthModified , iniSizeHeightModified ) ;
+      }
+      else
+      {
+        super . setswh ( iniSizeWidth , iniSizeHeight ) ;
+        application . getMiddleground ( ) . getWidgets ( ) . saveWidgetSizes ( this , iniSizeWidth , iniSizeHeight ) ;
+      }
     }
     override protected function removedFromStage ( e : Event ) : void
     {
@@ -398,6 +405,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** To be able to set the coordinates of the content!
+*/
+    public function setccx ( index , newccx : int ) : void
+    {
+      contentMultiple . setccx ( index , newccx ) ;
+    }
+    public function setccy ( index , newccy : int ) : void
+    {
+      contentMultiple . setccy ( index , newccy ) ;
+    }
+/*
 ** Sets the orientation of a content.
 */
     public function setOrientation ( index : int , o : String ) : void
@@ -464,8 +482,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** Gets the size of the content.
+** Gets the position and size of the content.
 */
+    public function getContentcx ( ) : int
+    {
+      return contentMultiple . getcx ( ) ;
+    }
+    public function getContentcy ( ) : int
+    {
+      return contentMultiple . getcy ( ) ;
+    }
     public function getContentsw ( ) : int
     {
       return contentMultiple . getContentsw ( ) ;
@@ -657,6 +683,17 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
+** To get the index of the active tab (content multiple)
+*/
+    public function getActiveIndex ( ) : int
+    {
+      if ( contentMultiple != null )
+      {
+        return contentMultiple . getActiveIndex ( ) ;
+      }
+      return 0 ;
+    }
+/*
 ** The blur effect should be applied when this Widget really moves.
 ** (In case of hiding-unhiding, the other widgets should not be blured.)
 */
@@ -718,7 +755,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( resizer != null )
       {
         resizer . graphics . clear ( ) ;
-        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
+        resizer . graphics . lineStyle ( application . getPropsDyn ( ) . getAppLineThickness ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsApp ( ) . getLineAlpha ( ) , application . getPropsApp ( ) . getPixelHinting ( ) ) ;
         resizer . graphics . drawRect ( - application . getPropsApp ( ) . getResizeMargin ( ) , - application . getPropsApp ( ) . getResizeMargin ( ) , getsw ( ) + mouseX - prevMouseX + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) , getsh ( ) + mouseY - prevMouseY + 2 * application . getPropsApp ( ) . getResizeMargin ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
       }
     }
@@ -767,9 +804,24 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** Adds a content and returns the index of the content.
 ** Unique elements can be added as the labels of the buttons.
 */
-    public function addContent ( label : String ) : int
+    public function addContent ( label : String , it : String = "" ) : int
     {
-      return contentMultiple . addContent ( label ) ;
+      return contentMultiple . addContent ( label , it ) ;
+    }
+/*
+** Sets the icon of a tab.
+*/
+    public function destIcon ( index : int ) : void
+    {
+      contentMultiple . destIcon ( index ) ;
+    }
+    public function setIcon ( index : int , it : String ) : void
+    {
+      contentMultiple . setIcon ( index , it ) ;
+    }
+    public function setIconIfNotActive ( index : int , it : String ) : void
+    {
+      contentMultiple . setIconIfNotActive ( index , it ) ;
     }
 /*
 ** Removes a content.
@@ -810,11 +862,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       contentMultiple . changeCellIndex ( index , displayObject , cellIndex ) ;
     }
 /*
+** Returns the cell index of an element.
+*/
+    public function getCellIndex ( index : int , displayObject : DisplayObject ) : int
+    {
+      return contentMultiple . getCellIndex ( index , displayObject ) ;
+    }
+/*
 ** Adds an element to the content sprite.
 */
-    public function addToContent ( index : int , displayObject : DisplayObject , normal : Boolean , cellIndex : int , sizeConsider : Boolean = true ) : void
+    public function addToContent ( index : int , displayObject : DisplayObject , cellIndex : int , sizeConsider : Boolean = true , to0 : Boolean = false ) : void
     {
-      contentMultiple . addToContent ( index , displayObject , normal , cellIndex , sizeConsider ) ;
+      contentMultiple . addToContent ( index , displayObject , cellIndex , sizeConsider , to0 ) ;
     }
 /*
 ** To remove an element from the contentMultiple of this widget.
@@ -962,7 +1021,15 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      resizeElements ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       resizeElements ( ) ;
@@ -970,7 +1037,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       resizeElements ( ) ;
@@ -1014,7 +1081,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function resizeBackground ( ) : void
     {
-      baseShape . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 4 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+      baseShape . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) / 4 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
       baseShape . x = 0 ;
       baseShape . y = 0 ;
       baseShape . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
@@ -1034,10 +1101,12 @@ package com . kisscodesystems . KissAs3Fw . ui
         resizeBackground ( ) ;
 // The resizer.
         clearResizer ( ) ;
-// The label.
+// The info icon first.
         buttonLinkInfo . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
+// The label.
         textLabel . setcxy ( ( buttonLinkInfo . getsw ( ) == 0 ? application . getPropsDyn ( ) . getAppPadding ( ) : buttonLinkInfo . getsw ( ) ) + application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-        backLabel . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        textLabel . setMaxWidth ( getsw ( ) - textLabel . getcx ( ) - 2 * application . getPropsDyn ( ) . getAppPadding ( ) , false ) ;
+        backLabel . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         backLabel . x = application . getPropsDyn ( ) . getAppMargin ( ) ;
         backLabel . y = application . getPropsDyn ( ) . getAppMargin ( ) ;
         backLabel . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
@@ -1117,56 +1186,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       }
     }
 /*
-** To create confirm and alert easier.
-*/
-    protected function showConfirm ( messageString : String ) : void
-    {
-      var uniqueString : String = "" + new Date ( ) . time ;
-      var okFunction : Function = null ;
-      var cancelFunction : Function = null ;
-      okFunction = function ( e : Event ) : void
-      {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        if ( confirmOK != null )
-        {
-          confirmOK ( ) ;
-        }
-        e . stopImmediatePropagation ( ) ;
-      }
-      cancelFunction = function ( e : Event ) : void
-      {
-        if ( confirmCancel != null )
-        {
-          confirmCancel ( ) ;
-        }
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , cancelFunction ) ;
-        e . stopImmediatePropagation ( ) ;
-      }
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_CANCEL , cancelFunction ) ;
-      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , true ) ;
-    }
-    protected function showAlert ( messageString : String , fullscreen : Boolean = false ) : void
-    {
-      var uniqueString : String = "" + new Date ( ) . time ;
-      var okFunction : Function = function ( e : Event ) : void
-      {
-        application . getForeground ( ) . closeAlert ( uniqueString ) ;
-        application . getBaseEventDispatcher ( ) . removeEventListener ( e . type , okFunction ) ;
-        if ( alertOK != null )
-        {
-          alertOK ( ) ;
-        }
-        e . stopImmediatePropagation ( ) ;
-      }
-      application . getBaseEventDispatcher ( ) . addEventListener ( uniqueString + application . getTexts ( ) . OC_OK , okFunction ) ;
-      application . getForeground ( ) . createAlert ( messageString , uniqueString , true , false , false , fullscreen ) ;
-    }
-/*
 ** Override these as necessary.
 */
     protected function onCreate ( ) : void { }
@@ -1189,9 +1208,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_MARGIN_CHANGED , marginChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( MouseEvent . MOUSE_UP , stageMouseUp ) ;
@@ -1245,9 +1265,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       buttonLinkClos = null ;
       contentId = 0 ;
       infoTextLabel = null ;
-      alertOK = null ;
-      confirmOK = null ;
-      confirmCancel = null ;
       hintTextBox = null ;
       iniSizeWidth = 0 ;
       iniSizeHeight = 0 ;

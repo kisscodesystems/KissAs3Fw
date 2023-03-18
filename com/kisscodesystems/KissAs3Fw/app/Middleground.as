@@ -31,7 +31,6 @@ package com . kisscodesystems . KissAs3Fw . app
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . base . BaseShape ;
   import com . kisscodesystems . KissAs3Fw . base . BaseSprite ;
-  import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonText ;
   import com . kisscodesystems . KissAs3Fw . ui . TextLabel ;
@@ -76,11 +75,14 @@ package com . kisscodesystems . KissAs3Fw . app
 // The name of this application will be displayed here.
       applicationName = new TextLabel ( application ) ;
       addChild ( applicationName ) ;
-// The best layer to watch is above the application name.
-      watch = new Watch ( application ) ;
-      addChild ( watch ) ;
-      watch . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , watchSizesChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WATCH_REPOSITIONED , appNameReSize ) ;
+// The best layer to watch is above the application name.
+      if ( application . getPropsApp ( ) . getWatchEnabled ( ) )
+      {
+        watch = new Watch ( application ) ;
+        addChild ( watch ) ;
+        watch . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SIZES_CHANGED , watchSizesChanged ) ;
+      }
 // The buttons and the panels of the settings and menu.
       if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
       {
@@ -114,6 +116,16 @@ package com . kisscodesystems . KissAs3Fw . app
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_MARGIN_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , stuffsChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_WIDGET_MODE_CHANGED , stuffsChanged ) ;
+    }
+/*
+** Adds an object after initialization to handle user bg upload.
+*/
+    public function addUserBgHandler ( baseSprite : BaseSprite ) : void
+    {
+      if ( panelSettings != null )
+      {
+        panelSettings . addUserBgHandler ( baseSprite ) ;
+      }
     }
 /*
 ** When the watch is resized then it is necessary to reposition.
@@ -153,6 +165,7 @@ package com . kisscodesystems . KissAs3Fw . app
       {
         panelSettings . refreshAbout ( ) ;
       }
+      middlegroundRePosSize ( ) ;
     }
 /*
  ** Gets the active widget container.
@@ -181,11 +194,11 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** Gets the application background image uploaded by the user.
 */
-    public function getUserBgButtonFile ( ) : ButtonFile
+    public function getUserBgHandler ( ) : BaseSprite
     {
       if ( panelSettings != null )
       {
-        return panelSettings . getUserBgButtonFile ( ) ;
+        return panelSettings . getUserBgHandler ( ) ;
       }
       else
       {
@@ -347,20 +360,29 @@ package com . kisscodesystems . KissAs3Fw . app
 /*
 ** The panel settings user background image.
 */
-    public function setUserBgButtonFileEnabled ( b : Boolean ) : void
+    public function setUserBgHandlerVisible ( b : Boolean ) : void
     {
-      panelSettings . setUserBgButtonFileEnabled ( b ) ;
+      if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
+      {
+        panelSettings . setUserBgHandlerVisible ( b ) ;
+      }
     }
 /*
 ** The buttons has to be set sometimes.
 */
     public function setEnabledLogoutButton ( b : Boolean ) : void
     {
-      panelMenu . setEnabledLogoutButton ( b ) ;
+      if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+      {
+        panelMenu . setEnabledLogoutButton ( b ) ;
+      }
     }
     public function setEnabledRegisterButton ( b : Boolean ) : void
     {
-      panelMenu . setEnabledRegisterButton ( b ) ;
+      if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+      {
+        panelMenu . setEnabledRegisterButton ( b ) ;
+      }
     }
 /*
 ** The menu or the settings panel has been closed.
@@ -426,16 +448,27 @@ package com . kisscodesystems . KissAs3Fw . app
           panelMenu . setswh ( getPanelWidth ( ) , getPanelMenuHeight ( ) ) ;
           panelMenu . setcxy ( buttonTextMenu . getcx ( ) , buttonTextMenu . getcy ( ) ) ;
           widgetsh = getsh ( ) - buttonTextMenu . getcysh ( ) ;
+        }
+        if ( application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+        {
           applicationName . setcxy ( buttonTextMenu . getcxsw ( ) + application . getPropsDyn ( ) . getAppMargin ( ) , buttonTextMenu . getcy ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+        }
+        else if ( application . getPropsApp ( ) . getWatchEnabled ( ) )
+        {
+          applicationName . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , watch . getcy ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
+        }
+        else if ( application . getPropsApp ( ) . getPanelSettingsEnabled ( ) )
+        {
+          applicationName . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , buttonTextSettings . getcy ( ) + application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         }
         else
         {
           applicationName . setcxy ( application . getPropsDyn ( ) . getAppMargin ( ) , application . getPropsDyn ( ) . getAppMargin ( ) ) ;
         }
         appNameReSize ( null ) ;
-        if ( ! application . getPropsApp ( ) . getPanelSettingsEnabled ( ) && ! application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
+        if ( ! application . getPropsApp ( ) . getPanelSettingsEnabled ( ) && ! application . getPropsApp ( ) . getWatchEnabled ( ) && ! application . getPropsApp ( ) . getPanelMenuEnabled ( ) )
         {
-          widgetsh = getsh ( ) - applicationName . getsh ( ) - 2 * application . getPropsDyn ( ) . getAppMargin ( ) ;
+          widgetsh = getsh ( ) - ( applicationName . getTextCode ( ) == "" ? 0 : applicationName . getsh ( ) ) ;
         }
         widgets . widgetsRePosSize ( ) ;
       }

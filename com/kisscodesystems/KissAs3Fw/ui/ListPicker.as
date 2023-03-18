@@ -129,7 +129,21 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( getSelectedIndex ( ) != - 1 )
       {
         textLabel . setTextCode ( list . getArrayLabels ( ) [ getSelectedIndex ( ) ] ) ;
-        textLabel . setIcon ( list . getArrayIcons ( ) != null ? list . getArrayIcons ( ) [ getSelectedIndex ( ) ] : "" ) ;
+        if ( list . getArrayIcons ( ) != null )
+        {
+          if ( list . getArrayIcons ( ) [ getSelectedIndex ( ) ] != null )
+          {
+            textLabel . setIcon ( list . getArrayIcons ( ) [ getSelectedIndex ( ) ] ) ;
+          }
+          else
+          {
+            textLabel . destIcon ( ) ;
+          }
+        }
+        else
+        {
+          textLabel . destIcon ( ) ;
+        }
       }
       else
       {

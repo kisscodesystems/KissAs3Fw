@@ -58,6 +58,7 @@ package com . kisscodesystems . KissAs3Fw . base
   import com . kisscodesystems . KissAs3Fw . Application ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
   import flash . events . Event ;
+  import flash . events . MouseEvent ;
   import flash . system . System ;
   import flash . text . AntiAliasType ;
   import flash . text . TextField ;
@@ -92,6 +93,8 @@ package com . kisscodesystems . KissAs3Fw . base
     private var isHtml : Boolean = false ;
 // The minimum acceptable number of characters
     private var minChars : int = 0 ;
+// Mouse Down for scrolling can be disabled (see below)
+    public var mouseDownForScrollingEnabled : Boolean = true ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -120,7 +123,7 @@ package com . kisscodesystems . KissAs3Fw . base
       addEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
 // Changing these text properties.
       antiAliasType = AntiAliasType . NORMAL ;
-      embedFonts = application . getPropsApp ( ) . getUseEmbedFonts ( ) ;
+      embedFonts = application . getPropsDyn ( ) . getFontIsEmbedded ( ) ;
 // The default textformat is set.
       setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
     }
@@ -133,11 +136,26 @@ package com . kisscodesystems . KissAs3Fw . base
     {
 // Calling the content size recalc.
       application . callContentSizeRecalc ( this ) ;
+// Can listen to the scrolling of the first parent ContentSingle object.
+      addEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForScrolling ) ;
     }
     protected function removedFromStage ( e : Event ) : void
     {
 // Calling the content size recalc.
       application . callContentSizeRecalc ( this ) ;
+    }
+/*
+** When the mouse is down on an object:
+** 1. The mouse can be released at that point.
+** 2. The mouse can move and this time the first ContentSingle object has to be scrolled
+**    instead of the clicking on that object.
+*/
+    private function mouseDownForScrolling ( e : MouseEvent ) : void
+    {
+      if ( mouseDownForScrollingEnabled && stage != null )
+      {
+        application . findFirstParentContentSingleAndStartScrolling ( this ) ;
+      }
     }
 /*
 ** This is the resetter of the basic properties.
@@ -418,6 +436,7 @@ package com . kisscodesystems . KissAs3Fw . base
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       removeEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
       removeEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
+      removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForScrolling ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LANG_CODE_CHANGED , langCodeChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , textFormatMidChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED , textFormatBrightChanged ) ;
@@ -467,14 +486,6 @@ package com . kisscodesystems . KissAs3Fw . base
       if ( isHtml != html )
       {
         isHtml = html ;
-        if ( ! isHtml )
-        {
-          embedFonts = application . getPropsApp ( ) . getUseEmbedFonts ( ) ;
-        }
-        else
-        {
-          embedFonts = false ;
-        }
         displayText ( ) ;
       }
     }
@@ -648,7 +659,7 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( string != null )
       {
-        return string . indexOf ( application . getTexts ( ) . BTC ) != - 1 ;
+        return string . indexOf ( application . getTexts ( ) . BTC ) != - 1 && string . indexOf ( application . getTexts ( ) . ETC ) != - 1 ;
       }
       else
       {
@@ -773,17 +784,21 @@ package com . kisscodesystems . KissAs3Fw . base
 // This has to be cleared first.
         clearDropShadowFilter ( ) ;
         if ( textType == application . getTexts ( ) . TEXT_TYPE_MID )
-        { defaultTextFormat = application . getPropsDyn ( ) . getTextFormatMid ( ) ;
+        {
+          defaultTextFormat = application . getPropsDyn ( ) . getTextFormatMid ( ) ;
           setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorMid ( ) ) ;
         }
         else if ( textType == application . getTexts ( ) . TEXT_TYPE_DARK )
-        { defaultTextFormat = application . getPropsDyn ( ) . getTextFormatDark ( ) ;
+        {
+          defaultTextFormat = application . getPropsDyn ( ) . getTextFormatDark ( ) ;
           setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorDark ( ) ) ;
         }
         else
-        { defaultTextFormat = application . getPropsDyn ( ) . getTextFormatBright ( ) ;
+        {
+          defaultTextFormat = application . getPropsDyn ( ) . getTextFormatBright ( ) ;
           setDropShadowFilter ( application . getPropsDyn ( ) . getAppFontColorBright ( ) ) ;
         }
+        embedFonts = application . getPropsDyn ( ) . getFontIsEmbedded ( ) ;
         if ( isHtml )
         {
           htmlText = textText ;

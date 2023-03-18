@@ -24,8 +24,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 // The states and the used icons.
     public var STATE_ON : String = "on" ;
     public var STATE_OFF : String = "off" ;
-    protected var ICON_ON : String = "switchon" ;
-    protected var ICON_OFF : String = "switchoff" ;
+    private var ICON_ON : String = "switchon" ;
+    private var ICON_OFF : String = "switchoff" ;
 // The current states have to be initialized.
     private var objectState : String = STATE_OFF ;
     private var textCodeAsc : String = "" ;
@@ -47,6 +47,24 @@ package com . kisscodesystems . KissAs3Fw . ui
       objectState = STATE_OFF ;
       setTextCodes ( "" , "" ) ;
       actualizeTextCode ( ) ;
+    }
+/*
+** The icons of the states can be set from outside.
+*/ 
+    public function setIcons ( iconOn : String , iconOff : String ) : void
+    {
+      ICON_ON = "" + iconOn ;
+      ICON_OFF = "" + iconOff ;
+      setIcon ( STATE_ON == objectState ? ICON_ON : ICON_OFF ) ;
+    }
+/*
+** The states can be set from outside.
+*/ 
+    public function setStates ( stateOn : String , stateOff : String ) : void
+    {
+      objectState = "" + ( objectState == STATE_ON ? stateOn : stateOff ) ;
+      STATE_ON = "" + stateOn ;
+      STATE_OFF = "" + stateOff ;
     }
 /*
 ** Sets the state from outside.

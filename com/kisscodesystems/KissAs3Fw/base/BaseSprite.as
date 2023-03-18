@@ -85,6 +85,10 @@ package com . kisscodesystems . KissAs3Fw . base
     private var factorStageHeight : Number = 0 ;
 // It is possible to play a sound when this event happens.
     private var soundTypeMouseDown : String = "" ;
+// Mouse Down for scrolling can be disabled (see below)
+    public var mouseDownForScrollingEnabled : Boolean = true ;
+    private var mouseDownForScrollingStartx : int = 0 ;
+    private var mouseDownForScrollingStarty : int = 0 ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -119,19 +123,57 @@ package com . kisscodesystems . KissAs3Fw . base
     {
       if ( s == null || s == "" )
       {
-        removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+        removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForSoundType ) ;
       }
       else
       {
         soundTypeMouseDown = s ;
-        addEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+        addEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForSoundType ) ;
       }
     }
-    private function mouseDown ( e : MouseEvent ) : void
+    private function mouseDownForSoundType ( e : MouseEvent ) : void
     {
       if ( application != null && application . getSoundManager ( ) != null && getEnabled ( ) )
       {
         application . getSoundManager ( ) . playSound ( soundTypeMouseDown ) ;
+      }
+    }
+/*
+** When the mouse is down on an object:
+** 1. The mouse can be released at that point.
+** 2. The mouse can move and this time the first ContentSingle object has to be scrolled
+**    instead of the clicking on that object.
+*/
+    private function mouseDownForScrolling ( e : MouseEvent ) : void
+    {
+      if ( mouseDownForScrollingEnabled && stage != null && numChildren == 0 )
+      {
+        mouseDownForScrollingStartx = stage . mouseX ;
+        mouseDownForScrollingStarty = stage . mouseY ;
+        addEventListener ( MouseEvent . MOUSE_MOVE , mouseMoveForScrolling ) ;
+        stage . addEventListener ( MouseEvent . MOUSE_UP , mouseUpForScrolling ) ;
+      }
+    }
+    private function mouseUpForScrolling ( e : MouseEvent ) : void
+    {
+      removeEventListener ( MouseEvent . MOUSE_MOVE , mouseMoveForScrolling ) ;
+      if ( stage != null )
+      {
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , mouseUpForScrolling ) ;
+      }
+    }
+    private function mouseMoveForScrolling ( e : MouseEvent ) : void
+    {
+      if ( e != null && e . buttonDown && mouseDownForScrollingEnabled && stage != null )
+      {
+        if ( Math . abs ( mouseDownForScrollingStartx - stage . mouseX ) > application . CLICK_GAP
+          || Math . abs ( mouseDownForScrollingStarty - stage . mouseY ) > application . CLICK_GAP
+        )
+        {
+          removeEventListener ( MouseEvent . MOUSE_MOVE , mouseMoveForScrolling ) ;
+          application . findFirstParentContentSingleAndStartScrolling ( this ) ;
+          application . findFirstParentButtonAndPerformOnRollOut ( this ) ;
+        }
       }
     }
 /*
@@ -143,6 +185,8 @@ package com . kisscodesystems . KissAs3Fw . base
     {
 // Calling the content size recalc.
       application . callContentSizeRecalc ( this ) ;
+// Can listen to the scrolling of the first parent ContentSingle object.
+      addEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForScrolling ) ;
     }
     protected function removedFromStage ( e : Event ) : void
     {
@@ -597,19 +641,19 @@ package com . kisscodesystems . KissAs3Fw . base
           {
             if ( - getcy ( ) > baseScroll . getccy ( ) )
             {
-              baseScroll . setccy ( - getcy ( ) ) ;
+              baseScroll . setccy ( application . getPropsApp ( ) . getScrollMargin ( ) - getcy ( ) ) ;
             }
             if ( - getcx ( ) > baseScroll . getccx ( ) )
             {
               baseScroll . setccx ( - getcx ( ) ) ;
             }
-            if ( - ( getcy ( ) + getsh ( ) ) < baseScroll . getccy ( ) - baseScroll . getMask0 ( ) . getsh ( ) )
+            if ( - ( getcy ( ) + getsh ( ) ) < baseScroll . getccy ( ) - baseScroll . getMask ( ) . getsh ( ) )
             {
-              baseScroll . setccy ( - ( getcy ( ) + getsh ( ) ) + baseScroll . getMask0 ( ) . getsh ( ) ) ;
+              baseScroll . setccy ( - ( getcy ( ) + getsh ( ) ) + baseScroll . getMask ( ) . getsh ( ) ) ;
             }
-            if ( - ( getcx ( ) + getsw ( ) ) < baseScroll . getccx ( ) - baseScroll . getMask0 ( ) . getsw ( ) )
+            if ( - ( getcx ( ) + getsw ( ) ) < baseScroll . getccx ( ) - baseScroll . getMask ( ) . getsw ( ) )
             {
-              baseScroll . setccx ( - ( getcx ( ) + getsw ( ) ) + baseScroll . getMask0 ( ) . getsw ( ) ) ;
+              baseScroll . setccx ( - ( getcx ( ) + getsw ( ) ) + baseScroll . getMask ( ) . getsw ( ) ) ;
             }
           }
         }
@@ -651,10 +695,13 @@ package com . kisscodesystems . KissAs3Fw . base
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       removeEventListener ( Event . ADDED_TO_STAGE , addedToStage ) ;
       removeEventListener ( Event . REMOVED_FROM_STAGE , removedFromStage ) ;
-      removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDown ) ;
+      removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForSoundType ) ;
+      removeEventListener ( MouseEvent . MOUSE_DOWN , mouseDownForScrolling ) ;
+      removeEventListener ( MouseEvent . MOUSE_MOVE , mouseMoveForScrolling ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( Event . RESIZE , stageResized ) ;
+        stage . removeEventListener ( MouseEvent . MOUSE_UP , mouseUpForScrolling ) ;
       }
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       var displayObject : DisplayObject = null ;
@@ -706,6 +753,9 @@ package com . kisscodesystems . KissAs3Fw . base
       factorStageWidth = 0 ;
       factorStageHeight = 0 ;
       application = null ;
+      mouseDownForScrollingEnabled = false ;
+      mouseDownForScrollingStartx = 0 ;
+      mouseDownForScrollingStarty = 0 ;
     }
   }
 }

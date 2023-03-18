@@ -77,15 +77,19 @@ package com . kisscodesystems . KissAs3Fw . ui
       spriteMover = new BaseSprite ( application ) ;
       addChild ( spriteMover ) ;
       spriteMover . addEventListener ( MouseEvent . MOUSE_DOWN , spriteMoverMouseDown ) ;
+      spriteMover . mouseDownForScrollingEnabled = false ;
 // The event needs to be constructed.
       eventChanged = new Event ( application . EVENT_CHANGED ) ;
 // Events to listen to.
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_CORNER_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BOX_FRAME_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
 // The initial drawing of the shapes.
       resize ( null ) ;
       stageMouseUp ( null ) ;
@@ -107,9 +111,25 @@ package com . kisscodesystems . KissAs3Fw . ui
       bgRedraw ( ) ;
     }
 /*
+** The radius of the application has been changed.
+*/
+    private function boxChanged ( e : Event ) : void
+    {
+// So we have to redraw and resize.
+      bgRedraw ( ) ;
+    }
+/*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      bgRedraw ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       bgRedraw ( ) ;
@@ -117,7 +137,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       bgRedraw ( ) ;
@@ -139,10 +159,22 @@ package com . kisscodesystems . KissAs3Fw . ui
       if ( background != null && textLabel != null )
       {
         var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
-        background . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        background . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         background . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
+        background . setsb ( application . getPropsDyn ( ) . getAppBoxCorner ( ) , application . getPropsDyn ( ) . getAppBoxFrame ( ) ) ;
         background . setswh ( textLabel . getcxswap ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
         background . drawRect ( ) ;
+      }
+    }
+/*
+** Updates the size according to the textLabel.
+*/ 
+    private function updateSizesByTextLabel ( ) : void
+    {
+      if ( textLabel != null )
+      {
+        var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
+        super . setswh ( textLabel . getcxsw ( ) + application . getPropsDyn ( ) . getAppPadding ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
       }
     }
 /*
@@ -150,11 +182,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function stageMouseUp ( e : MouseEvent ) : void
     {
-      var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
-      if ( textLabel != null )
-      {
-        super . setswh ( textLabel . getcxsw ( ) + application . getPropsDyn ( ) . getAppPadding ( ) , tfh + 2 * application . getPropsDyn ( ) . getAppPadding ( ) ) ;
-      }
+      updateSizesByTextLabel ( ) ;
       moverReset ( ) ;
     }
     private function spriteMoverMouseDown ( e : MouseEvent ) : void
@@ -249,6 +277,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( textLabel . getTextType ( ) ) ;
       textLabel . setcxy ( tfh + application . getPropsDyn ( ) . getAppPadding ( ) , ( tfh + application . getPropsDyn ( ) . getAppPadding ( ) * 2 - textLabel . getsh ( ) ) / 2 ) ;
+      updateSizesByTextLabel ( ) ;
     }
 /*
 ** Redrawing the shape objects. ( draw and mask)
@@ -334,9 +363,12 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , resize ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_CORNER_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BOX_FRAME_CHANGED , boxChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       removeEventListener ( Event . ENTER_FRAME , updatePotmeter ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
       if ( eventChanged != null )

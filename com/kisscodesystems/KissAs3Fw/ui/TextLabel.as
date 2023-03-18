@@ -51,6 +51,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseTextField . autoSize = TextFieldAutoSize . LEFT ;
 // The text type is bright by default.
       baseTextField . setTextType ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
+// We will listen to the changing of the line thickness.
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
     }
 /*
 ** If the base text field resized then the label must resized too.
@@ -89,6 +91,10 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       setIcon ( iconType ) ;
       updateswh ( ) ;
+    }
+    private function lineThicknessChanged ( e : Event ) : void
+    {
+      setIcon ( iconType ) ;
     }
 /*
 ** An icon can be set from outside.
@@ -129,9 +135,11 @@ package com . kisscodesystems . KissAs3Fw . ui
           icon = new Icon ( application ) ;
           addChild ( icon ) ;
         }
-        var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) ;
+        var tfh : int = application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) - 2 * application . getPropsDyn ( ) . getAppLineThickness ( ) ;
         icon . drawBitmapData ( iconType , baseTextField . getTextType ( ) , tfh ) ;
-        baseTextField . setcx ( tfh ) ;
+        icon . setcx ( application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+        icon . setcy ( application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+        baseTextField . setcx ( application . getPropsDyn ( ) . getTextFieldHeight ( baseTextField . getTextType ( ) ) ) ;
         updateswh ( ) ;
       }
     }
@@ -203,6 +211,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     override public function destroy ( ) : void
     {
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , lineThicknessChanged ) ;
 // 2: stopimmediatepropagation, bitmapdata dispose, array splice ( 0 ), etc.
 // 3: calling the super destroy.
       super . destroy ( ) ;

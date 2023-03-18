@@ -15,7 +15,7 @@
 **
 ** Published       : 2021.11.22
 **
-** Current version : 1.12
+** Current version : 1.13
 **
 ** Developed by    : Jozsef Kiss
 **                   KissCode Systems Kft
@@ -72,6 +72,9 @@
 **                   - Permission handling improvements
 **                   1.12 - 22.nov.2021
 **                   Smaller improvements
+**                   1.13 - 18.mar.2023
+**                   Some new features have been implemented,
+**                   such as the framing (settings)
 **
 ** MAIN FEATURES:
 ** - Contains the public (not static) constants for every part of the fw.
@@ -130,22 +133,27 @@ package com . kisscodesystems . KissAs3Fw
   import com . kisscodesystems . KissAs3Fw . text . TextStock ;
   import com . kisscodesystems . KissAs3Fw . text . Texts ;
   import com . kisscodesystems . KissAs3Fw . ui . ButtonFile ;
+  import com . kisscodesystems . KissAs3Fw . ui . ButtonLink ;
+  import com . kisscodesystems . KissAs3Fw . ui . ButtonText ;
   import com . kisscodesystems . KissAs3Fw . ui . ContentSingle ;
   import com . kisscodesystems . KissAs3Fw . ui . IconManager ;
   import com . kisscodesystems . KissAs3Fw . ui . SoundManager ;
   import com . kisscodesystems . KissAs3Fw . ui . Widget ;
+  import flash . desktop . NativeApplication ;
+  import flash . desktop . SystemIdleMode ;
   import flash . display . DisplayObject ;
   import flash . display . StageAlign ;
   import flash . display . StageScaleMode ;
   import flash . events . ContextMenuEvent ;
   import flash . events . Event ;
+  import flash . events . MouseEvent ;
   import flash . filesystem . File ;
   import flash . filters . DropShadowFilter ;
   import flash . globalization . DateTimeFormatter ;
   import flash . media . Camera ;
   import flash . media . Microphone ;
-  import flash . net . navigateToURL ;
   import flash . net . URLRequest ;
+  import flash . net . navigateToURL ;
   import flash . text . TextFieldAutoSize ;
   import flash . ui . ContextMenu ;
   import flash . ui . ContextMenuItem ;
@@ -174,11 +182,17 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_MARGIN_CHANGED : String = "EVENT_MARGIN_CHANGED" ;
     public const EVENT_PADDING_CHANGED : String = "EVENT_PADDING_CHANGED" ;
     public const EVENT_RADIUS_CHANGED : String = "EVENT_RADIUS_CHANGED" ;
+// The events of the box change.
+    public const EVENT_BOX_CORNER_CHANGED : String = "EVENT_BOX_CORNER_CHANGED" ;
+    public const EVENT_BOX_FRAME_CHANGED : String = "EVENT_BOX_FRAME_CHANGED" ;
 // Event strings of the background color changing events.
-    public const EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED : String = "EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED" ;
-    public const EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED : String = "EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_RAND_CHANGED : String = "EVENT_BACKGROUND_COLOR_RAND_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_TO_FONT_CHANGED : String = "EVENT_BACKGROUND_COLOR_TO_FONT_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_DARK_CHANGED : String = "EVENT_BACKGROUND_COLOR_DARK_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_MID_CHANGED : String = "EVENT_BACKGROUND_COLOR_MID_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED : String = "EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED" ;
 // Event string of the changing of the fill alhpa.
-    public const EVENT_BACKGROUND_FILL_ALPHA_CHANGED : String = "EVENT_BACKGROUND_FILL_ALPHA_CHANGED" ;
+    public const EVENT_BACKGROUND_COLOR_ALPHA_CHANGED : String = "EVENT_BACKGROUND_COLOR_ALPHA_CHANGED" ;
 // The changing of the properties of background image.
     public const EVENT_BACKGROUND_IMAGE_CHANGED : String = "EVENT_BACKGROUND_IMAGE_CHANGED" ;
     public const EVENT_BACKGROUND_ALIGN_CHANGED : String = "EVENT_BACKGROUND_ALIGN_CHANGED" ;
@@ -189,6 +203,8 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_FONT_FACE_CHANGED : String = "EVENT_FONT_FACE_CHANGED" ;
     public const EVENT_FONT_SIZE_CHANGED : String = "EVENT_FONT_SIZE_CHANGED" ;
 // Event strings of the changing of the used textformats.
+    public const EVENT_FONT_COLOR_RAND_CHANGED : String = "EVENT_FONT_COLOR_RAND_CHANGED" ;
+    public const EVENT_FONT_COLOR_TO_BACKGROUND_CHANGED : String = "EVENT_FONT_COLOR_TO_BACKGROUND_CHANGED" ;
     public const EVENT_FONT_COLOR_BRIGHT_CHANGED : String = "EVENT_FONT_COLOR_BRIGHT_CHANGED" ;
     public const EVENT_FONT_COLOR_MID_CHANGED : String = "EVENT_FONT_COLOR_MID_CHANGED" ;
     public const EVENT_FONT_COLOR_DARK_CHANGED : String = "EVENT_FONT_COLOR_DARK_CHANGED" ;
@@ -223,6 +239,8 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_CLICK : String = "EVENT_CLICK" ;
 // The value of the object has been changed.
     public const EVENT_CHANGED : String = "EVENT_CHANGED" ;
+// When an object is cleared.
+    public const EVENT_CLEARED : String = "EVENT_CLEARED" ;
 // The object has been closed.
     public const EVENT_CLOSED : String = "EVENT_CLOSED" ;
 // The event of a camera is attached.
@@ -242,9 +260,6 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_TO_LOGOUT : String = "EVENT_TO_LOGOUT" ;
 // Event of the profil phptp click.
     public const EVENT_PROFILE_IMAGE_CLICKED : String = "EVENT_PROFILE_IMAGE_CLICKED" ;
-// A user file is selected or cancelled.
-    public const EVENT_USER_BACKGROUND_FILE_SELECTED : String = "EVENT_USER_BACKGROUND_FILE_SELECTED" ;
-    public const EVENT_USER_BACKGROUND_FILE_CANCELLED : String = "EVENT_USER_BACKGROUND_FILE_CANCELLED" ;
 // The user changes the password or creates a new one or confirms that he/she is here.
     public const EVENT_USER_PASSWORD_CHANGE_DO : String = "EVENT_USER_PASSWORD_CHANGE_DO" ;
     public const EVENT_USER_PASSWORD_CREATE_DO : String = "EVENT_USER_PASSWORD_CREATE_DO" ;
@@ -254,6 +269,8 @@ package com . kisscodesystems . KissAs3Fw
     public const EVENT_BOTTOM_REACHED : String = "EVENT_BOTTOM_REACHED" ;
 // The event of the playing in SoundPlayer
     public const EVENT_PLAYED : String = "EVENT_PLAYED" ;
+    public const EVENT_STOPPED_BY_END : String = "EVENT_STOPPED_BY_END" ;
+    public const EVENT_STOPPED_BY_HAND : String = "EVENT_STOPPED_BY_HAND" ;
 // Empty html paragraph
     public const EMPTY_HTML_PARAGRAPH : String = "<p>&nbsp;</p>" ;
 // Dateformats to use in as3 (YYYY-MM-DD HH24:MI:SS in database)
@@ -264,6 +281,10 @@ package com . kisscodesystems . KissAs3Fw
     public const CLICK_GAP : int = 16 ;
 // The displaying refresh time in milliseconds
     public const TIME_DISPLAYING_TIMER_DELAY : int = 200 ;
+// To wait for a few milliseconds before leave the input field
+    public const INPUT_TIMER_DELAY : int = 666 ;
+// This is the max number to calc complementer color.
+    public const COLOR_TO_CALC_COMPLEMENTER : int = 16777215 ;
 // Board object constants
     public const BOARD_BACKGROUND_COLOR : String = "DDDDDD" ;
     public const BOARD_PADDING : int = 6 ;
@@ -273,6 +294,7 @@ package com . kisscodesystems . KissAs3Fw
     public const BOARD_LINE_MAXTHICKNESS : int = 10 ;
     public const BOARD_LINE_INCTHICKNESS : int = 1 ;
     public const BOARD_LINE_RUBBER_THICKNESS : int = 20 ;
+    public const BOARD_CHANGED_TIMER_DELAY : int = 1111 ;
 // Color constants
     public const COLOR_RGB_INPUT_ZEROS : String = "000000" ;
     public const COLOR_HEX_TO_NUMBER_STRING : String = "0x" ;
@@ -345,6 +367,9 @@ package com . kisscodesystems . KissAs3Fw
     protected var urlFiles : String = "" ;
     protected var urlSubmit : String = "" ;
     protected var urlProfile : String = "" ;
+    protected var urlCustom : String = "" ;
+    protected var urlCustom2 : String = "" ;
+    protected var urlCustom3 : String = "" ;
 // The last calculated font size is:
     private var lastCalculatedFontSize : int = 0 ;
 // If we asked for it before, we will not do that again.
@@ -354,6 +379,10 @@ package com . kisscodesystems . KissAs3Fw
 // The prefix for the application name
 // For example: D: developer version, T: testing version, blank: release version
     protected var applicationType : String = "" ;
+// The thumb images can be cached to not request it from a sever every time
+    protected var thumbs : Object = new Object ( ) ;
+// An ID which will be the same while this app instance is running.
+    protected var appRunningId : String = "" ;
 /*
 ** The constructor, does the initialization of the whole application.
 */
@@ -372,6 +401,8 @@ package com . kisscodesystems . KissAs3Fw
       {
         fileClassIsUsable = false ;
       }
+// Trying to get the wifi address of this device
+      appRunningId = "" + new Date ( ) . time ;
 // The contextmenu will be changed and be prepared to hold additional items.
       customContextMenu = new ContextMenu ( ) ;
       customContextMenu . hideBuiltInItems ( ) ;
@@ -396,6 +427,13 @@ package com . kisscodesystems . KissAs3Fw
       return applicationType ;
     }
 /*
+** Gets the thumbs object to store into or get image from.
+*/
+    public function getThumbs ( ) : Object
+    {
+      return thumbs ;
+    }
+/*
 ** Gets the urls.
 */
     public function getUrlNc ( ) : String
@@ -417,6 +455,25 @@ package com . kisscodesystems . KissAs3Fw
     public function getUrlProfile ( ) : String
     {
       return urlProfile ;
+    }
+    public function getUrlCustom ( ) : String
+    {
+      return urlCustom ;
+    }
+    public function getUrlCustom2 ( ) : String
+    {
+      return urlCustom2 ;
+    }
+    public function getUrlCustom3 ( ) : String
+    {
+      return urlCustom3 ;
+    }
+/*
+** Gets the running id of this app
+*/
+    public function getAppRunningId ( ) : String
+    {
+      return appRunningId ;
     }
 /*
 ** Gets and sets the properties of the currently displayed watch.
@@ -456,7 +513,8 @@ package com . kisscodesystems . KissAs3Fw
 */
     public function getFileClassIsUsable ( ) : Boolean
     {
-      return fileClassIsUsable ;
+      //return fileClassIsUsable ;
+      return false ;
     }
 /*
 ** The creation of the layers. Has to be called after the reinitialization
@@ -639,11 +697,11 @@ package com . kisscodesystems . KissAs3Fw
 /*
 ** Gets the application background image uploaded by the user.
 */
-    public function getUserBgButtonFile ( ) : ButtonFile
+    public function getUserBgHandler ( ) : BaseSprite
     {
       if ( middleground != null )
       {
-        return middleground . getUserBgButtonFile ( ) ;
+        return middleground . getUserBgHandler ( ) ;
       }
       else
       {
@@ -858,7 +916,7 @@ package com . kisscodesystems . KissAs3Fw
       }
       else
       {
-        return str . replace ( "/^\s+|\s+$/g" , "" ) ;
+        return str . replace ( /^\s+|\s+$/g , "" ) ;
       }
     }
 /*
@@ -869,6 +927,37 @@ package com . kisscodesystems . KissAs3Fw
       var minutes : int = Math . floor ( s / 60 ) ;
       var seconds : int = s - 60 * minutes ;
       return "" + minutes + ":" + ( seconds <= 9 ? "0" : "" ) + seconds ;
+    }
+/*
+** Creating shorter message from a longer.
+*/
+    public function createShortText ( s : String ) : String
+    {
+      var limit : int = getPropsApp ( ) . getShortTextLimit ( ) ;
+      var ending : String = getPropsApp ( ) . getShortTextEnding ( ) ;
+      if ( s != null )
+      {
+        if ( s . length <= limit )
+        {
+          return "" + s ;
+        }
+        else
+        {
+          var lastSpacePos : int = s . lastIndexOf ( " " , limit ) ;
+          if ( lastSpacePos == - 1 )
+          {
+            return s . substr ( 0 , limit ) + ending ;
+          }
+          else
+          {
+            return s . substr ( 0 , lastSpacePos ) + ending ;
+          }
+        }
+      }
+      else
+      {
+        return "" ;
+      }
     }
 /*
 ** Destroying this application.
@@ -923,20 +1012,21 @@ package com . kisscodesystems . KissAs3Fw
         {
           if ( tracer == null )
           {
-            tracer = new Tracer ( ) ;
+            tracer = new Tracer ( this ) ;
             addChild ( tracer ) ;
           }
           else
           {
             tracerUp ( ) ;
           }
-          if ( message . length < traceMaxLength )
+          var messageToWrite : String = "" + message ;
+          if ( messageToWrite . length < traceMaxLength )
           {
-            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + message ) ;
+            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + messageToWrite ) ;
           }
           else
           {
-            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + message . substring ( 0 , traceMaxLength - 3 ) + "..." ) ;
+            tracer . trace ( dateTimeFormatter . format ( new Date ( ) ) + " ( " + level + ( level >= 2 ? "!" : " " ) + " ) |   " + messageToWrite . substring ( 0 , traceMaxLength - 3 ) + "..." ) ;
           }
         }
       }
@@ -973,6 +1063,112 @@ package com . kisscodesystems . KissAs3Fw
       {
         askedForFilePermission = true ;
         File . userDirectory . requestPermission ( ) ;
+      }
+    }
+/*
+** Some functions to be able to scroll the content smoothly.
+*/
+    public function findFirstParentContentSingleAndStartScrolling ( starterObject : DisplayObject ) : void
+    {
+      if ( starterObject != null )
+      {
+        var parentObject : DisplayObject = starterObject . parent ;
+        while ( parentObject != null )
+        {
+          if ( parentObject is ContentSingle && ContentSingle ( parentObject ) . enableScrollingFromOthers )
+          {
+            ContentSingle ( parentObject ) . getBaseScroll ( ) . mouseDown ( null ) ;
+            break ;
+          }
+          parentObject = parentObject . parent ;
+        }
+      }
+    }
+    public function findFirstParentButtonAndPerformOnRollOut ( starterObject : DisplayObject ) : void
+    {
+      if ( starterObject != null )
+      {
+        var parentObject : DisplayObject = starterObject . parent ;
+        while ( parentObject != null )
+        {
+          if ( parentObject is ButtonText )
+          {
+            ButtonText ( parentObject ) . onRollOut ( ) ;
+            break ;
+          }
+          else if ( parentObject is ButtonLink )
+          {
+            ButtonLink ( parentObject ) . onRollOut ( ) ;
+            break ;
+          }
+          else if ( parentObject is ButtonFile )
+          {
+            ButtonFile ( parentObject ) . onRollOut ( ) ;
+            break ;
+          }
+          parentObject = parentObject . parent ;
+        }
+      }
+    }
+/*
+** Keeps the devide awake or not.
+*/
+    public function setAwake ( ) : void
+    {
+      //NativeApplication . nativeApplication . systemIdleMode = SystemIdleMode . KEEP_AWAKE ;
+    }
+    public function clearAwake ( ) : void
+    {
+      //NativeApplication . nativeApplication . systemIdleMode = SystemIdleMode . NORMAL ;
+    }
+/*
+** Gets a date object from a string.
+*/
+    public function getDateFromTime ( t : String ) : Date
+    {
+      var date : Date = null ;
+      if ( t == null )
+      {
+        date = new Date ( ) ;
+        application . trace ( "date to convert from null is: " + date ) ;
+        return date ;
+      }
+      else
+      {
+        var orig : String = trim ( t ) ;
+        var yyyy : String = "" ;
+        var mm : String = "" ;
+        var dd : String = "" ;
+        var hh24 : String = "" ;
+        var mi : String = "" ;
+        var ss : String = "" ;
+        if ( t . length >= 4 )
+        {
+          yyyy = t . substr ( 0 , 4 ) ;
+        }
+        if ( t . length >= 7 )
+        {
+          mm = t . substr ( 5 , 2 ) ;
+        }
+        if ( t . length >= 10 )
+        {
+          dd = t . substr ( 8 , 2 ) ;
+        }
+        if ( t . length >= 13 )
+        {
+          hh24 = t . substr ( 11 , 2 ) ;
+        }
+        if ( t . length >= 16 )
+        {
+          mi = t . substr ( 14 , 2 ) ;
+        }
+        if ( t . length >= 19 )
+        {
+          ss = t . substr ( 17 , 2 ) ;
+        }
+        date = new Date ( parseInt ( yyyy ) , mm == "" ? 0 : parseInt ( mm ) - 1 , dd == "" ? 0 : parseInt ( dd ) , hh24 == "" ? 0 : parseInt ( hh24 ) , mi == "" ? 0 : parseInt ( mi ) , ss == "" ? 0 : parseInt ( ss ) ) ;
+        application . trace ( "date to convert from " + t + " is: " + date ) ;
+        return date ;
       }
     }
   }

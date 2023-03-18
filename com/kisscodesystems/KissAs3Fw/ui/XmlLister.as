@@ -31,6 +31,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var arrayLabels : Array = null ;
     private var arrayValues : Array = null ;
     private var arrayIcons : Array = null ;
+    private var arrayTabcnts : Array = null ;
 // The xml object to be handled.
 // The keywords are: items, item, opened, value.
     private var xml : XML = null ;
@@ -40,6 +41,8 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var startIndex : int = 0 ;
 // The event if the selected item has been changed.
     private var eventChanged : Event = null ;
+// The TAB of a child element
+    private var tab : String = "   " ;
 /*
 ** The constructor doing the initialization of this object as usual.
 */
@@ -60,6 +63,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       arrayLabels = new Array ( ) ;
       arrayValues = new Array ( ) ;
       arrayIcons = new Array ( ) ;
+      arrayTabcnts = new Array ( ) ;
 // This is by default.
       selectedItem = "" ;
       startIndex = 0 ;
@@ -98,7 +102,8 @@ package com . kisscodesystems . KissAs3Fw . ui
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
         arrayIcons = new Array ( ) ;
-        list . setArrays ( arrayLabels , arrayValues , arrayIcons ) ;
+        arrayTabcnts = new Array ( ) ;
+        list . setArrays ( arrayLabels , arrayValues , arrayIcons , arrayTabcnts ) ;
         list . setStartIndex ( 0 ) ;
       }
     }
@@ -112,22 +117,24 @@ package com . kisscodesystems . KissAs3Fw . ui
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
         arrayIcons = new Array ( ) ;
-        listAnItem ( new XMLList ( xml . children ( ) ) , "" ) ;
+        arrayTabcnts = new Array ( ) ;
+        listAnItem ( new XMLList ( xml . children ( ) ) , 0 ) ;
       }
       catch ( e : Error )
       {
         arrayLabels = new Array ( ) ;
         arrayValues = new Array ( ) ;
         arrayIcons = new Array ( ) ;
+        arrayTabcnts = new Array ( ) ;
       }
-      list . setArrays ( arrayLabels , arrayValues , arrayIcons ) ;
+      list . setArrays ( arrayLabels , arrayValues , arrayIcons , arrayTabcnts ) ;
       list . setStartIndex ( startIndex ) ;
     }
 /*
 ** Lists the item specified as xmlList.
 ** beginString: holds the current depth of the tree.
 */
-    private function listAnItem ( xmlList : XMLList , beginString : String ) : void
+    private function listAnItem ( xmlList : XMLList , tabcnt : int ) : void
     {
 // For every part of the xmlList
       for each ( var x : XML in xmlList )
@@ -136,7 +143,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 // and it should be added into the displayable array as this.
         if ( x . item . length ( ) == 0 )
         {
-          arrayLabels . push ( beginString + "    " + x . @ value ) ;
+          arrayLabels . push ( x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
           try
           {
@@ -144,8 +151,9 @@ package com . kisscodesystems . KissAs3Fw . ui
           }
           catch ( e : * )
           {
-            arrayIcons . push ( "" ) ;
+            arrayIcons . push ( "dummy" ) ;
           }
+          arrayTabcnts . push ( tabcnt ) ;
         }
 // The item . length ( ) is greather than zero and it is closed (opened=="0"),
 // so this single element has to be added into the displayable array,
@@ -153,16 +161,10 @@ package com . kisscodesystems . KissAs3Fw . ui
 // (clicking on this in the list will open this item)
         else if ( x . item . length ( ) > 0 && x . @ opened == "0" )
         {
-          arrayLabels . push ( beginString + "  +" + x . @ value ) ;
+          arrayLabels . push ( x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
-          try
-          {
-            arrayIcons . push ( x . @ icon ) ;
-          }
-          catch ( e : * )
-          {
-            arrayIcons . push ( "" ) ;
-          }
+          arrayIcons . push ( "plus" ) ;
+          arrayTabcnts . push ( tabcnt ) ;
         }
 // The item . length ( ) is greather than zero and it is opened (opened=="1"),
 // so this single element has to be added into the displayable array,
@@ -171,17 +173,11 @@ package com . kisscodesystems . KissAs3Fw . ui
 // (clicking on this in the list will close this item)
         else if ( x . item . length ( ) > 0 && x . @ opened == "1" )
         {
-          arrayLabels . push ( beginString + "  - " + x . @ value ) ;
+          arrayLabels . push ( x . @ value ) ;
           arrayValues . push ( x . @ value ) ;
-          try
-          {
-            arrayIcons . push ( x . @ icon ) ;
-          }
-          catch ( e : * )
-          {
-            arrayIcons . push ( "" ) ;
-          }
-          listAnItem ( new XMLList ( x . children ( ) ) , beginString + "    " ) ;
+          arrayIcons . push ( "minus" ) ;
+          arrayTabcnts . push ( tabcnt ) ;
+          listAnItem ( new XMLList ( x . children ( ) ) , tabcnt + 1 ) ;
         }
       }
     }
@@ -312,6 +308,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       arrayValues = null ;
       arrayIcons . splice ( 0 ) ;
       arrayIcons = null ;
+      arrayTabcnts . splice ( 0 ) ;
+      arrayTabcnts = null ;
       xml = null ;
       selectedItem = null ;
       startIndex = 0 ;

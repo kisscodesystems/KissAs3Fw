@@ -34,12 +34,38 @@ package com . kisscodesystems . KissAs3Fw . prop
 // Reference to the Application object.
 // Protected because we may add some newapplication . getTexts ( ) into it.
     protected var application : Application = null ;
-// Adding the font.
-    public const FONT_FACE_ARIAL : String = "Arial" ;
 // Adding the background bitmap.
-    [ Embed ( source = "../../../../../res/view.jpg" ) ]
-    private var View : Class ;
-    private var view : Bitmap ;
+    [ Embed ( source = "../../../../../res/prdare.jpg" ) ]
+    private var EmbeddedBg : Class ;
+    private var embeddedBg : Bitmap ;
+// Adding free fonts to the app
+// These will be the first elements of the font combobox
+//  [ Embed ( source = "../../../../../res/fonts/FreeSans.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSansFont:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSansBold.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSansFontBold:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSansOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSansFontItalic:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSansBoldOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSansFontBoldItalic:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSerif.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSerifFont:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSerifBold.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSerifFontBold:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSerifItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSerifFontItalic:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeSerifBoldItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeSerifFontBoldItalic:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeMono.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeMonoFont:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeMonoBold.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeMonoFontBold:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeMonoOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeMonoFontItalic:Class ;
+//  [ Embed ( source = "../../../../../res/fonts/FreeMonoBoldOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+//  public var FreeMonoFontBoldItalic:Class ;
+// If you define more elements above, do not forget to add here:
+    private var embeddedFonts : Array = new Array ( ) ;
 // This bitmapdata will be drawn onto the backgroundImageShape of Background.
     private var bitmapData : BitmapData = null ;
 // Image object to get images from outside.
@@ -56,25 +82,32 @@ package com . kisscodesystems . KissAs3Fw . prop
     private var appSoundVolume : int = 66 ;
     private var appSoundPlaying : Boolean = true ;
 // Displayable properties
-    private var appLineThickness : int = 1 ;
-    private var appMargin : int = 10 ;
-    private var appPadding : int = 10 ;
-    private var appRadius : int = 8 ;
-    private var appBackgroundFillBgColor : Number = 0x395871 ;
-    private var appBackgroundFillFgColor : Number = 0x72972E ;
-    private var appBackgroundFillAlpha : Number = 0 ;
+    protected var appLineThickness : int = 1 ;
+    protected var appMargin : int = 12 ;
+    protected var appPadding : int = 9 ;
+    protected var appRadius : int = 8 ;
+    protected var appBoxCorner : int = 11 ;
+    protected var appBoxFrame : String = "" ;
+    protected var appBackgroundColorRand : Boolean = false ;
+    protected var appBackgroundColorToFont : Boolean = false ;
+    protected var appBackgroundColorDark : Number = 0x000000 ;
+    protected var appBackgroundColorMid : Number = 0x66FFFF ;
+    protected var appBackgroundColorBright : Number = 0x292929 ;
+    protected var appBackgroundColorAlpha : Number =0.33 ;
     protected var appBackgroundImage : String = "" ;
-    private var appBackgroundAlign : String = "" ;
-    private var appBackgroundAlpha : Number = 1 ;
-    private var appBackgroundBlur : int = 0 ;
-    private var appBackgroundLive : Boolean = true ;
-    private var appFontFace : String = FONT_FACE_ARIAL ;
-    private var appFontSize : int = 0 ;
-    private var appFontColorBright : Number = 0xF4F4F4 ;
-    private var appFontColorMid : Number = 0xB3CBAB ;
-    private var appFontColorDark : Number = 0x4E312B ;
-    private var appFontBold : Boolean = false ;
-    private var appFontItalic : Boolean = false ;
+    protected var appBackgroundAlign : String = "" ;
+    protected var appBackgroundAlpha : Number = 1 ;
+    protected var appBackgroundBlur : int = 6 ;
+    protected var appBackgroundLive : Boolean = true ;
+    protected var appFontFace : String = "FreeSans" ;
+    protected var appFontSize : int = 0 ;
+    protected var appFontColorRand : Boolean = false ;
+    protected var appFontColorToBackground : Boolean = false ;
+    protected var appFontColorBright : Number = 0xD6D6D6 ;
+    protected var appFontColorMid : Number = 0x990000 ;
+    protected var appFontColorDark : Number = 0xFFFFFF ;
+    protected var appFontBold : Boolean = false ;
+    protected var appFontItalic : Boolean = false ;
 // THE OBJECTS ARE FROM THE ABOVES.
 // These are the textformat objects. Every BaseTextField referers to them.
     private var textFormatBright : TextFormat = null ;
@@ -97,9 +130,14 @@ package com . kisscodesystems . KissAs3Fw . prop
     private var eventAppMarginChanged : Event = null ;
     private var eventAppPaddingChanged : Event = null ;
     private var eventAppRadiusChanged : Event = null ;
-    private var eventAppBackgroundFillBgColorChanged : Event = null ;
-    private var eventAppBackgroundFillFgColorChanged : Event = null ;
-    private var eventAppBackgroundFillAlphaChanged : Event = null ;
+    private var eventAppBoxCornerChanged : Event = null ;
+    private var eventAppBoxFrameChanged : Event = null ;
+    private var eventAppBackgroundColorRandChanged : Event = null ;
+    private var eventAppBackgroundColorToFontChanged : Event = null ;
+    private var eventAppBackgroundColorDarkChanged : Event = null ;
+    private var eventAppBackgroundColorMidChanged : Event = null ;
+    private var eventAppBackgroundColorBrightChanged : Event = null ;
+    private var eventAppBackgroundColorAlphaChanged : Event = null ;
     protected var eventAppBackgroundImageChanged : Event = null ;
     private var eventAppBackgroundAlignChanged : Event = null ;
     private var eventAppBackgroundAlphaChanged : Event = null ;
@@ -107,6 +145,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     private var eventAppBackgroundLiveChanged : Event = null ;
     private var eventAppFontFaceChanged : Event = null ;
     private var eventAppFontSizeChanged : Event = null ;
+    private var eventAppFontColorRandChanged : Event = null ;
+    private var eventAppFontColorToBackgroundChanged : Event = null ;
     private var eventAppFontColorBrightChanged : Event = null ;
     private var eventAppFontColorMidChanged : Event = null ;
     private var eventAppFontColorDarkChanged : Event = null ;
@@ -125,6 +165,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var appBackgroundImages : Array = new Array ( ) ;
 // The setApp.... function is in operation during style changing or not.
     protected var styleChangingInProgress : Boolean = false ;
+// To get a random pixel from the stage
+    private var stealPixelBitmapData : BitmapData = null ;
 /*
 ** Constructing the props dyn object.
 */
@@ -139,11 +181,14 @@ package com . kisscodesystems . KissAs3Fw . prop
       {
         System . exit ( 1 ) ;
       }
+// The current style
+      currentDisplayingStyle = application . getTexts ( ) . DISPLAYING_STYLE_DEFAULT ;
 // Initialized now.
-      appBackgroundImage = application . getTexts ( ) . DISPLAYING_STYLE_VIEW ;
+      appBackgroundImage = currentDisplayingStyle ;
       appBackgroundAlign = application . getTexts ( ) . BACKGROUND_ALIGN_CENTER2 ;
+      appBoxFrame = application . getTexts ( ) . BOX_FRAME_HORIZONTAL ;
 // These are the background bitmap objects.
-      view = new View ( ) as Bitmap ;
+      embeddedBg = new EmbeddedBg ( ) as Bitmap ;
 // Creating the event objects usable here.
       eventDisplayingStyleChanged = new Event ( application . EVENT_DISPLAYING_STYLE_CHANGED ) ;
       eventAppWidgetsOrientationChanged = new Event ( application . EVENT_WIDGETS_ORIENTATION_CHANGED ) ;
@@ -154,9 +199,14 @@ package com . kisscodesystems . KissAs3Fw . prop
       eventAppMarginChanged = new Event ( application . EVENT_MARGIN_CHANGED ) ;
       eventAppPaddingChanged = new Event ( application . EVENT_PADDING_CHANGED ) ;
       eventAppRadiusChanged = new Event ( application . EVENT_RADIUS_CHANGED ) ;
-      eventAppBackgroundFillBgColorChanged = new Event ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED ) ;
-      eventAppBackgroundFillFgColorChanged = new Event ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED ) ;
-      eventAppBackgroundFillAlphaChanged = new Event ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED ) ;
+      eventAppBoxCornerChanged = new Event ( application . EVENT_BOX_CORNER_CHANGED ) ;
+      eventAppBoxFrameChanged = new Event ( application . EVENT_BOX_FRAME_CHANGED ) ;
+      eventAppBackgroundColorRandChanged = new Event ( application . EVENT_BACKGROUND_COLOR_RAND_CHANGED ) ;
+      eventAppBackgroundColorToFontChanged = new Event ( application . EVENT_BACKGROUND_COLOR_TO_FONT_CHANGED ) ;
+      eventAppBackgroundColorDarkChanged = new Event ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED ) ;
+      eventAppBackgroundColorMidChanged = new Event ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED ) ;
+      eventAppBackgroundColorBrightChanged = new Event ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED ) ;
+      eventAppBackgroundColorAlphaChanged = new Event ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED ) ;
       eventAppBackgroundImageChanged = new Event ( application . EVENT_BACKGROUND_IMAGE_CHANGED ) ;
       eventAppBackgroundAlignChanged = new Event ( application . EVENT_BACKGROUND_ALIGN_CHANGED ) ;
       eventAppBackgroundAlphaChanged = new Event ( application . EVENT_BACKGROUND_ALPHA_CHANGED ) ;
@@ -164,6 +214,8 @@ package com . kisscodesystems . KissAs3Fw . prop
       eventAppBackgroundLiveChanged = new Event ( application . EVENT_BACKGROUND_LIVE_CHANGED ) ;
       eventAppFontFaceChanged = new Event ( application . EVENT_FONT_FACE_CHANGED ) ;
       eventAppFontSizeChanged = new Event ( application . EVENT_FONT_SIZE_CHANGED ) ;
+      eventAppFontColorRandChanged = new Event ( application . EVENT_FONT_COLOR_RAND_CHANGED ) ;
+      eventAppFontColorToBackgroundChanged = new Event ( application . EVENT_FONT_COLOR_TO_BACKGROUND_CHANGED ) ;
       eventAppFontColorBrightChanged = new Event ( application . EVENT_FONT_COLOR_BRIGHT_CHANGED ) ;
       eventAppFontColorMidChanged = new Event ( application . EVENT_FONT_COLOR_MID_CHANGED ) ;
       eventAppFontColorDarkChanged = new Event ( application . EVENT_FONT_COLOR_DARK_CHANGED ) ;
@@ -172,6 +224,49 @@ package com . kisscodesystems . KissAs3Fw . prop
       eventTextFormatBrightChanged = new Event ( application . EVENT_TEXT_FORMAT_BRIGHT_CHANGED ) ;
       eventTextFormatMidChanged = new Event ( application . EVENT_TEXT_FORMAT_MID_CHANGED ) ;
       eventTextFormatDarkChanged = new Event ( application . EVENT_TEXT_FORMAT_DARK_CHANGED ) ;
+// Just to have it as not null
+      stealPixelBitmapData = new BitmapData ( 1 , 1 ) ;
+// The url will be stored here to the background images.
+//   null: default view image from the app
+//   "": no image to load (fe. user did not uploaded)
+//   "a_value": url to load the file from the internet
+      appBackgroundImages [ currentDisplayingStyle ] = null ;
+// This is necessary but can be called in extender classes to do it again with newer values.
+      iniDefaultFace ( ) ;
+    }
+/*
+** To initialize the default face.
+*/
+    protected function iniDefaultFace ( ) : void
+    {
+// We can create the predefined displaying style.
+      appDisplayingStyles [ currentDisplayingStyle ] = new Array ( ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appLineThickness" ] = appLineThickness ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appMargin" ] = appMargin ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appPadding" ] = appPadding ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appRadius" ] = appRadius ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxCorner" ] = appBoxCorner ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxFrame" ] = appBoxFrame ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] = appBackgroundColorRand ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] = appBackgroundColorToFont ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorDark" ] = application . colorToString ( appBackgroundColorDark ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorMid" ] = application . colorToString ( appBackgroundColorMid ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorBright" ] = application . colorToString ( appBackgroundColorBright ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorAlpha" ] = appBackgroundColorAlpha ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundImage" ] = currentDisplayingStyle ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlign" ] = appBackgroundAlign ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlpha" ] = appBackgroundAlpha ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundBlur" ] = appBackgroundBlur ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundLive" ] = appBackgroundLive ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontFace" ] = appFontFace ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontSize" ] = appFontSize ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] = application . colorToString ( appFontColorBright ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] = application . colorToString ( appFontColorMid ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] = application . colorToString ( appFontColorDark ) ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] = appFontColorRand ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] = appFontColorToBackground ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontBold" ] = appFontBold ;
+      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontItalic" ] = appFontItalic ;
 // Creating the textformat objects text type by text type.
       var size : int = application . calcFontSizeFromStageSize ( ) ;
       textFormatBright = new TextFormat ( appFontFace , size , appFontColorBright , appFontBold , appFontItalic ) ;
@@ -181,38 +276,10 @@ package com . kisscodesystems . KissAs3Fw . prop
       setTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_BRIGHT ) ;
       setTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_MID ) ;
       setTextFieldHeight ( application . getTexts ( ) . TEXT_TYPE_DARK ) ;
-// The current style
-      currentDisplayingStyle = application . getTexts ( ) . DISPLAYING_STYLE_VIEW ;
 // The orientation of the widgets will be initially:
       setAppWidgetsOrientation ( application . getTexts ( ) . ORIENTATION_HORIZONTAL ) ;
 // And the Widget mode is:
       setAppWidgetMode ( application . getTexts ( ) . WIDGET_MODE_AUTOMATIC ) ;
-// The url will be stored here to the background images.
-//   null: default view image from the app
-//   "": no image to load (fe. user did not uploaded)
-//   "a_value": url to load the file from the internet
-      appBackgroundImages [ currentDisplayingStyle ] = null ;
-// We can create the predefined displaying style.
-      appDisplayingStyles [ currentDisplayingStyle ] = new Array ( ) ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appLineThickness" ] = 1 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appMargin" ] = 10 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appPadding" ] = 10 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appRadius" ] = 8 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillBgColor" ] = "395871" ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillFgColor" ] = "72972E" ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillAlpha" ] = 0 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundImage" ] = currentDisplayingStyle ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlign" ] = application . getTexts ( ) . BACKGROUND_ALIGN_CENTER2 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlpha" ] = 1 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundBlur" ] = 0 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundLive" ] = true ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontFace" ] = FONT_FACE_ARIAL ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontSize" ] = 0 ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] = "F4F4F4" ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] = "B3CBAB" ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] = "4E312B" ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontBold" ] = false ;
-      appDisplayingStyles [ currentDisplayingStyle ] [ "appFontItalic" ] = false ;
     }
 /*
 ** Sets and gets the currently displayed style
@@ -225,26 +292,43 @@ package com . kisscodesystems . KissAs3Fw . prop
         if ( appDisplayingStyles [ currentDisplayingStyle ] is Array )
         {
           styleChangingInProgress = true ;
-          currentDisplayingStyle = newDisplayingStyle ;
+          if ( appDisplayingStyles [ newDisplayingStyle ] != undefined )
+          {
+            currentDisplayingStyle = newDisplayingStyle ;
+          }
+          else
+          {
+            application . trace ( "Failed to set up non-existing displaying style: " + newDisplayingStyle ) ;
+            currentDisplayingStyle = application . getTexts ( ) . DISPLAYING_STYLE_DEFAULT ;
+          }
           setAppLineThickness ( appDisplayingStyles [ currentDisplayingStyle ] [ "appLineThickness" ] ) ;
           setAppMargin ( appDisplayingStyles [ currentDisplayingStyle ] [ "appMargin" ] ) ;
           setAppPadding ( appDisplayingStyles [ currentDisplayingStyle ] [ "appPadding" ] ) ;
           setAppRadius ( appDisplayingStyles [ currentDisplayingStyle ] [ "appRadius" ] ) ;
-          setAppBackgroundFillBgColor ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillBgColor" ] ) ) ;
-          setAppBackgroundFillFgColor ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillFgColor" ] ) ) ;
-          setAppBackgroundFillAlpha ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillAlpha" ] ) ;
-          setAppBackgroundImage ( ) ;
+          setAppBoxCorner ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxCorner" ] ) ;
+          setAppBoxFrame ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxFrame" ] ) ;
+          if ( ! appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] && ! appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] )
+          {
+            setAppBackgroundColorDark ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorDark" ] ) ) ;
+            setAppBackgroundColorMid ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorMid" ] ) ) ;
+            setAppBackgroundColorBright ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorBright" ] ) ) ;
+          }
+          setAppBackgroundColorAlpha ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorAlpha" ] ) ;
           setAppBackgroundAlign ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlign" ] ) ;
           setAppBackgroundAlpha ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundAlpha" ] ) ;
           setAppBackgroundBlur ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundBlur" ] ) ;
           setAppBackgroundLive ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundLive" ] ) ;
           setAppFontFace ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontFace" ] ) ;
           setAppFontSize ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontSize" ] ) ;
-          setAppFontColorBright ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] ) ) ;
-          setAppFontColorMid ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] ) ) ;
-          setAppFontColorDark ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] ) ) ;
+          if ( ! appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] && ! appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+          {
+            setAppFontColorBright ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] ) ) ;
+            setAppFontColorMid ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] ) ) ;
+            setAppFontColorDark ( Number ( application . COLOR_HEX_TO_NUMBER_STRING + appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] ) ) ;
+          }
           setAppFontBold ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontBold" ] ) ;
           setAppFontItalic ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontItalic" ] ) ;
+          setAppBackgroundImage ( ) ;
           if ( application != null && eventDisplayingStyleChanged != null )
           {
             application . getBaseEventDispatcher ( ) . dispatchEvent ( eventDisplayingStyleChanged ) ;
@@ -273,20 +357,40 @@ package com . kisscodesystems . KissAs3Fw . prop
     }
 /*
 ** Gets the fonts of this application.
-** The same method as ibn theapplication . getTexts ( )tock:
 ** A new array will return containing the
 ** strings of the font names.
 */
     public function getFontFaces ( ) : Array
     {
-      var array : Array = Font . enumerateFonts ( ! application . getPropsApp ( ) . getUseEmbedFonts ( ) ) ;
+      var array : Array = Font . enumerateFonts ( true ) ;
+      array . sortOn ( Array . CASEINSENSITIVE ) ;
       var arrayRet : Array = new Array ( ) ;
+      for ( var k : int = 0 ; k < embeddedFonts . length ; k ++ )
+      {
+        arrayRet . push ( embeddedFonts [ k ] ) ;
+      }
+      var found : Boolean = false ;
       for ( var i : int = 0 ; i < array . length ; i ++ )
       {
-        arrayRet . push ( array [ i ] . fontName ) ;
+        for ( var j : int = 0 ; j < embeddedFonts . length ; j ++ )
+        {
+          found = false ;
+          if ( embeddedFonts [ j ] == array [ i ] . fontName )
+          {
+            found = true ;
+            break ;
+          }
+        }
+        if ( ! found )
+        {
+          arrayRet . push ( array [ i ] . fontName ) ;
+        }
       }
-      arrayRet . sortOn ( Array . CASEINSENSITIVE ) ;
       return arrayRet ;
+    }
+    public function getFontIsEmbedded ( ) : Boolean
+    {
+      return embeddedFonts . indexOf ( appFontFace ) > - 1 ;
     }
 /*
 ** Gets the font sizes.
@@ -383,6 +487,82 @@ package com . kisscodesystems . KissAs3Fw . prop
       else
       {
         return textFieldHeightBright ;
+      }
+    }
+/*
+** Methods to handle color randomization.
+*/
+    private function getRandomPixelFromBg ( ) : Number
+    {
+      var n : Number = 0 ;
+      if ( bitmapData != null )
+      {
+        var rx : int = Math . round ( Math . random ( ) * bitmapData . width ) ;
+        var ry : int = Math . round ( Math . random ( ) * bitmapData . height ) ;
+        n = bitmapData . getPixel ( rx , ry ) ;
+      }
+      else
+      {
+        n = Math . round ( Math . random ( ) * application . COLOR_TO_CALC_COMPLEMENTER ) ;
+      }
+      return n ;
+    }
+    public function getNewRandomBackgroundColorSchema ( cb : Number = - 1 , cm : Number = - 1 , cd : Number = - 1 , save : Boolean = true ) : void
+    {
+      if ( ! appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] || ! appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+      {
+        var newBackgroundColorBright : Number = cb == - 1 ? getRandomPixelFromBg ( ) : cb ;
+        var newBackgroundColorMid : Number = cm == - 1 ? getRandomPixelFromBg ( ) : cm ;
+        var newBackgroundColorDark : Number = cd == - 1 ? getRandomPixelFromBg ( ) : cd ;
+        appBackgroundColorBright = newBackgroundColorBright ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorBright" ] = application . colorToString ( appBackgroundColorBright ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorBrightChanged ) ;
+        appBackgroundColorMid = newBackgroundColorMid ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorMid" ] = application . colorToString ( appBackgroundColorMid ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorMidChanged ) ;
+        appBackgroundColorDark = newBackgroundColorDark ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorDark" ] = application . colorToString ( appBackgroundColorDark ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorDarkChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+        {
+          getNewRandomFontColorSchema ( application . COLOR_TO_CALC_COMPLEMENTER - newBackgroundColorBright , application . COLOR_TO_CALC_COMPLEMENTER - newBackgroundColorMid , application . COLOR_TO_CALC_COMPLEMENTER - newBackgroundColorDark , false ) ;
+        }
+        if ( save )
+        {
+          saveDisplaying ( ) ;
+        }
+      }
+    }
+    public function getNewRandomFontColorSchema ( cb : Number = - 1 , cm : Number = - 1 , cd : Number = - 1 , save : Boolean = true ) : void
+    {
+      if ( ! appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] || ! appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+      {
+        var newFontColorBright : Number = cb == - 1 ? getRandomPixelFromBg ( ) : cb ;
+        var newFontColorMid : Number = cm == - 1 ? getRandomPixelFromBg ( ) : cm ;
+        var newFontColorDark : Number = cd == - 1 ? getRandomPixelFromBg ( ) : cd ;
+        appFontColorBright = newFontColorBright ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] = application . colorToString ( appFontColorBright ) ;
+        textFormatBright . color = appFontColorBright ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorBrightChanged ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatBrightChanged ) ;
+        appFontColorMid = newFontColorMid ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] = application . colorToString ( appFontColorMid ) ;
+        textFormatMid . color = appFontColorMid ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorMidChanged ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatMidChanged ) ;
+        appFontColorDark = newFontColorDark ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] = application . colorToString ( appFontColorDark ) ;
+        textFormatDark . color = appFontColorDark ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorDarkChanged ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatDarkChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] )
+        {
+          getNewRandomBackgroundColorSchema ( application . COLOR_TO_CALC_COMPLEMENTER - newFontColorBright , application . COLOR_TO_CALC_COMPLEMENTER - newFontColorMid , application . COLOR_TO_CALC_COMPLEMENTER - newFontColorDark , false ) ;
+        }
+        if ( save )
+        {
+          saveDisplaying ( ) ;
+        }
       }
     }
 /*
@@ -525,51 +705,175 @@ package com . kisscodesystems . KissAs3Fw . prop
         saveDisplaying ( ) ;
       }
     }
-    public function getAppBackgroundFillBgColor ( ) : Number
+    public function getAppBoxCorner ( ) : int
     {
-      return appBackgroundFillBgColor ;
+      return appBoxCorner ;
     }
-    public function setAppBackgroundFillBgColor ( newBackgroundFillBgColor : Number ) : void
+    public function setAppBoxCorner ( newBoxCorner : int ) : void
     {
-      if ( appBackgroundFillBgColor != newBackgroundFillBgColor )
+      if ( appBoxCorner != newBoxCorner )
       {
-        appBackgroundFillBgColor = newBackgroundFillBgColor ;
-        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillBgColor" ] = application . colorToString ( appBackgroundFillBgColor ) ;
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundFillBgColorChanged ) ;
+        appBoxCorner = newBoxCorner ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxCorner" ] = appBoxCorner ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBoxCornerChanged ) ;
         saveDisplaying ( ) ;
       }
     }
-    public function getAppBackgroundFillFgColor ( ) : Number
+    public function getAppBoxFrame ( ) : String
     {
-      return appBackgroundFillFgColor ;
+      return appBoxFrame ;
     }
-    public function setAppBackgroundFillFgColor ( newBackgroundFillFgColor : Number ) : void
+    public function setAppBoxFrame ( newBoxFrame : String ) : void
     {
-      if ( appBackgroundFillFgColor != newBackgroundFillFgColor )
+      if ( appBoxFrame != newBoxFrame )
       {
-        appBackgroundFillFgColor = newBackgroundFillFgColor ;
-        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillFgColor" ] = application . colorToString ( appBackgroundFillFgColor ) ;
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundFillFgColorChanged ) ;
+        if ( newBoxFrame == application . getTexts ( ) . BOX_FRAME_FULL
+          || newBoxFrame == application . getTexts ( ) . BOX_FRAME_HORIZONTAL
+          || newBoxFrame == application . getTexts ( ) . BOX_FRAME_VERTICAL 
+          || newBoxFrame == application . getTexts ( ) . BOX_FRAME_NONE )
+        {
+          appBoxFrame = newBoxFrame ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBoxFrame" ] = appBoxFrame ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBoxFrameChanged ) ;
+          saveDisplaying ( ) ;
+        }
+      }
+    }
+    public function getAppBackgroundColorRand ( ) : Boolean
+    {
+      return appBackgroundColorRand ;
+    }
+    public function setAppBackgroundColorRand ( newBackgroundColorRand : Boolean ) : void
+    {
+      if ( appBackgroundColorRand != newBackgroundColorRand )
+      {
+        if ( newBackgroundColorRand && appFontColorRand )
+        {
+          appFontColorRand = false ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] = appFontColorRand ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorRandChanged ) ;
+        }
+        appBackgroundColorRand = newBackgroundColorRand ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] = appBackgroundColorRand ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorRandChanged ) ;
+        if ( appBackgroundColorRand )
+        {
+          getNewRandomBackgroundColorSchema ( - 1 , - 1 , - 1 , false ) ;
+        }
         saveDisplaying ( ) ;
       }
     }
-    public function getAppBackgroundFillAlpha ( ) : Number
+    public function getAppBackgroundColorToFont ( ) : Boolean
     {
-      return appBackgroundFillAlpha ;
+      return appBackgroundColorToFont ;
     }
-    public function setAppBackgroundFillAlpha ( newFillAlpha : Number ) : void
+    public function setAppBackgroundColorToFont ( newBackgroundColorToFont : Boolean ) : void
     {
-      if ( appBackgroundFillAlpha != newFillAlpha )
+      if ( appBackgroundColorToFont != newBackgroundColorToFont )
       {
-        appBackgroundFillAlpha = newFillAlpha ;
-        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundFillAlpha" ] = appBackgroundFillAlpha ;
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundFillAlphaChanged ) ;
+        if ( newBackgroundColorToFont && appFontColorToBackground )
+        {
+          appFontColorToBackground = false ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] = appFontColorToBackground ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorToBackgroundChanged ) ;
+        }
+        appBackgroundColorToFont = newBackgroundColorToFont ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] = appBackgroundColorToFont ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorToFontChanged ) ;
+        if ( appBackgroundColorToFont )
+        {
+          getNewRandomFontColorSchema ( application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorBright , application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorMid , application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorDark , false ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppBackgroundColorDark ( ) : Number
+    {
+      return appBackgroundColorDark ;
+    }
+    public function setAppBackgroundColorDark ( newBackgroundColorDark : Number ) : void
+    {
+      if ( appBackgroundColorDark != newBackgroundColorDark )
+      {
+        appBackgroundColorDark = newBackgroundColorDark ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorDark" ] = application . colorToString ( appBackgroundColorDark ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorDarkChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+        {
+          appFontColorDark = application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorDark ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorDark" ] = application . colorToString ( appFontColorDark ) ;
+          textFormatDark . color = appFontColorDark ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorDarkChanged ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatDarkChanged ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppBackgroundColorMid ( ) : Number
+    {
+      return appBackgroundColorMid ;
+    }
+    public function setAppBackgroundColorMid ( newBackgroundColorMid : Number ) : void
+    {
+      if ( appBackgroundColorMid != newBackgroundColorMid )
+      {
+        appBackgroundColorMid = newBackgroundColorMid ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorMid" ] = application . colorToString ( appBackgroundColorMid ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorMidChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+        {
+          appFontColorMid = application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorMid ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorMid" ] = application . colorToString ( appFontColorMid ) ;
+          textFormatMid . color = appFontColorMid ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorMidChanged ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatMidChanged ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppBackgroundColorBright ( ) : Number
+    {
+      return appBackgroundColorBright ;
+    }
+    public function setAppBackgroundColorBright ( newBackgroundColorBright : Number ) : void
+    {
+      if ( appBackgroundColorBright != newBackgroundColorBright )
+      {
+        appBackgroundColorBright = newBackgroundColorBright ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorBright" ] = application . colorToString ( appBackgroundColorBright ) ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorBrightChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] )
+        {
+          appFontColorBright = application . COLOR_TO_CALC_COMPLEMENTER - appBackgroundColorBright ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorBright" ] = application . colorToString ( appFontColorBright ) ;
+          textFormatBright . color = appFontColorBright ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorBrightChanged ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatBrightChanged ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppBackgroundColorAlpha ( ) : Number
+    {
+      return appBackgroundColorAlpha ;
+    }
+    public function setAppBackgroundColorAlpha ( newColorAlpha : Number ) : void
+    {
+      if ( appBackgroundColorAlpha != newColorAlpha )
+      {
+        appBackgroundColorAlpha = newColorAlpha ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorAlpha" ] = appBackgroundColorAlpha ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorAlphaChanged ) ;
         saveDisplaying ( ) ;
       }
     }
     public function getAppBackgroundImage ( ) : String
     {
       return appBackgroundImage ;
+    }
+    public function changeBgImage ( style : String , bgurl : String ) : void
+    {
+      appBackgroundImages [ style ] = bgurl ;
     }
     public function setAppBackgroundImage ( force : Boolean = false ) : void
     {
@@ -579,13 +883,13 @@ package com . kisscodesystems . KissAs3Fw . prop
         disposeBitmapData ( ) ;
         if ( appBackgroundImages [ appBackgroundImage ] == null )
         {
-          drawBitmapDataFromSource ( view . bitmapData ) ;
-          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundImageChanged ) ;
+          drawBitmapDataFromSource ( embeddedBg . bitmapData ) ;
+          dispatchEventAppBackgroundImageChanged ( ) ;
         }
         else if ( appBackgroundImages [ appBackgroundImage ] == "" )
         {
           createEmptyBitmapData ( ) ;
-          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundImageChanged ) ;
+          dispatchEventAppBackgroundImageChanged ( ) ;
         }
         else
         {
@@ -594,6 +898,25 @@ package com . kisscodesystems . KissAs3Fw . prop
           image . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_FILE_LOADED , imageLoaded ) ;
           loadImage ( ) ;
         }
+      }
+    }
+    private function dispatchEventAppBackgroundImageChanged ( ) : void
+    {
+      setAppBackgroundColorRand ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] ) ;
+      setAppBackgroundColorToFont ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] ) ;
+      setAppFontColorRand ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] ) ;
+      setAppFontColorToBackground ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] ) ;
+      if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] )
+      {
+        getNewRandomFontColorSchema ( ) ;
+      }
+      if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] )
+      {
+        getNewRandomBackgroundColorSchema ( ) ;
+      }
+      if ( application != null && application . getBaseEventDispatcher ( ) != null && eventAppBackgroundImageChanged != null )
+      {
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundImageChanged ) ;
       }
     }
     private function disposeBitmapData ( ) : void
@@ -631,7 +954,7 @@ package com . kisscodesystems . KissAs3Fw . prop
             createEmptyBitmapData ( ) ;
           }
         }
-        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundImageChanged ) ;
+        dispatchEventAppBackgroundImageChanged ( ) ;
       }
     }
     public function getAppBackgroundAlign ( ) : String
@@ -678,7 +1001,7 @@ package com . kisscodesystems . KissAs3Fw . prop
         disposeBitmapData ( ) ;
         if ( appBackgroundImages [ appBackgroundImage ] == null )
         {
-          drawBitmapDataFromSource ( view . bitmapData ) ;
+          drawBitmapDataFromSource ( embeddedBg . bitmapData ) ;
         }
         else if ( appBackgroundImages [ appBackgroundImage ] == "" )
         {
@@ -785,6 +1108,12 @@ package com . kisscodesystems . KissAs3Fw . prop
         textFormatBright . color = appFontColorBright ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorBrightChanged ) ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatBrightChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] )
+        {
+          appBackgroundColorBright = application . COLOR_TO_CALC_COMPLEMENTER - appFontColorBright ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorBright" ] = application . colorToString ( appBackgroundColorBright ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorBrightChanged ) ;
+        }
         saveDisplaying ( ) ;
       }
     }
@@ -801,6 +1130,12 @@ package com . kisscodesystems . KissAs3Fw . prop
         textFormatMid . color = appFontColorMid ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorMidChanged ) ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatMidChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] )
+        {
+          appBackgroundColorMid = application . COLOR_TO_CALC_COMPLEMENTER - appFontColorMid ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorMid" ] = application . colorToString ( appBackgroundColorMid ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorMidChanged ) ;
+        }
         saveDisplaying ( ) ;
       }
     }
@@ -817,6 +1152,60 @@ package com . kisscodesystems . KissAs3Fw . prop
         textFormatDark . color = appFontColorDark ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorDarkChanged ) ;
         application . getBaseEventDispatcher ( ) . dispatchEvent ( eventTextFormatDarkChanged ) ;
+        if ( appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] )
+        {
+          appBackgroundColorDark = application . COLOR_TO_CALC_COMPLEMENTER - appFontColorDark ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorDark" ] = application . colorToString ( appBackgroundColorDark ) ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorDarkChanged ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppFontColorRand ( ) : Boolean
+    {
+      return appFontColorRand ;
+    }
+    public function setAppFontColorRand ( newFontColorRand : Boolean ) : void
+    {
+      if ( appFontColorRand != newFontColorRand )
+      {
+        if ( newFontColorRand && appBackgroundColorRand )
+        {
+          appBackgroundColorRand = false ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorRand" ] = appBackgroundColorRand ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorRandChanged ) ;
+        }
+        appFontColorRand = newFontColorRand ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorRand" ] = appFontColorRand ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorRandChanged ) ;
+        if ( appFontColorRand )
+        {
+          getNewRandomFontColorSchema ( - 1 , - 1 , - 1 , false ) ;
+        }
+        saveDisplaying ( ) ;
+      }
+    }
+    public function getAppFontColorToBackground ( ) : Boolean
+    {
+      return appFontColorToBackground ;
+    }
+    public function setAppFontColorToBackground ( newFontColorToBackground : Boolean ) : void
+    {
+      if ( appFontColorToBackground != newFontColorToBackground )
+      {
+        if ( newFontColorToBackground && appBackgroundColorToFont )
+        {
+          appBackgroundColorToFont = false ;
+          appDisplayingStyles [ currentDisplayingStyle ] [ "appBackgroundColorToFont" ] = appBackgroundColorToFont ;
+          application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppBackgroundColorToFontChanged ) ;
+        }
+        appFontColorToBackground = newFontColorToBackground ;
+        appDisplayingStyles [ currentDisplayingStyle ] [ "appFontColorToBackground" ] = appFontColorToBackground ;
+        application . getBaseEventDispatcher ( ) . dispatchEvent ( eventAppFontColorToBackgroundChanged ) ;
+        if ( appFontColorToBackground )
+        {
+          getNewRandomBackgroundColorSchema ( application . COLOR_TO_CALC_COMPLEMENTER - appFontColorBright , application . COLOR_TO_CALC_COMPLEMENTER - appFontColorMid , application . COLOR_TO_CALC_COMPLEMENTER - appFontColorDark , false ) ;
+        }
         saveDisplaying ( ) ;
       }
     }

@@ -54,8 +54,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var progressTimeTextLabel : TextLabel = null ;
     private var remainingTimeTextLabel : TextLabel = null ;
     private var bufferDraw : Shape = null ;
+// This can be non-zero to specify that this is just a sample player.
+    private var sampleFrom : int = 0 ;
 // The events to the outside world.
     private var eventPlayed : Event = null ;
+    private var eventStoppedByEnd : Event = null ;
+    private var eventStoppedByHand : Event = null ;
 // The soundChannel object to gain control on the played sound.
     private var soundChannel : SoundChannel = null ;
 // Timer to display the progress of playing.
@@ -80,6 +84,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       super ( applicationRef ) ;
 // This event is for broadcasting the fact that this player just has been started.
       eventPlayed = new Event ( application . EVENT_PLAYED ) ;
+      eventStoppedByEnd = new Event ( application . EVENT_STOPPED_BY_END ) ;
+      eventStoppedByHand = new Event ( application . EVENT_STOPPED_BY_HAND ) ;
 // Let's create the main content!
 // progress and remaining time textfields, seek icon, buffer drawing and stop button link: these are invisible until playing.
       shapeBgFrame = new BaseShape ( application ) ;
@@ -113,6 +119,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       addChild ( seekIcon ) ;
       redrawSeekIcon ( null ) ;
       seekIcon . visible = false ;
+      seekIcon . mouseDownForScrollingEnabled = false ;
       progressTimeTextLabel = new TextLabel ( application ) ;
       addChild ( progressTimeTextLabel ) ;
       progressTimeTextLabel . visible = false ;
@@ -130,8 +137,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , redrawBufferDraw ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_SOUND_VOLUME_CHANGED , soundVolumeChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShape ) ;
     }
 /*
 ** The volume of the sound has been changed from the PropsDyn. ( from the settings panel for example )
@@ -230,7 +238,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       return playing || pausePoint != 0 ;
     }
 /*
-** Dispatches the event of playing.
+** Dispatches the event of playing and others.
 ** Useful when many players are in use.
 */
     private function dispatchEventPlayed ( ) : void
@@ -240,10 +248,25 @@ package com . kisscodesystems . KissAs3Fw . ui
         getBaseEventDispatcher ( ) . dispatchEvent ( eventPlayed ) ;
       }
     }
+    private function dispatchEventStoppedByHand ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventStoppedByHand ) ;
+      }
+    }
+    private function dispatchEventStoppedByEnd ( ) : void
+    {
+      if ( getBaseEventDispatcher ( ) != null )
+      {
+        getBaseEventDispatcher ( ) . dispatchEvent ( eventStoppedByEnd ) ;
+      }
+    }
 /*
 ** Sets the soundType (the name of the sound to be played)
+** sample is an interval in seconds to be able to play, 0 means that this is not a sample player.
 */
-    public function setSoundTypeAndName ( st : String , sn : String ) : void
+    public function setSoundTypeAndName ( st : String , sn : String , sample : int = 0 ) : void
     {
 // Just for sure.
       stop ( ) ;
@@ -327,7 +350,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function createSoundChannel ( ) : void
     {
       dropSoundChannel ( ) ;
-      soundChannel = application . getSoundManager ( ) . playSound ( soundType , pausePoint ) ;
+      soundChannel = application . getSoundManager ( ) . playSound ( soundType , Math . max ( pausePoint , 1000 * sampleFrom ) ) ;
       if ( soundChannel != null )
       {
         soundChannel . addEventListener ( Event . SOUND_COMPLETE , soundComplete , false , 0 , true ) ;
@@ -341,7 +364,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 ** but the seek icon is ours.
 ** When it is released (stageMouseUp), the new position will be
 ** calculated, and the playing will continue from that point.
-*/ 
+** Available only when it is not a sample sound playing.
+*/
     private function seekIconMouseDown ( e : MouseEvent ) : void
     {
       if ( seekIcon != null )
@@ -374,11 +398,11 @@ package com . kisscodesystems . KissAs3Fw . ui
     private function playButtonLinkClicked ( e : Event ) : void
     {
       createSoundChannel ( ) ;
-      seekIconToBegin ( ) ;
       if ( seekIcon != null )
       {
         seekIcon . visible = true ;
         seekIcon . addEventListener ( MouseEvent . MOUSE_DOWN , seekIconMouseDown ) ;
+        redrawSeekIcon ( null ) ;
       }
       if ( progressTimeTextLabel != null )
       {
@@ -435,6 +459,11 @@ package com . kisscodesystems . KissAs3Fw . ui
     }
     private function stopButtonLinkClicked ( e : Event ) : void
     {
+      doTheStop ( ) ;
+      dispatchEventStoppedByHand ( ) ;
+    }
+    private function doTheStop ( ) : void
+    {
       dropSoundChannel ( ) ;
       dropTimeDisplayingTimer ( ) ;
       resetDisplayedTimes ( ) ;
@@ -480,7 +509,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function soundComplete ( e : Event ) : void
     {
-      stopButtonLinkClicked ( null ) ;
+      doTheStop ( ) ;
+      dispatchEventStoppedByEnd ( ) ;
     }
 /*
 ** The time displaying and the repositioning of the seek icon happen by timer.
@@ -619,7 +649,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( shapeBgFrame != null )
       {
-        shapeBgFrame . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+        shapeBgFrame . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , 0 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
         shapeBgFrame . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
         shapeBgFrame . setswh ( getsw ( ) , getsh ( ) ) ;
         shapeBgFrame . drawRect ( ) ;
@@ -651,8 +681,9 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_LINE_THICKNESS_CHANGED , redrawBufferDraw ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_SOUND_VOLUME_CHANGED , soundVolumeChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , redrawShape ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , redrawShape ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , redrawShape ) ;
       if ( stage != null )
       {
         stage . removeEventListener ( MouseEvent . MOUSE_UP , stageMouseUp ) ;

@@ -11,23 +11,17 @@ package com . kisscodesystems . KissAs3Fw . ui
     [ Embed ( source = "../../../../../res/icons/copy.png" ) ]
     private var CopyClass : Class ;
     private var copyBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/list.png" ) ]
-    protected var ListClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/list.png" ) ] protected var ListClass : Class ;
     protected var listBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/logout.png" ) ]
-    protected var LogoutClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/logout.png" ) ] protected var LogoutClass : Class ;
     protected var logoutBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/more.png" ) ]
-     protected var MoreClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/more.png" ) ] protected var MoreClass : Class ;
     protected var moreBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/watch.png" ) ]
-    protected var WatchClass : Class ;
+    [ Embed ( source = "../../../../../res/icons/watch.png" ) ] protected var WatchClass : Class ;
     protected var watchBitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/downarrow1.png" ) ]
-    protected var Downarrow1Class : Class ;
+    [ Embed ( source = "../../../../../res/icons/downarrow1.png" ) ] protected var Downarrow1Class : Class ;
     protected var downarrow1Bitmap : Bitmap ;
-    [ Embed ( source = "../../../../../res/icons/uparrow1.png" ) ]
-    protected var Uparrow1Class : Class ;
+    [ Embed ( source = "../../../../../res/icons/uparrow1.png" ) ] protected var Uparrow1Class : Class ;
     protected var uparrow1Bitmap : Bitmap ;
     [ Embed ( source = "../../../../../res/icons/starblank.png" ) ]
     private var StarblankClass : Class ;
@@ -38,6 +32,12 @@ package com . kisscodesystems . KissAs3Fw . ui
     [ Embed ( source = "../../../../../res/icons/starhalf.png" ) ]
     private var StarhalfClass : Class ;
     private var starhalfBitmap : Bitmap ;
+    [ Embed ( source = "../../../../../res/icons/plus.png" ) ]
+    private var PlusClass : Class ;
+    private var plusBitmap : Bitmap ;
+    [ Embed ( source = "../../../../../res/icons/minus.png" ) ]
+    private var MinusClass : Class ;
+    private var minusBitmap : Bitmap ;
     [ Embed ( source = "../../../../../res/icons/minimize.png" ) ]
     private var MinimizeClass : Class ;
     private var minimizeBitmap : Bitmap ;
@@ -128,6 +128,8 @@ package com . kisscodesystems . KissAs3Fw . ui
       starblankBitmap = new StarblankClass ( ) as Bitmap ;
       starfullBitmap = new StarfullClass ( ) as Bitmap ;
       starhalfBitmap = new StarhalfClass ( ) as Bitmap ;
+      plusBitmap = new PlusClass ( ) as Bitmap ;
+      minusBitmap = new MinusClass ( ) as Bitmap ;
       minimizeBitmap = new MinimizeClass ( ) as Bitmap ;
       maximizeBitmap = new MaximizeClass ( ) as Bitmap ;
       leftarrowBitmap = new LeftarrowClass ( ) as Bitmap ;
@@ -224,6 +226,14 @@ package com . kisscodesystems . KissAs3Fw . ui
       else if ( iconType == "starhalf" )
       {
         return transformBitmapData ( starhalfBitmap , textType , iconSize ) ;
+      }
+      else if ( iconType == "plus" )
+      {
+        return transformBitmapData ( plusBitmap , textType , iconSize ) ;
+      }
+      else if ( iconType == "minus" )
+      {
+        return transformBitmapData ( minusBitmap , textType , iconSize ) ;
       }
       else if ( iconType == "minimize" )
       {

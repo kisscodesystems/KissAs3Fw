@@ -36,6 +36,7 @@ package com . kisscodesystems . KissAs3Fw . text
     protected var textCodesYesNo : Array = null ;
     protected var textCodesOkCancel : Array = null ;
     protected var textCodesBgImageAligns : Array = null ;
+    protected var textCodesBoxFrames : Array = null ;
     protected var textCodesTextTypes : Array = null ;
     protected var textCodesWidgetsOrientations : Array = null ;
     protected var textCodesDisplayingStyles : Array = null ;
@@ -47,6 +48,8 @@ package com . kisscodesystems . KissAs3Fw . text
     private var langCode : String = null ;
 // This event must be dispatched when the code of the language is changed.
     private var eventLangCodeChanged : Event = null ;
+// This is the simplest way to define new line in html texts.
+    protected var htmlEmptyParagraph : String = "<p>&nbsp;</p>" ;
 /*
 ** Constructing the text stock object.
 */
@@ -69,9 +72,10 @@ package com . kisscodesystems . KissAs3Fw . text
       textCodesYesNo = [ application . getTexts ( ) . YN_YES , application . getTexts ( ) . YN_NO ] ;
       textCodesOkCancel = [ application . getTexts ( ) . OC_OK , application . getTexts ( ) . OC_CANCEL ] ;
       textCodesBgImageAligns = [ application . getTexts ( ) . BACKGROUND_ALIGN_NONE , application . getTexts ( ) . BACKGROUND_ALIGN_CENTER1 , application . getTexts ( ) . BACKGROUND_ALIGN_CENTER2 , application . getTexts ( ) . BACKGROUND_ALIGN_CENTER3 , application . getTexts ( ) . BACKGROUND_ALIGN_MOSAIC ] ;
+      textCodesBoxFrames = [ application . getTexts ( ) . BOX_FRAME_FULL , application . getTexts ( ) . BOX_FRAME_HORIZONTAL , application . getTexts ( ) . BOX_FRAME_VERTICAL , application . getTexts ( ) . BOX_FRAME_NONE ] ;
       textCodesTextTypes = [ application . getTexts ( ) . TEXT_TYPE_BRIGHT , application . getTexts ( ) . TEXT_TYPE_MID , application . getTexts ( ) . TEXT_TYPE_DARK ] ;
       textCodesWidgetsOrientations = [ application . getTexts ( ) . ORIENTATION_MANUAL , application . getTexts ( ) . ORIENTATION_VERTICAL , application . getTexts ( ) . ORIENTATION_HORIZONTAL ] ;
-      textCodesDisplayingStyles = [ application . getTexts ( ) . DISPLAYING_STYLE_VIEW ] ;
+      textCodesDisplayingStyles = [ application . getTexts ( ) . DISPLAYING_STYLE_DEFAULT ] ;
       textCodesRoles = [ application . getTexts ( ) . g ] ;
       textCodesWeekdays = [ application . getTexts ( ) . WEEKDAY_MONDAY , application . getTexts ( ) . WEEKDAY_TUESDAY , application . getTexts ( ) . WEEKDAY_WEDNESDAY , application . getTexts ( ) . WEEKDAY_THURSDAY , application . getTexts ( ) . WEEKDAY_FRIDAY , application . getTexts ( ) . WEEKDAY_SATURDAY , application . getTexts ( ) . WEEKDAY_SUNDAY ] ;
       textCodesMonths = [ application . getTexts ( ) . MONTH_JAN , application . getTexts ( ) . MONTH_FEB , application . getTexts ( ) . MONTH_MAR , application . getTexts ( ) . MONTH_APR , application . getTexts ( ) . MONTH_MAY , application . getTexts ( ) . MONTH_JUN , application . getTexts ( ) . MONTH_JUL , application . getTexts ( ) . MONTH_AUG , application . getTexts ( ) . MONTH_SEP , application . getTexts ( ) . MONTH_OKT , application . getTexts ( ) . MONTH_NOV , application . getTexts ( ) . MONTH_DEC ] ;
@@ -98,6 +102,10 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ textCodesBgImageAligns [ 2 ] ] = [ "Center 2" ] ;
       texts [ textCodesBgImageAligns [ 3 ] ] = [ "Center 3" ] ;
       texts [ textCodesBgImageAligns [ 4 ] ] = [ "Mosaic" ] ;
+      texts [ textCodesBoxFrames [ 0 ] ] = [ "Full" ] ;
+      texts [ textCodesBoxFrames [ 1 ] ] = [ "Horizontal" ] ;
+      texts [ textCodesBoxFrames [ 2 ] ] = [ "Vertical" ] ;
+      texts [ textCodesBoxFrames [ 3 ] ] = [ "None" ] ;
       texts [ textCodesTextTypes [ 0 ] ] = [ "Bright" ] ;
       texts [ textCodesTextTypes [ 1 ] ] = [ "Mid" ] ;
       texts [ textCodesTextTypes [ 2 ] ] = [ "Dark" ] ;
@@ -107,7 +115,7 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ textCodesWidgetModes [ 0 ] ] = [ "Automatic" ] ;
       texts [ textCodesWidgetModes [ 1 ] ] = [ "Desktop" ] ;
       texts [ textCodesWidgetModes [ 2 ] ] = [ "Mobile" ] ;
-      texts [ textCodesDisplayingStyles [ 0 ] ] = [ "View" ] ;
+      texts [ textCodesDisplayingStyles [ 0 ] ] = [ "Default" ] ;
       texts [ textCodesRoles [ 0 ] ] = [ "Guest" ] ;
       texts [ textCodesWeekdays [ 0 ] ] = [ "Mon" ] ;
       texts [ textCodesWeekdays [ 1 ] ] = [ "Tue" ] ;
@@ -149,10 +157,11 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ application . getTexts ( ) . SETTING_MARGIN ] = [ "Margin." ] ;
       texts [ application . getTexts ( ) . SETTING_PADDING ] = [ "Padding." ] ;
       texts [ application . getTexts ( ) . SETTING_RADIUS ] = [ "Radius." ] ;
-      texts [ application . getTexts ( ) . SETTING_BACKGROUND_BG_COLOR ] = [ "Background color." ] ;
-      texts [ application . getTexts ( ) . SETTING_BACKGROUND_FG_COLOR ] = [ "Foreground color." ] ;
+      texts [ application . getTexts ( ) . SETTING_BOX_CORNER ] = [ "Box corner." ] ;
+      texts [ application . getTexts ( ) . SETTING_BOX_FRAME ] = [ "Box frame." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLORS ] = [ "Background colors." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_ALPHA ] = [ "Background color alpha." ] ;
       texts [ application . getTexts ( ) . SETTING_BACKGROUND_BLUR ] = [ "Background blur." ] ;
-      texts [ application . getTexts ( ) . SETTING_BACKGROUND_FILL_ALPHA ] = [ "Background fill alpha." ] ;
       texts [ application . getTexts ( ) . SETTING_BACKGROUND_ALIGN ] = [ "Background align." ] ;
       texts [ application . getTexts ( ) . SETTING_BACKGROUND_ALPHA ] = [ "Background alpha." ] ;
       texts [ application . getTexts ( ) . SETTING_BACKGROUND_LIVE ] = [ "Bg is live." ] ;
@@ -168,84 +177,27 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ application . getTexts ( ) . SETTING_FONT_SKEWNESS ] = [ "Font skewness." ] ;
       texts [ application . getTexts ( ) . SETTING_SOUND_PLAYING_ON ] = [ "Soundeffects." ] ;
       texts [ application . getTexts ( ) . SETTING_SOUND_PLAYING_OFF ] = [ "Soundeffects." ] ;
+      texts [ application . getTexts ( ) . SETTING_GET_NEW_FONT_COLORSCHEMA ] = [ "New font colors!" ] ;
+      texts [ application . getTexts ( ) . SETTING_GET_NEW_BACKGROUND_COLORSCHEMA ] = [ "New background colors!" ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_CHANGE ] = [ "Change background." ] ;
+      texts [ application . getTexts ( ) . SETTING_FONT_COLOR_CHANGE ] = [ "Change font." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_REMAIN ] = [ "Remain background." ] ;
+      texts [ application . getTexts ( ) . SETTING_FONT_COLOR_REMAIN ] = [ "Remain font." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_RANDOMNESS ] = [ "Background randomness." ] ;
+      texts [ application . getTexts ( ) . SETTING_FONT_COLOR_RANDOMNESS ] = [ "Font color randomness." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_RANDOM ] = [ "Random colors." ] ;
+      texts [ application . getTexts ( ) . SETTING_FONT_COLOR_RANDOM ] = [ "Random colors." ] ;
+      texts [ application . getTexts ( ) . SETTING_BACKGROUND_COLOR_NORMAL ] = [ "Normal colors." ] ;
+      texts [ application . getTexts ( ) . SETTING_FONT_COLOR_NORMAL ] = [ "Normal colors." ] ;
       texts [ application . getTexts ( ) . DEFAULT_CONTENT ] = [ "Default content" ] ;
       texts [ application . getTexts ( ) . REQUIRED_PERMISSIONS_ALERT ] = [ "This application needs Camera, Storage and Network permissions.\nPlease, check your settings and grant these permissions to this application for proper working. Perhaps, you need to restart your application." ] ;
+      texts [ application . getTexts ( ) . REQUIRED_ATTACHED_CAMERA_ALERT ] = [ "Camera is not attached, it has to be done before continuing." ] ;
+      texts [ application . getTexts ( ) . CAMERA_IS_USABLE_IN_HORIZONTAL ] = [ "The camera is usable only in horizontal sizing of this application." ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_BASIC ] = [ "Basic" ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_DIGITAL ] = [ "Digital" ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_ANALOG ] = [ "Analog" ] ;
       texts [ application . getTexts ( ) . WATCH_TYPE_BINARY ] = [ "Binary" ] ;
-      texts [ application . getTexts ( ) . COMPONENTS_USAGE ] = [
-      "<p><b>Welcome to KissAs3Fw framework!</b></p>" 
-        + application . EMPTY_HTML_PARAGRAPH 
-      + "<p>The usage of this component set is readable below.<br/>"
-      + "Partly, bacause the components are here which are displayed<br/>"
-      + "on the basic application screen. Other components will be<br/>"
-      + "described on the other widgets of KissAs3Dm application."
-      + "</p>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<p>The Application is the main program, run in that specific window in front of you. "
-      + "This contains a header and a body part. In the header, the following elements can be found:"
-      + "</p>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<p>Menu button<br/>"
-      + "<ul><li>to hold the basic user info and the application menu</li>" 
-      + "</p>" 
-      + "<p><b>Application name</b><br/>"
-      + "<ul><li>a label to hold the name of this application</li>" 
-      + "</p>" 
-      + "<p><b>Watch</b><br/>"
-      + "<ul><li>displays the current time of the client</li>" 
-      + "<li>current date and timezone on the background</li>" 
-      + "<li>seconds displaying can be set on or off</li>" 
-      + "<li>basic, digital, analog and binary time displaying can be set</li>" 
-      + "</p>" 
-      + "<p>Settings button<br/>"
-      + "<ul><li>opens a panel to customize the application</li>" 
-      + "<li>language, displaying style, widget containers, widget align</li>" 
-      + "<li>automatic or manual switch of mobile or desktop displaying</li>" 
-      + "<li>every other attributes of the appearance</li>" 
-      + "</p>" 
-      + "<ul><b><u>And the main content<br/>(Application-Middleground-Widgets-ContentMultiple)</u></b>" 
-      + "<li><u>Area to place Widgets into this.</u></li>" 
-      + "<li>Supports multiple contents (widget containers) since version 1.5</li>" 
-      + "<li>Simple switch between mobile and desktop appearance since version 1.9.</li>" 
-      + "<li>Can be customized in the settings panel if that is available in the app.</li>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>ContentMultiple</b>" 
-      + "<li><u>Content handler object (multiple pages).</u></li>" 
-      + "<li>On the settings panel for example.</li>" 
-      + "<li>Since version 1.5: in Widgets and in the main content.</li>" 
-      + "<li>Content selecting: click on the Button bar.</li>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>ContentSingle</b>" 
-      + "<li><u>Content handler object (1 page)</u></li>" 
-      + "<li>Automatic positioning of the elements inside.</li>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>Icon, IconManager</b>" 
-      + "<li>An icon can be specified to a label.</li>" 
-      + "<li>This label can be anywhere, for example in the main menu.</li>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>Image</b>" 
-      + "<li>An image object which can display a picture from embedded source or from outside (web)</li>" 
-      + "<li>The example here is the background</li>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>Widget</b>" 
-      + "<li><u>To handle content elements belong each other.</u></li>" 
-      + "<li>Multiple content pages since version 1.5!</li>" 
-      + "<li><i>     (built-in menu in every single Widget)</i></li>" 
-      + "<li>Position: mouse down on the header area and drag</li>" 
-      + "<li>Resize: mouse down on the edge of the widget and drag</li>" 
-      + "<li>Other widget actions: by the buttons in the header.</li>" 
-      + "</ul>" 
-      + application . EMPTY_HTML_PARAGRAPH 
-      + "<ul><b>XmlLister</b>" 
-      + "<li>A ListPanel component that handles directly an xml based data. The application menu is displayed by using this component.</li>" 
-      + "<li>The root object is &lt;items&gt; and there can be other &lt;item&gt; elements, in any other depths.</li>"
-      + "<li>Possible attributes of the &lt;item&gt; are: opened (0 or 1), icon (string), value (string).</li>" 
-      + "<li>The &lt;item&gt; can be opened or closed by mouse or tap if there are child &lt;item&gt; objects.</li>"
-      + "</ul>" 
-      + application . EMPTY_HTML_PARAGRAPH
-      ] ;
+      texts [ application . getTexts ( ) . COMPONENTS_USAGE ] = [ "<p><b>Welcome to KissAs3Fw framework!</b></p>" + application . EMPTY_HTML_PARAGRAPH + "<p>The usage of this component set is readable below.<br/>" + "Partly, bacause the components are here which are displayed<br/>" + "on the basic application screen. Other components will be<br/>" + "described on the other widgets of KissAs3Dm application." + "</p>" + application . EMPTY_HTML_PARAGRAPH + "<p>The Application is the main program, run in that specific window in front of you. " + "This contains a header and a body part. In the header, the following elements can be found:" + "</p>" + application . EMPTY_HTML_PARAGRAPH + "<p>Menu button<br/>" + "<ul><li>to hold the basic user info and the application menu</li>" + "</p>" + "<p><b>Application name</b><br/>" + "<ul><li>a label to hold the name of this application</li>" + "</p>" + "<p><b>Watch</b><br/>" + "<ul><li>displays the current time of the client</li>" + "<li>current date and timezone on the background</li>" + "<li>seconds displaying can be set on or off</li>" + "<li>basic, digital, analog and binary time displaying can be set</li>" + "</p>" + "<p>Settings button<br/>" + "<ul><li>opens a panel to customize the application</li>" + "<li>language, displaying style, widget containers, widget align</li>" + "<li>automatic or manual switch of mobile or desktop displaying</li>" + "<li>every other attributes of the appearance</li>" + "</p>" + "<ul><b><u>And the main content<br/>(Application-Middleground-Widgets-ContentMultiple)</u></b>" + "<li><u>Area to place Widgets into this.</u></li>" + "<li>Supports multiple contents (widget containers) since version 1.5</li>" + "<li>Simple switch between mobile and desktop appearance since version 1.9.</li>" + "<li>Can be customized in the settings panel if that is available in the app.</li>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>ContentMultiple</b>" + "<li><u>Content handler object (multiple pages).</u></li>" + "<li>On the settings panel for example.</li>" + "<li>Since version 1.5: in Widgets and in the main content.</li>" + "<li>Content selecting: click on the Button bar.</li>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>ContentSingle</b>" + "<li><u>Content handler object (1 page)</u></li>" + "<li>Automatic positioning of the elements inside.</li>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>Icon, IconManager</b>" + "<li>An icon can be specified to a label.</li>" + "<li>This label can be anywhere, for example in the main menu.</li>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>Image</b>" + "<li>An image object which can display a picture from embedded source or from outside (web)</li>" + "<li>The example here is the background</li>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>Widget</b>" + "<li><u>To handle content elements belong each other.</u></li>" + "<li>Multiple content pages since version 1.5!</li>" + "<li><i>     (built-in menu in every single Widget)</i></li>" + "<li>Position: mouse down on the header area and drag</li>" + "<li>Resize: mouse down on the edge of the widget and drag</li>" + "<li>Other widget actions: by the buttons in the header.</li>" + "</ul>" + application . EMPTY_HTML_PARAGRAPH + "<ul><b>XmlLister</b>" + "<li>A ListPanel component that handles directly an xml based data. The application menu is displayed by using this component.</li>" + "<li>The root object is &lt;items&gt; and there can be other &lt;item&gt; elements, in any other depths.</li>" + "<li>Possible attributes of the &lt;item&gt; are: opened (0 or 1), icon (string), value (string).</li>" + "<li>The &lt;item&gt; can be opened or closed by mouse or tap if there are child &lt;item&gt; objects.</li>" + "</ul>" + application . EMPTY_HTML_PARAGRAPH ] ;
       texts [ application . getTexts ( ) . MORE ] = [ "More" ] ;
       texts [ application . getTexts ( ) . SELECTED_FILE ] = [ "Selected: " ] ;
       texts [ application . getTexts ( ) . UPLOADED_FILE ] = [ "Uploaded: " ] ;
@@ -281,8 +233,6 @@ package com . kisscodesystems . KissAs3Fw . text
       texts [ application . getTexts ( ) . DRAW ] = [ "Draw" ] ;
       texts [ application . getTexts ( ) . RUBBER ] = [ "Rubber" ] ;
       texts [ application . getTexts ( ) . REALLY_WANT_TO_CLEAR_DRAWN_CONTENT ] = [ "Do you really want to clear the drawn content?" ] ;
-      texts [ application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES ] = [ "Mobile device?\nRotate to landscape view." ] ;
-      texts [ application . getTexts ( ) . CAMERA_ON_MOBILE_DEVICES2 ] = [ "Rotate mobile device to landscape." ] ;
     }
 /*
 ** Destroying this application.
@@ -301,6 +251,7 @@ package com . kisscodesystems . KissAs3Fw . text
       textCodesYesNo = null ;
       textCodesOkCancel = null ;
       textCodesBgImageAligns = null ;
+      textCodesBoxFrames = null ;
       textCodesTextTypes = null ;
       textCodesWidgetsOrientations = null ;
       textCodesDisplayingStyles = null ;
@@ -482,6 +433,24 @@ package com . kisscodesystems . KissAs3Fw . text
       for ( var i : int = 0 ; i < textCodesBgImageAligns . length ; i ++ )
       {
         array . push ( getText ( textCodesBgImageAligns [ i ] ) ) ;
+      }
+      return array ;
+    }
+    public function getTextCodesBoxFrames ( ) : Array
+    {
+      var array : Array = new Array ( ) ;
+      for ( var i : int = 0 ; i < textCodesBoxFrames . length ; i ++ )
+      {
+        array . push ( textCodesBoxFrames [ i ] ) ;
+      }
+      return array ;
+    }
+    public function getTextsBoxFrames ( ) : Array
+    {
+      var array : Array = new Array ( ) ;
+      for ( var i : int = 0 ; i < textCodesBoxFrames . length ; i ++ )
+      {
+        array . push ( getText ( textCodesBoxFrames [ i ] ) ) ;
       }
       return array ;
     }

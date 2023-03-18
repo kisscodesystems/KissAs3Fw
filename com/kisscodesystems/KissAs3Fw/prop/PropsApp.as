@@ -31,11 +31,15 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var applicationSoftwareHomepageUrl : Array = new Array ( ) ;
 // The maximum blur of the glow filter.
     protected var maxBlur : int = 8 ;
-// Uses embed foonts or not.
-    protected var useEmbedFonts : Boolean = false ;
 // The menu and the settings panel is enabled or disabled: here at the beginning!
     protected var panelMenuEnabled : Boolean = true ;
     protected var panelSettingsEnabled : Boolean = true ;
+// Watch also can be seen by default.
+    protected var watchEnabled : Boolean = true ;
+// These properties can be disabled (not to appear on panel settings)
+    protected var panelSettingsEnableMaxDesktops : Boolean = true ;
+    protected var panelSettingsEnableCurrDesktop : Boolean = true ;
+    protected var panelSettingsEnableWidgetsOrientation : Boolean = true ;
 // The line thickness of other drawing.
     protected var drawOtherLineThickness : int = 2 ;
 // The minimum marker alpha values.
@@ -49,7 +53,7 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var colorSquareLineAlphaMouseOut : Number = 0.2 ;
     protected var colorSquareLineAlphaMouseOver : Number = 1 ;
 // This is the factor which reduce the final size of the widget according to the actual font size.
-    protected var widgetSizeFromFontSizeFactor : Number = 0.7 ;
+    protected var widgetSizeFromFontSizeFactor : Number = 0.8 ;
 // The alpha of the disabled object.
     protected var disabledAlpha : Number = 0.5 ;
 // The minimum sizes of this application.
@@ -94,6 +98,8 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var gradientAlpha2 : Number = 0.3 ;
     protected var gradientRatio1 : int = 0 ;
     protected var gradientRatio2 : int = 255 ;
+    protected var linearRatio1 : int = 85 ;
+    protected var linearRatio2 : int = 255 ;
     protected var lineRatio1 : int = 0 ;
     protected var lineRatio2 : int = 255 ;
     protected var focalPointRatio : Number = 0.7 ;
@@ -127,6 +133,11 @@ package com . kisscodesystems . KissAs3Fw . prop
 // The alpha values to paint the DatePanel (background of a date).
     protected var datePanelAlphaMouseOver : Number = 0.3 ;
     protected var datePanelAlphaMouseDown : Number = 0.6 ;
+// Short text properties
+    protected var shortTextLimit : int = 142 ;
+    protected var shortTextEnding : String = "..." ;
+// This is the minimum alpha of the background of a text input field
+    protected var minTextInputAlpha : Number = 0.15 ;
 /*
 ** Constructor.
 */
@@ -154,10 +165,6 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return applicationSoftwareHomepageUrl ;
     }
-    public function getUseEmbedFonts ( ) : Boolean
-    {
-      return useEmbedFonts ;
-    }
     public function getPanelMenuEnabled ( ) : Boolean
     {
       return panelMenuEnabled ;
@@ -165,6 +172,22 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getPanelSettingsEnabled ( ) : Boolean
     {
       return panelSettingsEnabled ;
+    }
+    public function getWatchEnabled ( ) : Boolean
+    {
+      return watchEnabled ;
+    }
+    public function getPanelSettingsEnableMaxDesktops ( ) : Boolean
+    {
+      return panelSettingsEnableMaxDesktops ;
+    }
+    public function getPanelSettingsEnableCurrDesktop ( ) : Boolean
+    {
+      return panelSettingsEnableCurrDesktop ;
+    }
+    public function getPanelSettingsEnableWidgetsOrientation ( ) : Boolean
+    {
+      return panelSettingsEnableWidgetsOrientation ;
     }
     public function getDrawOtherLineThickness ( ) : int
     {
@@ -310,6 +333,14 @@ package com . kisscodesystems . KissAs3Fw . prop
     {
       return gradientRatio2 ;
     }
+    public function getLinearRatio1 ( ) : int
+    {
+      return linearRatio1 ;
+    }
+    public function getLinearRatio2 ( ) : int
+    {
+      return linearRatio2 ;
+    }
     public function getLineRatio1 ( ) : int
     {
       return lineRatio1 ;
@@ -385,6 +416,18 @@ package com . kisscodesystems . KissAs3Fw . prop
     public function getDatePanelAlphaMouseDown ( ) : Number
     {
       return datePanelAlphaMouseDown ;
+    }
+    public function getShortTextLimit ( ) : int
+    {
+      return shortTextLimit ;
+    }
+    public function getShortTextEnding ( ) : String
+    {
+      return shortTextEnding ;
+    }
+    public function getMinTextInputAlpha ( ) : Number
+    {
+      return minTextInputAlpha ;
     }
   }
 }

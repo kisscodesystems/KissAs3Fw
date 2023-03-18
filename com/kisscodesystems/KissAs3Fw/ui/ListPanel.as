@@ -39,6 +39,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     private var arrayLabels : Array = null ;
     private var arrayValues : Array = null ;
     private var arrayIcons : Array = null ;
+    private var arrayTabcnts : Array = null ;
 // Multiple or not
     private var multiple : Boolean = false ;
 // The index to start the displaying from.
@@ -75,14 +76,16 @@ package com . kisscodesystems . KissAs3Fw . ui
       baseScroll = new BaseScroll ( application ) ;
       addChild ( baseScroll ) ;
 // Masking of the content!
-      baseList . mask = baseScroll . getMask0 ( ) ;
+      baseList . mask = baseScroll . getMask ( ) ;
 // This events needed to trigger the base actions.
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . ROLL_OVER , moverRollOver ) ;
       baseScroll . getMover ( ) . addEventListener ( MouseEvent . ROLL_OUT , moverRollOut ) ;
+      baseScroll . getMover ( ) . mouseDownForScrollingEnabled = false ;
 // Other initializations.
       arrayLabels = new Array ( ) ;
       arrayValues = new Array ( ) ;
       arrayIcons = new Array ( ) ;
+      arrayTabcnts = new Array ( ) ;
       selectedIndexes = new Array ( ) ;
 // This events are required now. (application baselist basescroll)
       baseScroll . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_CONTENT_POSITION_CHANGED , reposContent ) ;
@@ -204,7 +207,14 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function moverMouseMove ( e : MouseEvent ) : void
     {
-      displayFromIndex ( startIndex , false ) ;
+      if ( e . buttonDown )
+      {
+        displayFromIndex ( startIndex , true ) ;
+      }
+      else
+      {
+        markFromIndex ( startIndex , false ) ;
+      }
       if ( e != null )
       {
         e . updateAfterEvent ( ) ;
@@ -341,8 +351,8 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function baseListRepos ( ) : void
     {
-      baseList . setcx ( baseScroll . getMask0 ( ) . x + application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
-      baseList . setcy ( baseScroll . getMask0 ( ) . y + application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+      baseList . setcx ( baseScroll . getMask ( ) . x + application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
+      baseList . setcy ( baseScroll . getMask ( ) . y + application . getPropsDyn ( ) . getAppPadding ( ) - application . getPropsDyn ( ) . getAppLineThickness ( ) ) ;
     }
 /*
 ** Sets the selected items.
@@ -463,15 +473,65 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** Sets the arrays of the list to be displayed.
 */
-    public function setArrays ( labels : Array , values : Array , icons : Array = null ) : void
+    public function setArrays ( labels : Array , values : Array , icons : Array = null , tabcnts : Array = null ) : void
     {
       arrayLabels = labels ;
       arrayValues = values ;
-      arrayIcons = icons ;
+      if ( icons == null )
+      {
+        arrayIcons = new Array ( arrayLabels . length ) ;
+        for ( var j : int = 0 ; j < arrayIcons . length ; j ++ )
+        {
+          arrayIcons [ j ] = "" ;
+        }
+      }
+      else
+      {
+        arrayIcons = icons ;
+      }
+      if ( tabcnts == null )
+      {
+        arrayTabcnts = new Array ( arrayLabels . length ) ;
+        for ( var i : int = 0 ; i < arrayTabcnts . length ; i ++ )
+        {
+          arrayTabcnts [ i ] = 0 ;
+        }
+      }
+      else
+      {
+        arrayTabcnts = tabcnts ;
+      }
       selectedIndexes = new Array ( ) ;
       baseList . setNumOfElements ( Math . min ( numOfElements , arrayLabels . length ) ) ;
       setBaseScrollSch ( ) ;
       displayFromIndex ( 0 , false ) ;
+    }
+/*
+** It may be necessary to refresh one single item.
+** null value means let it remain untouched!
+*/
+    public function refreshItem ( i : int , label : String , value : String , icon : String = null , tabcnt : int = - 1 ) : void
+    {
+      if ( arrayLabels != null && arrayValues != null && arrayIcons != null  && arrayTabcnts != null )
+      {
+        if ( i < arrayLabels . length )
+        {
+          if ( label != null )
+          {
+            arrayLabels [ i ] = label ;
+          }
+          if ( value != null )
+          {
+            arrayValues [ i ] = value ;
+          }
+          arrayIcons [ i ] = icon ;
+          if ( tabcnt > - 1 )
+          {
+            arrayTabcnts [ i ] = tabcnt ;
+          }
+          displayFromIndex ( startIndex , false ) ;
+        }
+      }
     }
 /*
 ** Gets the array of labels.
@@ -488,11 +548,18 @@ package com . kisscodesystems . KissAs3Fw . ui
       return arrayValues ;
     }
 /*
-** Gets the array of labels.
+** Gets the array of icons.
 */
     public function getArrayIcons ( ) : Array
     {
       return arrayIcons ;
+    }
+/*
+** Gets the array of tabcnts.
+*/
+    public function getTabcnts ( ) : Array
+    {
+      return arrayTabcnts ;
     }
 /*
 ** Displays the list elements and their marks from the specified index.
@@ -502,7 +569,15 @@ package com . kisscodesystems . KissAs3Fw . ui
       startIndex = validStartIndex ( index ) ;
       for ( var i : int = 0 ; i < baseList . getNumOfElements ( ) ; i ++ )
       {
-        baseList . setTextCode ( i , arrayLabels [ i + startIndex ] , arrayIcons == null ? null : arrayIcons [ i + startIndex ] ) ;
+        baseList . setTextCode ( i , arrayLabels [ i + startIndex ] , arrayIcons [ i + startIndex ] , arrayTabcnts [ i + startIndex ] ) ;
+      }
+      markFromIndex ( index , buttonDown ) ;
+    }
+    private function markFromIndex ( index : int , buttonDown : Boolean ) : void
+    {
+      startIndex = validStartIndex ( index ) ;
+      for ( var i : int = 0 ; i < baseList . getNumOfElements ( ) ; i ++ )
+      {
         if ( getActualElementIndexByMouse ( ) == i && ! buttonDown )
         {
           baseList . markElement ( i , 1 ) ;
@@ -525,7 +600,7 @@ package com . kisscodesystems . KissAs3Fw . ui
     {
       if ( baseScroll . getMover ( ) . mouseX >= 0 && baseScroll . getMover ( ) . mouseX <= baseScroll . getMover ( ) . getsw ( ) && baseScroll . getMover ( ) . mouseY >= 0 && baseScroll . getMover ( ) . mouseY <= baseScroll . getMover ( ) . getsh ( ) )
       {
-        return Math . floor ( ( ( baseScroll . getMover ( ) . mouseY - application . getPropsDyn ( ) . getAppPadding ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) ) - baseScroll . getMask0 ( ) . y ) / application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ;
+        return Math . floor ( ( ( baseScroll . getMover ( ) . mouseY - application . getPropsDyn ( ) . getAppPadding ( ) + application . getPropsDyn ( ) . getAppLineThickness ( ) ) - baseScroll . getMask ( ) . y ) / application . getPropsDyn ( ) . getTextFieldHeight ( baseList . getTextType ( ) ) ) ;
       }
       else
       {
@@ -556,7 +631,6 @@ package com . kisscodesystems . KissAs3Fw . ui
 // 1: unregister every event listeners added to different than local_var . getBaseEventDispatcher ( )
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . ROLL_OVER , moverRollOver ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . ROLL_OUT , moverRollOut ) ;
-      baseScroll . getMover ( ) . removeEventListener ( MouseEvent . ROLL_OVER , moverRollOver ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . MOUSE_MOVE , moverMouseMove ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . MOUSE_DOWN , moverMouseDown ) ;
       baseScroll . getMover ( ) . removeEventListener ( MouseEvent . CLICK , moverMouseClick ) ;
@@ -576,6 +650,7 @@ package com . kisscodesystems . KissAs3Fw . ui
       arrayLabels = null ;
       arrayValues = null ;
       arrayIcons = null ;
+      arrayTabcnts = null ;
       multiple = false ;
       startIndex = 0 ;
       selectedIndexes = null ;

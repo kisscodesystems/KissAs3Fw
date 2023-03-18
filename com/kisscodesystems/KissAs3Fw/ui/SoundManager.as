@@ -15,7 +15,7 @@
  ** - Embeds and stores the sounds.
  **   These can be short sound effects or complete mp3 songs for example.
  ** - Gives references to them to give information about the usable sounds.
- */
+*/
 package com . kisscodesystems . KissAs3Fw . ui
 {
   import com . kisscodesystems . KissAs3Fw . Application ;

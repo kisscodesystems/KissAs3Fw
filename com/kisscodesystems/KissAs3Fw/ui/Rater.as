@@ -27,9 +27,6 @@ package com . kisscodesystems . KissAs3Fw . ui
 // This property has to be changed to enable to rate.
 // Else this can display a rate by default.
     private var readonly : Boolean = true ;
-// This object is usable only once to take a rate.
-// If the user wants to rate again then this rater object has to be reloaded.
-    private var ratedByMouse : Boolean = false ;
 // Stuff to be visible this object.
     private var background : BaseShape = null ;
     private var foreground : BaseSprite = null ;
@@ -71,9 +68,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , textformatChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . addEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
     }
 /*
 ** Sets - gets the current rate value from outside.
@@ -108,7 +106,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function rollOver ( e : MouseEvent ) : void
     {
-      if ( ! readonly && ! ratedByMouse && getEnabled ( ) )
+      if ( ! readonly && getEnabled ( ) )
       {
         foreground . addEventListener ( MouseEvent . MOUSE_MOVE , mouseMove ) ;
         foreground . addEventListener ( MouseEvent . CLICK , click ) ;
@@ -130,7 +128,6 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function click ( e : MouseEvent ) : void
     {
-      ratedByMouse = true ;
       rate = getRateValueByMouse ( ) ;
       if ( getBaseEventDispatcher ( ) != null )
       {
@@ -216,7 +213,15 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (background) of the background has been changed.
 */
-    private function backgroundBgColorChanged ( e : Event ) : void
+    private function backgroundDarkColorChanged ( e : Event ) : void
+    {
+// So, we have to redraw.
+      bgfgRedraw ( ) ;
+    }
+/*
+** The filler color 2 (background) of the background has been changed.
+*/
+    private function backgroundMidColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       bgfgRedraw ( ) ;
@@ -224,7 +229,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 /*
 ** The filler color (foreground) of the background has been changed.
 */
-    private function backgroundFgColorChanged ( e : Event ) : void
+    private function backgroundBrightColorChanged ( e : Event ) : void
     {
 // So, we have to redraw.
       bgfgRedraw ( ) ;
@@ -243,7 +248,7 @@ package com . kisscodesystems . KissAs3Fw . ui
 */
     private function bgfgRedraw ( ) : void
     {
-      background . setccac ( application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillBgColor ( ) , application . getPropsDyn ( ) . getAppBackgroundFillAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundFillFgColor ( ) ) ;
+      background . setcccac ( application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorDark ( ) , application . getPropsDyn ( ) . getAppBackgroundColorMid ( ) , application . getPropsDyn ( ) . getAppBackgroundColorAlpha ( ) / 2 , application . getPropsDyn ( ) . getAppBackgroundColorBright ( ) ) ;
       background . setsr ( application . getPropsDyn ( ) . getAppRadius ( ) ) ;
       background . setswh ( getsw ( ) , getsh ( ) ) ;
       background . drawRect ( ) ;
@@ -305,9 +310,10 @@ package com . kisscodesystems . KissAs3Fw . ui
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_PADDING_CHANGED , paddingChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_RADIUS_CHANGED , radiusChanged ) ;
       application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_TEXT_FORMAT_MID_CHANGED , textformatChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_BGCOLOR_CHANGED , backgroundBgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_FGCOLOR_CHANGED , backgroundFgColorChanged ) ;
-      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_FILL_ALPHA_CHANGED , fillAlphaChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_DARK_CHANGED , backgroundDarkColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_MID_CHANGED , backgroundMidColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED , backgroundBrightColorChanged ) ;
+      application . getBaseEventDispatcher ( ) . removeEventListener ( application . EVENT_BACKGROUND_COLOR_ALPHA_CHANGED , fillAlphaChanged ) ;
       foreground . removeEventListener ( MouseEvent . ROLL_OVER , rollOver ) ;
       foreground . removeEventListener ( MouseEvent . ROLL_OUT , rollOut ) ;
       foreground . removeEventListener ( MouseEvent . CLICK , click ) ;
@@ -322,7 +328,6 @@ package com . kisscodesystems . KissAs3Fw . ui
       super . destroy ( ) ;
 // 4: every reference and value should be resetted to null, 0 or false.
       readonly = false ;
-      ratedByMouse = false ;
       background = null ;
       foreground = null ;
       starsArray = null ;
