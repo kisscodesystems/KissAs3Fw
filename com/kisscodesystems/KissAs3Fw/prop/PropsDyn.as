@@ -35,37 +35,37 @@ package com . kisscodesystems . KissAs3Fw . prop
 // Protected because we may add some newapplication . getTexts ( ) into it.
     protected var application : Application = null ;
 // Adding the background bitmap.
-    [ Embed ( source = "../../../../../res/prdare.jpg" ) ]
+    [ Embed ( source = "../../../../../res/thhopi.jpg" ) ]
     private var EmbeddedBg : Class ;
     private var embeddedBg : Bitmap ;
 // Adding free fonts to the app
 // These will be the first elements of the font combobox
-//  [ Embed ( source = "../../../../../res/fonts/FreeSans.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSansFont:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSansBold.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSansFontBold:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSansOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSansFontItalic:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSansBoldOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSansFontBoldItalic:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSerif.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSerifFont:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSerifBold.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSerifFontBold:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSerifItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSerifFontItalic:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeSerifBoldItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeSerifFontBoldItalic:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeMono.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeMonoFont:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeMonoBold.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeMonoFontBold:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeMonoOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeMonoFontItalic:Class ;
-//  [ Embed ( source = "../../../../../res/fonts/FreeMonoBoldOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
-//  public var FreeMonoFontBoldItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSans.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSansFont:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSansBold.ttf", fontName = "FreeSans", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSansFontBold:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSansOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSansFontItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSansBoldOblique.ttf", fontName = "FreeSans", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSansFontBoldItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSerif.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSerifFont:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSerifBold.ttf", fontName = "FreeSerif", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSerifFontBold:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSerifItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSerifFontItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeSerifBoldItalic.ttf", fontName = "FreeSerif", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeSerifFontBoldItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeMono.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeMonoFont:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeMonoBold.ttf", fontName = "FreeMono", fontStyle = "normal", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeMonoFontBold:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeMonoOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "normal", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeMonoFontItalic:Class ;
+    [ Embed ( source = "../../../../../res/fonts/FreeMonoBoldOblique.ttf", fontName = "FreeMono", fontStyle = "italic", fontWeight = "bold", mimeType = "application/x-font", advancedAntiAliasing = "true", embedAsCFF = "false" ) ]
+    public var FreeMonoFontBoldItalic:Class ;
 // If you define more elements above, do not forget to add here:
-    private var embeddedFonts : Array = new Array ( ) ;
+    private var embeddedFonts : Array = new Array ( "FreeSans" , "FreeSerif" , "FreeMono" ) ;
 // This bitmapdata will be drawn onto the backgroundImageShape of Background.
     private var bitmapData : BitmapData = null ;
 // Image object to get images from outside.
@@ -90,22 +90,22 @@ package com . kisscodesystems . KissAs3Fw . prop
     protected var appBoxFrame : String = "" ;
     protected var appBackgroundColorRand : Boolean = false ;
     protected var appBackgroundColorToFont : Boolean = false ;
-    protected var appBackgroundColorDark : Number = 0x000000 ;
-    protected var appBackgroundColorMid : Number = 0x66FFFF ;
-    protected var appBackgroundColorBright : Number = 0x292929 ;
-    protected var appBackgroundColorAlpha : Number =0.33 ;
+    protected var appBackgroundColorDark : Number = 0xC4C4AA ;
+    protected var appBackgroundColorMid : Number = 0xB1B1B4 ;
+    protected var appBackgroundColorBright : Number = 0xDDDDDD ;
+    protected var appBackgroundColorAlpha : Number =0.16 ;
     protected var appBackgroundImage : String = "" ;
     protected var appBackgroundAlign : String = "" ;
     protected var appBackgroundAlpha : Number = 1 ;
-    protected var appBackgroundBlur : int = 6 ;
+    protected var appBackgroundBlur : int = 0 ;
     protected var appBackgroundLive : Boolean = true ;
     protected var appFontFace : String = "FreeSans" ;
     protected var appFontSize : int = 0 ;
     protected var appFontColorRand : Boolean = false ;
     protected var appFontColorToBackground : Boolean = false ;
-    protected var appFontColorBright : Number = 0xD6D6D6 ;
-    protected var appFontColorMid : Number = 0x990000 ;
-    protected var appFontColorDark : Number = 0xFFFFFF ;
+    protected var appFontColorBright : Number = 0x000033 ;
+    protected var appFontColorMid : Number = 0xCCFF00 ;
+    protected var appFontColorDark : Number = 0x6060A1 ;
     protected var appFontBold : Boolean = false ;
     protected var appFontItalic : Boolean = false ;
 // THE OBJECTS ARE FROM THE ABOVES.
