@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<application xmlns="http://ns.adobe.com/air/application/51.2">
+  <id>com.kisscodesystems.KissAs3FwUnitTest</id>
+  <name>KissAs3Fw unit tests</name>
+  <versionNumber>1.0.0</versionNumber>
+  <filename>KissAs3Fw</filename>
+  <initialWindow>
+    <content>ApplicationUnitTest.swf</content>
+    <visible>true</visible>
+    <width>1024</width>
+    <height>768</height>
+  </initialWindow>
+</application>

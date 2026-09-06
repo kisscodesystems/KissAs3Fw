@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The configuration of com.kisscodesystems.KissAs3Fw.config.DynamicsConfig.
+
+  This file holds every configurable value of that class with the value the class
+  itself codes as its default, so it is the full list of the keys that can be used.
+  Deleting a line from here is safe: a key that is missing keeps the default coded
+  into the class, so an empty config element is valid too.
+
+  The key of a value element is the name of the protected variable of that class.
+  A color can be given in the 0xRRGGBB, the #RRGGBB or the plain decimal form, and
+  a boolean can be given as true, false, 1 or 0. A value is taken exactly as it is
+  written, so a leading or a trailing space is kept.
+
+  These are the starting values of the properties the user can change later on the
+  settings panel of the running application, and they are the values of the default
+  displaying style as well: that style displays the embedded background image of this
+  framework, a hundred pixels wide mosaic tile repeated over the whole stage, so the
+  align of it is the mosaic one and the colors here are taken from that very tile.
+
+  The appFontSize is calculated from the stage dimensions while it is 0, so giving
+  it a value here also turns that automatic font size calculation off.
+
+  The appBoxFrame values are the EnumBoxFrames ones and the appBackgroundAlign
+  values are the EnumBackgroundAligns ones. Both of them are text keys, so they are
+  written between brackets here as well: that is the value those enums answer, and a
+  value that does not match one of them is dropped by the dynamics config.
+
+  This is the configuration of the framework itself. An application based on KissAs3Fw
+  keeps its own values in its own xml and binds that xml with a small class extending
+  DynamicsConfig: that class embeds its xml and overrides readValuesFromConfigXml to call
+  the super and then applyConfigXml with it. See ComponentsConfigMusic of KissAs3Mp.
+  So the values of an application live in an xml, only the binding is a class.
+-->
+<config name="DynamicsConfig">
+  <value key="appLineThickness">1</value>
+  <value key="appMargin">12</value>
+  <value key="appPadding">9</value>
+  <value key="appRadius">6</value>
+  <value key="appBoxCorner">9</value>
+  <value key="appBoxFrame">[BOX_FRAME_FULL]</value>
+  <value key="appBackgroundColorRand">false</value>
+  <value key="appBackgroundColorToFont">false</value>
+  <value key="appBackgroundColorDark">0xC7C7C7</value>
+  <value key="appBackgroundColorMid">0x090909</value>
+  <value key="appBackgroundColorBright">0x050505</value>
+  <value key="appBackgroundColorAlpha">0.16</value>
+  <value key="appBackgroundAlign">[BACKGROUND_ALIGN_MOSAIC]</value>
+  <value key="appBackgroundAlpha">1</value>
+  <value key="appBackgroundBlur">0</value>
+  <value key="appBackgroundLive">true</value>
+  <value key="appFontFace">FreeSans</value>
+  <value key="appFontSize">0</value>
+  <value key="appFontColorRand">false</value>
+  <value key="appFontColorToBackground">false</value>
+  <value key="appFontColorBright">0xFEFEFE</value>
+  <value key="appFontColorMid">0xF9F9F9</value>
+  <value key="appFontColorDark">0x373737</value>
+  <value key="appFontBold">false</value>
+  <value key="appFontItalic">false</value>
+</config>

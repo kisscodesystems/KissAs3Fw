@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The configuration of com.kisscodesystems.KissAs3Fw.config.PropertiesConfig.
+
+  This file holds every configurable value of that class with the value the class
+  itself codes as its default, so it is the full list of the keys that can be used.
+  Deleting a line from here is safe: a key that is missing keeps the default coded
+  into the class, so an empty config element is valid too.
+
+  The key of a value element is the name of the protected variable of that class.
+  A color can be given in the 0xRRGGBB, the #RRGGBB or the plain decimal form, and
+  a boolean can be given as true, false, 1 or 0. A value is taken exactly as it is
+  written, so a leading or a trailing space is kept.
+
+  This is the configuration of the framework itself. An application based on KissAs3Fw
+  keeps its own values in its own xml and binds that xml with a small class extending
+  PropertiesConfig: that class embeds its xml and overrides readValuesFromConfigXml to call
+  the super and then applyConfigXml with it. See ComponentsConfigMusic of KissAs3Mp.
+  So the values of an application live in an xml, only the binding is a class.
+-->
+<config name="PropertiesConfig">
+  <value key="applicationName">Application</value>
+  <value key="applicationVersion">3.0</value>
+  <value key="applicationReleaseDate">2026-08-29</value>
+  <value key="deviceIdStoreName">KissAs3FwDeviceId</value>
+  <value key="deviceIdSecret">KissAs3FwDeviceIdSecret</value>
+</config>
