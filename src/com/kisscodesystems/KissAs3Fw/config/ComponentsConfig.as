@@ -166,7 +166,7 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var cameraSoundVolumeIni:int = 50;
     protected var cameraSoundLevelTimerDelay:int = 100;
     protected var videoPlayerBufferTime:Number = 3;
-    protected var videoPlayerTitleTimerDelay:int = 5000;
+    protected var videoPlayerControlsTimerDelay:int = 4000;
     protected var videoPlayerChapterListAlpha:Number = 0.85;
     protected var videoPlayerSoundVolume:int = 85;
     protected var soundPlayerSoundVolume:int = 85;
@@ -369,7 +369,7 @@ package com.kisscodesystems.KissAs3Fw.config
       cameraSoundVolumeIni = values.getInt("cameraSoundVolumeIni", cameraSoundVolumeIni);
       cameraSoundLevelTimerDelay = values.getInt("cameraSoundLevelTimerDelay", cameraSoundLevelTimerDelay);
       videoPlayerBufferTime = values.getNumber("videoPlayerBufferTime", videoPlayerBufferTime);
-      videoPlayerTitleTimerDelay = values.getInt("videoPlayerTitleTimerDelay", videoPlayerTitleTimerDelay);
+      videoPlayerControlsTimerDelay = values.getInt("videoPlayerControlsTimerDelay", videoPlayerControlsTimerDelay);
       videoPlayerChapterListAlpha = values.getNumber("videoPlayerChapterListAlpha", videoPlayerChapterListAlpha);
       videoPlayerSoundVolume = values.getInt("videoPlayerSoundVolume", videoPlayerSoundVolume);
       soundPlayerSoundVolume = values.getInt("soundPlayerSoundVolume", soundPlayerSoundVolume);
@@ -1015,12 +1015,14 @@ package com.kisscodesystems.KissAs3Fw.config
       return videoPlayerBufferTime;
     }
     /**
-     * Returns the milliseconds the name of the chapter stands on the picture of a
-     * fullscreen player before it leaves that picture alone.
+     * Returns the milliseconds the name of the chapter and the controls of a player stand
+     * on the picture of the video before they leave that video alone: a press on that
+     * picture and a move of the mouse over it both start that delay again, so it is the
+     * inactivity the elements of a player disappear after.
      */
-    public function getVideoPlayerTitleTimerDelay():int
+    public function getVideoPlayerControlsTimerDelay():int
     {
-      return videoPlayerTitleTimerDelay;
+      return videoPlayerControlsTimerDelay;
     }
     /**
      * Returns the alpha the background of the list of the chapters of a player is drawn
@@ -1343,7 +1345,7 @@ package com.kisscodesystems.KissAs3Fw.config
       cameraSoundVolumeIni = 0;
       cameraSoundLevelTimerDelay = 0;
       videoPlayerBufferTime = 0;
-      videoPlayerTitleTimerDelay = 0;
+      videoPlayerControlsTimerDelay = 0;
       videoPlayerChapterListAlpha = 0;
       videoPlayerSoundVolume = 0;
       soundPlayerSoundVolume = 0;

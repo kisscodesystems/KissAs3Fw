@@ -15,13 +15,15 @@
  * - the sound type, the sound name and the length values of the loaded sound
  * - a sound type that does not exist leaves the player unplayable
  * - the volume and the muting of the player: that volume belongs to the player alone,
- *   the sound volume of the application is the one of the sound effects
+ *   the sound volume of the application is the one of the sound effects, and the potmeter
+ *   of it carries no frame of its own, because it stands between the icons of the player
  * - the smallest width the player can be laid out in
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.enum.EnumSounds;
+  import com.kisscodesystems.KissAs3Fw.ui.Potmeter;
   import com.kisscodesystems.KissAs3Fw.ui.SoundPlayer;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
@@ -136,6 +138,12 @@ package com.kisscodesystems.KissAs3Fw.suite
       soundPlayer.setSoundMuted(false);
       assertFalse("a second setSoundMuted(false) changes nothing", soundPlayer.isSoundMuted());
       soundPlayer.setSoundVolume(volumeBefore);
+      // the potmeter of the sound stands between the icons of this player, so it carries no
+      // frame of its own: it is a private element of that player, so it is picked out of
+      // the display list of it
+      const soundVolumePotmeter:Potmeter = Potmeter(findElementOfClass(soundPlayer, Potmeter));
+      assertNotNull("the potmeter of the sound stands on this player", soundVolumePotmeter);
+      assertFalse("the potmeter of the sound carries no frame", soundVolumePotmeter.getFrame());
     }
   }
 }

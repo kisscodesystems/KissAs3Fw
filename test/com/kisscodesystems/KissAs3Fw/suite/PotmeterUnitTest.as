@@ -17,6 +17,8 @@
  * - a value out of the range is dropped
  * - the value is rounded to the current decimal precision
  * - the changed event is dispatched on a real change only
+ * - the frame drawn around this component: it can be taken away and given back, and it
+ *   touches no dimension of that component at all
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
@@ -61,6 +63,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEqualsNumber("getMaxValue of a fresh Potmeter", 0, potmeter.getMaxValue());
       assertEqualsNumber("getIncValue of a fresh Potmeter", 0, potmeter.getIncValue());
       assertTrue("a fresh Potmeter is as wide as its label", potmeter.getDw() > 0);
+      assertTrue("a fresh Potmeter carries the frame of the application", potmeter.getFrame());
       // the range is taken and the value can be set inside it
       potmeter.setMinMaxIncValues(0, 10, 1);
       assertEqualsNumber("getMinValue after setMinMaxIncValues(0, 10, 1)", 0, potmeter.getMinValue());
@@ -115,9 +118,36 @@ package com.kisscodesystems.KissAs3Fw.suite
       potmeter.setDwh(500, 500);
       assertEquals("setDw, setDh and setDwh do not change the width", dwBefore, potmeter.getDw());
       assertEquals("setDw, setDh and setDwh do not change the height", dhBefore, potmeter.getDh());
+      runFrameTests(potmeter);
       runBaseSpriteTests(potmeter);
       potmeter.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), potmeterChanged);
       removeTested(potmeter);
+    }
+    /**
+     * Checks the frame drawn around this component: it is taken away and given back, a
+     * second call of the very same state changes nothing, and neither of the two touches
+     * the dimensions of that component: those come from the knob and from the value of it
+     * and not from the frame around them.
+     * @param potmeter the object to be tested
+     */
+    private function runFrameTests(potmeter:Potmeter):void
+    {
+      const dwBefore:int = potmeter.getDw();
+      const dhBefore:int = potmeter.getDh();
+      potmeter.setFrame(false);
+      assertFalse("getFrame after setFrame(false)", potmeter.getFrame());
+      assertEquals("the frame that is taken away leaves the width alone", dwBefore
+        , potmeter.getDw());
+      assertEquals("the frame that is taken away leaves the height alone", dhBefore
+        , potmeter.getDh());
+      potmeter.setFrame(false);
+      assertFalse("a second setFrame(false) changes nothing", potmeter.getFrame());
+      potmeter.setFrame(true);
+      assertTrue("getFrame after setFrame(true)", potmeter.getFrame());
+      potmeter.setFrame(true);
+      assertTrue("a second setFrame(true) changes nothing", potmeter.getFrame());
+      assertEquals("the frame that is back leaves the width alone", dwBefore, potmeter.getDw());
+      assertEquals("the frame that is back leaves the height alone", dhBefore, potmeter.getDh());
     }
     /**
      * Counts the changed events of the tested potmeter.

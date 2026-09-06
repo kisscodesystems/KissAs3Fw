@@ -15,11 +15,15 @@
  * - assertion methods that write their result into the report
  * - the base sprite assertions every visual object has to fulfill
  * - helpers to place the tested object onto the application and to free it
+ * - a helper picking one element out of the display list of a tested object, so that a
+ *   private element of a component can be checked as well
  */
 package com.kisscodesystems.KissAs3Ut
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.base.BaseSprite;
+  import flash.display.DisplayObject;
+  import flash.display.DisplayObjectContainer;
   public class BaseUnitTest
   {
     protected var application:Application = null;
@@ -169,6 +173,35 @@ package com.kisscodesystems.KissAs3Ut
       {
         application.removeChild(baseSprite);
       }
+    }
+    /**
+     * Returns the first element of the given class standing inside the display list of the
+     * given object, a null one when there is no such element at all. The elements of a
+     * component are private ones, so a suite that has to check one of them picks it out of
+     * that display list, and every container standing inside is walked as well, because a
+     * component builds its elements onto surfaces of its own.
+     * @param container the object the display list of which is walked
+     * @param elementClass the class the element to be found is an instance of
+     */
+    protected function findElementOfClass(container:DisplayObjectContainer, elementClass:Class):DisplayObject
+    {
+      for (var i:int = 0; i < container.numChildren; i++)
+      {
+        var child:DisplayObject = container.getChildAt(i);
+        if (child is elementClass)
+        {
+          return child;
+        }
+        if (child is DisplayObjectContainer)
+        {
+          var found:DisplayObject = findElementOfClass(DisplayObjectContainer(child), elementClass);
+          if (found != null)
+          {
+            return found;
+          }
+        }
+      }
+      return null;
     }
     /**
      * Runs the assertions that hold on every base sprite: the coordinates, the stored

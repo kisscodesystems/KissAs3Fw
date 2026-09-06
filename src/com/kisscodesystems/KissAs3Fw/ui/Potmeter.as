@@ -22,6 +22,9 @@
  * - a dragging takes this object above every other element of its parent, so the knob of
  *   it is never covered, and the end of that dragging puts it back onto the very depth it
  *   has come from
+ * - the frame of the current appearance of the application is drawn around it, and that
+ *   frame can be taken away: one standing between the icons of a player carries no frame
+ *   of its own, so nothing but the knob and the value of it is drawn
  */
 package com.kisscodesystems.KissAs3Fw.ui
 {
@@ -38,7 +41,11 @@ package com.kisscodesystems.KissAs3Fw.ui
   public class Potmeter extends BaseSprite
   {
     private var eventChanged:Event = null;
+    // The frame of this object: the shape drawn around the knob and the value of it, and
+    // the state telling whether it is drawn at all. That shape is the background of this
+    // object as well, so an object of no frame draws nothing behind those two either.
     private var background:BaseShape = null;
+    private var frame:Boolean = true;
     private var spriteMover:BaseSprite = null;
     private var textLabel:TextLabel = null;
     private var sprite:BaseSprite = null;
@@ -202,6 +209,32 @@ package com.kisscodesystems.KissAs3Fw.ui
           setCurValue(maxValue);
         }
         updateDisplaying(curValue);
+      }
+    }
+    /**
+     * Tells whether the frame of this object is drawn around it at the moment.
+     */
+    public function getFrame():Boolean
+    {
+      return frame;
+    }
+    /**
+     * Draws the frame of the current appearance of the application around this object, or
+     * takes that frame away: an object standing between the icons of a player carries no
+     * frame of its own, so nothing but the knob and the value of it is drawn there. The
+     * room this object takes comes from that knob and from that value, so a frame that is
+     * taken away changes no dimensions at all.
+     * @param b true when there has to be a frame
+     */
+    public function setFrame(b:Boolean):void
+    {
+      application.trace("<" + this + " Potmeter setFrame> called.", 1);
+      application.trace("<" + this + " Potmeter setFrame> b: " + b, 0);
+      if (frame != b)
+      {
+        application.trace("<" + this + " Potmeter setFrame> conditions OK.", 1);
+        frame = b;
+        redrawBackground();
       }
     }
     /**
@@ -465,7 +498,8 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Redraws the background of this object in the current colors, radius, box and
-     * dimensions.
+     * dimensions, or takes it away when there is no frame to be drawn at all: that
+     * background is the very shape the frame of this object is drawn by.
      * @param e the radius, box or background color changed event of the application,
      * null on a direct call
      */
@@ -473,6 +507,12 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       application.trace("<" + this + " Potmeter redrawBackground> called.", 1);
       application.trace("<" + this + " Potmeter redrawBackground> e: " + e, 0);
+      background.visible = frame;
+      if (!frame)
+      {
+        application.trace("<" + this + " Potmeter redrawBackground> there is no frame to be drawn.", 1);
+        return;
+      }
       const padding:int = application.getDynamicsConfig().getAppPadding();
       const tfh:int = application.getDynamicsConfig().getTextFieldHeight(textLabel.getType());
       background.setColorsAndAlpha(application.getDynamicsConfig().getAppBackgroundColorDark()
@@ -513,6 +553,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       super.destroy();
       eventChanged = null;
       background = null;
+      frame = false;
       spriteMover = null;
       textLabel = null;
       sprite = null;

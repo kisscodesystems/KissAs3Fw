@@ -18,12 +18,17 @@
  *   own, and the player steps from one to the other by the two chapter buttons
  * - a chapter that is over takes the next one right away when the automatic
  *   continuation is switched on, so the whole video is played by one single click
+ * - a chapter that is over with nothing to be continued with closes an opened fullscreen:
+ *   a video of no chapter to follow and one whose continuation is switched off are both
+ *   over for good, so that surface has nothing more to display
  * - the standard player buttons: play, pause, stop, and a seek icon to be dragged:
  *   the two chapter buttons stand at the two ends of the line of the controls and the
  *   four elements of the playing and of the sound stand in the middle of it
  * - the sound of the video is controlled by two of those four elements: a potmeter
  *   carrying the volume between zero and a hundred, and a button muting and unmuting
  *   that sound, so the video is silenced without the volume being dragged away
+ * - that potmeter carries no frame of its own: it stands between the icons of the
+ *   controls, and those icons are drawn onto the video with no frame either
  * - the icon of that button tells what the sound stands on: a muted video carries the
  *   icon of the muting, and an unmuted one the icon of the loudness it plays with, from
  *   the silent speaker up to the loudest one
@@ -36,8 +41,21 @@
  *   stands between them, so a greater font size gives a wider player
  * - a video of one single chapter or of no chapter at all is never stepped, so the two
  *   chapter buttons are not displayed at all in that case
- * - the name of the chapter that is on stands on the top of this player, broken into
- *   as many lines as the width of it asks for
+ * - every control of this player stands on the picture of the video itself: the two rows
+ *   of the controls stand at the bottom of that picture and the two buttons of the picture
+ *   in the two top corners of it, so nothing but the name of the chapter takes a room of
+ *   its own away from the video
+ * - the name of the chapter that is on stands under that picture, on the background of
+ *   this player, broken into as many lines as the width of it asks for: it is the one row
+ *   that is never drawn onto the video, so it is readable while the video is watched
+ * - the controls standing on the picture build one single layer over the video and that
+ *   layer is taken off it after a while: a press on the picture displays it and it
+ *   disappears as soon as neither a press nor a move of the mouse has arrived onto that
+ *   picture for the delay the configuration of the application tells, so nothing covers a
+ *   video that is being watched
+ * - a layer that is being used is never taken off the picture: an open list of the
+ *   chapters and a seek icon that is being dragged both keep it standing there, and a
+ *   press next to the video takes it off right away
  * - the time played so far, the time still to come and the part that has arrived so
  *   far are displayed continuously
  * - the length and the dimensions of a chapter come from the metadata of the file
@@ -46,7 +64,9 @@
  *   so that area is never empty: the stream of it is opened muted and it is paused on
  *   that frame, and the first click goes on with the playing from the very same point
  * - the box the picture is drawn inside is the dimensions this object is given: the
- *   picture is shrunk into that box keeping the aspect ratio it has arrived with
+ *   picture is shrunk into that box keeping the aspect ratio it has arrived with, and
+ *   this object is as low as that picture and the row of the name together, never lower
+ *   than the room the controls standing on the picture need
  * - that box can be resized by hand as well: the handle of the bottom right corner of
  *   the picture is dragged, and the whole player follows that drag in real time
  * - a frame of the current appearance of the application can be drawn around it, and
@@ -62,15 +82,19 @@
  *   to be resized either, so the button of that fullscreen and the handle of the
  *   resizing are not displayed at all in that case, exactly the way the two chapter
  *   buttons and the one of the list of the chapters are not
- * - the name of the chapter stands at the bottom of the picture of that fullscreen for
- *   a while and it leaves the video alone afterwards: the top of that picture is the
- *   room of the button of the fullscreen and of the one of the list of the chapters
+ * - the elements of a fullscreen stand exactly the way they stand around the picture
+ *   drawn inside the box of this player: the controls on that picture and the name of the
+ *   chapter under it, so the very same layer is displayed and taken off the video there
+ * - the name of the chapter of a fullscreen follows the picture of the video: it stands
+ *   under the left edge of it and it is never broken wider than that picture, so it stays
+ *   with the video wherever the stage leaves it standing
  * - it tells the outside by six events whether it has been played or stopped, whether
  *   that has been done by the user or by the application, and whether it stands on
  *   another chapter from now on
  * - the changed one of those six reports every state that is set on this player itself
  *   as well: the volume and the muting of the sound, the opening and the closing of the
- *   fullscreen and the ones of the list of the chapters, so the one holding this player
+ *   fullscreen, the ones of the list of the chapters and the layer of the controls that
+ *   is displayed and taken off the video, so the one holding this player
  *   follows the buttons standing on it the very way it follows its own setters
  * - the volume of it belongs to this player alone: the sound volume of the application
  *   is the one of the sound effects, so it does not touch a player at all
@@ -78,7 +102,7 @@
  * THE PRIVATE CLASSES OF THIS FILE:
  * - VideoPicture: the picture of the video, the stream carrying it and the preview
  *   picture standing in it while nothing is playing
- * - ChapterTitle: the name of the chapter and the timer taking it off a fullscreen
+ * - ChapterTitle: the name of the chapter standing under the picture of the video
  * - ChapterList: the list the chapters can be picked from and the button opening it
  * - SeekBar: the seek icon and the line it travels along, with the part of the chapter
  *   that has arrived so far drawn onto it
@@ -99,6 +123,7 @@ package com.kisscodesystems.KissAs3Fw.ui
   import flash.display.Shape;
   import flash.display.Sprite;
   import flash.events.Event;
+  import flash.events.MouseEvent;
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   public class VideoPlayer extends BaseSprite
@@ -116,6 +141,12 @@ package com.kisscodesystems.KissAs3Fw.ui
     // button of the sound and the potmeter of it. Five of the six carry one icon only, so
     // every one of those is exactly as wide as it is tall.
     private const NUM_OF_CONTROLS:int = 6;
+    // The greatest number of the passes one layout of the fullscreen is performed in: the
+    // room of the picture of the video and the row of the name of the chapter are taken
+    // from each other, so one pass can ask for another one, and a stage too small for the
+    // two of them would ask for one forever. The picture stands in the dimensions of the
+    // last pass from then on, and the next resize of the stage lays it out again.
+    private const NUM_OF_FULLSCREEN_PASSES:int = 4;
     // The chapters of the video: the name, the url and the length of every one of them,
     // and the index of the one that stands in this player at the moment. A length of
     // zero means that the chapter has not been played yet: the metadata of the file is
@@ -151,12 +182,30 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var fullscreenButtonLink:ButtonLink = null;
     private var fullscreenSprite:Sprite = null;
     private var fullscreenBackShape:Shape = null;
+    // The state of the layout of that fullscreen: whether one pass of it is running at the
+    // moment and whether one more has been asked for. The layout sets the width the name of
+    // the chapter is broken along and it reads the height of that name, so it arrives at
+    // itself over the dimensions changed event of the name: these two turn that arrival into
+    // one more pass of the running layout instead of letting it recurse.
+    private var fullscreenLayoutRunning:Boolean = false;
+    private var fullscreenLayoutAgain:Boolean = false;
     // the list of the chapters of the video can be picked from, standing in the corner
     // of the picture opposite the one of the fullscreen, a null when that feature is
     // switched off
     private var chapterListEnabled:Boolean = false;
     private var chapterList:ChapterList = null;
-    // the name of the chapter this player stands on
+    // The layer carrying every element that stands on the picture of the video: the
+    // controls of the player, the two buttons of the picture and the list of the chapters.
+    // It is one single surface, so the whole of it is displayed and taken off that picture
+    // at once, and the timer below is the one taking it off after the inactivity the
+    // configuration of the application tells. The elements are placed in the coordinates of
+    // the surface this layer stands on, so the layer itself is never moved and never
+    // resized: it is the visibility of it alone that is used.
+    private var controlsSprite:BaseSprite = null;
+    private var controlsTimer:Timer = null;
+    // The name of the chapter this player stands on. It stands under the picture of the
+    // video, on the background of this player, so it belongs to no layer that is taken off
+    // that video: a name standing next to the picture never covers it.
     private var chapterTitle:ChapterTitle = null;
     // the buttons, the controls of the sound, the displayed times and the seek bar of the
     // player
@@ -176,6 +225,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     // it, whichever of the two layouts has been performed.
     private var controlsCx:int = 0;
     private var controlsDw:int = 0;
+    private var controlsCy:int = 0;
     // the state of the playing: the seconds played so far and the ones that have arrived
     // over them are displayed by the timer below
     private var progressSecs:int = 0;
@@ -217,13 +267,25 @@ package com.kisscodesystems.KissAs3Fw.ui
       videoPicture.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), videoPictureChanged);
       videoPicture.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_STOPPED_BY_END(), videoPictureEnded);
       videoPicture.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CLEARED(), videoPictureCleared);
+      // the name of the chapter is created in front of the layer of the controls, so it
+      // stands under that layer inside this object as well
+      chapterTitle = new ChapterTitle(application);
+      addChild(chapterTitle);
+      chapterTitle.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), chapterTitleResized);
+      // every control standing on the picture of the video is put onto one single layer, so
+      // the whole of them is displayed and taken off that picture at once
+      controlsSprite = new BaseSprite(application);
+      addChild(controlsSprite);
       prevChapterButtonLink = createPlayerButtonLink(EnumIcons.leftarrow(), prevChapterButtonLinkClicked);
       playButtonLink = createPlayerButtonLink(EnumIcons.playing(), playButtonLinkClicked);
       pausButtonLink = createPlayerButtonLink(EnumIcons.paused(), pausButtonLinkClicked);
       stopButtonLink = createPlayerButtonLink(EnumIcons.stopped(), stopButtonLinkClicked);
       soundButtonLink = createPlayerButtonLink(EnumIcons.soundhigh(), soundButtonLinkClicked);
       soundPotmeter = new Potmeter(application);
-      addChild(soundPotmeter);
+      controlsSprite.addChild(soundPotmeter);
+      // the potmeter of the sound stands between the icons of the controls, on the picture
+      // of the video, so the frame of it is taken away: those icons carry no frame either
+      soundPotmeter.setFrame(false);
       soundPotmeter.setDecimalPrecision(0);
       soundPotmeter.setMinMaxIncValues(SOUND_VOLUME_MIN, SOUND_VOLUME_MAX, SOUND_VOLUME_INC);
       // the volume the potmeter starts with comes from the configuration and not from the
@@ -238,16 +300,13 @@ package com.kisscodesystems.KissAs3Fw.ui
       // the one the smallest width of this player is taken from
       playButtonLink.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), controlResized);
       soundPotmeter.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), controlResized);
-      chapterTitle = new ChapterTitle(application);
-      addChild(chapterTitle);
-      chapterTitle.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), chapterTitleResized);
       seekBar = new SeekBar(application);
-      addChild(seekBar);
+      controlsSprite.addChild(seekBar);
       seekBar.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), seekBarChanged);
       progressTimeTextLabel = new TextLabel(application);
-      addChild(progressTimeTextLabel);
+      controlsSprite.addChild(progressTimeTextLabel);
       remainingTimeTextLabel = new TextLabel(application);
-      addChild(remainingTimeTextLabel);
+      controlsSprite.addChild(remainingTimeTextLabel);
       remainingTimeTextLabel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), reposRemainingTimeTextLabel);
       resetDisplayedTimes();
       displaySound();
@@ -635,6 +694,18 @@ package com.kisscodesystems.KissAs3Fw.ui
       return getMinContentDw() + 2 * getFrameDelta();
     }
     /**
+     * Returns the lowest height this player is ever laid out in: the room the two rows of
+     * the controls need on the picture of the video, one padding of the application over
+     * and under them, the row of the name of the chapter under that picture and the space
+     * the frame around them takes. A name broken into more lines gives a greater height,
+     * exactly the way a greater font size does, and a box lower than this leaves the
+     * picture of the video standing at the top of this height.
+     */
+    public function getMinDh():int
+    {
+      return getMinContentDh() + chapterTitle.getDh() + 2 * getFrameDelta();
+    }
+    /**
      * Tells whether the video of this player can be opened in fullscreen.
      */
     public function getFullscreenEnabled():Boolean
@@ -716,7 +787,6 @@ package com.kisscodesystems.KissAs3Fw.ui
       moveElementsTo(fullscreenSprite);
       stage.addEventListener(Event.RESIZE, stageResized);
       displayFullscreenButtonLinkIcon();
-      displayChapterTitle();
       reposResize();
       dispatchEventChanged();
     }
@@ -759,7 +829,6 @@ package com.kisscodesystems.KissAs3Fw.ui
         spriteToDrop.parent.removeChild(spriteToDrop);
       }
       displayFullscreenButtonLinkIcon();
-      displayChapterTitle();
       reposResize();
       dispatchEventChanged();
     }
@@ -839,6 +908,46 @@ package com.kisscodesystems.KissAs3Fw.ui
       {
         chapterList.close();
       }
+    }
+    /**
+     * Tells whether the controls standing on the picture of the video are displayed at the
+     * moment: the two rows of the controls and the two buttons of that picture build one
+     * single layer, so one single state tells it. The name of the chapter stands under that
+     * picture and never disappears with them.
+     */
+    public function getControlsVisible():Boolean
+    {
+      return controlsSprite.visible;
+    }
+    /**
+     * Displays the layer of those controls over the picture of the video, or takes it off
+     * that picture, and tells the outside about it. That layer is displayed by a press on
+     * the picture as well, and it is taken off it by the inactivity of the mouse over the
+     * video and by a press next to it, so the one holding this player follows every one of
+     * those by the changed event of it. A layer that is taken off the picture closes the
+     * list of the chapters: that list stands on the very same layer, so an open one would
+     * come back with it.
+     * @param b true when that layer has to be displayed
+     */
+    public function setControlsVisible(b:Boolean):void
+    {
+      application.trace("<" + this + " VideoPlayer setControlsVisible> called.", 1);
+      application.trace("<" + this + " VideoPlayer setControlsVisible> b: " + b, 0);
+      if (getControlsVisible() == b)
+      {
+        application.trace("<" + this + " VideoPlayer setControlsVisible> nothing to do.", 1);
+        return;
+      }
+      controlsSprite.visible = b;
+      if (b)
+      {
+        restartControlsTimer();
+      }
+      else
+      {
+        closeChapterList();
+      }
+      dispatchEventChanged();
     }
     /**
      * Starts the playing from the outside and dispatches the played by outside event. A
@@ -985,6 +1094,16 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " VideoPlayer addedToStage> called.", 1);
       application.trace("<" + this + " VideoPlayer addedToStage> e: " + e, 0);
       super.addedToStage(e);
+      if (stage != null)
+      {
+        stage.addEventListener(MouseEvent.MOUSE_DOWN, stageMouseDown, false, 0, true);
+        stage.addEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove, false, 0, true);
+      }
+      // the controls stand on the picture of the video as soon as this player is rendered
+      // and they leave that video alone after a while: a press on the picture is the one
+      // taking them back onto it later
+      setControlsVisible(true);
+      createControlsTimer();
       reposResize();
     }
     /**
@@ -1000,6 +1119,12 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " VideoPlayer removedFromStage> e: " + e, 0);
       closeChapterList();
       closeFullscreen();
+      dropControlsTimer();
+      if (stage != null)
+      {
+        stage.removeEventListener(MouseEvent.MOUSE_DOWN, stageMouseDown);
+        stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove);
+      }
       super.removedFromStage(e);
     }
     /**
@@ -1014,7 +1139,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " VideoPlayer createPlayerButtonLink> icon: " + icon, 0);
       application.trace("<" + this + " VideoPlayer createPlayerButtonLink> clickHandler: " + clickHandler, 0);
       const buttonLink:ButtonLink = new ButtonLink(application);
-      addChild(buttonLink);
+      controlsSprite.addChild(buttonLink);
       buttonLink.setIcon(icon);
       buttonLink.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CLICK(), clickHandler);
       return buttonLink;
@@ -1073,30 +1198,14 @@ package com.kisscodesystems.KissAs3Fw.ui
       displayFullscreenButtonLink();
       displayResizer();
       displayChapterList();
-      displayChapterTitle();
       resetDisplayedTimes();
       displayPlayerState();
       reposResize();
     }
     /**
-     * Displays the name of the chapter this player stands on: the name of an opened
-     * fullscreen stands on the picture of the video itself, so it leaves that video alone
-     * after a while, and the one of a player standing inside its own box takes a room of
-     * its own on the top of it, so it is displayed for good.
-     */
-    private function displayChapterTitle():void
-    {
-      application.trace("<" + this + " VideoPlayer displayChapterTitle> called.", 1);
-      if (isFullscreenOpened())
-      {
-        chapterTitle.displayForAWhile();
-        return;
-      }
-      chapterTitle.displayForGood();
-    }
-    /**
-     * Positions everything again after the name of the chapter has taken new dimensions:
-     * that name is the one the picture of the video and the controls stand under.
+     * Positions everything again after the name of the chapter has taken new dimensions: a
+     * name broken into more lines takes a higher row under the picture of the video, and
+     * the height of this player holds the whole row of that name.
      * @param e the dimensions changed event of that name
      */
     private function chapterTitleResized(e:Event):void
@@ -1306,7 +1415,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     /**
      * Stops the playing at the end of a chapter and dispatches the stopped by end event.
      * The next chapter is taken and started right away when the automatic continuation is
-     * switched on and there is one to be taken at all.
+     * switched on and there is one to be taken at all. A video that can not be continued
+     * closes the fullscreen it has been opened in: there is nothing more to be watched on
+     * that surface, so this player is taken back into the box of its own.
      * @param e the stopped by end event of the picture of the video
      */
     private function videoPictureEnded(e:Event):void
@@ -1319,6 +1430,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       if (!autoContinue || !hasChapterOfIndex(indexToContinue))
       {
         application.trace("<" + this + " VideoPlayer videoPictureEnded> there is no chapter to be continued with.", 1);
+        closeFullscreen();
         return;
       }
       setSelectedChapterIndex(indexToContinue);
@@ -1484,8 +1596,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       dispatchEventChanged();
     }
     /**
-     * Returns the room the buttons and the times of the player take under the picture of
-     * the video: one row of a button and one row of a text under it.
+     * Returns the room the buttons and the times of the player take on the picture of the
+     * video: one row of a button and one row of a text under it.
      */
     private function getControlsDh():int
     {
@@ -1510,14 +1622,25 @@ package com.kisscodesystems.KissAs3Fw.ui
       return Math.max(0, boxSide - 2 * getFrameDelta());
     }
     /**
-     * Returns the width of the line every element of this player stands inside: the room
+     * Returns the width of the room every element of this player stands inside: the room
      * of the box of it, never narrower than the picture of the video itself and never
-     * narrower than the room the controls of the player need either.
+     * narrower than the line the controls of the player are laid out along either.
      */
     private function getContentDw():int
     {
       return Math.max(getMinContentDw()
           , Math.max(getVideoDwToDraw(), getRoom(boxDw)));
+    }
+    /**
+     * Returns the height of the room every element of this player stands inside: the
+     * height the picture of the video is drawn with, never lower than the room the
+     * elements standing on that picture need. The box of the picture is a bound of it and
+     * not a room to be filled, so a box taller than the picture needs leaves this player
+     * exactly as low as that picture is drawn.
+     */
+    private function getContentDh():int
+    {
+      return Math.max(getMinContentDh(), getVideoDhToDraw());
     }
     /**
      * Returns the narrowest line the controls of this player can be laid out along: the six
@@ -1530,6 +1653,41 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       return (NUM_OF_CONTROLS - 1) * playButtonLink.getDh() + soundPotmeter.getDw()
           + (NUM_OF_CONTROLS - 1) * application.getDynamicsConfig().getAppMargin();
+    }
+    /**
+     * Returns the lowest room the picture of the video is drawn inside: the two rows of the
+     * controls standing on that picture, one padding of the application over and under
+     * them. A greater font size gives a greater room, because the rows of the controls
+     * follow it.
+     */
+    private function getMinContentDh():int
+    {
+      return getControlsDh() + 2 * application.getDynamicsConfig().getAppPadding();
+    }
+    /**
+     * Returns the width of the line the name of the chapter and the controls of the player
+     * are laid out along: the width of the picture of the video without one padding of the
+     * application at the two ends of it and without the room of the handle of the resizing,
+     * never narrower than the room the six elements of the first row of the controls need.
+     * The dimensions the picture is really drawn with are the ones read here, so this
+     * answers the line of a fullscreen exactly the way it answers the one drawn inside the
+     * box of this player.
+     */
+    private function getLineDw():int
+    {
+      return Math.max(getMinContentDw(), videoDw - getResizerRoom()
+          - 2 * application.getDynamicsConfig().getAppPadding());
+    }
+    /**
+     * Returns the room the handle of the resizing takes at the end of the line of the
+     * controls: that handle stands in the bottom right corner of the picture of the video,
+     * so the element standing at that end of the line is kept away from it. A player that
+     * carries no handle at all and an opened fullscreen give that room to the controls: the
+     * handle belongs to the box of this player and not to the surface of a fullscreen.
+     */
+    private function getResizerRoom():int
+    {
+      return baseResizer != null && !isFullscreenOpened() ? baseResizer.getDw() : 0;
     }
     /**
      * Returns the width the picture of the video is drawn with: the one it has arrived
@@ -1574,13 +1732,15 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Positions and resizes everything standing on this player, keeping every one of them
-     * one frame delta away from the frame around them: the name of the chapter stands on
-     * the top of it, the picture of the video stands under that name, in the middle of the
-     * line it is given, and the controls of the player stand under that picture. A player
-     * whose video is opened in fullscreen is laid out by the method below instead: the
-     * elements of it stand on the surface of that fullscreen and not on this object, and
-     * the dimensions of this object are left the way they are, so the room it takes inside
-     * the application does not change while the video covers the whole stage.
+     * one frame delta away from the frame around them: the picture of the video is drawn
+     * inside the box of this object, in the middle of the line it is given, the controls of
+     * the player stand on that very picture and the name of the chapter under it. The room
+     * this object takes is the room of the picture and the row of that name, and the
+     * picture is never drawn lower than the controls standing on it need. A player whose
+     * video is opened in fullscreen is laid out by the method below instead: the elements of
+     * it stand on the surface of that fullscreen and not on this object, and the dimensions
+     * of this object are left the way they are, so the room it takes inside the application
+     * does not change while the video covers the whole stage.
      */
     private function reposResize():void
     {
@@ -1591,47 +1751,83 @@ package com.kisscodesystems.KissAs3Fw.ui
         return;
       }
       const delta:int = getFrameDelta();
-      const contentDw:int = getContentDw();
       videoDw = getVideoDwToDraw();
       videoDh = getVideoDhToDraw();
-      // the name of the chapter is the one telling where the picture of the video begins,
-      // so it is placed and broken into lines before everything else
-      chapterTitle.setCxy(delta, delta);
+      const contentDw:int = getContentDw();
+      // the name of the chapter is broken into lines in front of everything else, because
+      // the height of this player holds the whole row of that name
       chapterTitle.setMaxWidth(contentDw);
-      const videoCy:int = chapterTitle.getCy(true);
-      const controlsCy:int = videoCy + videoDh;
-      super.setDwh(contentDw + 2 * delta, controlsCy + getControlsDh() + delta);
+      const contentDh:int = getContentDh();
+      super.setDwh(contentDw + 2 * delta
+          , contentDh + chapterTitle.getDh() + 2 * delta);
       videoPicture.setDwh(videoDw, videoDh);
-      videoPicture.setCxy(delta + int((contentDw - videoDw) / 2), videoCy);
-      reposControls(delta, contentDw, controlsCy);
+      videoPicture.setCxy(delta + int((contentDw - videoDw) / 2), delta);
+      // the name of the chapter stands right under the picture of the video, on the
+      // background of this player: it is the one row that is not drawn onto the video
+      chapterTitle.setCxy(delta, delta + contentDh);
+      reposControlsOnThePicture(delta, delta, contentDw);
       redrawFrameShape();
       reposFullscreenButtonLink();
       reposChapterList();
       reposResizer();
     }
     /**
-     * Positions and resizes everything standing on the surface of the fullscreen: the
-     * picture of the video is drawn in the greatest dimensions it fits the stage in, one
-     * padding of the application away from the edges of it and from the controls standing
-     * at the bottom of that stage, and it is placed into the middle of the room that is
-     * left. The name of the chapter stands at the bottom of that picture itself, so it
-     * takes no room of its own away from the video and it covers neither the button of the
-     * fullscreen nor the one of the list of the chapters: those two stand on the top of
-     * the very same picture. A fullscreen that is not opened at all has nothing to be laid
-     * out.
+     * Lays the surface of the fullscreen out and performs one more pass of that layout as
+     * long as it is asked for, at most as many passes as the constant of them tells. The
+     * room the picture of the video is drawn inside is the stage without the row of the name
+     * of the chapter, and the width that name is broken along is the width of that very
+     * picture, so the two of them are taken from each other: a narrower name takes more
+     * lines, more lines take a higher row, and a higher row leaves a lower picture behind.
+     * The name arrives back here by the dimensions changed event of it, so that pull is a
+     * loop this layout is never let recurse in: a pass arriving while another one is running
+     * only marks that one more is needed, and the running one performs it. A stage that is
+     * shrunk under the room the picture and the name both need is a stage the two of them
+     * never agree on, so the number of the passes is bounded and the picture stands in the
+     * dimensions of the last one from then on.
      */
     private function reposResizeFullscreen():void
     {
       application.trace("<" + this + " VideoPlayer reposResizeFullscreen> called.", 1);
+      if (fullscreenLayoutRunning)
+      {
+        application.trace("<" + this + " VideoPlayer reposResizeFullscreen> one pass is running already, so one more is only marked.", 1);
+        fullscreenLayoutAgain = true;
+        return;
+      }
+      fullscreenLayoutRunning = true;
+      var passes:int = 0;
+      do
+      {
+        fullscreenLayoutAgain = false;
+        reposResizeFullscreenOnePass();
+        passes++;
+      }
+      while (fullscreenLayoutAgain && passes < NUM_OF_FULLSCREEN_PASSES);
+      fullscreenLayoutRunning = false;
+    }
+    /**
+     * Performs one single pass of the layout of the fullscreen: the picture of the video is
+     * drawn in the greatest dimensions it fits the stage in, one padding of the application
+     * away from the edges of it and one row of the name of the chapter left free under it,
+     * and it is placed into the middle of the room that is left. The controls of the player
+     * stand on that picture and the name of the chapter right under it, following the very
+     * edges that picture is drawn between, so the name of a video standing in the middle of
+     * a wide stage stands in the middle of it as well. A fullscreen that is not opened at
+     * all has nothing to be laid out. The method above is the only one calling this: a pass
+     * that breaks the name of the chapter into another number of lines asks that one for
+     * one more pass.
+     */
+    private function reposResizeFullscreenOnePass():void
+    {
+      application.trace("<" + this + " VideoPlayer reposResizeFullscreenOnePass> called.", 1);
       if (!isFullscreenOpened() || stage == null)
       {
-        application.trace("<" + this + " VideoPlayer reposResizeFullscreen> there is no fullscreen to be laid out.", 1);
+        application.trace("<" + this + " VideoPlayer reposResizeFullscreenOnePass> there is no fullscreen to be laid out.", 1);
         return;
       }
       const padding:int = application.getDynamicsConfig().getAppPadding();
       const stageDw:int = stage.stageWidth;
       const stageDh:int = stage.stageHeight;
-      const controlsDh:int = getControlsDh();
       fullscreenBackShape.graphics.clear();
       fullscreenBackShape.graphics.beginFill(0x000000, 1);
       fullscreenBackShape.graphics.drawRect(0, 0, stageDw, stageDh);
@@ -1642,21 +1838,52 @@ package com.kisscodesystems.KissAs3Fw.ui
       const metaDw:int = videoPicture.getMetaDw();
       const metaDh:int = videoPicture.getMetaDh();
       const roomDw:int = Math.max(1, stageDw - 2 * padding);
-      const roomDh:int = Math.max(1, stageDh - controlsDh - 2 * padding);
+      // The name of the chapter takes a row of its own under the picture here as well, so
+      // the room that picture is drawn inside is the stage without that row. The height the
+      // name stands with at this moment is the one reserved here and the width of it comes
+      // from the picture below, so a name that has to be broken into another number of lines
+      // asks the method above for one more pass of this layout.
+      const roomDh:int = Math.max(1, stageDh - chapterTitle.getDh() - 2 * padding);
       const knownMeta:Boolean = metaDw > 0 && metaDh > 0;
       videoDw = knownMeta ? Math.max(1, Math.min(roomDw, int(roomDh * metaDw / metaDh))) : roomDw;
       videoDh = knownMeta ? Math.max(1, int(videoDw * metaDh / metaDw)) : roomDh;
       videoPicture.setDwh(videoDw, videoDh);
       videoPicture.setCxy(padding + int((roomDw - videoDw) / 2)
           , padding + int((roomDh - videoDh) / 2));
-      // the name of the chapter is broken into lines before it is placed, because the
-      // bottom edge of the picture is the one it is measured from
-      chapterTitle.setMaxWidth(Math.max(0, videoDw - 2 * padding));
-      chapterTitle.setCxy(videoPicture.getCx() + padding
-          , videoPicture.getCy(true) - padding - chapterTitle.getDh());
-      reposControls(padding, roomDw, stageDh - controlsDh - padding);
+      // the name of the chapter follows the picture of the video: it stands under the left
+      // edge of it and it is broken into as many lines as the width of that picture asks
+      // for, so it is never wider than the video it belongs to and it never stands next to
+      // it either
+      chapterTitle.setMaxWidth(videoDw);
+      chapterTitle.setCxy(videoPicture.getCx(), videoPicture.getCy(true));
+      reposControlsOnThePicture(padding, padding, roomDw);
       reposFullscreenButtonLink();
       reposChapterList();
+    }
+    /**
+     * Positions the controls of the player onto the picture of the video: the two rows of
+     * them stand at the bottom of that picture, one padding of the application over and
+     * under them. A picture too low to carry them takes them as high as the given room
+     * begins, so they never leave that room, and one narrower than the line of them needs
+     * carries them centered on itself, kept inside that very room: the room of this player
+     * is never narrower than that line.
+     * @param areaCx the x coordinate the room of the picture begins at
+     * @param areaCy the y coordinate that room begins at
+     * @param areaDw the width of that room
+     */
+    private function reposControlsOnThePicture(areaCx:int, areaCy:int, areaDw:int):void
+    {
+      application.trace("<" + this + " VideoPlayer reposControlsOnThePicture> called.", 1);
+      application.trace("<" + this + " VideoPlayer reposControlsOnThePicture> areaCx: " + areaCx, 0);
+      application.trace("<" + this + " VideoPlayer reposControlsOnThePicture> areaCy: " + areaCy, 0);
+      application.trace("<" + this + " VideoPlayer reposControlsOnThePicture> areaDw: " + areaDw, 0);
+      const padding:int = application.getDynamicsConfig().getAppPadding();
+      const lineDw:int = getLineDw();
+      const lineCx:int = Math.max(areaCx, Math.min(videoPicture.getCx()
+          + int((videoDw - lineDw) / 2), areaCx + areaDw - lineDw));
+      const lineCy:int = Math.max(areaCy + padding
+          , videoPicture.getCy(true) - padding - getControlsDh());
+      reposControls(lineCx, lineDw, lineCy);
     }
     /**
      * Positions the controls of the player along the given line: the two chapter buttons
@@ -1677,6 +1904,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " VideoPlayer reposControls> lineCy: " + lineCy, 0);
       controlsCx = lineCx;
       controlsDw = lineDw;
+      controlsCy = lineCy;
       prevChapterButtonLink.setCxy(lineCx, lineCy);
       nextChapterButtonLink.setCxy(lineCx + lineDw - nextChapterButtonLink.getDw(), lineCy);
       reposMiddleControls(lineCy);
@@ -1829,7 +2057,7 @@ package com.kisscodesystems.KissAs3Fw.ui
         return;
       }
       fullscreenButtonLink = new ButtonLink(application);
-      addChild(fullscreenButtonLink);
+      controlsSprite.addChild(fullscreenButtonLink);
       fullscreenButtonLink.setEnabled(getEnabled());
       fullscreenButtonLink.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CLICK(), fullscreenButtonLinkClicked);
       fullscreenButtonLink.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), fullscreenButtonLinkResized);
@@ -1848,9 +2076,9 @@ package com.kisscodesystems.KissAs3Fw.ui
         // so it has to be destroyed and not only dropped: a dropped one would be held by
         // those listeners for the whole life of the application
         fullscreenButtonLink.destroy();
-        if (contains(fullscreenButtonLink))
+        if (fullscreenButtonLink.parent != null)
         {
-          removeChild(fullscreenButtonLink);
+          fullscreenButtonLink.parent.removeChild(fullscreenButtonLink);
         }
         fullscreenButtonLink = null;
       }
@@ -1946,7 +2174,7 @@ package com.kisscodesystems.KissAs3Fw.ui
         return;
       }
       chapterList = new ChapterList(application);
-      addChild(chapterList);
+      controlsSprite.addChild(chapterList);
       chapterList.setEnabled(getEnabled());
       chapterList.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), chapterListChanged);
       chapterList.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_OPENED(), chapterListOpenedOrClosed);
@@ -1992,7 +2220,9 @@ package com.kisscodesystems.KissAs3Fw.ui
      * Places the list of the chapters onto the picture of the video and lays it out from
      * the dimensions that picture is drawn with at the moment, whichever of the two
      * layouts has drawn it. The room of the button of the fullscreen is left free at the
-     * end of it, so the two features of the picture never cover each other.
+     * end of it, so the two features of the picture never cover each other, and the list
+     * is never taller than the room standing over the controls of the player: the names to
+     * be picked and those controls never cover each other either.
      */
     private function reposChapterList():void
     {
@@ -2005,7 +2235,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       const endCx:int = fullscreenButtonLink != null
           ? fullscreenButtonLink.getCx() : videoPicture.getCx(true);
       chapterList.setCxy(videoPicture.getCx(), videoPicture.getCy());
-      chapterList.setDwh(Math.max(0, endCx - videoPicture.getCx()), videoDh);
+      chapterList.setDwh(Math.max(0, endCx - videoPicture.getCx())
+          , Math.max(0, controlsCy - videoPicture.getCy()));
     }
     /**
      * Plays the chapter that has been picked from the list of them: this player steps onto
@@ -2049,40 +2280,145 @@ package com.kisscodesystems.KissAs3Fw.ui
       reposResizeFullscreen();
     }
     /**
-     * Moves every element of the player onto the given surface: the picture of the video,
-     * the buttons, the name of the chapter, the times, the seek bar and the list of the
-     * chapters. They are added in the order they have to stand in, so the name of the
-     * chapter covers the picture and not the other way round, and the frame of this player
-     * is left where it is: it belongs to the box of the picture and not to the video
-     * itself.
-     * @param container the surface every element has to be moved onto
+     * Displays the layer of the controls over the picture of the video on a press on that
+     * picture, and takes it off the video on a press anywhere else: every control of that
+     * layer stands on the picture, so a press next to it means that they are not being used
+     * any more. A press on the picture starts the counting of the inactivity again, whether
+     * that layer has been displayed by it or it has been standing there already.
+     * @param e the mouse down event of the stage
+     */
+    private function stageMouseDown(e:MouseEvent):void
+    {
+      application.trace("<" + this + " VideoPlayer stageMouseDown> called.", 1);
+      application.trace("<" + this + " VideoPlayer stageMouseDown> e: " + e, 0);
+      if (!mouseIsOnThePicture())
+      {
+        application.trace("<" + this + " VideoPlayer stageMouseDown> the press has arrived next to the picture.", 1);
+        setControlsVisible(false);
+        return;
+      }
+      setControlsVisible(true);
+      restartControlsTimer();
+    }
+    /**
+     * Starts the counting of the inactivity again on every move of the mouse over the
+     * picture of the video: a video watched with the layer of the controls on it is one
+     * being used at that very moment. A layer that is not displayed at all is not taken
+     * back by a move of the mouse: it is a press that displays it.
+     * @param e the mouse move event of the stage
+     */
+    private function stageMouseMove(e:MouseEvent):void
+    {
+      application.trace("<" + this + " VideoPlayer stageMouseMove> called.", 0);
+      application.trace("<" + this + " VideoPlayer stageMouseMove> e: " + e, 0);
+      if (getControlsVisible() && mouseIsOnThePicture())
+      {
+        restartControlsTimer();
+      }
+    }
+    /**
+     * Tells whether the mouse stands on the picture of the video at the moment, whichever
+     * of the two layouts has drawn that picture: the coordinates of the picture itself are
+     * the ones read here, so the picture standing on the surface of a fullscreen is
+     * answered exactly the way the one drawn inside the box of this player is. This is
+     * asked on every move of the mouse over the stage, so it logs nothing at all: the lines
+     * of it would flood the logger.
+     */
+    private function mouseIsOnThePicture():Boolean
+    {
+      return videoPicture.mouseX >= 0 && videoPicture.mouseX <= videoPicture.getDw()
+          && videoPicture.mouseY >= 0 && videoPicture.mouseY <= videoPicture.getDh();
+    }
+    /**
+     * Creates the timer taking the layer of the controls off the picture of the video and
+     * starts it: that layer stands on the picture as long as the delay of the configuration
+     * of the application tells, and every press and every move of the mouse over the video
+     * starts that delay again. A player that is not on the stage has nothing to be timed: a
+     * timer of an object nobody sees would only keep that object alive for the whole delay
+     * of it.
+     */
+    private function createControlsTimer():void
+    {
+      application.trace("<" + this + " VideoPlayer createControlsTimer> called.", 1);
+      // the timer of a player that is put back onto the stage is dropped in front of the
+      // new one, so there is one single timer running at any moment
+      dropControlsTimer();
+      if (stage == null)
+      {
+        application.trace("<" + this + " VideoPlayer createControlsTimer> this player is not on the stage, so there is nothing to be timed.", 1);
+        return;
+      }
+      controlsTimer = new Timer(application.getComponentsConfig()
+          .getVideoPlayerControlsTimerDelay(), 1);
+      controlsTimer.addEventListener(TimerEvent.TIMER, controlsTimerHandler);
+      controlsTimer.start();
+    }
+    /**
+     * Starts the counting of the inactivity again: the layer of the controls stands on the
+     * picture of the video for the whole delay of the configuration from this moment on. A
+     * player that is not on the stage holds no timer to be started at all.
+     * This is called on every move of the mouse over the picture, so it logs on the debug
+     * level only: a called line of the calling level would flood the logger.
+     */
+    private function restartControlsTimer():void
+    {
+      application.trace("<" + this + " VideoPlayer restartControlsTimer> called.", 0);
+      if (controlsTimer != null)
+      {
+        controlsTimer.reset();
+        controlsTimer.start();
+      }
+    }
+    /**
+     * Takes the layer of the controls off the picture of the video as soon as neither a
+     * press nor a move of the mouse has arrived onto that picture for the whole delay of
+     * the configuration of the application. A layer that is being used at that very moment
+     * stays where it is and the counting is started again instead: an open list of the
+     * chapters and a seek icon held by the hand are both elements being used.
+     * @param e the timer event of the timer of that layer
+     */
+    private function controlsTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<" + this + " VideoPlayer controlsTimerHandler> called.", 1);
+      application.trace("<" + this + " VideoPlayer controlsTimerHandler> e: " + e, 0);
+      if (isChapterListOpened() || seekBar.isDragged())
+      {
+        application.trace("<" + this + " VideoPlayer controlsTimerHandler> the layer of the controls is being used.", 1);
+        restartControlsTimer();
+        return;
+      }
+      setControlsVisible(false);
+    }
+    /**
+     * Stops and frees up the timer taking the layer of the controls off the picture of the
+     * video.
+     */
+    private function dropControlsTimer():void
+    {
+      application.trace("<" + this + " VideoPlayer dropControlsTimer> called.", 1);
+      if (controlsTimer != null)
+      {
+        controlsTimer.stop();
+        controlsTimer.removeEventListener(TimerEvent.TIMER, controlsTimerHandler);
+        controlsTimer = null;
+      }
+    }
+    /**
+     * Moves the picture of the video, the name of the chapter and the layer of the controls
+     * standing on that picture onto the given surface: every control of the player stands
+     * on that one single layer, so those three objects are the whole of it. They are added
+     * in the order they have to stand in, so the layer covers the picture and not the other
+     * way round, and the frame of this player is left where it is: it belongs to the box of
+     * the picture and not to the video itself.
+     * @param container the surface those three objects have to be moved onto
      */
     private function moveElementsTo(container:DisplayObjectContainer):void
     {
       application.trace("<" + this + " VideoPlayer moveElementsTo> called.", 1);
       application.trace("<" + this + " VideoPlayer moveElementsTo> container: " + container, 0);
       container.addChild(videoPicture);
-      container.addChild(prevChapterButtonLink);
-      container.addChild(playButtonLink);
-      container.addChild(pausButtonLink);
-      container.addChild(stopButtonLink);
-      container.addChild(soundButtonLink);
-      container.addChild(soundPotmeter);
-      container.addChild(nextChapterButtonLink);
       container.addChild(chapterTitle);
-      container.addChild(seekBar);
-      container.addChild(progressTimeTextLabel);
-      container.addChild(remainingTimeTextLabel);
-      if (fullscreenButtonLink != null)
-      {
-        container.addChild(fullscreenButtonLink);
-      }
-      // the list of the chapters covers the picture of the video, so it is the topmost
-      // element of the player
-      if (chapterList != null)
-      {
-        container.addChild(chapterList);
-      }
+      container.addChild(controlsSprite);
     }
     /**
      * Draws the frame of this player in the current colors and radius of the application,
@@ -2185,11 +2521,17 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_BACKGROUND_COLOR_DARK_CHANGED(), appearanceChanged);
       application.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_BACKGROUND_COLOR_MID_CHANGED(), appearanceChanged);
       application.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_BACKGROUND_COLOR_BRIGHT_CHANGED(), appearanceChanged);
+      if (stage != null)
+      {
+        stage.removeEventListener(MouseEvent.MOUSE_DOWN, stageMouseDown);
+        stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove);
+      }
       application.trace("<" + this + " VideoPlayer destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       // the preview picture is switched off in front of the stop below, so that no stream
       // of it is opened while this player is being freed up
       videoPicture.setPreview(false);
       doTheStop();
+      dropControlsTimer();
       // the fullscreen is closed here, so that every element of the player stands on this
       // object again: the super destroy below is the one freeing all of them up
       closeFullscreen();
@@ -2221,8 +2563,12 @@ package com.kisscodesystems.KissAs3Fw.ui
       fullscreenButtonLink = null;
       fullscreenSprite = null;
       fullscreenBackShape = null;
+      fullscreenLayoutRunning = false;
+      fullscreenLayoutAgain = false;
       chapterListEnabled = false;
       chapterList = null;
+      controlsSprite = null;
+      controlsTimer = null;
       chapterTitle = null;
       prevChapterButtonLink = null;
       playButtonLink = null;
@@ -2236,6 +2582,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       seekBar = null;
       controlsCx = 0;
       controlsDw = 0;
+      controlsCy = 0;
       progressSecs = 0;
       bufferSecs = 0;
       timeDisplayingTimer = null;
@@ -2264,13 +2611,11 @@ import flash.events.AsyncErrorEvent;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.NetStatusEvent;
-import flash.events.TimerEvent;
 import flash.geom.Rectangle;
 import flash.media.SoundTransform;
 import flash.media.Video;
 import flash.net.NetConnection;
 import flash.net.NetStream;
-import flash.utils.Timer;
 /**
  * VideoPicture: the picture of the video of one VideoPlayer.
  * It carries the stream of one chapter, the video object the frames of it are drawn on
@@ -3128,15 +3473,15 @@ internal class VideoPicture extends BaseSprite
 }
 /**
  * ChapterTitle: the name of the chapter one VideoPlayer stands on.
- * It carries one label of the name, broken into as many lines as the width it is given
- * asks for, and the timer taking that name off the screen. A name standing inside the box
- * of the player takes a room of its own on the top of it, so it is displayed for good, and
- * the one standing on the picture of a fullscreen leaves that video alone after a while.
+ * It carries one label of that name, broken into as many lines as the width it is given
+ * asks for, and the room this whole surface takes is the room of that label. The name
+ * stands under the picture of the video, on the background of the player, so it covers no
+ * video at all and it belongs to no layer that is taken off one: it is displayed as long as
+ * the player stands on a chapter, and this object holds no timer of its own at all.
  */
 internal class ChapterTitle extends BaseSprite
 {
   private var textLabel:TextLabel = null;
-  private var hidingTimer:Timer = null;
   /**
    * Constructs the ChapterTitle object: creates the label of the name and starts to follow
    * the dimensions of it, because the room this whole surface takes is the room of that
@@ -3184,89 +3529,6 @@ internal class ChapterTitle extends BaseSprite
     textLabel.setMaxWidth(newWidth, true);
   }
   /**
-   * Displays the name of the chapter for good: it stands on the screen until another
-   * chapter is taken, so there is no timer to take it off it.
-   */
-  public function displayForGood():void
-  {
-    application.trace("<" + this + " ChapterTitle displayForGood> called.", 1);
-    dropHidingTimer();
-    displayTheName();
-  }
-  /**
-   * Displays the name of the chapter and starts the timer taking it off the screen: that
-   * name stands on the video for a while and it leaves the picture alone afterwards, so
-   * nothing covers a video that is being watched. A name that is not on the stage at all
-   * is displayed for good: a timer of an object nobody sees would only keep that object
-   * alive for the whole delay of it.
-   */
-  public function displayForAWhile():void
-  {
-    application.trace("<" + this + " ChapterTitle displayForAWhile> called.", 1);
-    // the timer of the name that stands on the screen at the moment is dropped in front of
-    // the new one, so a chapter taken while the name of the previous one is still displayed
-    // never leaves a timer behind: one name is one single timer at any moment
-    dropHidingTimer();
-    displayTheName();
-    if (stage == null)
-    {
-      application.trace("<" + this + " ChapterTitle displayForAWhile> this name is not on the stage, so there is nothing to be timed.", 1);
-      return;
-    }
-    hidingTimer = new Timer(application.getComponentsConfig().getVideoPlayerTitleTimerDelay(), 1);
-    hidingTimer.addEventListener(TimerEvent.TIMER, hidingTimerHandler);
-    hidingTimer.start();
-  }
-  /**
-   * Drops the timer taking this name off the screen as soon as it leaves the stage: there
-   * is nothing to be hidden any more, and a timer that is still running would keep this
-   * object alive for the whole delay of it.
-   * @param e the removed from stage event
-   */
-  override protected function removedFromStage(e:Event):void
-  {
-    application.trace("<" + this + " ChapterTitle removedFromStage> called.", 1);
-    application.trace("<" + this + " ChapterTitle removedFromStage> e: " + e, 0);
-    dropHidingTimer();
-    super.removedFromStage(e);
-  }
-  /**
-   * Displays the name of the chapter. The room of the label is a part of the layout of the
-   * player, so the label itself is the one switched on here and not this whole surface: a
-   * sprite that is switched off drops its own dimensions as well, and the picture of the
-   * video stands under exactly those dimensions.
-   */
-  private function displayTheName():void
-  {
-    application.trace("<" + this + " ChapterTitle displayTheName> called.", 1);
-    textLabel.visible = true;
-  }
-  /**
-   * Takes the name of the chapter off the screen as soon as it has stood there long
-   * enough.
-   * @param e the timer event of the timer of that name
-   */
-  private function hidingTimerHandler(e:TimerEvent):void
-  {
-    application.trace("<" + this + " ChapterTitle hidingTimerHandler> called.", 1);
-    application.trace("<" + this + " ChapterTitle hidingTimerHandler> e: " + e, 0);
-    dropHidingTimer();
-    textLabel.visible = false;
-  }
-  /**
-   * Stops and frees up the timer taking the name of the chapter off the screen.
-   */
-  private function dropHidingTimer():void
-  {
-    application.trace("<" + this + " ChapterTitle dropHidingTimer> called.", 1);
-    if (hidingTimer != null)
-    {
-      hidingTimer.stop();
-      hidingTimer.removeEventListener(TimerEvent.TIMER, hidingTimerHandler);
-      hidingTimer = null;
-    }
-  }
-  /**
    * Takes the dimensions of this surface from the label of the name: the picture of the
    * video and the controls of the player are placed by exactly those dimensions.
    * @param e the dimensions changed event of that label, null on a direct call
@@ -3278,18 +3540,16 @@ internal class ChapterTitle extends BaseSprite
     setDwh(textLabel.getDw(), textLabel.getDh());
   }
   /**
-   * Frees up the timer, the label and every reference held by this name.
+   * Frees up the label and every reference held by this name.
    */
   override public function destroy():void
   {
     application.trace("<" + this + " ChapterTitle destroy> called.", 1);
     application.trace("<" + this + " ChapterTitle destroy> unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher()", 0);
     application.trace("<" + this + " ChapterTitle destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
-    dropHidingTimer();
     application.trace("<" + this + " ChapterTitle destroy> calling the super destroy and clearing everything.", 0);
     super.destroy();
     textLabel = null;
-    hidingTimer = null;
   }
 }
 /**

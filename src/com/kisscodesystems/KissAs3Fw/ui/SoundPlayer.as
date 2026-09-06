@@ -26,6 +26,8 @@
  *   without the volume being dragged away, and the icon of that button tells what the
  *   sound stands on: a muted player carries the icon of the muting, and an unmuted one
  *   the icon of the loudness it plays with
+ * - that potmeter carries no frame of its own: it stands between the icons of this
+ *   player, and those icons are drawn with no frame either
  * - those two are displayed while this player is playing only, the way the stop button
  *   and the seek icon are: a stopped player takes one single row
  * - the volume of it belongs to this player alone: the sound volume of the application
@@ -140,6 +142,9 @@ package com.kisscodesystems.KissAs3Fw.ui
       soundNameTextLabel.setLabel(" ");
       soundVolumePotmeter = new Potmeter(application);
       addChild(soundVolumePotmeter);
+      // the potmeter of the sound stands between the icons of this player, so the frame of
+      // it is taken away: those icons carry no frame of their own either
+      soundVolumePotmeter.setFrame(false);
       soundVolumePotmeter.setDecimalPrecision(0);
       soundVolumePotmeter.setMinMaxIncValues(SOUND_VOLUME_MIN, SOUND_VOLUME_MAX, SOUND_VOLUME_INC);
       // the volume the potmeter starts with comes from the configuration and not from the

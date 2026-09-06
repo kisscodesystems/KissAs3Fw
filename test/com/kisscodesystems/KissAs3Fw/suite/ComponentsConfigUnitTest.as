@@ -216,7 +216,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("the buffer of a video player is not a negative one"
         , config.getVideoPlayerBufferTime() >= 0);
       assertTrue("the title timer of a video player is not a negative one"
-        , config.getVideoPlayerTitleTimerDelay() >= 0);
+        , config.getVideoPlayerControlsTimerDelay() >= 0);
       assertTrue("the alpha of the list of the chapters is an alpha"
         , config.getVideoPlayerChapterListAlpha() >= 0
         && config.getVideoPlayerChapterListAlpha() <= 1);

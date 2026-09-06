@@ -136,7 +136,7 @@
   <value key="cameraPictureNameExtension">.png</value>
   <value key="cameraTakePictureTimerDelay">5000</value>
   <value key="videoPlayerBufferTime">3</value>
-  <value key="videoPlayerTitleTimerDelay">5000</value>
+  <value key="videoPlayerControlsTimerDelay">4000</value>
   <value key="videoPlayerChapterListAlpha">0.85</value>
   <value key="videoPlayerSoundVolume">85</value>
   <value key="watchTimerDelay">1000</value>

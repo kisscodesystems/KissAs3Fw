@@ -17,15 +17,27 @@
  * - the chapter changed event: every step onto another chapter is reported once and a
  *   call that steps nowhere at all is reported by nothing
  * - the box the picture is drawn inside, the resizing of it by hand and the dimensions
- *   this component takes of it
+ *   this component takes of it: the room of this component is the room of the picture and
+ *   the row of the name of the chapter under it, because every control of it stands on
+ *   that very picture
+ * - the layer of those controls: the setter displaying it and taking it off the video, the
+ *   room of this component it never touches, and the list of the chapters that is closed
+ *   together with it
  * - the sound of the video: the volume of it, the range that volume is kept inside and
- *   the muting that leaves that volume exactly where it stands
- * - the smallest width this player can be laid out in: a box narrower than that leaves
- *   this component as wide as its own controls need
+ *   the muting that leaves that volume exactly where it stands, and the potmeter of it
+ *   that carries no frame of its own, because it stands between the icons of the controls
+ * - the smallest width and the lowest height this player can be laid out in: a box
+ *   narrower or lower than those leaves this component as big as its own elements need
  * - the states of the playing: a player is started, paused, continued and stopped here
  * - the preview picture: the switch of it and the box of the picture it leaves alone
  * - the fullscreen of the video: the switch and the states of it, the dimensions of the
  *   picture it draws and the room of this player it leaves the way it has been
+ * - the chapter of a fullscreen that comes to its end: that fullscreen is closed as soon
+ *   as there is nothing to be continued with, and it stays open while the next chapter
+ *   follows on it
+ * - the name of the chapter of a fullscreen follows the picture of the video: it begins
+ *   where that picture begins, it stands right under it and it is never broken wider than
+ *   the video it belongs to
  * - the list of the chapters: the switch and the states of it, the picture that is too
  *   small to hold it and the video that has no chapter to be picked from it
  * - the file of the chapter is a local one that does not exist at all: the states of
@@ -34,10 +46,13 @@
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
+  import com.kisscodesystems.KissAs3Fw.base.BaseSprite;
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
+  import com.kisscodesystems.KissAs3Fw.ui.Potmeter;
   import com.kisscodesystems.KissAs3Fw.ui.VideoPlayer;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.display.DisplayObjectContainer;
   import flash.events.Event;
   public class VideoPlayerUnitTest extends BaseUnitTest
   {
@@ -46,6 +61,11 @@ package com.kisscodesystems.KissAs3Fw.suite
     private const CHAPTER_NAMES:Array = ["The opening", "The middle of it", "The closing"];
     private const CHAPTER_URLS:Array = ["aVideoThatDoesNotExist1.flv"
       , "aVideoThatDoesNotExist2.flv", "aVideoThatDoesNotExist3.flv"];
+    // a name no picture of a video can display in one single line: the one the breaking of
+    // the name into more lines is checked with
+    private const LONG_CHAPTER_NAME:String = "The very long name of a chapter that no"
+      + " picture of a video can ever display in one single line of the text, however wide"
+      + " the stage it is opened in fullscreen on happens to be at that moment";
     // the number of the chapter changed events the tested player has dispatched so far
     private var chapterChangedCount:int = 0;
     /**
@@ -98,6 +118,9 @@ package com.kisscodesystems.KissAs3Fw.suite
         , videoPlayer.getSoundVolume());
       assertFalse("isSoundMuted of a fresh player", videoPlayer.isSoundMuted());
       assertTrue("getMinDw of a fresh player is a positive one", videoPlayer.getMinDw() > 0);
+      assertTrue("getMinDh of a fresh player is a positive one", videoPlayer.getMinDh() > 0);
+      assertTrue("the elements of a rendered player stand on the picture"
+        , videoPlayer.getControlsVisible());
       assertEquals("getBoxDw of a fresh player", 0, videoPlayer.getBoxDw());
       assertEquals("getBoxDh of a fresh player", 0, videoPlayer.getBoxDh());
       assertEquals("getVideoDw of a fresh player", 0, videoPlayer.getVideoDw());
@@ -105,6 +128,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       runChapterTests(videoPlayer);
       runNavigationTests(videoPlayer);
       runDimensionsTests(videoPlayer);
+      runControlsTests(videoPlayer);
       runResizableTests(videoPlayer);
       runPreviewTests(videoPlayer);
       runSoundTests(videoPlayer);
@@ -213,8 +237,9 @@ package com.kisscodesystems.KissAs3Fw.suite
     }
     /**
      * Checks the box the picture is drawn inside: a picture nobody knows the dimensions
-     * of yet fills the whole box, and the height of this object holds the buttons of the
-     * player as well.
+     * of yet fills the whole box, and the height of this object is the height of that
+     * picture and the row of the name of the chapter, never lower than the elements of it
+     * need.
      * @param videoPlayer the object to be tested
      */
     private function runDimensionsTests(videoPlayer:VideoPlayer):void
@@ -233,8 +258,10 @@ package com.kisscodesystems.KissAs3Fw.suite
       videoPlayer.setDwh(1, 1);
       assertEquals("a box narrower than the controls need gives the smallest width"
         , expectedDw(videoPlayer.getMinDw()), videoPlayer.getDw());
-      assertTrue("getDh holds the buttons of the player as well"
+      assertTrue("a box lower than the elements need gives the lowest height"
         , videoPlayer.getDh() > videoPlayer.getVideoDh());
+      assertEquals("that lowest height is the one of the elements standing on the picture"
+        , videoPlayer.getMinDh(), videoPlayer.getDh());
       videoPlayer.setDw(400);
       assertEquals("getBoxDw after setDw", 400, videoPlayer.getBoxDw());
       assertEquals("the picture follows the width of the box", 400, videoPlayer.getVideoDw());
@@ -247,7 +274,50 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getBoxDh of an unbounded player", 0, videoPlayer.getBoxDh());
       assertEquals("there is no picture to be drawn without a box", 0, videoPlayer.getVideoDw());
       assertEquals("there is no picture to be drawn without a box", 0, videoPlayer.getVideoDh());
+      assertEquals("a player of no picture at all is as low as its own elements need"
+        , videoPlayer.getMinDh(), videoPlayer.getDh());
       videoPlayer.setDwh(320, 180);
+    }
+    /**
+     * Checks the layer of the controls standing on the picture of the video: the setter of
+     * it displays that layer and takes it off the video, a second call of the very same
+     * state changes nothing, and a layer that is taken off the picture closes the list of
+     * the chapters standing on it. The room of this component is not touched by that layer:
+     * those controls stand on the picture and the name of the chapter keeps its own row
+     * under that picture either way. The timer of the inactivity fires nothing during a
+     * test run, because the whole suite is executed inside one single frame.
+     * @param videoPlayer the object to be tested
+     */
+    private function runControlsTests(videoPlayer:VideoPlayer):void
+    {
+      const dhBefore:int = videoPlayer.getDh();
+      assertTrue("the name of the chapter takes a row of its own under the video"
+        , dhBefore > videoPlayer.getVideoDh());
+      assertTrue("this player is never lower than its own elements need"
+        , dhBefore >= videoPlayer.getMinDh());
+      videoPlayer.setControlsVisible(false);
+      assertFalse("getControlsVisible after setControlsVisible(false)"
+        , videoPlayer.getControlsVisible());
+      videoPlayer.setControlsVisible(false);
+      assertFalse("a second setControlsVisible(false) changes nothing"
+        , videoPlayer.getControlsVisible());
+      assertEquals("the layer that is taken off the picture leaves the room of this player alone"
+        , dhBefore, videoPlayer.getDh());
+      videoPlayer.setControlsVisible(true);
+      assertTrue("getControlsVisible after setControlsVisible(true)"
+        , videoPlayer.getControlsVisible());
+      videoPlayer.setControlsVisible(true);
+      assertTrue("a second setControlsVisible(true) changes nothing"
+        , videoPlayer.getControlsVisible());
+      // the list of the chapters stands on that very layer, so a layer that is taken off
+      // the picture closes an open list of them
+      videoPlayer.setChapterListEnabled(true);
+      videoPlayer.openChapterList();
+      videoPlayer.setControlsVisible(false);
+      assertFalse("the layer taken off the picture closes the list of the chapters"
+        , videoPlayer.isChapterListOpened());
+      videoPlayer.setChapterListEnabled(false);
+      videoPlayer.setControlsVisible(true);
     }
     /**
      * Checks the handle the box of the picture is resized by hand with: it is created and
@@ -357,6 +427,12 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertFalse("a second setSoundMuted(false) changes nothing", videoPlayer.isSoundMuted());
       assertFalse("the sound of this player starts nothing at all", videoPlayer.isPlaying());
       videoPlayer.setSoundVolume(volumeBefore);
+      // the potmeter of the sound stands between the icons of the controls, on the picture
+      // of the video, so it carries no frame of its own: it is a private element of this
+      // player, so it is picked out of the display list of it
+      const soundPotmeter:Potmeter = Potmeter(findElementOfClass(videoPlayer, Potmeter));
+      assertNotNull("the potmeter of the sound stands on this player", soundPotmeter);
+      assertFalse("the potmeter of the sound carries no frame", soundPotmeter.getFrame());
     }
     /**
      * Checks the frame around this player and the automatic continuation of the chapters.
@@ -437,6 +513,11 @@ package com.kisscodesystems.KissAs3Fw.suite
      */
     private function runFullscreenTests(videoPlayer:VideoPlayer):void
     {
+      // the picture of the video is picked out of this player while it stands inside the
+      // box of it: an opened fullscreen carries that picture on its own surface, so it is
+      // no child of this player any more from that moment on
+      const videoPicture:BaseSprite = BaseSprite(findElementOfClass(videoPlayer, BaseSprite));
+      assertNotNull("the picture of the video stands on this player", videoPicture);
       const dwBefore:int = videoPlayer.getDw();
       const dhBefore:int = videoPlayer.getDh();
       const videoDwBefore:int = videoPlayer.getVideoDw();
@@ -463,6 +544,19 @@ package com.kisscodesystems.KissAs3Fw.suite
         , videoPlayer.getDw());
       assertEquals("an opened fullscreen leaves the height of this player alone", dhBefore
         , videoPlayer.getDh());
+      // the name of the chapter follows the picture of the video on that surface: a video
+      // standing in the middle of a wide stage carries its name in the middle of it as
+      // well. That name is the element standing right over the picture inside the display
+      // list of the surface, see the moveElementsTo of the player.
+      const surface:DisplayObjectContainer = videoPicture.parent;
+      assertNotNull("the surface of the fullscreen carries the picture of the video", surface);
+      const fullscreenTitle:BaseSprite = BaseSprite(surface.getChildAt(surface.getChildIndex(videoPicture) + 1));
+      assertEquals("the name of the chapter begins where the picture begins"
+        , videoPicture.getCx(), fullscreenTitle.getCx());
+      assertEquals("the name of the chapter stands right under the picture"
+        , videoPicture.getCy(true), fullscreenTitle.getCy());
+      assertTrue("the name of the chapter is never wider than the picture"
+        , fullscreenTitle.getDw() <= videoPicture.getDw());
       videoPlayer.closeFullscreen();
       assertFalse("isFullscreenOpened after closeFullscreen", videoPlayer.isFullscreenOpened());
       videoPlayer.closeFullscreen();
@@ -511,6 +605,50 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("the chapters that have arrived can be opened in fullscreen again"
         , videoPlayer.isFullscreenOpened());
       videoPlayer.closeFullscreen();
+      // a chapter that comes to its end on a fullscreen closes that fullscreen when there
+      // is nothing to be continued with: the automatic continuation is switched off here,
+      // so the end of the chapter is the end of the whole video
+      videoPlayer.setSelectedChapterIndex(0);
+      videoPlayer.openFullscreen();
+      assertTrue("the fullscreen stands open before the end of the chapter"
+        , videoPlayer.isFullscreenOpened());
+      endTheChapter(videoPicture);
+      assertFalse("the chapter that has come to its end closes the fullscreen"
+        , videoPlayer.isFullscreenOpened());
+      // a video that goes on with the next chapter keeps that fullscreen open: there is
+      // more to be watched on it
+      videoPlayer.setAutoContinue(true);
+      videoPlayer.setSelectedChapterIndex(0);
+      videoPlayer.openFullscreen();
+      endTheChapter(videoPicture);
+      assertTrue("the fullscreen stays open while there is a chapter to continue with"
+        , videoPlayer.isFullscreenOpened());
+      assertEquals("the player steps onto the chapter that follows", 1
+        , videoPlayer.getSelectedChapterIndex());
+      // the last chapter of the video closes it however that continuation stands: there is
+      // no chapter to be taken any more
+      videoPlayer.setSelectedChapterIndex(videoPlayer.getNumOfChapters() - 1);
+      endTheChapter(videoPicture);
+      assertFalse("the last chapter of the video closes the fullscreen"
+        , videoPlayer.isFullscreenOpened());
+      videoPlayer.setAutoContinue(false);
+      videoPlayer.stop();
+      // a name that is too long for one single line is broken into more of them, and the
+      // room of the picture of the video follows every one of those lines: the layout of a
+      // fullscreen is performed again for a name that has taken another height, so this is
+      // the check of that pass as well
+      videoPlayer.setChapters([LONG_CHAPTER_NAME], [String(CHAPTER_URLS[0])]);
+      videoPlayer.openFullscreen();
+      assertTrue("a fullscreen of a long name is opened as well"
+        , videoPlayer.isFullscreenOpened());
+      assertTrue("the picture of the video is drawn under that name"
+        , videoPlayer.getVideoDh() > 0);
+      assertTrue("the long name is broken inside the picture of the video"
+        , fullscreenTitle.getDw() <= videoPlayer.getVideoDw());
+      assertTrue("the long name is measured and displayed under the picture"
+        , fullscreenTitle.getDh() > 0);
+      videoPlayer.closeFullscreen();
+      videoPlayer.setChapters(CHAPTER_NAMES.concat(), CHAPTER_URLS.concat());
       videoPlayer.setFullscreenEnabled(false);
       // a player that is not on the stage has no fullscreen to be opened at all
       const offStagePlayer:VideoPlayer = new VideoPlayer(application);
@@ -651,6 +789,17 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("there is no chapter to step onto", -1, videoPlayer.getSelectedChapterIndex());
       assertEquals("a player holding no chapter reports no chapter change", countBefore + 1
         , chapterChangedCount);
+    }
+    /**
+     * Reports the end of the chapter that is on to the tested player: the picture of the
+     * video is the one telling it, so that report is dispatched on the very picture of it.
+     * A test run reaches no file at all, so no chapter of such a player ever comes to an
+     * end of its own.
+     * @param videoPicture the picture of the video of the tested player
+     */
+    private function endTheChapter(videoPicture:BaseSprite):void
+    {
+      videoPicture.getBaseEventDispatcher().dispatchEvent(new Event(EnumEvents.EVENT_STOPPED_BY_END()));
     }
     /**
      * Counts the chapter changed events of the tested player.
