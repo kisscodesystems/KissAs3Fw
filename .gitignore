@@ -1,0 +1,10 @@
+# What the test run compiles and writes.
+build
+
+# The locations of the tools and the files of your own computer. Every one of
+# these is asked for once and stored by read_setting.sh, see its header: they
+# belong to one computer only, so they are not a part of this repository.
+.JAVA
+.AIRSDK_HOME
+.KISSAS3FW_SRC
+.LICENSE_FILE

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<labelgroup name="Labels of KissAs3Fw">
+  <labels key="HU">
+    <label lang="EN">Hungarian</label>
+    <label lang="HU">Magyar</label>
+  </labels>
+  <labels key="EN">
+    <label lang="EN">English</label>
+    <label lang="HU">Angol</label>
+  </labels>
+  <labels key="YN_YES">
+    <label lang="EN">Yes</label>
+    <label lang="HU">Igen</label>
+  </labels>
+  <labels key="YN_NO">
+    <label lang="EN">No</label>
+    <label lang="HU">Nem</label>
+  </labels>
+  <labels key="OC_OK">
+    <label lang="EN">Ok</label>
+    <label lang="HU">Ok</label>
+  </labels>
+  <labels key="OC_CANCEL">
+    <label lang="EN">Cancel</label>
+    <label lang="HU">Mégse</label>
+  </labels>
+  <labels key="BACKGROUND_ALIGN_NONE">
+    <label lang="EN">None</label>
+    <label lang="HU">Nincs</label>
+  </labels>
+  <labels key="BACKGROUND_ALIGN_CENTER1">
+    <label lang="EN">Center 1</label>
+    <label lang="HU">Középre 1</label>
+  </labels>
+  <labels key="BACKGROUND_ALIGN_CENTER2">
+    <label lang="EN">Center 2</label>
+    <label lang="HU">Középre 2</label>
+  </labels>
+  <labels key="BACKGROUND_ALIGN_CENTER3">
+    <label lang="EN">Center 3</label>
+    <label lang="HU">Középre 3</label>
+  </labels>
+  <labels key="BACKGROUND_ALIGN_MOSAIC">
+    <label lang="EN">Mosaic</label>
+    <label lang="HU">Mozaik</label>
+  </labels>
+  <labels key="BOX_FRAME_FULL">
+    <label lang="EN">Full</label>
+    <label lang="HU">Teljes</label>
+  </labels>
+  <labels key="BOX_FRAME_HORIZONTAL">
+    <label lang="EN">Horizontal</label>
+    <label lang="HU">Vízszintes</label>
+  </labels>
+  <labels key="BOX_FRAME_VERTICAL">
+    <label lang="EN">Vertical</label>
+    <label lang="HU">Függőleges</label>
+  </labels>
+  <labels key="BOX_FRAME_NONE">
+    <label lang="EN">None</label>
+    <label lang="HU">Nincs</label>
+  </labels>
+  <labels key="TEXT_TYPE_BRIGHT">
+    <label lang="EN">Bright</label>
+    <label lang="HU">Világos</label>
+  </labels>
+  <labels key="TEXT_TYPE_MID">
+    <label lang="EN">Mid</label>
+    <label lang="HU">Közepes</label>
+  </labels>
+  <labels key="TEXT_TYPE_DARK">
+    <label lang="EN">Dark</label>
+    <label lang="HU">Sötét</label>
+  </labels>
+  <labels key="ORIENTATION_MANUAL">
+    <label lang="EN">Manual</label>
+    <label lang="HU">Manuális</label>
+  </labels>
+  <labels key="ORIENTATION_VERTICAL">
+    <label lang="EN">Vertical</label>
+    <label lang="HU">Függőleges</label>
+  </labels>
+  <labels key="ORIENTATION_HORIZONTAL">
+    <label lang="EN">Horizontal</label>
+    <label lang="HU">Vízszintes</label>
+  </labels>
+  <labels key="ORIENTATION_FLOW">
+    <label lang="EN">Flowing</label>
+    <label lang="HU">Tördelt</label>
+  </labels>
+  <labels key="ORIENTATION_DOCK">
+    <label lang="EN">Docked</label>
+    <label lang="HU">Dokkolt</label>
+  </labels>
+  <labels key="WIDGET_MODE_AUTOMATIC">
+    <label lang="EN">Automatic</label>
+    <label lang="HU">Automatikus</label>
+  </labels>
+  <labels key="WIDGET_MODE_DESKTOP">
+    <label lang="EN">Desktop</label>
+    <label lang="HU">Asztali</label>
+  </labels>
+  <labels key="WIDGET_MODE_MOBILE">
+    <label lang="EN">Mobile</label>
+    <label lang="HU">Mobil</label>
+  </labels>
+  <labels key="WATCH_SHOW_SECONDS">
+    <label lang="EN">Show seconds</label>
+    <label lang="HU">Másodperc mutató</label>
+  </labels>
+  <labels key="WATCH_WITHOUT_SECONDS">
+    <label lang="EN">Without seconds</label>
+    <label lang="HU">Másodpercek nélkül</label>
+  </labels>
+  <labels key="DISPLAYING_STYLE_DEFAULT">
+    <label lang="EN">Default</label>
+    <label lang="HU">Alapértelmezett</label>
+  </labels>
+  <labels key="WIDGET_TYPE_GENERAL">
+    <label lang="EN">General widget type</label>
+    <label lang="HU">Általános widget típus</label>
+  </labels>
+  <labels key="WIDGET_HEADER_GENERAL">
+    <label lang="EN">Widget</label>
+    <label lang="HU">Widget</label>
+  </labels>
+  <labels key="LISTS_OF_THE_WIDGETS">
+    <label lang="EN">Jump to here:</label>
+    <label lang="HU">Ugrás ide:</label>
+  </labels>
+  <labels key="LISTS_OF_THE_CONTENTS_TO_MOVE_INTO">
+    <label lang="EN">Move your widget here:</label>
+    <label lang="HU">Widget mozgatása ide:</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_SETTINGS">
+    <label lang="EN">Settings</label>
+    <label lang="HU">Beállítások</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_APPEARANCE">
+    <label lang="EN">Appearance</label>
+    <label lang="HU">Megjelenés</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_LINING">
+    <label lang="EN">Lines and spacing</label>
+    <label lang="HU">Vonalak és térközök</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_COLORING">
+    <label lang="EN">Colors</label>
+    <label lang="HU">Színek</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_IMAGING">
+    <label lang="EN">Background image</label>
+    <label lang="HU">Háttérkép</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_FONTING">
+    <label lang="EN">Fonts</label>
+    <label lang="HU">Betűk</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_ABOUT">
+    <label lang="EN">About the app</label>
+    <label lang="HU">Az alkalmazásról</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_BACK">
+    <label lang="EN">Back</label>
+    <label lang="HU">Vissza</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_DEFAULT_APPEARANCE">
+    <label lang="EN">Back to the default appearance</label>
+    <label lang="HU">Vissza az alapértelmezett megjelenéshez</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_RESET_APPEARANCE">
+    <label lang="EN">Reset the appearance of this style</label>
+    <label lang="HU">A stílus megjelenésének visszaállítása</label>
+  </labels>
+  <labels key="SETTINGS_PANEL_REALLY_DELETE_EXISTING_BGIMAGE">
+    <label lang="EN">
+      If existing, the background image will be deleted.
+      Do you want to proceed?
+    </label>
+    <label lang="HU">
+      Ha létezik, a háttérkép törölve lesz.
+      Folytassuk?
+    </label>
+  </labels>
+  <labels key="SETTING_LANGUAGE">
+    <label lang="EN">Language.</label>
+    <label lang="HU">Nyelv.</label>
+  </labels>
+  <labels key="SETTING_DISPLAYING_STYLE">
+    <label lang="EN">Displaying style.</label>
+    <label lang="HU">Megjelenési stílus.</label>
+  </labels>
+  <labels key="SETTING_NUM_OF_WIDGETCONTAINERS">
+    <label lang="EN">Max desktops.</label>
+    <label lang="HU">Max asztalok.</label>
+  </labels>
+  <labels key="SETTING_REALLY_REDUCE_NUM_OF_WIDGET_CONTAINERS">
+    <label lang="EN">Do you really want to reduce the number of widget containers?</label>
+    <label lang="HU">Tényleg csökkenteni szeretnéd a widget containerek számát?</label>
+  </labels>
+  <labels key="SETTING_CURR_WIDGETCONTAINER">
+    <label lang="EN">Curr desktop.</label>
+    <label lang="HU">Jelen asztal.</label>
+  </labels>
+  <labels key="SETTING_ORIENTATION">
+    <label lang="EN">Orientation of widgets.</label>
+    <label lang="HU">Widget elrendezés.</label>
+  </labels>
+  <labels key="SETTING_WIDGET_MODE">
+    <label lang="EN">Widget mode.</label>
+    <label lang="HU">Widget mód.</label>
+  </labels>
+  <labels key="SETTING_LINE_THICKNESS">
+    <label lang="EN">Line thickness.</label>
+    <label lang="HU">Vonal vastagság.</label>
+  </labels>
+  <labels key="SETTING_MARGIN">
+    <label lang="EN">Margin.</label>
+    <label lang="HU">Margó.</label>
+  </labels>
+  <labels key="SETTING_PADDING">
+    <label lang="EN">Padding.</label>
+    <label lang="HU">Kitöltés.</label>
+  </labels>
+  <labels key="SETTING_RADIUS">
+    <label lang="EN">Radius.</label>
+    <label lang="HU">Sugár.</label>
+  </labels>
+  <labels key="SETTING_BOX_CORNER">
+    <label lang="EN">Box corner.</label>
+    <label lang="HU">Doboz sarok.</label>
+  </labels>
+  <labels key="SETTING_BOX_FRAME">
+    <label lang="EN">Box frame.</label>
+    <label lang="HU">Doboz keret.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLORS">
+    <label lang="EN">Background colors.</label>
+    <label lang="HU">Háttérszínek.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_ALPHA">
+    <label lang="EN">Background color alpha.</label>
+    <label lang="HU">Háttérszín áttetszőség.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_BLUR">
+    <label lang="EN">Background blur.</label>
+    <label lang="HU">Háttér maszatolás.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_ALIGN">
+    <label lang="EN">Background align.</label>
+    <label lang="HU">Háttér igazítás.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_ALPHA">
+    <label lang="EN">Background alpha.</label>
+    <label lang="HU">Háttér áttetszőség.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_LIVE">
+    <label lang="EN">Bg is live.</label>
+    <label lang="HU">A háttér élő.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_FIXED">
+    <label lang="EN">Bg is fixed.</label>
+    <label lang="HU">A háttér fix.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_MOVEMENT">
+    <label lang="EN">Background move.</label>
+    <label lang="HU">Háttér mozgás.</label>
+  </labels>
+  <labels key="SETTING_FONT_FACE">
+    <label lang="EN">Font face.</label>
+    <label lang="HU">Betűtípus.</label>
+  </labels>
+  <labels key="SETTING_FONT_SIZE">
+    <label lang="EN">Font size.</label>
+    <label lang="HU">Betűméret.</label>
+  </labels>
+  <labels key="SETTING_FONT_COLORS">
+    <label lang="EN">Font colors.</label>
+    <label lang="HU">Betűszínek.</label>
+  </labels>
+  <labels key="SETTING_FONT_BOLD">
+    <label lang="EN">Bold fonts.</label>
+    <label lang="HU">Betűvastagság.</label>
+  </labels>
+  <labels key="SETTING_FONT_ITALIC">
+    <label lang="EN">Italic fonts.</label>
+    <label lang="HU">Dőlt betűk.</label>
+  </labels>
+  <labels key="SETTING_FONT_NORMAL">
+    <label lang="EN">Normal fonts.</label>
+    <label lang="HU">Normál betűk.</label>
+  </labels>
+  <labels key="SETTING_FONT_SKEWNESS">
+    <label lang="EN">Font skewness.</label>
+    <label lang="HU">Betűdőlés.</label>
+  </labels>
+  <labels key="SETTING_FONT_THICKNESS">
+    <label lang="EN">Font thickness.</label>
+    <label lang="HU">Betűvastagság.</label>
+  </labels>
+  <labels key="SETTING_SOUND_PLAYING_ON">
+    <label lang="EN">Soundeffects.</label>
+    <label lang="HU">Hangeffektek.</label>
+  </labels>
+  <labels key="SETTING_SOUND_PLAYING_OFF">
+    <label lang="EN">Soundeffects.</label>
+    <label lang="HU">Hangeffektek.</label>
+  </labels>
+  <labels key="SETTING_GET_NEW_FONT_COLORSCHEMA">
+    <label lang="EN">New font colors!</label>
+    <label lang="HU">Új betűszínek!</label>
+  </labels>
+  <labels key="SETTING_GET_NEW_BACKGROUND_COLORSCHEMA">
+    <label lang="EN">New background colors!</label>
+    <label lang="HU">Új háttérszínek!</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_CHANGE">
+    <label lang="EN">Change font.</label>
+    <label lang="HU">Betű változtat.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_CHANGE">
+    <label lang="EN">Change background.</label>
+    <label lang="HU">Háttér változtat.</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_REMAIN">
+    <label lang="EN">Remain font.</label>
+    <label lang="HU">Betű marad.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_REMAIN">
+    <label lang="EN">Remain background.</label>
+    <label lang="HU">Háttér marad.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_TO_FONT">
+    <label lang="EN">Font colors follow.</label>
+    <label lang="HU">Betűszínek követik.</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_TO_BACKGROUND">
+    <label lang="EN">Background colors follow.</label>
+    <label lang="HU">Háttérszínek követik.</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_RANDOMNESS">
+    <label lang="EN">Font color randomness.</label>
+    <label lang="HU">Betűszín véletlenség.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_RANDOMNESS">
+    <label lang="EN">Background randomness.</label>
+    <label lang="HU">Háttérszín véletlenség.</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_RANDOM">
+    <label lang="EN">Random colors.</label>
+    <label lang="HU">Véletlen színek.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_RANDOM">
+    <label lang="EN">Random colors.</label>
+    <label lang="HU">Véletlen színek!</label>
+  </labels>
+  <labels key="SETTING_FONT_COLOR_NORMAL">
+    <label lang="EN">Normal colors.</label>
+    <label lang="HU">Normál színek.</label>
+  </labels>
+  <labels key="SETTING_BACKGROUND_COLOR_NORMAL">
+    <label lang="EN">Normal colors.</label>
+    <label lang="HU">Normál színek.</label>
+  </labels>
+  <labels key="DEFAULT_CONTENT">
+    <label lang="EN">Default content</label>
+    <label lang="HU">Alapértelmezett tartalom</label>
+  </labels>
+  <labels key="ACTIVATE_CAMERA">
+    <label lang="EN">Camera</label>
+    <label lang="HU">Kamera</label>
+  </labels>
+  <labels key="RELEASE_CAMERA">
+    <label lang="EN">Release</label>
+    <label lang="HU">Elenged</label>
+  </labels>
+  <labels key="CAMERA_DEVICE">
+    <label lang="EN">Device:</label>
+    <label lang="HU">Eszköz:</label>
+  </labels>
+  <labels key="CAMERA_MICROPHONE">
+    <label lang="EN">Microphone:</label>
+    <label lang="HU">Mikrofon:</label>
+  </labels>
+  <labels key="CAMERA_RESOLUTION">
+    <label lang="EN">Resolution:</label>
+    <label lang="HU">Felbontás:</label>
+  </labels>
+  <labels key="CAMERA_SIZE">
+    <label lang="EN">Size:</label>
+    <label lang="HU">Méret:</label>
+  </labels>
+  <labels key="CAMERA_FPS">
+    <label lang="EN">Fps:</label>
+    <label lang="HU">Fps:</label>
+  </labels>
+  <labels key="CAMERA_QUALITY">
+    <label lang="EN">Quality:</label>
+    <label lang="HU">Minőség:</label>
+  </labels>
+  <labels key="CAMERA_FILTER">
+    <label lang="EN">Filter:</label>
+    <label lang="HU">Filter:</label>
+  </labels>
+  <labels key="CAMERA_FILTER_COLORS">
+    <label lang="EN">Colors:</label>
+    <label lang="HU">Színek:</label>
+  </labels>
+  <labels key="CAMERA_TAKE_PICTURE">
+    <label lang="EN">Take picture!</label>
+    <label lang="HU">Fényképez!</label>
+  </labels>
+  <labels key="TODAY">
+    <label lang="EN">T</label>
+    <label lang="HU">M</label>
+  </labels>
+  <labels key="RESET">
+    <label lang="EN">Reset</label>
+    <label lang="HU">Visszarendez</label>
+  </labels>
+  <labels key="REGISTER_BUTTON">
+    <label lang="EN">Register</label>
+    <label lang="HU">Regisztrál</label>
+  </labels>
+  <labels key="LOGOUT_BUTTON">
+    <label lang="EN">Logout</label>
+    <label lang="HU">Kilépés</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_CHANGE_SHOULD">
+    <label lang="EN">You should change your password.</label>
+    <label lang="HU">Meg kellene változtatnod a jelszavad.</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_CREATE_SHOULD">
+    <label lang="EN">You should create your new password.</label>
+    <label lang="HU">Új jelszót kellene kreálnod.</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_IMHERE_SHOULD">
+    <label lang="EN">You should verify that you are here.</label>
+    <label lang="HU">Meg kellene erősítened, hogy itt vagy.</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_CHANGE_CAN">
+    <label lang="EN">You can change your password.</label>
+    <label lang="HU">Megváltoztathatod a jelszavad.</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_CREATE_CAN">
+    <label lang="EN">You can create your new password.</label>
+    <label lang="HU">Új jelszót állathatsz be magadnak.</label>
+  </labels>
+  <labels key="PASS_FORM_HEADING_PW_IMHERE_CAN">
+    <label lang="EN">You can verify that you are here.</label>
+    <label lang="HU">Megerősítheted, hogy itt vagy.</label>
+  </labels>
+  <labels key="PASS_FORM_OLD_PASS">
+    <label lang="EN">Password:</label>
+    <label lang="HU">Jelszó:</label>
+  </labels>
+  <labels key="PASS_FORM_NEW_PASS">
+    <label lang="EN">New password:</label>
+    <label lang="HU">Új jelszó:</label>
+  </labels>
+  <labels key="PASS_FORM_CON_PASS">
+    <label lang="EN">Confirmation:</label>
+    <label lang="HU">Megerősítés:</label>
+  </labels>
+  <labels key="ROLE_GUEST">
+    <label lang="EN">Guest</label>
+    <label lang="HU">Vendég</label>
+  </labels>
+  <labels key="WEEKDAY_MONDAY">
+    <label lang="EN">Mon</label>
+    <label lang="HU">Hé</label>
+  </labels>
+  <labels key="WEEKDAY_TUESDAY">
+    <label lang="EN">Tue</label>
+    <label lang="HU">Ke</label>
+  </labels>
+  <labels key="WEEKDAY_WEDNESDAY">
+    <label lang="EN">Wed</label>
+    <label lang="HU">Sze</label>
+  </labels>
+  <labels key="WEEKDAY_THURSDAY">
+    <label lang="EN">Thu</label>
+    <label lang="HU">Csü</label>
+  </labels>
+  <labels key="WEEKDAY_FRIDAY">
+    <label lang="EN">Fri</label>
+    <label lang="HU">Pé</label>
+  </labels>
+  <labels key="WEEKDAY_SATURDAY">
+    <label lang="EN">Sat</label>
+    <label lang="HU">Szo</label>
+  </labels>
+  <labels key="WEEKDAY_SUNDAY">
+    <label lang="EN">Sun</label>
+    <label lang="HU">Va</label>
+  </labels>
+  <labels key="MONTH_JAN">
+    <label lang="EN">Jan</label>
+    <label lang="HU">Jan</label>
+  </labels>
+  <labels key="MONTH_FEB">
+    <label lang="EN">Feb</label>
+    <label lang="HU">Feb</label>
+  </labels>
+  <labels key="MONTH_MAR">
+    <label lang="EN">Mar</label>
+    <label lang="HU">Már</label>
+  </labels>
+  <labels key="MONTH_APR">
+    <label lang="EN">Apr</label>
+    <label lang="HU">Ápr</label>
+  </labels>
+  <labels key="MONTH_MAY">
+    <label lang="EN">May</label>
+    <label lang="HU">Máj</label>
+  </labels>
+  <labels key="MONTH_JUN">
+    <label lang="EN">Jun</label>
+    <label lang="HU">Jún</label>
+  </labels>
+  <labels key="MONTH_JUL">
+    <label lang="EN">Jul</label>
+    <label lang="HU">Júl</label>
+  </labels>
+  <labels key="MONTH_AUG">
+    <label lang="EN">Aug</label>
+    <label lang="HU">Aug</label>
+  </labels>
+  <labels key="MONTH_SEP">
+    <label lang="EN">Sep</label>
+    <label lang="HU">Szep</label>
+  </labels>
+  <labels key="MONTH_OKT">
+    <label lang="EN">Okt</label>
+    <label lang="HU">Okt</label>
+  </labels>
+  <labels key="MONTH_NOV">
+    <label lang="EN">Nov</label>
+    <label lang="HU">Nov</label>
+  </labels>
+  <labels key="MONTH_DEC">
+    <label lang="EN">Dec</label>
+    <label lang="HU">Dec</label>
+  </labels>
+  <labels key="WATCH_TYPE_BASIC">
+    <label lang="EN">Basic</label>
+    <label lang="HU">Alap</label>
+  </labels>
+  <labels key="WATCH_TYPE_DIGITAL">
+    <label lang="EN">Digital</label>
+    <label lang="HU">Digitális</label>
+  </labels>
+  <labels key="WATCH_TYPE_ANALOG">
+    <label lang="EN">Analog</label>
+    <label lang="HU">Analóg</label>
+  </labels>
+  <labels key="WATCH_TYPE_BINARY">
+    <label lang="EN">Binary</label>
+    <label lang="HU">Bináris</label>
+  </labels>
+  <labels key="CLEAR">
+    <label lang="EN">Clear</label>
+    <label lang="HU">Törlés</label>
+  </labels>
+  <labels key="DRAW">
+    <label lang="EN">Draw</label>
+    <label lang="HU">Rajzol</label>
+  </labels>
+  <labels key="RUBBER">
+    <label lang="EN">Rubber</label>
+    <label lang="HU">Radír</label>
+  </labels>
+  <labels key="REALLY_WANT_TO_CLEAR_DRAWN_CONTENT">
+    <label lang="EN">Do you really want to clear the drawn content?</label>
+    <label lang="HU">Tényleg törölni akarod a rajzolt tartalmat?</label>
+  </labels>
+  <labels key="REQUIRED_PERMISSIONS_ALERT">
+    <label lang="EN">
+      This application needs Camera, Storage and Network permissions.
+      Please, check your settings and grant these permissions to this application for proper working. Perhaps, you need to restart your application.
+      </label>
+    <label lang="HU">
+      Ez az akalmazás Kamera, Tárhely és Internet jogosultságokat igényel.
+      Kérlek, nézz rá a beállításokra, és add meg ezeket a jogosultságokat az appnak a megfelelő működéséhez. Elképzelhető hogy újra kell majd indítani az alkalmazást.
+    </label>
+  </labels>
+  <labels key="REQUIRED_ATTACHED_CAMERA_ALERT">
+    <label lang="EN">Camera is not attached, it has to be done before continuing.</label>
+    <label lang="HU">A kamera nincs csatolva, pedig ez kell a folytatáshoz.</label>
+  </labels>
+  <labels key="CAMERA_IS_USABLE_IN_HORIZONTAL">
+    <label lang="EN">The camera is usable only in horizontal sizing of this application.</label>
+    <label lang="HU">A kamera csak az applikácó vízszintes méretezésében használható.</label>
+  </labels>
+  <labels key="MORE">
+    <label lang="EN">More</label>
+    <label lang="HU">Több</label>
+  </labels>
+  <labels key="WIDGET_MENU_INFO">
+    <label lang="EN">Info</label>
+    <label lang="HU">Infó</label>
+  </labels>
+  <labels key="WIDGET_MENU_CONTENT">
+    <label lang="EN">Back to the content</label>
+    <label lang="HU">Vissza a tartalomhoz</label>
+  </labels>
+  <labels key="WIDGET_MENU_MINIMIZE">
+    <label lang="EN">Minimize</label>
+    <label lang="HU">Kicsinyítés</label>
+  </labels>
+  <labels key="WIDGET_MENU_MAXIMIZE">
+    <label lang="EN">Maximize</label>
+    <label lang="HU">Nagyítás</label>
+  </labels>
+  <labels key="WIDGET_MENU_FULLSCREEN">
+    <label lang="EN">Fullscreen</label>
+    <label lang="HU">Teljes méret</label>
+  </labels>
+  <labels key="WIDGET_MENU_FULLSCREENOFF">
+    <label lang="EN">Leave the fullscreen</label>
+    <label lang="HU">Teljes méret vége</label>
+  </labels>
+  <labels key="WIDGET_MENU_PREV">
+    <label lang="EN">Previous widget</label>
+    <label lang="HU">Előző widget</label>
+  </labels>
+  <labels key="WIDGET_MENU_NEXT">
+    <label lang="EN">Next widget</label>
+    <label lang="HU">Következő widget</label>
+  </labels>
+  <labels key="WIDGET_MENU_LIST">
+    <label lang="EN">Widget list</label>
+    <label lang="HU">Widget lista</label>
+  </labels>
+  <labels key="WIDGET_MENU_MOVE">
+    <label lang="EN">Move to another content</label>
+    <label lang="HU">Mozgatás másik tartalomba</label>
+  </labels>
+  <labels key="SEARCH">
+    <label lang="EN">Search</label>
+    <label lang="HU">Keresés</label>
+  </labels>
+  <labels key="COMMON">
+    <label lang="EN">Common</label>
+    <label lang="HU">Gyakori</label>
+  </labels>
+</labelgroup>

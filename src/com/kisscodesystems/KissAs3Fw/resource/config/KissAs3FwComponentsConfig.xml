@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The configuration of com.kisscodesystems.KissAs3Fw.config.ComponentsConfig.
+
+  This file holds every configurable value of that class with the value the class
+  itself codes as its default, so it is the full list of the keys that can be used.
+  Deleting a line from here is safe: a key that is missing keeps the default coded
+  into the class, so an empty config element is valid too.
+
+  The key of a value element is the name of the protected variable of that class.
+  A color can be given in the 0xRRGGBB, the #RRGGBB or the plain decimal form, and
+  a boolean can be given as true, false, 1 or 0. A value is taken exactly as it is
+  written, so a leading or a trailing space is kept.
+
+  The blur filters and the text drop shadow arrays cannot be configured from here,
+  those are coded into the class.
+
+  This is the configuration of the framework itself. An application based on KissAs3Fw
+  keeps its own values in its own xml and binds that xml with a small class extending
+  ComponentsConfig: that class embeds its xml and overrides readValuesFromConfigXml to call
+  the super and then applyConfigXml with it. See ComponentsConfigMusic of KissAs3Mp.
+  So the values of an application live in an xml, only the binding is a class.
+-->
+<config name="ComponentsConfig">
+  <value key="panelMenuEnabled">true</value>
+  <value key="panelSettingsEnabled">true</value>
+  <value key="watchEnabled">true</value>
+  <value key="panelSettingsEnableDesktops">true</value>
+  <value key="panelSettingsEnableOrientation">true</value>
+  <value key="panelSettingsEnableWidgetMode">true</value>
+  <value key="panelSettingsEnableSound">true</value>
+  <value key="panelSettingsEnableAppearance">true</value>
+  <value key="panelSettingsEnableLining">true</value>
+  <value key="panelSettingsEnableColoring">true</value>
+  <value key="panelSettingsEnableImaging">true</value>
+  <value key="panelSettingsEnableFonting">true</value>
+  <value key="panelSettingsEnableDefaultAppearance">true</value>
+  <value key="timeDisplayingTimerDelay">200</value>
+  <value key="drawOtherLineThickness">2</value>
+  <value key="baseListMarkMinAlpha1">0.15</value>
+  <value key="baseListMarkMinAlpha2">0.3</value>
+  <value key="baseListMarkAlpha1Factor">0.16666666666666666</value>
+  <value key="baseListMarkAlpha2Factor">0.3333333333333333</value>
+  <value key="colorSquareLineColor">0x000000</value>
+  <value key="colorSquareLineAlphaMouseOut">0.2</value>
+  <value key="colorSquareLineAlphaMouseOver">1</value>
+  <value key="colorToCalcComplementer">16777215</value>
+  <value key="widgetSizeFromFontSizeFactor">0.8</value>
+  <value key="disabledAlpha">0.5</value>
+  <value key="appSizeMinWidth">300</value>
+  <value key="appSizeMinHeight">300</value>
+  <value key="scrollSizeMinWidth">80</value>
+  <value key="scrollSizeMinHeight">60</value>
+  <value key="weightBackgroundPicture">9</value>
+  <value key="weightScrollContent">9</value>
+  <value key="widgetsElementsFix">3</value>
+  <value key="widgetsMargin">42</value>
+  <value key="widgetSizeStandardWidth">400</value>
+  <value key="widgetSizeStandardHeight">300</value>
+  <value key="widgetSizeMinWidth">200</value>
+  <value key="widgetSizeMinHeight">150</value>
+  <value key="widgetEnableManualHide">true</value>
+  <value key="widgetEnableManualResize">true</value>
+  <value key="widgetEnableManualClose">true</value>
+  <value key="resizeMargin">12</value>
+  <value key="fontSizeFactorMobile">0.05263157894736842</value>
+  <value key="fontSizeFactorDesktop">0.014492753623188406</value>
+  <value key="isDesktop">true</value>
+  <value key="lineAlpha">1</value>
+  <value key="lineColor2">0xaaaaaa</value>
+  <value key="lineColor1">0x111111</value>
+  <value key="brightColor2">0x222222</value>
+  <value key="pixelHinting">true</value>
+  <value key="gradientAlpha1">0.4</value>
+  <value key="gradientAlpha2">0.3</value>
+  <value key="gradientRatio1">0</value>
+  <value key="gradientRatio2">255</value>
+  <value key="linearRatio1">85</value>
+  <value key="linearRatio2">255</value>
+  <value key="lineRatio1">0</value>
+  <value key="lineRatio2">255</value>
+  <value key="focalPointRatio">0.7</value>
+  <value key="liveBackgroundMargin">60</value>
+  <value key="backgroundImageMaxSize">2560</value>
+  <value key="maxBlur">10</value>
+  <value key="baseMinw">0</value>
+  <value key="baseMinh">0</value>
+  <value key="textsMinSize">50</value>
+  <value key="langSetterMaxElements">5</value>
+  <value key="wheelDeltaPixels">30</value>
+  <value key="buttonDrawMovePrevNextScale">0.7</value>
+  <value key="maxNumOfWidgetcontainers">5</value>
+  <value key="minFontSize">12</value>
+  <value key="maxFontSize">72</value>
+  <value key="regexpStrFilename">^[a-zA-Z0-9_\-]{1,200}\.[a-zA-Z0-9]{3,4}$</value>
+  <value key="fileBrowseMaxElements">7</value>
+  <value key="autoCompleteMaxElements">6</value>
+  <value key="datePanelAlphaMouseOver">0.3</value>
+  <value key="datePanelAlphaMouseDown">0.6</value>
+  <value key="datePanelDateFormat">yyyy-MM-dd</value>
+  <value key="datePanelDateTimeFormat">yyyy-MM-dd HH:mm</value>
+  <value key="datePanelDateTimeSecFormat">yyyy-MM-dd HH:mm:ss</value>
+  <value key="inputTimerDelay">666</value>
+  <value key="emptyHtmlParagraph">&lt;p&gt;&amp;nbsp;&lt;/p&gt;</value>
+  <value key="boardBackgroundColor">DDDDDD</value>
+  <value key="boardLineColor">111111</value>
+  <value key="boardPadding">6</value>
+  <value key="boardLineThickness">2</value>
+  <value key="boardLineMinThickness">1</value>
+  <value key="boardLineMaxThickness">10</value>
+  <value key="boardLineIncThickness">1</value>
+  <value key="boardRubberThicknessFactor">5</value>
+  <value key="boardChangedTimerDelay">1111</value>
+  <value key="raterNumOfStars">5</value>
+  <value key="cameraWidthMin">480</value>
+  <value key="cameraWidthMax">1280</value>
+  <value key="cameraWidthInc">160</value>
+  <value key="cameraWidthIni">640</value>
+  <value key="cameraFpsMin">10</value>
+  <value key="cameraFpsMax">42</value>
+  <value key="cameraFpsIni">24</value>
+  <value key="cameraQualityMin">42</value>
+  <value key="cameraQualityMax">100</value>
+  <value key="cameraQualityIni">100</value>
+  <value key="cameraBlurMin">0</value>
+  <value key="cameraBlurMax">16</value>
+  <value key="cameraBlurInc">1</value>
+  <value key="cameraChannelMin">0</value>
+  <value key="cameraChannelMax">2</value>
+  <value key="cameraChannelAlphaMax">1</value>
+  <value key="cameraChannelIni">1</value>
+  <value key="cameraChannelInc">0.01</value>
+  <value key="cameraChannelPrecision">2</value>
+  <value key="cameraDevicesMaxElements">5</value>
+  <value key="cameraPictureNamePrefix">Cam</value>
+  <value key="cameraPictureNameExtension">.png</value>
+  <value key="cameraTakePictureTimerDelay">5000</value>
+  <value key="videoPlayerBufferTime">3</value>
+  <value key="videoPlayerControlsTimerDelay">4000</value>
+  <value key="videoPlayerChapterListAlpha">0.85</value>
+  <value key="videoPlayerSoundVolume">85</value>
+  <value key="watchTimerDelay">1000</value>
+  <value key="activeServersTimerDelay">180000</value>
+  <value key="shortTextLimit">142</value>
+  <value key="shortTextEnding">...</value>
+  <value key="minTextInputAlpha">0.15</value>
+  <value key="clickGap">5</value>
+  <value key="tracerBgalpha">0.5</value>
+  <value key="tracerAttrDelim">&amp;</value>
+  <value key="tracerAttrMargin">   | </value>
+  <value key="tracerFilterMinChars">0</value>
+  <value key="tracerFilterMaxChars">100</value>
+  <value key="tracerFilterRestrict">a-zA-Z0-9áíűőüöúóéÁÍŰŐÜÖÚÓÉ</value>
+  <value key="tracerPauseLabelYes">Logging</value>
+  <value key="tracerPauseLabelNo">Paused</value>
+  <value key="tracerPauseIconYes">playing</value>
+  <value key="tracerPauseIconNo">paused</value>
+  <value key="tracerClearLabel">Clear</value>
+  <value key="tracerClearIcon">cancel</value>
+  <value key="tracerTracerLabel">Tracer</value>
+  <value key="tracerTraceMaxLength">1000</value>
+  <value key="tracerTracerIcon">settings</value>
+  <value key="tracerLineNumDelim">: </value>
+  <value key="tracerNetworkAttrDelim">&gt;</value>
+  <value key="colorRgbInputZeros">000000</value>
+  <value key="colorHexToNumberString">0x</value>
+  <value key="textBrightDarkChangeBound">64</value>
+  <value key="textFieldMaxKeys">99</value>
+</config>
