@@ -20,8 +20,8 @@
 -->
 <config name="PropertiesConfig">
   <value key="applicationName">Application</value>
-  <value key="applicationVersion">3.0</value>
-  <value key="applicationReleaseDate">2026-08-29</value>
+  <value key="applicationVersion">2.1</value>
+  <value key="applicationReleaseDate">2026-09-08</value>
   <value key="deviceIdStoreName">KissAs3FwDeviceId</value>
   <value key="deviceIdSecret">KissAs3FwDeviceIdSecret</value>
 </config>
