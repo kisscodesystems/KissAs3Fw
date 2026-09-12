@@ -139,6 +139,18 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("getAppFontItalic after setAppFontItalic", config.getAppFontItalic());
       config.setAppFontBold(false);
       config.setAppFontItalic(false);
+      // the framework asks for a calculated font size, so a fresh instance keeps the zero
+      // marker of that calculation and the texts of it take the size of the stage
+      assertEquals("getAppFontSize of a fresh instance", 0, config.getAppFontSize());
+      assertEquals("the size of the texts of a fresh instance is the one of the stage"
+        , application.calcFontSizeFromStageSize(), int(config.getTextFormatBright().size));
+      // and the running application follows every size of its stage: this framework asks
+      // for a calculated font size, so the texts of it stand on the calculated one here
+      assertEquals("getAppFontSize of the running application", 0
+        , application.getDynamicsConfig().getAppFontSize());
+      assertEquals("the size of the texts of the running application is the one of its stage"
+        , application.calcFontSizeFromStageSize()
+        , int(application.getDynamicsConfig().getTextFormatBright().size));
       // the size of the font drives the height of a text field, so that one follows it
       config.setAppFontSize(16);
       assertEquals("getAppFontSize after setAppFontSize", 16, config.getAppFontSize());
@@ -151,6 +163,13 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("a text field of the size 32 is taller than one of the size 16"
         , config.getTextFieldHeight(EnumTextTypes.TEXT_TYPE_BRIGHT()) > heightOfSize16);
       assertEquals("getAppFontSize is not changed by setAllFontSizes", 16, config.getAppFontSize());
+      // the zero font size is the marker of the calculated one: it is kept as it is, and
+      // the texts take the size belonging to the current size of the stage again
+      config.setAppFontSize(0);
+      assertEquals("getAppFontSize after setAppFontSize with a zero", 0, config.getAppFontSize());
+      assertEquals("the size of the texts of a zero font size is the one of the stage"
+        , application.calcFontSizeFromStageSize(), int(config.getTextFormatBright().size));
+      config.setAppFontSize(16);
       // every text type has a height and a correction of its own
       assertTrue("the height of a bright text field is a positive one"
         , config.getTextFieldHeight(EnumTextTypes.TEXT_TYPE_BRIGHT()) > 0);

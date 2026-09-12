@@ -38,8 +38,8 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var application:Application = null;
     private const applicationId:String = generateRandomBytes(1024).toString();
     protected var applicationName:String = "Application";
-    protected var applicationVersion:String = "2.0";
-    protected var applicationReleaseDate:String = "2026-09-07";
+    protected var applicationVersion:String = "2.1";
+    protected var applicationReleaseDate:String = "2026-09-08";
     protected var applicationSoftwareHomepageTxt:Array = new Array();
     protected var applicationSoftwareHomepageUrl:Array = new Array();
     // The name the identifier of the device is kept under, in the shared object and in

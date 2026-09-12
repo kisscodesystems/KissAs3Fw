@@ -485,12 +485,30 @@ package com.kisscodesystems.KissAs3Fw
       return size;
     }
     /**
+     * Returns the font size every text of this application is displayed with: the
+     * configured one, or the one calculated of the current size of the stage when this
+     * application asks for a calculated font size with a zero.
+     */
+    public function getFontSizeInUse():int
+    {
+      application.trace("<Application getFontSizeInUse> called.", 1);
+      const configured:int = getDynamicsConfig().getAppFontSize();
+      const size:int = configured == 0 ? calcFontSizeFromStageSize() : configured;
+      application.trace("<Application getFontSizeInUse> size: " + size, 0);
+      return size;
+    }
+    /**
      * Gives every text of this application the font size belonging to the current size
      * of the stage. It does nothing when the font size is a fixed one.
      */
     public function setFontSizeFromStage():void
     {
       application.trace("<Application setFontSizeFromStage> called.", 1);
+      if (getDynamicsConfig() == null)
+      {
+        application.trace("<Application setFontSizeFromStage> there is no displayed property to set yet.", 0);
+        return;
+      }
       if (getDynamicsConfig().getAppFontSize() != 0)
       {
         application.trace("<Application setFontSizeFromStage> the font size is a fixed one.", 0);
@@ -785,6 +803,8 @@ package com.kisscodesystems.KissAs3Fw
      * that happens when the one using the application drags the corner of the window: it
      * always happens, and an application that does not follow it keeps the height it was
      * started with, one title bar taller than the room it really has.
+     * The font size of an application asking for a calculated one belongs to the size of
+     * the stage, so the new size of it brings a new font size as well.
      * @param e the resize event of the stage
      */
     protected function stageResized(e:Event):void
@@ -792,6 +812,7 @@ package com.kisscodesystems.KissAs3Fw
       application.trace("<Application stageResized> called.", 1);
       application.trace("<Application stageResized> e: " + e, 0);
       setSizeFromStageSize();
+      setFontSizeFromStage();
     }
     /**
      * Gives this application and every layer of it the current size of the stage, kept
@@ -820,7 +841,10 @@ package com.kisscodesystems.KissAs3Fw
       }
     }
     /**
-     * Prepares the stage of this application and takes the size of it.
+     * Prepares the stage of this application and takes the size of it. The font size
+     * belonging to that size is calculated here as well: the configuration of this
+     * application has been read while there was no stage to calculate one of yet, so
+     * this is the first moment the real font size of it can be told.
      * @param e the added to stage event
      */
     override protected function addedToStage(e:Event):void
@@ -832,6 +856,7 @@ package com.kisscodesystems.KissAs3Fw
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
+      setFontSizeFromStage();
     }
     /**
      * Drops the listener of the resizing of the stage.

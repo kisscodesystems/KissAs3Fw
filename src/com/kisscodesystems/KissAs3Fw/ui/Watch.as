@@ -747,11 +747,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       application.trace("<" + this + " Watch calcWidthHeightPositions> called.", 1);
       const padding:int = application.getDynamicsConfig().getAppPadding();
-      var size:int = application.getDynamicsConfig().getAppFontSize();
-      if (size == 0)
-      {
-        size = application.calcFontSizeFromStageSize();
-      }
+      const size:int = application.getFontSizeInUse();
       if (size < 31)
       {
         digitThickness = 3;

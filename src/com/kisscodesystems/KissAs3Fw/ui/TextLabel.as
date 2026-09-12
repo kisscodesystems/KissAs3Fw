@@ -280,7 +280,7 @@ package com.kisscodesystems.KissAs3Fw.ui
      */
     private function getIconMargin():int
     {
-      return Math.max(2, application.getDynamicsConfig().getAppLineThickness(), int(application.getDynamicsConfig().getAppFontSize() / 5));
+      return Math.max(2, application.getDynamicsConfig().getAppLineThickness(), int(application.getFontSizeInUse() / 5));
     }
     /**
      * Returns the size the leading icon or emoji of this label has to be drawn in: the

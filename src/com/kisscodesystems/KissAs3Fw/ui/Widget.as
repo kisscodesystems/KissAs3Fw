@@ -918,11 +918,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Widget setIniSizes> called.", 1);
       const factor:Number = application.getComponentsConfig().getWidgetSizeFromFontSizeFactor();
       const origFontSize:int = 16;
-      var currFontSize:int = application.getDynamicsConfig().getAppFontSize();
-      if (currFontSize == 0)
-      {
-        currFontSize = application.calcFontSizeFromStageSize();
-      }
+      const currFontSize:int = application.getFontSizeInUse();
       if (application.getDynamicsConfig().weAreInDesktopMode())
       {
         const iniSizeWidthModified:int = currFontSize / origFontSize * factor * iniSizeWidth;
@@ -1553,6 +1549,10 @@ package com.kisscodesystems.KissAs3Fw.ui
      * filling the whole content it stands in has nothing to move and nothing to resize, so
      * both of them hand their presses over: that is how the widgets are scrolled by
      * dragging the header of any one of them.
+     * The mover of a widget standing in a mobile mode is the one exception: it keeps its
+     * presses and does nothing with them at all. That widget is not moved by its header,
+     * and the container it stands in is not scrolled either, so there is nothing that
+     * press could be handed over to.
      * This is called by the setting of the dimensions of every mode and not by the widget
      * mode changed event of the application: an automatic widget mode follows the shape of
      * the application, so it changes without that event as well.
@@ -1561,9 +1561,12 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       application.trace("<" + this + " Widget refreshPressesOfMoverAndResizer> called.", 1);
       const handsOver:Boolean = isFillingTheWholeContent();
+      const desktopMode:Boolean = application.getDynamicsConfig().weAreInDesktopMode();
+      application.trace("<" + this + " Widget refreshPressesOfMoverAndResizer> handsOver: " + handsOver, 0);
+      application.trace("<" + this + " Widget refreshPressesOfMoverAndResizer> desktopMode: " + desktopMode, 0);
       if (widgetMover != null)
       {
-        widgetMover.mouseDownForScrollingEnabled = handsOver;
+        widgetMover.mouseDownForScrollingEnabled = handsOver && desktopMode;
       }
       if (widgetResizer != null)
       {
@@ -2032,8 +2035,10 @@ internal class WidgetGrabber extends WidgetPart
  * WidgetMover: the invisible press area covering the header of one widget, that widget is
  * dragged by it. It reports the dragging of the widget as soon as it has really been moved,
  * so a click on the header of a standing widget is not a dragging of it. A widget filling
- * the whole content it stands in is not moved at all, so the press that happens on it is
- * handed over to the scrolling of that content instead.
+ * the whole content it stands in is not moved at all: the press that happens on the header
+ * of a widget standing in fullscreen is handed over to the scrolling of that content, and
+ * the one that happens on the header of a widget of a mobile mode is dropped, because
+ * neither that widget nor the container of it is moved by such a press at all.
  */
 internal class WidgetMover extends WidgetGrabber
 {

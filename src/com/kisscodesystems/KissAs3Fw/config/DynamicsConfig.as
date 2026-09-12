@@ -263,16 +263,14 @@ package com.kisscodesystems.KissAs3Fw.config
     protected function iniDefaultFace(fontSizeFromStage:Boolean = true):void
     {
       application.trace("<" + this + " DynamicsConfig iniDefaultFace> called.", 1);
-      var size:int = 14;
-      if (fontSizeFromStage)
-      {
-        size = application.calcFontSizeFromStageSize();
-        appFontSize = size;
-      }
-      else
-      {
-        size = appFontSize;
-      }
+      application.trace("<" + this + " DynamicsConfig iniDefaultFace> fontSizeFromStage: " + fontSizeFromStage, 0);
+      // a zero font size is the marker of the calculated one, so it is kept as it is: only
+      // the text formats below take the size calculated of the current size of the stage,
+      // and the application follows every later size of that stage through the
+      // setFontSizeFromStage of it. An application configured with a real font size keeps
+      // that very one, there is nothing to calculate for it.
+      const size:int = fontSizeFromStage ? application.calcFontSizeFromStageSize() : appFontSize;
+      application.trace("<" + this + " DynamicsConfig iniDefaultFace> size: " + size, 0);
       appDisplayingStyles[currentDisplayingStyle] = new Array();
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appLineThickness()] = appLineThickness;
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appMargin()] = appMargin;
@@ -292,7 +290,7 @@ package com.kisscodesystems.KissAs3Fw.config
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appBackgroundBlur()] = appBackgroundBlur;
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appBackgroundLive()] = appBackgroundLive;
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontFace()] = appFontFace;
-      appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontSize()] = size;
+      appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontSize()] = appFontSize;
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontColorBright()] = application.getUtils().colorToString(appFontColorBright);
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontColorMid()] = application.getUtils().colorToString(appFontColorMid);
       appDisplayingStyles[currentDisplayingStyle][EnumAppDisplayedProperties.appFontColorDark()] = application.getUtils().colorToString(appFontColorDark);
