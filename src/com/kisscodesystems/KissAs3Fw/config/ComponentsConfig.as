@@ -181,7 +181,7 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var shortTextLimit:int = 142;
     protected var shortTextEnding:String = "...";
     protected var minTextInputAlpha:Number = 0.15;
-    protected var clickGap:int = 5;
+    protected var clickGap:int = 7;
     protected var tracerBgalpha:Number = 0.5;
     protected var tracerAttrDelim:String = "&";
     protected var tracerAttrMargin:String = "   | ";

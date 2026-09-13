@@ -46,6 +46,7 @@ package com.kisscodesystems.KissAs3Fw.app
   import com.kisscodesystems.KissAs3Fw.ui.Potmeter;
   import com.kisscodesystems.KissAs3Fw.ui.Switcher;
   import com.kisscodesystems.KissAs3Fw.ui.TextLabel;
+  import flash.display.DisplayObject;
   import flash.events.Event;
   public class PanelSettings extends BasePanel
   {
@@ -210,6 +211,14 @@ package com.kisscodesystems.KissAs3Fw.app
     private var defaultAppearanceLinkOBJ:ButtonLink = null;
     private var resetAppearanceLinkOBJ:ButtonLink = null;
     private var backLinksARR:Array = null;
+    // the silent placeholder standing in the first row of every content of this panel
+    private var placeholdersARR:Array = null;
+    // The width of one of those placeholders. Only the height of them matters, so this is
+    // kept as narrow as it can be: a placeholder stands in the left column of its own
+    // content, and a column is as wide as the widest cell of it, so a placeholder taking
+    // the whole width of the content would push the column of the elements next to it out
+    // of sight and make the very sideways scrolling worse that it is here to help with.
+    private const placeholderDW:int = 10;
     /**
      * Constructs the panel of the settings with every element standing on it.
      * @param applicationRef the main application reference
@@ -227,6 +236,7 @@ package com.kisscodesystems.KissAs3Fw.app
       currWidgetcontainerARR = new Array();
       homepageLinksARR = new Array();
       backLinksARR = new Array();
+      placeholdersARR = new Array();
       createElements();
       application.trace("<" + this + " PanelSettings> constructed.", 1);
     }
@@ -340,7 +350,7 @@ package com.kisscodesystems.KissAs3Fw.app
       if (contentMultiple != null && indexImaging > -1 && baseSprite != null)
       {
         userBgHandler = baseSprite;
-        contentMultiple.addToContent(indexImaging, baseSprite, 3);
+        addToPanelContent(indexImaging, baseSprite, 3);
       }
     }
     /**
@@ -469,6 +479,7 @@ package com.kisscodesystems.KissAs3Fw.app
       if (getDw() != newdw)
       {
         super.setDw(newdw);
+        resizePlaceholders();
         resizeListPickers();
         appBackgroundColorsOBJSizesChanged(null);
         appFontColorsOBJSizesChanged(null);
@@ -488,6 +499,7 @@ package com.kisscodesystems.KissAs3Fw.app
       if (getDw() != newdw || getDh() != newdh)
       {
         super.setDwh(newdw, newdh);
+        resizePlaceholders();
         resizeListPickers();
         appBackgroundColorsOBJSizesChanged(null);
         appFontColorsOBJSizesChanged(null);
@@ -508,6 +520,7 @@ package com.kisscodesystems.KissAs3Fw.app
       createImagingElements();
       createFontingElements();
       displayEveryCurrentValue();
+      resizePlaceholders();
       resizeListPickers();
       appBackgroundAlignLABResized(null);
       // the listeners are registered at the very end on purpose: the values displayed
@@ -561,6 +574,16 @@ package com.kisscodesystems.KissAs3Fw.app
       contentMultiple.setElementsFix(indexColoring, 1);
       contentMultiple.setElementsFix(indexImaging, 1);
       contentMultiple.setElementsFix(indexFonting, 1);
+      // the placeholders come before every other element and after the elementsFix above:
+      // each of them takes the whole first row of its own content, and the width of that
+      // row is what the elementsFix tells
+      createPlaceholder(indexSettings);
+      createPlaceholder(indexAppearance);
+      createPlaceholder(indexAbout);
+      createPlaceholder(indexLining);
+      createPlaceholder(indexColoring);
+      createPlaceholder(indexImaging);
+      createPlaceholder(indexFonting);
       contentMultiple.setActiveIndex(indexSettings);
     }
     /**
@@ -578,7 +601,7 @@ package com.kisscodesystems.KissAs3Fw.app
       langCodeLAB = createLabel(indexSettings, curr, EnumTextKeys.SETTING_LANGUAGE());
       curr++;
       langCodeOBJ = new LangSetter(application);
-      contentMultiple.addToContent(indexSettings, langCodeOBJ, curr);
+      addToPanelContent(indexSettings, langCodeOBJ, curr);
       curr++;
       // the number of the widget containers and the active one of them go together: one
       // container of the two is meaningless without the other
@@ -587,7 +610,7 @@ package com.kisscodesystems.KissAs3Fw.app
         numOfWidgetcontainersLAB = createLabel(indexSettings, curr, EnumTextKeys.SETTING_NUM_OF_WIDGETCONTAINERS());
         curr++;
         numOfWidgetcontainersOBJ = new ListPicker(application);
-        contentMultiple.addToContent(indexSettings, numOfWidgetcontainersOBJ, curr);
+        addToPanelContent(indexSettings, numOfWidgetcontainersOBJ, curr);
         curr++;
         numOfWidgetcontainersOBJ.setNumOfElements(listPickerCNT);
         numOfWidgetcontainersOBJ.setArrays(numOfWidgetcontainersARR, numOfWidgetcontainersARR);
@@ -595,7 +618,7 @@ package com.kisscodesystems.KissAs3Fw.app
         currWidgetcontainerLAB = createLabel(indexSettings, curr, EnumTextKeys.SETTING_CURR_WIDGETCONTAINER());
         curr++;
         currWidgetcontainerOBJ = new ListPicker(application);
-        contentMultiple.addToContent(indexSettings, currWidgetcontainerOBJ, curr);
+        addToPanelContent(indexSettings, currWidgetcontainerOBJ, curr);
         curr++;
         currWidgetcontainerOBJ.setNumOfElements(listPickerCNT);
         setArraysCurrWidgetcontainerOBJ();
@@ -606,7 +629,7 @@ package com.kisscodesystems.KissAs3Fw.app
         appOrientationLAB = createLabel(indexSettings, curr, EnumTextKeys.SETTING_ORIENTATION());
         curr++;
         appOrientationOBJ = new ListPicker(application);
-        contentMultiple.addToContent(indexSettings, appOrientationOBJ, curr);
+        addToPanelContent(indexSettings, appOrientationOBJ, curr);
         curr++;
         appOrientationOBJ.setNumOfElements(listPickerCNT);
         appOrientationOBJ.setArrays(application.getLabelManager().getKeysOrientations()
@@ -617,7 +640,7 @@ package com.kisscodesystems.KissAs3Fw.app
         appWidgetModeLAB = createLabel(indexSettings, curr, EnumTextKeys.SETTING_WIDGET_MODE());
         curr++;
         appWidgetModeOBJ = new ListPicker(application);
-        contentMultiple.addToContent(indexSettings, appWidgetModeOBJ, curr);
+        addToPanelContent(indexSettings, appWidgetModeOBJ, curr);
         curr++;
         appWidgetModeOBJ.setNumOfElements(application.getLabelManager().getKeysWidgetModes().length);
         appWidgetModeOBJ.setArrays(application.getLabelManager().getKeysWidgetModes()
@@ -630,11 +653,11 @@ package com.kisscodesystems.KissAs3Fw.app
         // the switcher of the sound carries the name of its own row, so it stands in the
         // column of the names, and the volume of that sound takes the place of an element
         appSoundPlayingOBJ = new Switcher(application);
-        contentMultiple.addToContent(indexSettings, appSoundPlayingOBJ, curr);
+        addToPanelContent(indexSettings, appSoundPlayingOBJ, curr);
         curr++;
         appSoundPlayingOBJ.setLabels(EnumTextKeys.SETTING_SOUND_PLAYING_ON(), EnumTextKeys.SETTING_SOUND_PLAYING_OFF());
         appSoundVolumeOBJ = new Potmeter(application);
-        contentMultiple.addToContent(indexSettings, appSoundVolumeOBJ, curr);
+        addToPanelContent(indexSettings, appSoundVolumeOBJ, curr);
         appSoundVolumeOBJ.setMinMaxIncValues(appSoundVolumeMIN, appSoundVolumeMAX, appSoundVolumeINC);
       }
     }
@@ -708,27 +731,27 @@ package com.kisscodesystems.KissAs3Fw.app
       createBackLink(indexLining);
       appLineThicknessLAB = createLabel(indexLining, 2, EnumTextKeys.SETTING_LINE_THICKNESS());
       appLineThicknessOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexLining, appLineThicknessOBJ, 3);
+      addToPanelContent(indexLining, appLineThicknessOBJ, 3);
       appLineThicknessOBJ.setMinMaxIncValues(appLineThicknessMIN, appLineThicknessMAX, appLineThicknessINC);
       appMarginLAB = createLabel(indexLining, 4, EnumTextKeys.SETTING_MARGIN());
       appMarginOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexLining, appMarginOBJ, 5);
+      addToPanelContent(indexLining, appMarginOBJ, 5);
       appMarginOBJ.setMinMaxIncValues(appMarginMIN, appMarginMAX, appMarginINC);
       appPaddingLAB = createLabel(indexLining, 6, EnumTextKeys.SETTING_PADDING());
       appPaddingOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexLining, appPaddingOBJ, 7);
+      addToPanelContent(indexLining, appPaddingOBJ, 7);
       appPaddingOBJ.setMinMaxIncValues(appPaddingMIN, appPaddingMAX, appPaddingINC);
       appRadiusLAB = createLabel(indexLining, 8, EnumTextKeys.SETTING_RADIUS());
       appRadiusOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexLining, appRadiusOBJ, 9);
+      addToPanelContent(indexLining, appRadiusOBJ, 9);
       appRadiusOBJ.setMinMaxIncValues(appRadiusMIN, appRadiusMAX, appRadiusINC);
       appBoxCornerLAB = createLabel(indexLining, 10, EnumTextKeys.SETTING_BOX_CORNER());
       appBoxCornerOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexLining, appBoxCornerOBJ, 11);
+      addToPanelContent(indexLining, appBoxCornerOBJ, 11);
       appBoxCornerOBJ.setMinMaxIncValues(appBoxCornerMIN, appBoxCornerMAX, appBoxCornerINC);
       appBoxFrameLAB = createLabel(indexLining, 12, EnumTextKeys.SETTING_BOX_FRAME());
       appBoxFrameOBJ = new ListPicker(application);
-      contentMultiple.addToContent(indexLining, appBoxFrameOBJ, 13);
+      addToPanelContent(indexLining, appBoxFrameOBJ, 13);
       appBoxFrameOBJ.setNumOfElements(application.getLabelManager().getKeysBoxFrames().length);
       appBoxFrameOBJ.setArrays(application.getLabelManager().getKeysBoxFrames()
           , application.getLabelManager().getKeysBoxFrames());
@@ -750,33 +773,33 @@ package com.kisscodesystems.KissAs3Fw.app
       createBackLink(indexColoring);
       displayingStyleLAB = createLabel(indexColoring, 2, EnumTextKeys.SETTING_DISPLAYING_STYLE());
       displayingStyleOBJ = new ListPicker(application);
-      contentMultiple.addToContent(indexColoring, displayingStyleOBJ, 3);
+      addToPanelContent(indexColoring, displayingStyleOBJ, 3);
       displayingStyleOBJ.setNumOfElements(listPickerCNT);
       updateDisplayingStyles();
       appBackgroundColorsLAB = createLabel(indexColoring, 4, EnumTextKeys.SETTING_BACKGROUND_COLORS());
       // the three color pickers share one cell, so they stand next to each other
       appBackgroundColorBrightOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorBrightOBJ, 5);
+      addToPanelContent(indexColoring, appBackgroundColorBrightOBJ, 5);
       appBackgroundColorMidOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorMidOBJ, 5);
+      addToPanelContent(indexColoring, appBackgroundColorMidOBJ, 5);
       appBackgroundColorDarkOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorDarkOBJ, 5);
+      addToPanelContent(indexColoring, appBackgroundColorDarkOBJ, 5);
       appBackgroundColorAlphaLAB = createLabel(indexColoring, 6, EnumTextKeys.SETTING_BACKGROUND_COLOR_ALPHA());
       appBackgroundColorAlphaOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorAlphaOBJ, 7);
+      addToPanelContent(indexColoring, appBackgroundColorAlphaOBJ, 7);
       appBackgroundColorAlphaOBJ.setMinMaxIncValues(appBackgroundColorAlphaMIN, appBackgroundColorAlphaMAX, appBackgroundColorAlphaINC);
       appBackgroundColorRandLAB = createLabel(indexColoring, 8, EnumTextKeys.SETTING_BACKGROUND_COLOR_RANDOMNESS());
       appBackgroundColorRandOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorRandOBJ, 9);
+      addToPanelContent(indexColoring, appBackgroundColorRandOBJ, 9);
       appBackgroundColorRandOBJ.setLabels(EnumTextKeys.SETTING_BACKGROUND_COLOR_RANDOM()
           , EnumTextKeys.SETTING_BACKGROUND_COLOR_NORMAL());
       appBackgroundColorToFontLAB = createLabel(indexColoring, 10, EnumTextKeys.SETTING_BACKGROUND_COLOR_TO_FONT());
       appBackgroundColorToFontOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorToFontOBJ, 11);
+      addToPanelContent(indexColoring, appBackgroundColorToFontOBJ, 11);
       appBackgroundColorToFontOBJ.setLabels(EnumTextKeys.SETTING_FONT_COLOR_CHANGE()
           , EnumTextKeys.SETTING_FONT_COLOR_REMAIN());
       appBackgroundColorGetNewSchema = new ButtonLink(application);
-      contentMultiple.addToContent(indexColoring, appBackgroundColorGetNewSchema, 12);
+      addToPanelContent(indexColoring, appBackgroundColorGetNewSchema, 12);
       appBackgroundColorGetNewSchema.setLabel(EnumTextKeys.SETTING_GET_NEW_BACKGROUND_COLORSCHEMA());
     }
     /**
@@ -797,25 +820,25 @@ package com.kisscodesystems.KissAs3Fw.app
       }
       createBackLink(indexImaging);
       appBackgroundImageVAL = new TextLabel(application);
-      contentMultiple.addToContent(indexImaging, appBackgroundImageVAL, 2);
+      addToPanelContent(indexImaging, appBackgroundImageVAL, 2);
       appBackgroundImageVAL.setType(EnumTextTypes.TEXT_TYPE_MID());
       appBackgroundAlignLAB = createLabel(indexImaging, 6, EnumTextKeys.SETTING_BACKGROUND_ALIGN());
       appBackgroundAlignOBJ = new ListPicker(application);
-      contentMultiple.addToContent(indexImaging, appBackgroundAlignOBJ, 7);
+      addToPanelContent(indexImaging, appBackgroundAlignOBJ, 7);
       appBackgroundAlignOBJ.setNumOfElements(listPickerCNT);
       appBackgroundAlignOBJ.setArrays(application.getLabelManager().getKeysBgImageAligns()
           , application.getLabelManager().getKeysBgImageAligns());
       appBackgroundAlphaLAB = createLabel(indexImaging, 8, EnumTextKeys.SETTING_BACKGROUND_ALPHA());
       appBackgroundAlphaOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexImaging, appBackgroundAlphaOBJ, 9);
+      addToPanelContent(indexImaging, appBackgroundAlphaOBJ, 9);
       appBackgroundAlphaOBJ.setMinMaxIncValues(appBackgroundAlphaMIN, appBackgroundAlphaMAX, appBackgroundAlphaINC);
       appBackgroundBlurLAB = createLabel(indexImaging, 10, EnumTextKeys.SETTING_BACKGROUND_BLUR());
       appBackgroundBlurOBJ = new Potmeter(application);
-      contentMultiple.addToContent(indexImaging, appBackgroundBlurOBJ, 11);
+      addToPanelContent(indexImaging, appBackgroundBlurOBJ, 11);
       appBackgroundBlurOBJ.setMinMaxIncValues(appBackgroundBlurMIN, appBackgroundBlurMAX, appBackgroundBlurINC);
       appBackgroundLiveLAB = createLabel(indexImaging, 12, EnumTextKeys.SETTING_BACKGROUND_MOVEMENT());
       appBackgroundLiveOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexImaging, appBackgroundLiveOBJ, 13);
+      addToPanelContent(indexImaging, appBackgroundLiveOBJ, 13);
       appBackgroundLiveOBJ.setLabels(EnumTextKeys.SETTING_BACKGROUND_LIVE(), EnumTextKeys.SETTING_BACKGROUND_FIXED());
     }
     /**
@@ -834,41 +857,41 @@ package com.kisscodesystems.KissAs3Fw.app
       createBackLink(indexFonting);
       appFontFaceLAB = createLabel(indexFonting, 2, EnumTextKeys.SETTING_FONT_FACE());
       appFontFaceOBJ = new ListPicker(application);
-      contentMultiple.addToContent(indexFonting, appFontFaceOBJ, 3);
+      addToPanelContent(indexFonting, appFontFaceOBJ, 3);
       appFontFaceOBJ.setNumOfElements(listPickerCNT);
       updateFontFaces();
       appFontSizeLAB = createLabel(indexFonting, 4, EnumTextKeys.SETTING_FONT_SIZE());
       appFontSizeOBJ = new ListPicker(application);
-      contentMultiple.addToContent(indexFonting, appFontSizeOBJ, 5);
+      addToPanelContent(indexFonting, appFontSizeOBJ, 5);
       appFontSizeOBJ.setNumOfElements(listPickerCNT);
       appFontSizeOBJ.setArrays(application.getFontManager().getFontSizes(), application.getFontManager().getFontSizes());
       appFontColorsLAB = createLabel(indexFonting, 6, EnumTextKeys.SETTING_FONT_COLORS());
       // the three color pickers share one cell, so they stand next to each other
       appFontColorBrightOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexFonting, appFontColorBrightOBJ, 7);
+      addToPanelContent(indexFonting, appFontColorBrightOBJ, 7);
       appFontColorMidOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexFonting, appFontColorMidOBJ, 7);
+      addToPanelContent(indexFonting, appFontColorMidOBJ, 7);
       appFontColorDarkOBJ = new ColorPicker(application);
-      contentMultiple.addToContent(indexFonting, appFontColorDarkOBJ, 7);
+      addToPanelContent(indexFonting, appFontColorDarkOBJ, 7);
       appFontBoldLAB = createLabel(indexFonting, 8, EnumTextKeys.SETTING_FONT_THICKNESS());
       appFontBoldOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexFonting, appFontBoldOBJ, 9);
+      addToPanelContent(indexFonting, appFontBoldOBJ, 9);
       appFontBoldOBJ.setLabels(EnumTextKeys.SETTING_FONT_BOLD(), EnumTextKeys.SETTING_FONT_NORMAL());
       appFontItalicLAB = createLabel(indexFonting, 10, EnumTextKeys.SETTING_FONT_SKEWNESS());
       appFontItalicOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexFonting, appFontItalicOBJ, 11);
+      addToPanelContent(indexFonting, appFontItalicOBJ, 11);
       appFontItalicOBJ.setLabels(EnumTextKeys.SETTING_FONT_ITALIC(), EnumTextKeys.SETTING_FONT_NORMAL());
       appFontColorRandLAB = createLabel(indexFonting, 12, EnumTextKeys.SETTING_FONT_COLOR_RANDOMNESS());
       appFontColorRandOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexFonting, appFontColorRandOBJ, 13);
+      addToPanelContent(indexFonting, appFontColorRandOBJ, 13);
       appFontColorRandOBJ.setLabels(EnumTextKeys.SETTING_FONT_COLOR_RANDOM(), EnumTextKeys.SETTING_FONT_COLOR_NORMAL());
       appFontColorToBackgroundLAB = createLabel(indexFonting, 14, EnumTextKeys.SETTING_FONT_COLOR_TO_BACKGROUND());
       appFontColorToBackgroundOBJ = new Switcher(application);
-      contentMultiple.addToContent(indexFonting, appFontColorToBackgroundOBJ, 15);
+      addToPanelContent(indexFonting, appFontColorToBackgroundOBJ, 15);
       appFontColorToBackgroundOBJ.setLabels(EnumTextKeys.SETTING_BACKGROUND_COLOR_CHANGE()
           , EnumTextKeys.SETTING_BACKGROUND_COLOR_REMAIN());
       appFontColorGetNewSchema = new ButtonLink(application);
-      contentMultiple.addToContent(indexFonting, appFontColorGetNewSchema, 16);
+      addToPanelContent(indexFonting, appFontColorGetNewSchema, 16);
       appFontColorGetNewSchema.setLabel(EnumTextKeys.SETTING_GET_NEW_FONT_COLORSCHEMA());
     }
     /**
@@ -878,20 +901,20 @@ package com.kisscodesystems.KissAs3Fw.app
     {
       application.trace("<" + this + " PanelSettings createAboutElements> called.", 1);
       applicationNameLAB = new TextLabel(application);
-      contentMultiple.addToContent(indexAbout, applicationNameLAB, 0);
+      addToPanelContent(indexAbout, applicationNameLAB, 0);
       applicationNameLAB.setType(EnumTextTypes.TEXT_TYPE_BRIGHT());
       applicationVersionLAB = new TextLabel(application);
-      contentMultiple.addToContent(indexAbout, applicationVersionLAB, 1);
+      addToPanelContent(indexAbout, applicationVersionLAB, 1);
       applicationVersionLAB.setType(EnumTextTypes.TEXT_TYPE_MID());
       applicationReleaseDateLAB = new TextLabel(application);
-      contentMultiple.addToContent(indexAbout, applicationReleaseDateLAB, 2);
+      addToPanelContent(indexAbout, applicationReleaseDateLAB, 2);
       applicationReleaseDateLAB.setType(EnumTextTypes.TEXT_TYPE_MID());
       refreshAbout();
       const homepages:int = Math.min(homepagesCNT, application.getPropertiesConfig().getApplicationSoftwareHomepageTxt().length);
       for (var i:int = 0; i < homepages; i++)
       {
         const buttonLink:ButtonLink = new ButtonLink(application);
-        contentMultiple.addToContent(indexAbout, buttonLink, 5 + i);
+        addToPanelContent(indexAbout, buttonLink, 5 + i);
         // the links are kept on purpose: a disabled panel must not have a clickable
         // link on it, and the homepages may be refreshed later on as well
         homepageLinksARR.push(buttonLink);
@@ -924,6 +947,77 @@ package com.kisscodesystems.KissAs3Fw.app
       }
     }
     /**
+     * Puts one element onto a content of this panel, one whole row below the cell it asks
+     * for. The first row of every content of this panel is taken by the silent
+     * placeholder of it, so the cells of the elements standing on it all begin one row
+     * further, and that shift belongs here and not to every single caller: a content of
+     * this panel is as many cells wide as the elementsFix of it tells, so one row of it
+     * is that many cells.
+     * @param index the index of the content the element goes into
+     * @param displayObject the element to be put onto that content
+     * @param cellIndex the cell of that content the element asks for, counted as if the
+     *        placeholder row were not there at all
+     */
+    private function addToPanelContent(index:int, displayObject:DisplayObject, cellIndex:int):void
+    {
+      application.trace("<" + this + " PanelSettings addToPanelContent> called.", 1);
+      application.trace("<" + this + " PanelSettings addToPanelContent> index: " + index, 0);
+      application.trace("<" + this + " PanelSettings addToPanelContent> displayObject: " + displayObject, 0);
+      application.trace("<" + this + " PanelSettings addToPanelContent> cellIndex: " + cellIndex, 0);
+      contentMultiple.addToContent(index, displayObject, cellIndex + getCellsOfOneRow(index));
+    }
+    /**
+     * Returns the number of the cells one row of the content of the given index holds.
+     * @param index the index of the content
+     */
+    private function getCellsOfOneRow(index:int):int
+    {
+      return contentMultiple.getElementsFix(index) + 1;
+    }
+    /**
+     * Builds the silent placeholder of one content of this panel: a fully transparent and
+     * narrow patch standing in the first row of that content, above every element of it.
+     * It is drawn and not left empty on purpose: a sprite with nothing drawn into it takes
+     * no mouse event at all, and taking those is the whole point of this one.
+     * It carries no label, no icon and no handler, so there is nothing on it to be
+     * clicked by accident, and it is the place the content can be dragged by: the
+     * contents of this panel are scrolled sideways, so a drag started on the link of the
+     * back or on the picker of the language is taken away from that element by the
+     * scrolling, and this patch gives that drag a place of its own. It also holds the
+     * first row of the content for itself, so neither of those two elements stands at the
+     * very top edge any more.
+     * @param index the index of the content the placeholder goes into
+     */
+    private function createPlaceholder(index:int):void
+    {
+      application.trace("<" + this + " PanelSettings createPlaceholder> called.", 1);
+      application.trace("<" + this + " PanelSettings createPlaceholder> index: " + index, 0);
+      const placeholder:BaseSprite = new BaseSprite(application);
+      // the raw cell zero is asked for here and not the shifted one: this is the very
+      // element the shift of every other one is made for
+      contentMultiple.addToContent(index, placeholder, 0);
+      placeholdersARR.push(placeholder);
+    }
+    /**
+     * Gives every silent placeholder of this panel the height of one row of text, and
+     * draws the transparent surface of it in that size: that surface is what takes the
+     * presses of a drag. The width of them is a narrow constant, only the height matters.
+     */
+    private function resizePlaceholders():void
+    {
+      application.trace("<" + this + " PanelSettings resizePlaceholders> called.", 1);
+      const dh:int = Math.max(1, application.getDynamicsConfig().getTextFieldHeight(EnumTextTypes.TEXT_TYPE_MID()));
+      for (var i:int = 0; i < placeholdersARR.length; i++)
+      {
+        const placeholder:BaseSprite = BaseSprite(placeholdersARR[i]);
+        placeholder.setDwh(placeholderDW, dh);
+        placeholder.graphics.clear();
+        placeholder.graphics.beginFill(0, 0);
+        placeholder.graphics.drawRect(0, 0, placeholderDW, dh);
+        placeholder.graphics.endFill();
+      }
+    }
+    /**
      * Builds one label of this panel. Every one of them names the setting standing next
      * to it, so it is aligned to the middle of its own row: a row of a taller element,
      * of the three color pickers for one, would leave it hanging at the top of that row.
@@ -938,7 +1032,7 @@ package com.kisscodesystems.KissAs3Fw.app
       application.trace("<" + this + " PanelSettings createLabel> cellIndex: " + cellIndex, 0);
       application.trace("<" + this + " PanelSettings createLabel> textKey: " + textKey, 0);
       const textLabel:TextLabel = new TextLabel(application);
-      contentMultiple.addToContent(index, textLabel, cellIndex);
+      addToPanelContent(index, textLabel, cellIndex);
       textLabel.setLabel(textKey);
       contentMultiple.setElementAlignVertical(index, textLabel, EnumAligns.ALIGN_MIDDLE());
       return textLabel;
@@ -956,7 +1050,7 @@ package com.kisscodesystems.KissAs3Fw.app
       application.trace("<" + this + " PanelSettings createLink> cellIndex: " + cellIndex, 0);
       application.trace("<" + this + " PanelSettings createLink> textKey: " + textKey, 0);
       const buttonLink:ButtonLink = new ButtonLink(application);
-      contentMultiple.addToContent(index, buttonLink, cellIndex);
+      addToPanelContent(index, buttonLink, cellIndex);
       buttonLink.setLabel(textKey);
       return buttonLink;
     }
@@ -1795,6 +1889,8 @@ package com.kisscodesystems.KissAs3Fw.app
         appFontSizeOBJ.setSelectedIndex(application.getFontManager().getFontSizes()
             .indexOf(application.getDynamicsConfig().getAppFontSize()), false);
       }
+      // the placeholders are one row of text tall, so they follow the size of that text
+      resizePlaceholders();
     }
     /**
      * The bright font color has been changed by another object.
@@ -2535,6 +2631,7 @@ package com.kisscodesystems.KissAs3Fw.app
       currWidgetcontainerARR.splice(0);
       homepageLinksARR.splice(0);
       backLinksARR.splice(0);
+      placeholdersARR.splice(0);
       application.trace("<" + this + " PanelSettings destroy> 3: calling the super destroy.", 0);
       // the step 4 is logged before the super destroy on purpose: that one clears the
       // application reference of this object, so nothing can be traced after it
@@ -2628,6 +2725,7 @@ package com.kisscodesystems.KissAs3Fw.app
       defaultAppearanceLinkOBJ = null;
       resetAppearanceLinkOBJ = null;
       backLinksARR = null;
+      placeholdersARR = null;
     }
   }
 }

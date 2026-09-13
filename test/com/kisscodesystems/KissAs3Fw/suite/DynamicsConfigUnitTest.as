@@ -225,6 +225,13 @@ package com.kisscodesystems.KissAs3Fw.suite
         , EnumBoxFrames.BOX_FRAME_VERTICAL(), 4, 7, 15);
       config.setCurrentDisplayingStyle(styleKey);
       assertEquals("getCurrentDisplayingStyle after setCurrentDisplayingStyle", styleKey, config.getCurrentDisplayingStyle());
+      // a style is a copy of the default one, but the font size is the one property that
+      // is not copied: every style carries the zero marker of the calculated size, so the
+      // font size of the default style above - a real sixteen - is not inherited by it and
+      // switching to it takes the texts onto the size belonging to the size of the stage
+      assertEquals("getAppFontSize of a freshly added style", 0, config.getAppFontSize());
+      assertEquals("the size of the texts of a freshly added style is the one of the stage"
+        , application.calcFontSizeFromStageSize(), int(config.getTextFormatBright().size));
       assertEquals("getAppBackgroundAlign of the style of this suite"
         , EnumBackgroundAligns.BACKGROUND_ALIGN_MOSAIC(), config.getAppBackgroundAlign());
       assertEquals("getAppBackgroundBlur of the style of this suite", 6, config.getAppBackgroundBlur());

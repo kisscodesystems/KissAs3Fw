@@ -144,7 +144,7 @@
   <value key="shortTextLimit">142</value>
   <value key="shortTextEnding">...</value>
   <value key="minTextInputAlpha">0.15</value>
-  <value key="clickGap">5</value>
+  <value key="clickGap">7</value>
   <value key="tracerBgalpha">0.5</value>
   <value key="tracerAttrDelim">&amp;</value>
   <value key="tracerAttrMargin">   | </value>

@@ -102,7 +102,7 @@ package com.kisscodesystems.KissAs3Fw.manager
       }
       customContextLabels.splice(i, 1);
       customContextUrls.splice(i, 1);
-      ContextMenuItem(customContextMenu.customItems[i]).removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, Function(customContextHandlers[i]));
+      ContextMenuItem(customContextMenu.customItems[i]).removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, customContextHandlers[i] as Function);
       customContextHandlers.splice(i, 1);
       customContextMenu.customItems.splice(i, 1);
     }
@@ -138,7 +138,7 @@ package com.kisscodesystems.KissAs3Fw.manager
       {
         for (var i:int = 0; i < customContextMenu.customItems.length; i++)
         {
-          ContextMenuItem(customContextMenu.customItems[i]).removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, Function(customContextHandlers[i]));
+          ContextMenuItem(customContextMenu.customItems[i]).removeEventListener(ContextMenuEvent.MENU_ITEM_SELECT, customContextHandlers[i] as Function);
         }
         customContextMenu.customItems.splice(0);
       }

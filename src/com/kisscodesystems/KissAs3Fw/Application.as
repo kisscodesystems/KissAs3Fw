@@ -64,6 +64,7 @@ package com.kisscodesystems.KissAs3Fw
   import flash.globalization.DateTimeFormatter;
   import flash.media.Camera;
   import flash.media.Microphone;
+  import flash.text.TextFormat;
   public class Application extends BaseSprite
   {
     /**
@@ -485,15 +486,25 @@ package com.kisscodesystems.KissAs3Fw
       return size;
     }
     /**
-     * Returns the font size every text of this application is displayed with: the
-     * configured one, or the one calculated of the current size of the stage when this
-     * application asks for a calculated font size with a zero.
+     * Returns the font size every text of this application is really displayed with: the
+     * size the three text formats of it stand on. That is the configured font size, or the
+     * one calculated of the current size of the stage when this application asks for a
+     * calculated one with a zero.
+     * It is answered of the text formats themselves and not calculated again on purpose:
+     * the height of a text field is measured by those very formats, so an element taking
+     * its size from the font and its room from that height has to read one single size.
+     * A freshly calculated one can differ from it for a moment - the objects of this
+     * application are built before the stage has told it its real size - and an element
+     * mixing the two lands on two different fonts at once: that is what used to draw the
+     * icon of a label the size of a few pixels inside the full slot kept for it.
      */
     public function getFontSizeInUse():int
     {
       application.trace("<Application getFontSizeInUse> called.", 1);
-      const configured:int = getDynamicsConfig().getAppFontSize();
-      const size:int = configured == 0 ? calcFontSizeFromStageSize() : configured;
+      const textFormat:TextFormat = getDynamicsConfig() == null
+        ? null
+        : getDynamicsConfig().getTextFormatBright();
+      const size:int = textFormat == null ? calcFontSizeFromStageSize() : int(textFormat.size);
       application.trace("<Application getFontSizeInUse> size: " + size, 0);
       return size;
     }
@@ -772,6 +783,9 @@ package com.kisscodesystems.KissAs3Fw
      * Builds the three layers of the displayed application. It is not called by the
      * initialize of this class on purpose: an application drawing everything on its
      * own does not need any of them, so every extender asks for them by itself.
+     * The size of the stage is taken at the end of it, so an extender calling this one
+     * first - and that is the way every one of them starts - builds every object of its
+     * own on the real size and on the real font size of this application.
      */
     protected function createLayers():void
     {
@@ -804,7 +818,8 @@ package com.kisscodesystems.KissAs3Fw
      * always happens, and an application that does not follow it keeps the height it was
      * started with, one title bar taller than the room it really has.
      * The font size of an application asking for a calculated one belongs to the size of
-     * the stage, so the new size of it brings a new font size as well.
+     * the stage, so the new size of it brings a new font size as well: the
+     * setSizeFromStageSize below takes care of that one.
      * @param e the resize event of the stage
      */
     protected function stageResized(e:Event):void
@@ -812,11 +827,18 @@ package com.kisscodesystems.KissAs3Fw
       application.trace("<Application stageResized> called.", 1);
       application.trace("<Application stageResized> e: " + e, 0);
       setSizeFromStageSize();
-      setFontSizeFromStage();
     }
     /**
      * Gives this application and every layer of it the current size of the stage, kept
      * above the smallest size this framework is usable on.
+     * The font size of an application asking for a calculated one is taken from that very
+     * size, so it is settled here as well: this is the one place this application learns
+     * how big it really is, and every later size of the stage comes through here too.
+     * It can not wait for the resizing of the stage: the window of a desktop application
+     * is always resized right after it has been opened, but an application filling the
+     * whole screen of a mobile device is never resized at all, so the calculated font
+     * size of it would never arrive and every element sizing itself of the font would
+     * keep the size this framework had while there was no stage to measure.
      */
     protected function setSizeFromStageSize():void
     {
@@ -839,12 +861,12 @@ package com.kisscodesystems.KissAs3Fw
       {
         foreground.setDwh(getDw(), getDh());
       }
+      setFontSizeFromStage();
     }
     /**
-     * Prepares the stage of this application and takes the size of it. The font size
-     * belonging to that size is calculated here as well: the configuration of this
-     * application has been read while there was no stage to calculate one of yet, so
-     * this is the first moment the real font size of it can be told.
+     * Prepares the stage of this application and takes the size of it, together with the
+     * font size belonging to that size: the configuration of this application has been
+     * read while there was no stage to calculate one of yet.
      * @param e the added to stage event
      */
     override protected function addedToStage(e:Event):void
@@ -856,7 +878,6 @@ package com.kisscodesystems.KissAs3Fw
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
-      setFontSizeFromStage();
     }
     /**
      * Drops the listener of the resizing of the stage.

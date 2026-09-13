@@ -455,6 +455,8 @@ package com.kisscodesystems.KissAs3Fw.config
     /**
      * Adds a new displaying style to this application. The new style starts as a copy of
      * the default one, so the caller only has to change the properties differing from it.
+     * The font size of the new style is the one exception: it starts on zero, the marker
+     * of the size calculated from the dimensions of the stage.
      * The values the new style is described with are kept as the default ones of it as
      * well, the very values resetDisplayingStyleOf gives it back later on. The panel of
      * the settings displays the new style as soon as the label manager knows the text key
@@ -479,6 +481,11 @@ package com.kisscodesystems.KissAs3Fw.config
       // the background image property of a style holds the text key of that very style:
       // that key is the one the file of the image is registered by in appBackgroundImages
       newStyle[EnumAppDisplayedProperties.appBackgroundImage()] = styleKey;
+      // a zero font size is the marker of the calculated one, so every style starts with
+      // the size taken from the dimensions of the stage, whatever the default style was
+      // configured with: a real size belongs to the user of the running application and
+      // not to the description of a style
+      newStyle[EnumAppDisplayedProperties.appFontSize()] = 0;
       appDisplayingStyles[styleKey] = newStyle;
       appDisplayingStyleDefaults[styleKey] = copyDisplayingStyle(newStyle);
       appBackgroundImages[styleKey] = backgroundFile;

@@ -306,7 +306,14 @@ package com.kisscodesystems.KissAs3Fw.app
           widget.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_WIDGET_DRAG_START(), widgetDragStart);
           widget.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_WIDGET_DRAG_STOP(), widgetDragStop);
           contentMultiple.removeFromContent(contentId, widget);
-          widget.destroy();
+          // every note this layer keeps of the widget is dropped before the widget itself
+          // is freed up, and that order is the point of it: the destroy of a widget runs
+          // the destroy of everything standing on it, so one throwing object anywhere in
+          // that tree used to leave this layer half way through the closing - the widget
+          // was already off the screen while this layer still held it in widgetsArray, so
+          // the list of the widgets still offered it and the application navigated to the
+          // empty place of a widget that was not there any more. This way the layer is
+          // consistent whatever happens in that destroy.
           widgetsArray[contentId].splice(widgetIndex, 1);
           delete widgetWidths[widget];
           delete widgetHeights[widget];
@@ -323,6 +330,7 @@ package com.kisscodesystems.KissAs3Fw.app
             }
           }
           goToTheWidget(actualWidgets[contentId]);
+          widget.destroy();
         }
       }
     }

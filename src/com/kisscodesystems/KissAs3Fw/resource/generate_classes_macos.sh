@@ -361,11 +361,15 @@ function generate_class()
   then
     echo "    protected function transformBitmapData(bitmap:Bitmap, textType:String, iconSize:int):BitmapData" >> $TARGET
     echo "    {" >> $TARGET
-    echo "      var bitmapData:BitmapData = new BitmapData(iconSize, iconSize, true, 0x00ffffff);" >> $TARGET
+    echo "      // a BitmapData of a zero or of a negative size throws an ArgumentError, and an icon" >> $TARGET
+    echo "      // is drawn while the objects of an application are being built, where that error" >> $TARGET
+    echo "      // would be caught by the constructor of it and take every object of it down" >> $TARGET
+    echo "      var size:int = Math.max(1, iconSize);" >> $TARGET
+    echo "      var bitmapData:BitmapData = new BitmapData(size, size, true, 0x00ffffff);" >> $TARGET
     echo "      if (bitmap != null)" >> $TARGET
     echo "      {" >> $TARGET
     echo "        var matrix:Matrix = new Matrix();" >> $TARGET
-    echo "        matrix.scale(iconSize / bitmap.width, iconSize / bitmap.height);" >> $TARGET
+    echo "        matrix.scale(size / bitmap.width, size / bitmap.height);" >> $TARGET
     echo "        bitmapData.draw(bitmap.bitmapData, matrix, null, null, null, true);" >> $TARGET
     echo "        var color:int = 0;" >> $TARGET
     echo '        if (textType == EnumTextTypes.TEXT_TYPE_MID())' >> $TARGET
@@ -429,7 +433,7 @@ function generate_class()
     echo "      var vectorDrawings:$ASCLASS = emojiDrawings[emojiType] as $ASCLASS;" >> $TARGET
     echo "      if (vectorDrawings == null)" >> $TARGET
     echo "      {" >> $TARGET
-    echo "        return new BitmapData(emojiSize, emojiSize, true, 0x00ffffff);" >> $TARGET
+    echo "        return new BitmapData(Math.max(1, emojiSize), Math.max(1, emojiSize), true, 0x00ffffff);" >> $TARGET
     echo "      }" >> $TARGET
     echo "      return vectorDrawings.getNewBitmapData(emojiType, emojiSize);" >> $TARGET
     echo "    }" >> $TARGET
