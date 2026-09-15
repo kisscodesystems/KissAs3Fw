@@ -14,6 +14,8 @@
  * MAIN FEATURES:
  * - the drawing keeps the icon type, the text type and the icon size
  * - the dimensions of an icon come from its icon size only
+ * - a drawing made outside the display list is still there once the icon lands on the
+ *   stage: that landing draws it over again
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
@@ -24,6 +26,7 @@ package com.kisscodesystems.KissAs3Fw.suite
   import com.kisscodesystems.KissAs3Fw.ui.Icon;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.display.BitmapData;
   public class IconUnitTest extends BaseUnitTest
   {
     /**
@@ -90,6 +93,51 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getEmojiType after a drawBitmapData of an emoji icon", "", icon.getEmojiType());
       runBaseSpriteTests(icon);
       removeTested(icon);
+      runOffStageDrawingTests();
+    }
+    /**
+     * Checks that an icon drawn while it was standing outside the display list really
+     * carries its drawing once it lands on the stage: that landing draws the icon over
+     * again, and a repetition that lost the bitmap data of it would leave an empty square
+     * behind.
+     */
+    private function runOffStageDrawingTests():void
+    {
+      const icon:Icon = new Icon(application);
+      icon.drawBitmapData(EnumIcons.close(), EnumTextTypes.TEXT_TYPE_BRIGHT(), 40);
+      assertTrue("the drawing of an icon outside the display list", drawnPixelsOf(icon) > 0);
+      addTested(icon);
+      assertEquals("getIconSize after the icon has landed on the stage", 40, icon.getIconSize());
+      assertEquals("getDw after the icon has landed on the stage", expectedDw(40), icon.getDw());
+      assertTrue("the drawing of an icon after it has landed on the stage", drawnPixelsOf(icon) > 0);
+      // an emoji carries no drop shadow, so the repetition of it has no filter to build
+      icon.drawEmojiBitmapData(EnumEmojis.hands_thumbsup(), 30);
+      assertTrue("the drawing of an emoji icon on the stage", drawnPixelsOf(icon) > 0);
+      removeTested(icon);
+    }
+    /**
+     * Returns the number of the pixels the given icon has really drawn: the ones that are
+     * not fully transparent.
+     * @param icon the icon the drawn pixels are counted of
+     */
+    private function drawnPixelsOf(icon:Icon):int
+    {
+      const size:int = Math.max(1, icon.getIconSize());
+      const bitmapData:BitmapData = new BitmapData(size, size, true, 0);
+      bitmapData.draw(icon);
+      var drawn:int = 0;
+      for (var i:int = 0; i < size; i++)
+      {
+        for (var j:int = 0; j < size; j++)
+        {
+          if (bitmapData.getPixel32(i, j) >>> 24 > 0)
+          {
+            drawn++;
+          }
+        }
+      }
+      bitmapData.dispose();
+      return drawn;
     }
   }
 }

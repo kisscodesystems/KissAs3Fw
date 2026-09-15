@@ -61,9 +61,11 @@ package com.kisscodesystems.KissAs3Fw
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
   import flash.events.Event;
+  import flash.events.PermissionEvent;
   import flash.globalization.DateTimeFormatter;
   import flash.media.Camera;
   import flash.media.Microphone;
+  import flash.permissions.PermissionManager;
   import flash.text.TextFormat;
   public class Application extends BaseSprite
   {
@@ -147,6 +149,11 @@ package com.kisscodesystems.KissAs3Fw
     private var dateTimeFormatter:DateTimeFormatter = new DateTimeFormatter("en-US");
     // The font size calculated of the size of the stage the last time.
     private var lastCalculatedFontSize:int = 0;
+    // The permission managers waiting to be asked and the one being asked at the moment.
+    // A machine displays one single permission question at a time, so these two turn the
+    // askings of this application into one single row of them: see askPermissionOf below.
+    private var permissionManagersToAsk:Array = new Array();
+    private var permissionManagerAsked:PermissionManager = null;
     /**
      * Constructs the application: it builds every configuration and every manager of the
      * framework first, and then it asks the extender of this class for the objects of it.
@@ -720,7 +727,7 @@ package com.kisscodesystems.KissAs3Fw
         return;
       }
       askedForCameraPermission = true;
-      Camera.permissionManager.requestPermission();
+      askPermissionOf(Camera.permissionManager);
     }
     /**
      * Asks the one using this application for the permission of the microphone. The
@@ -735,7 +742,7 @@ package com.kisscodesystems.KissAs3Fw
         return;
       }
       askedForMicrophonePermission = true;
-      Microphone.permissionManager.requestPermission();
+      askPermissionOf(Microphone.permissionManager);
     }
     /**
      * The width of this application is the one of the stage, so it cannot be set from
@@ -1082,6 +1089,87 @@ package com.kisscodesystems.KissAs3Fw
       }
     }
     /**
+     * Puts the given permission manager into the row of the ones to be asked and starts
+     * that row when there is nothing being asked at the moment.
+     * A machine displays one single permission question at a time: a second asking that
+     * arrives while the question of the first one stands is refused by the runtime with
+     * an error, and the answer of the refused one never arrives at all. So the camera and
+     * the microphone of a camera object - both asked for while that object is landing on
+     * the stage - are asked for one after the other here instead.
+     * @param permissionManager the manager of the permission to be asked for
+     */
+    private function askPermissionOf(permissionManager:PermissionManager):void
+    {
+      application.trace("<Application askPermissionOf> called.", 1);
+      application.trace("<Application askPermissionOf> permissionManager: " + permissionManager, 0);
+      if (permissionManager == null)
+      {
+        application.trace("<Application askPermissionOf> there is no permission manager to ask!", 6);
+        return;
+      }
+      permissionManagersToAsk.push(permissionManager);
+      askNextPermission();
+    }
+    /**
+     * Asks for the first permission of the row of the ones waiting to be asked for. It
+     * does nothing while there is a question standing already: the answer of that one is
+     * the moment the next question of the row is asked at.
+     */
+    private function askNextPermission():void
+    {
+      application.trace("<Application askNextPermission> called.", 1);
+      if (permissionManagerAsked != null)
+      {
+        application.trace("<Application askNextPermission> there is a permission being asked for already.", 0);
+        return;
+      }
+      if (permissionManagersToAsk.length < 1)
+      {
+        application.trace("<Application askNextPermission> there is no permission left to ask for.", 0);
+        return;
+      }
+      permissionManagerAsked = permissionManagersToAsk.shift() as PermissionManager;
+      permissionManagerAsked.addEventListener(PermissionEvent.PERMISSION_STATUS, permissionStatusArrived);
+      try
+      {
+        permissionManagerAsked.requestPermission();
+      }
+      catch (e:Error)
+      {
+        application.trace("<Application askNextPermission> the permission could not be asked for: " + e, 7);
+        dropPermissionAsked();
+        askNextPermission();
+      }
+    }
+    /**
+     * Takes the answer of the permission that has been asked for and asks for the next
+     * one of the row. The answer itself is not read here: the objects using a device are
+     * the ones the runtime tells whether that device is usable, through the muted
+     * property and through the status event of it.
+     * @param e the permission status event of that permission
+     */
+    private function permissionStatusArrived(e:PermissionEvent):void
+    {
+      application.trace("<Application permissionStatusArrived> called.", 1);
+      application.trace("<Application permissionStatusArrived> e: " + e, 0);
+      application.trace("<Application permissionStatusArrived> status: " + e.status, 0);
+      dropPermissionAsked();
+      askNextPermission();
+    }
+    /**
+     * Lets the permission manager being asked at the moment go: its answer has arrived or
+     * the question of it could not be asked at all.
+     */
+    private function dropPermissionAsked():void
+    {
+      application.trace("<Application dropPermissionAsked> called.", 1);
+      if (permissionManagerAsked != null)
+      {
+        permissionManagerAsked.removeEventListener(PermissionEvent.PERMISSION_STATUS, permissionStatusArrived);
+        permissionManagerAsked = null;
+      }
+    }
+    /**
      * Returns the value of one component of a color.
      * @param rgb the six characters of the three components as a hexadecimal string
      * @param index the position that component starts at, so zero, two or four
@@ -1278,11 +1366,13 @@ package com.kisscodesystems.KissAs3Fw
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
+      dropPermissionAsked();
       application.trace("<Application destroy> 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       if (tracesToDisplay != null)
       {
         tracesToDisplay.splice(0, tracesToDisplay.length);
       }
+      permissionManagersToAsk.splice(0);
       // the tracer is not a BaseSprite, so the super destroy below removes it from the display
       // list but cannot free it up: it has to be destroyed here, while it still has its stage
       if (tracer != null)
@@ -1337,6 +1427,8 @@ package com.kisscodesystems.KissAs3Fw
       applicationType = "";
       menuxml = "";
       lastCalculatedFontSize = 0;
+      permissionManagersToAsk = null;
+      permissionManagerAsked = null;
       scrollingBaseScroll = null;
     }
   }

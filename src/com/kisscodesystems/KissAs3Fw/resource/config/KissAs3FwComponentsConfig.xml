@@ -112,9 +112,12 @@
   <value key="boardRubberThicknessFactor">5</value>
   <value key="boardChangedTimerDelay">1111</value>
   <value key="raterNumOfStars">5</value>
-  <value key="cameraWidthMin">480</value>
-  <value key="cameraWidthMax">1280</value>
-  <value key="cameraWidthInc">160</value>
+  <value key="cameraWidth43Min">320</value>
+  <value key="cameraWidth43Max">640</value>
+  <value key="cameraWidth43Inc">160</value>
+  <value key="cameraWidth169Min">640</value>
+  <value key="cameraWidth169Max">1280</value>
+  <value key="cameraWidth169Inc">640</value>
   <value key="cameraWidthIni">640</value>
   <value key="cameraFpsMin">10</value>
   <value key="cameraFpsMax">42</value>

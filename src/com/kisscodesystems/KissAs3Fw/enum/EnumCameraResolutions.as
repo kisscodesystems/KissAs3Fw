@@ -14,7 +14,13 @@
  * MAIN FEATURES:
  * - one value is the ratio itself, the width and the height of it separated by a
  *   colon, so the camera counts its own height from its width and from this string
- * - a new ratio is one single function here, nothing else has to be touched
+ * - a new ratio is one single function here, and the widths the cameras of the
+ *   machines really work in that ratio in are the cameraWidth values of the
+ *   components configuration
+ * - only the ratios every machine of this framework really holds are here: the square
+ *   one is not among them, because no camera of a computer, of an android device or of
+ *   an iphone offers a square picture at all, and a mode no device has is a mode that
+ *   answers an empty picture
  * - these values are displayed to the one using the application, but they are the
  *   same in every language, so they are no text keys
  */
@@ -22,13 +28,6 @@ package com.kisscodesystems.KissAs3Fw.enum
 {
   public class EnumCameraResolutions
   {
-    /**
-     * Returns the square aspect ratio.
-     */
-    public static function CAMERA_RESOLUTION_11():String
-    {
-      return "1:1";
-    }
     /**
      * Returns the aspect ratio of the traditional television picture.
      */
@@ -49,13 +48,14 @@ package com.kisscodesystems.KissAs3Fw.enum
      */
     public static function getEveryResolution():Array
     {
-      return [CAMERA_RESOLUTION_11(), CAMERA_RESOLUTION_43(), CAMERA_RESOLUTION_169()];
+      return [CAMERA_RESOLUTION_43(), CAMERA_RESOLUTION_169()];
     }
     /**
      * Returns the height belonging to the given width in the given aspect ratio. The
      * ratio is the width and the height of it separated by a colon, so the height is
-     * counted from those two numbers. A ratio this class does not know at all answers
-     * the width itself, the height of a square picture.
+     * counted from those two numbers. A ratio this class can not read at all answers
+     * the width itself: a square picture is the one shape that needs no ratio to be
+     * told, so it is the safe answer of a question that carries none.
      * @param resolution the aspect ratio, an EnumCameraResolutions value
      * @param dw the width the height is asked for
      */
