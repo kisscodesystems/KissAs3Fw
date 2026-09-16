@@ -101,6 +101,20 @@
   <value key="datePanelDateTimeFormat">yyyy-MM-dd HH:mm</value>
   <value key="datePanelDateTimeSecFormat">yyyy-MM-dd HH:mm:ss</value>
   <value key="inputTimerDelay">666</value>
+  <!--
+    The milliseconds this application waits after it has reached the stage before it draws
+    every text and every icon of itself over again: an android device displays none of the
+    icons that were built while the application was being put together, and only a drawing
+    made after the start really arrives there. Zero asks for no such drawing at all.
+  -->
+  <value key="startupRefreshDelay">500</value>
+  <!--
+    The milliseconds this application waits between displaying the box telling that
+    something long is being done and beginning that work itself: this application has one
+    single thread, so the box only reaches the screen while nothing is running. Zero asks
+    for no such box at all, every work is done right away then.
+  -->
+  <value key="loadingDelay">100</value>
   <value key="emptyHtmlParagraph">&lt;p&gt;&amp;nbsp;&lt;/p&gt;</value>
   <value key="boardBackgroundColor">DDDDDD</value>
   <value key="boardLineColor">111111</value>

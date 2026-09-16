@@ -22,6 +22,10 @@
  * - the three layers of a displayed application are built by the createLayers: the
  *   background, the middleground holding the widgets and the panels, and the
  *   foreground displaying the alerts
+ * - it draws every text and every icon of itself over again a moment after it has
+ *   reached the stage, see the startupRefresh
+ * - a work that takes long is done behind the alert telling that it is being done,
+ *   see the runWithLoading
  */
 
 package com.kisscodesystems.KissAs3Fw
@@ -38,6 +42,7 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.enum.EnumAppEnvs;
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.enum.EnumOkCancel;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumTextKeys;
   import com.kisscodesystems.KissAs3Fw.manager.BackgroundManager;
   import com.kisscodesystems.KissAs3Fw.manager.CacheManager;
   import com.kisscodesystems.KissAs3Fw.manager.ContextMenuManager;
@@ -62,11 +67,13 @@ package com.kisscodesystems.KissAs3Fw
   import flash.display.StageScaleMode;
   import flash.events.Event;
   import flash.events.PermissionEvent;
+  import flash.events.TimerEvent;
   import flash.globalization.DateTimeFormatter;
   import flash.media.Camera;
   import flash.media.Microphone;
   import flash.permissions.PermissionManager;
   import flash.text.TextFormat;
+  import flash.utils.Timer;
   public class Application extends BaseSprite
   {
     /**
@@ -154,6 +161,16 @@ package com.kisscodesystems.KissAs3Fw
     // askings of this application into one single row of them: see askPermissionOf below.
     private var permissionManagersToAsk:Array = new Array();
     private var permissionManagerAsked:PermissionManager = null;
+    // The timer of the drawing of everything over again after the start, and the flag of
+    // the single run of it: see the startupRefresh below.
+    private var startupRefreshTimer:Timer = null;
+    private var startupRefreshDone:Boolean = false;
+    // The work that is being done behind the alert telling that something long is going on,
+    // the unique string that alert is closed by and the timer of the pause that alert needs
+    // to reach the screen: see runWithLoading.
+    private var loadingTimer:Timer = null;
+    private var loadingWork:Function = null;
+    private var loadingUniqueString:String = "";
     /**
      * Constructs the application: it builds every configuration and every manager of the
      * framework first, and then it asks the extender of this class for the objects of it.
@@ -871,9 +888,187 @@ package com.kisscodesystems.KissAs3Fw
       setFontSizeFromStage();
     }
     /**
+     * Starts the waiting for the drawing of everything over again, once in the life of
+     * this application. A delay of zero asks for no such drawing at all.
+     */
+    private function createStartupRefreshTimer():void
+    {
+      application.trace("<Application createStartupRefreshTimer> called.", 1);
+      const delay:int = getComponentsConfig() == null
+        ? 0
+        : getComponentsConfig().getStartupRefreshDelay();
+      if (startupRefreshDone || delay <= 0)
+      {
+        application.trace("<Application createStartupRefreshTimer> there is no drawing to wait for.", 1);
+        return;
+      }
+      startupRefreshDone = true;
+      dropStartupRefreshTimer();
+      startupRefreshTimer = new Timer(delay, 1);
+      startupRefreshTimer.addEventListener(TimerEvent.TIMER, startupRefreshTimerHandler);
+      startupRefreshTimer.start();
+      application.trace("<Application createStartupRefreshTimer> the drawing is waited for: " + delay, 0);
+    }
+    /**
+     * Stops the timer of the drawing of everything over again and drops it.
+     */
+    private function dropStartupRefreshTimer():void
+    {
+      application.trace("<Application dropStartupRefreshTimer> called.", 1);
+      if (startupRefreshTimer != null)
+      {
+        startupRefreshTimer.removeEventListener(TimerEvent.TIMER, startupRefreshTimerHandler);
+        startupRefreshTimer.stop();
+        startupRefreshTimer = null;
+        application.trace("<Application dropStartupRefreshTimer> the timer of the drawing is dropped.", 0);
+      }
+    }
+    /**
+     * The waiting is over, so everything is drawn over again.
+     * @param e the timer event of the single shot of the waiting
+     */
+    private function startupRefreshTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<Application startupRefreshTimerHandler> called.", 1);
+      application.trace("<Application startupRefreshTimerHandler> e: " + e, 0);
+      dropStartupRefreshTimer();
+      startupRefresh();
+    }
+    /**
+     * Draws every text and every icon of this application over again, in the font size
+     * and in the colors it stands on by now.
+     * This is the answer of a machine that displays none of the icons built at the start:
+     * on an android device every one of them stays invisible until something draws it
+     * again, and the drawing that does reach the screen there is the one made a moment
+     * after the application has really started - not the repeated filling of a surface
+     * with the bitmap data it holds already, but the whole drawing, built of a bitmap
+     * data the icon manager gives out again. That is exactly what the one using the
+     * application does by hand when they change the displaying style or turn the screen,
+     * the two things that were found to bring every missing icon up, and that is why this
+     * one waits: the very same drawing made while the application was being built has
+     * already happened and has not reached that screen.
+     * The font sizes are what it is done through: every text format of this application
+     * is set again with the size it carries at the moment, and the events of that setting
+     * are the ones every text, every label and every icon of the framework already
+     * follows, so nothing needs a new listener for this. No value of the application is
+     * changed by it, so nothing of it is visible on a machine that had everything on the
+     * screen anyway.
+     */
+    public function startupRefresh():void
+    {
+      application.trace("<Application startupRefresh> called.", 1);
+      if (getDynamicsConfig() == null)
+      {
+        this.trace("<Application startupRefresh> there is no displayed property to draw again!", 6);
+        return;
+      }
+      // the font size of the stage is taken first: the objects of this application were
+      // built before the stage had told it its real size, and a size that has changed
+      // since then is drawn with right here instead of being dispatched twice
+      setFontSizeFromStage();
+      getDynamicsConfig().setAllFontSizes(getFontSizeInUse());
+      application.trace("<Application startupRefresh> everything is drawn again.", 0);
+    }
+    /**
+     * Does the given work behind the alert telling that a long work is being done: that
+     * alert is displayed on the foreground first, the work itself only begins a moment
+     * later and the alert is closed as soon as that work is over.
+     * The alert is one of the foreground, asked for without an ok button, so it carries no
+     * answer at all and nothing but the closing below takes it away: the message of a work
+     * that is being done is not something the one waiting for it has to click away.
+     * That pause is what this is all about. This application has one single thread, and
+     * the display list of it only reaches the screen between two frames of that thread, so
+     * a work started right where the alert is asked for would hold the thread until it is
+     * done and that alert would never be drawn at all: it would be closed in the very same
+     * frame it has been built in. It is on the screen by the time the work begins here.
+     * The alert is closed even when the work throws: the one waiting must not be left with
+     * the message of a work that is not running any more.
+     * A work that cannot be covered is done right away instead of being lost: there is no
+     * foreground to display the alert on, no pause is configured at all, or another work is
+     * being covered already.
+     * @param work the function doing the whole work, it takes no argument at all
+     */
+    public function runWithLoading(work:Function):void
+    {
+      application.trace("<Application runWithLoading> called.", 1);
+      application.trace("<Application runWithLoading> work: " + work, 0);
+      if (work == null)
+      {
+        this.trace("<Application runWithLoading> there is no work to be done!", 6);
+        return;
+      }
+      const delay:int = getComponentsConfig() == null
+        ? 0
+        : getComponentsConfig().getLoadingDelay();
+      if (getForeground() == null || delay <= 0 || loadingWork != null)
+      {
+        application.trace("<Application runWithLoading> this work cannot be covered, so it is done right away.", 0);
+        work();
+        return;
+      }
+      loadingWork = work;
+      loadingUniqueString = getUtils().getRandomGuid();
+      // the alert becomes the active content of the foreground right away: it tells about
+      // something that is happening now, so it must not wait behind another content
+      getForeground().createAlert(EnumTextKeys.LOADING(), loadingUniqueString, false, false, true);
+      dropLoadingTimer();
+      loadingTimer = new Timer(delay, 1);
+      loadingTimer.addEventListener(TimerEvent.TIMER, loadingTimerHandler);
+      loadingTimer.start();
+      application.trace("<Application runWithLoading> the alert of this work is displayed, the work begins in " + delay, 0);
+    }
+    /**
+     * Stops the timer of the pause of a covered work and drops it.
+     */
+    private function dropLoadingTimer():void
+    {
+      application.trace("<Application dropLoadingTimer> called.", 1);
+      if (loadingTimer != null)
+      {
+        loadingTimer.removeEventListener(TimerEvent.TIMER, loadingTimerHandler);
+        loadingTimer.stop();
+        loadingTimer = null;
+        application.trace("<Application dropLoadingTimer> the timer of the covered work is dropped.", 0);
+      }
+    }
+    /**
+     * The alert of a long work is on the screen by now, so that work is done and the alert
+     * is closed afterwards.
+     * @param e the timer event of the single shot of the pause
+     */
+    private function loadingTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<Application loadingTimerHandler> called.", 1);
+      application.trace("<Application loadingTimerHandler> e: " + e, 0);
+      dropLoadingTimer();
+      // the notes of the work are finished before the work itself begins: a work that
+      // throws must not leave this application believing that it is still going on, and
+      // the next one asking for an alert would be left without it then
+      const workToBeDone:Function = loadingWork;
+      const alertToBeClosed:String = loadingUniqueString;
+      loadingWork = null;
+      loadingUniqueString = "";
+      try
+      {
+        if (workToBeDone != null)
+        {
+          workToBeDone();
+        }
+      }
+      finally
+      {
+        if (getForeground() != null)
+        {
+          getForeground().closeAlert(alertToBeClosed);
+        }
+      }
+    }
+    /**
      * Prepares the stage of this application and takes the size of it, together with the
      * font size belonging to that size: the configuration of this application has been
      * read while there was no stage to calculate one of yet.
+     * The drawing of everything over again is started to be waited for here as well: this
+     * is the moment this application really begins to be displayed.
      * @param e the added to stage event
      */
     override protected function addedToStage(e:Event):void
@@ -885,6 +1080,7 @@ package com.kisscodesystems.KissAs3Fw
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
+      createStartupRefreshTimer();
     }
     /**
      * Drops the listener of the resizing of the stage.
@@ -1367,6 +1563,8 @@ package com.kisscodesystems.KissAs3Fw
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
       dropPermissionAsked();
+      dropStartupRefreshTimer();
+      dropLoadingTimer();
       application.trace("<Application destroy> 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       if (tracesToDisplay != null)
       {
@@ -1402,6 +1600,9 @@ package com.kisscodesystems.KissAs3Fw
       tracesPerSource = null;
       tracesSuppressed = 0;
       tracer = null;
+      startupRefreshDone = false;
+      loadingWork = null;
+      loadingUniqueString = null;
       appEnv = null;
       utils = null;
       propertiesConfig = null;

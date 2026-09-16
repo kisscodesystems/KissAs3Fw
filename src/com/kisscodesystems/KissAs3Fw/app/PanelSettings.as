@@ -1548,7 +1548,10 @@ package com.kisscodesystems.KissAs3Fw.app
     {
       application.trace("<" + this + " PanelSettings defaultAppearanceLinkClicked> called.", 1);
       application.trace("<" + this + " PanelSettings defaultAppearanceLinkClicked> e: " + e, 0);
-      application.getDynamicsConfig().setDefaultDisplayingStyle();
+      // taking a style back repaints and repositions every single object of this
+      // application, so it is done behind the box telling that it is being done: see the
+      // runWithLoading of the application
+      application.runWithLoading(application.getDynamicsConfig().setDefaultDisplayingStyle);
     }
     /**
      * The link of the resetting has been clicked, so every displayed property of the
@@ -1562,7 +1565,8 @@ package com.kisscodesystems.KissAs3Fw.app
     {
       application.trace("<" + this + " PanelSettings resetAppearanceLinkClicked> called.", 1);
       application.trace("<" + this + " PanelSettings resetAppearanceLinkClicked> e: " + e, 0);
-      application.getDynamicsConfig().resetCurrentDisplayingStyle();
+      // see the defaultAppearanceLinkClicked above: this one repaints just as much
+      application.runWithLoading(application.getDynamicsConfig().resetCurrentDisplayingStyle);
     }
     /**
      * The displaying style has been changed by another object.
@@ -1994,11 +1998,18 @@ package com.kisscodesystems.KissAs3Fw.app
       const displayingStyle:String = getSelectedDisplayingStyleValue();
       if (displayingStyle != "")
       {
-        application.getDynamicsConfig().setCurrentDisplayingStyle(displayingStyle);
-        if (application.getMiddleground() != null)
+        // a new style repaints and repositions every single object of this application, so
+        // the whole picking is done behind the box telling that it is being done: the box
+        // is closed after the last line of it, the closing of this panel. See the
+        // runWithLoading of the application
+        application.runWithLoading(function():void
         {
-          application.getMiddleground().closePanelSettings();
-        }
+          application.getDynamicsConfig().setCurrentDisplayingStyle(displayingStyle);
+          if (application.getMiddleground() != null)
+          {
+            application.getMiddleground().closePanelSettings();
+          }
+        });
       }
     }
     /**

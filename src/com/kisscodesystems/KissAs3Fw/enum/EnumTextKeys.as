@@ -144,6 +144,10 @@ package com.kisscodesystems.KissAs3Fw.enum
     {
       return "[LISTS_OF_THE_WIDGETS]";
     }
+    public static function LOADING():String
+    {
+      return "[LOADING]";
+    }
     public static function LISTS_OF_THE_CONTENTS_TO_MOVE_INTO():String
     {
       return "[LISTS_OF_THE_CONTENTS_TO_MOVE_INTO]";

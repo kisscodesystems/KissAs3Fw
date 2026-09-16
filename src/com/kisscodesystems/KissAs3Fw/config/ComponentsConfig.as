@@ -127,6 +127,15 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var datePanelDateTimeFormat:String = "yyyy-MM-dd HH:mm";
     protected var datePanelDateTimeSecFormat:String = "yyyy-MM-dd HH:mm:ss";
     protected var inputTimerDelay:int = 666;
+    // The milliseconds this application waits after it has reached the stage before it
+    // draws every text and every icon of itself over again, zero to do it never. See the
+    // startupRefresh of the application: the machine it is there for needs that pause.
+    protected var startupRefreshDelay:int = 500;
+    // The milliseconds this application waits between displaying the box telling that
+    // something long is being done and beginning that work itself, zero to display no such
+    // box at all. See the runWithLoading of the application: the box needs that pause to
+    // reach the screen before the single thread of this application is held by the work.
+    protected var loadingDelay:int = 100;
     protected var emptyHtmlParagraph:String = "<p>&nbsp;</p>";
     protected var boardBackgroundColor:String = "DDDDDD";
     protected var boardLineColor:String = "111111";
@@ -344,6 +353,8 @@ package com.kisscodesystems.KissAs3Fw.config
       datePanelDateTimeFormat = values.getString("datePanelDateTimeFormat", datePanelDateTimeFormat);
       datePanelDateTimeSecFormat = values.getString("datePanelDateTimeSecFormat", datePanelDateTimeSecFormat);
       inputTimerDelay = values.getInt("inputTimerDelay", inputTimerDelay);
+      startupRefreshDelay = values.getInt("startupRefreshDelay", startupRefreshDelay);
+      loadingDelay = values.getInt("loadingDelay", loadingDelay);
       emptyHtmlParagraph = values.getString("emptyHtmlParagraph", emptyHtmlParagraph);
       boardBackgroundColor = values.getString("boardBackgroundColor", boardBackgroundColor);
       boardLineColor = values.getString("boardLineColor", boardLineColor);
@@ -779,6 +790,14 @@ package com.kisscodesystems.KissAs3Fw.config
     public function getInputTimerDelay():int
     {
       return inputTimerDelay;
+    }
+    public function getStartupRefreshDelay():int
+    {
+      return startupRefreshDelay;
+    }
+    public function getLoadingDelay():int
+    {
+      return loadingDelay;
     }
     public function getEmptyHtmlParagraph():String
     {
@@ -1341,6 +1360,8 @@ package com.kisscodesystems.KissAs3Fw.config
       datePanelDateTimeFormat = null;
       datePanelDateTimeSecFormat = null;
       inputTimerDelay = 0;
+      startupRefreshDelay = 0;
+      loadingDelay = 0;
       emptyHtmlParagraph = null;
       boardBackgroundColor = null;
       boardLineColor = null;

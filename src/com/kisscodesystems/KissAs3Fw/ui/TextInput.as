@@ -17,7 +17,8 @@
  * - a hint is displayed while the field is empty, and a delete icon while it is not,
  *   and that icon takes no click at all while this input is disabled
  * - the auto completion offers the matching elements of a dataset in a list below the
- *   field, and the picked one becomes the element the caret stands in
+ *   field, and the picked one becomes the element the caret stands in, and it follows
+ *   the change event of the field, the one every machine raises
  * - the text of this input can hold more elements of that dataset, separated from each
  *   other by a comma, a semicolon or a space, and an element typed already is offered
  *   no more by that completion
@@ -115,6 +116,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseTextField.addEventListener(FocusEvent.FOCUS_OUT, focusOut);
       baseTextField.addEventListener(FocusEvent.FOCUS_IN, focusIn);
       baseTextField.addEventListener(TextEvent.TEXT_INPUT, textInput);
+      baseTextField.addEventListener(Event.CHANGE, textChanged);
       baseTextField.mouseDownForScrollingEnabled = false;
       baseTextFieldRepos();
       application.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_TEXT_FORMAT_BRIGHT_CHANGED(), resize);
@@ -796,6 +798,39 @@ package com.kisscodesystems.KissAs3Fw.ui
       deleteVisible();
     }
     /**
+     * Handles a text that has been changed by the one using the application: it refreshes
+     * the list of the completion with the text the field holds by now.
+     * This is the one handler of the typing every machine really calls. A text input event
+     * and a key event arrive from the keyboard of a desktop and from the on screen
+     * keyboard of an android device, but the on screen keyboard of an iPhone gives neither
+     * of them, so the completion of this input stood still there and the hint of it stayed
+     * over the typed text. The change event of a text field is raised by the typing of the
+     * one using the application only - a text given to the field by this framework raises
+     * none of them - and it is the event the inner field of the ColorPanel is followed by
+     * as well.
+     * The refreshing of the completion costs nothing when the text input event above has
+     * done it already: the same text gives the same term to complete, and that one is
+     * recognized and dropped by the autoCompleteTheText.
+     * @param e the change event of the text field
+     */
+    private function textChanged(e:Event):void
+    {
+      application.trace("<" + this + " TextInput textChanged> called.", 1);
+      application.trace("<" + this + " TextInput textChanged> e: " + e, 0);
+      // the label of the field becomes the typed text on the very first change, for the
+      // reason the text input above describes
+      if (!iniTextChanged)
+      {
+        iniTextChanged = true;
+        baseTextField.setLabel(baseTextField.text);
+      }
+      // the text of the field and the caret in it are the final ones by the time this
+      // event arrives, so they are taken as they are
+      autoCompleteTheText(baseTextField.text, baseTextField.caretIndex);
+      hintTextLabelVisible();
+      deleteVisible();
+    }
+    /**
      * Handles a released key: the enter dispatches the changed event of this input,
      * every other key refreshes the list of the completion.
      * @param e the key up event of the text field
@@ -1230,6 +1265,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       // this input is gone: nothing would put it back afterwards
       restoreTheParentContent();
       baseTextField.removeEventListener(TextEvent.TEXT_INPUT, textInput);
+      baseTextField.removeEventListener(Event.CHANGE, textChanged);
       baseTextField.removeEventListener(FocusEvent.FOCUS_OUT, focusOut);
       baseTextField.removeEventListener(FocusEvent.FOCUS_IN, focusIn);
       baseTextField.removeEventListener(KeyboardEvent.KEY_UP, keyUp);
