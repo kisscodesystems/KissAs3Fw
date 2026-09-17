@@ -16,6 +16,8 @@
  * - displays alerts with an ok, or with an ok and a cancel button
  * - displays the list of the widgets and the list of the widget containers
  * - a newer alert goes to the bottom of the contents, as a multiple content works
+ * - an alert without an ok button carries no answer at all: it stays until a closeAlert
+ *   of the unique string of it, which is how a long work is told about
  * - invisible by default, and it becomes invisible again when nothing is left on it
  */
 package com.kisscodesystems.KissAs3Fw.app
@@ -68,10 +70,18 @@ package com.kisscodesystems.KissAs3Fw.app
     }
     /**
      * Creates a new alert with an ok, and optionally with a cancel button on it.
+     * An alert asked for without an ok button carries no answer at all: the message of it
+     * fills the whole content and nothing but a closeAlert of the unique string of it takes
+     * it away. That is the way a long work is told about, see the runWithLoading of the
+     * application: there is nothing to be answered while that work is being done, and no
+     * sound is played for it either, the message disappears by itself when it is over.
+     * A cancel button alone is not possible: an alert asked for with a cancel and without
+     * an ok is the message alone, just like any other one without an ok.
      * @param messageString the message to be displayed
      * @param uniqueString the unique identifier of this alert, the custom event
-     *                     strings of the buttons are built of it
-     * @param eventOK whether the ok button is needed, an alert without it displays nothing
+     *                     strings of the buttons are built of it, and the closeAlert
+     *                     of this very string is the one closing this alert
+     * @param eventOK whether the ok button is needed
      * @param eventCANCEL whether the cancel button is needed as well
      * @param prio whether this alert has to be the active content right away
      * @param fullscreen whether this alert has to fill the whole application
@@ -90,9 +100,9 @@ package com.kisscodesystems.KissAs3Fw.app
       application.trace("<" + this + " Foreground createAlert> eventCANCEL: " + eventCANCEL, 0);
       application.trace("<" + this + " Foreground createAlert> prio: " + prio, 0);
       application.trace("<" + this + " Foreground createAlert> fullscreen: " + fullscreen, 0);
-      if (messageString == null || !eventOK)
+      if (messageString == null)
       {
-        application.trace("<" + this + " Foreground createAlert> an alert without a message or without an ok button displays nothing.", 0);
+        application.trace("<" + this + " Foreground createAlert> an alert without a message displays nothing.", 0);
         return;
       }
       createContentMultiple(fullscreen);
@@ -108,22 +118,30 @@ package com.kisscodesystems.KissAs3Fw.app
       contentMultiple.addToContent(index, textBox, 0);
       textBox.setLabel(messageString);
       textBox.setWordWrap(true);
-      const buttonOK:ButtonText = createAlertButton(index, uniqueString, EnumOkCancel.OC_OK(), EnumIcons.ok());
       textBox.setCxy(margin, margin);
-      textBox.setDwh(contentMultiple.getDw() - 2 * margin
-          , contentMultiple.getDh() - 3 * margin - buttonOK.getDh());
-      if (eventCANCEL)
+      if (eventOK)
       {
-        const buttonCANCEL:ButtonText = createAlertButton(index, uniqueString, EnumOkCancel.OC_CANCEL(), EnumIcons.cancel());
-        buttonOK.setCxy((contentMultiple.getDw() - buttonOK.getDw() - buttonCANCEL.getDw() - margin) / 2
-            , textBox.getCy(true) + margin);
-        buttonCANCEL.setCxy(buttonOK.getCx(true) + margin, buttonOK.getCy());
-        application.getSoundManager().playSound(EnumSounds.confirm());
+        const buttonOK:ButtonText = createAlertButton(index, uniqueString, EnumOkCancel.OC_OK(), EnumIcons.ok());
+        textBox.setDwh(contentMultiple.getDw() - 2 * margin
+            , contentMultiple.getDh() - 3 * margin - buttonOK.getDh());
+        if (eventCANCEL)
+        {
+          const buttonCANCEL:ButtonText = createAlertButton(index, uniqueString, EnumOkCancel.OC_CANCEL(), EnumIcons.cancel());
+          buttonOK.setCxy((contentMultiple.getDw() - buttonOK.getDw() - buttonCANCEL.getDw() - margin) / 2
+              , textBox.getCy(true) + margin);
+          buttonCANCEL.setCxy(buttonOK.getCx(true) + margin, buttonOK.getCy());
+          application.getSoundManager().playSound(EnumSounds.confirm());
+        }
+        else
+        {
+          buttonOK.setCxy((contentMultiple.getDw() - buttonOK.getDw()) / 2, textBox.getCy(true) + margin);
+          application.getSoundManager().playSound(EnumSounds.message());
+        }
       }
       else
       {
-        buttonOK.setCxy((contentMultiple.getDw() - buttonOK.getDw()) / 2, textBox.getCy(true) + margin);
-        application.getSoundManager().playSound(EnumSounds.message());
+        // there is no button to leave room for, so the message fills the whole content
+        textBox.setDwh(contentMultiple.getDw() - 2 * margin, contentMultiple.getDh() - 2 * margin);
       }
       setActiveIndex(prio ? index : 0);
     }

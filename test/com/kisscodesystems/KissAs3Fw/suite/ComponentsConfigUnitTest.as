@@ -81,6 +81,10 @@ package com.kisscodesystems.KissAs3Fw.suite
         , config.getWatchTimerDelay() > 0);
       assertTrue("the delay of the timer of the active servers is a positive one"
         , config.getActiveServersTimerDelay() > 0);
+      // the box of a long work needs a pause of its own to reach the screen before that
+      // work begins and holds the single thread of the application
+      assertTrue("the delay of the box of a long work is a positive one"
+        , config.getLoadingDelay() > 0);
       // the lists and the shortened texts have to have room for something
       assertTrue("the auto completion displays at least one element"
         , config.getAutoCompleteMaxElements() > 0);

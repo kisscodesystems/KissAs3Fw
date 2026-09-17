@@ -28,6 +28,7 @@ package com.kisscodesystems.KissAs3Fw.config
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.base.BaseConfigValues;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumCameraResolutions;
   import flash.filters.BlurFilter;
   import flash.filters.DropShadowFilter;
   import flash.system.System;
@@ -126,6 +127,15 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var datePanelDateTimeFormat:String = "yyyy-MM-dd HH:mm";
     protected var datePanelDateTimeSecFormat:String = "yyyy-MM-dd HH:mm:ss";
     protected var inputTimerDelay:int = 666;
+    // The milliseconds this application waits after it has reached the stage before it
+    // draws every text and every icon of itself over again, zero to do it never. See the
+    // startupRefresh of the application: the machine it is there for needs that pause.
+    protected var startupRefreshDelay:int = 500;
+    // The milliseconds this application waits between displaying the box telling that
+    // something long is being done and beginning that work itself, zero to display no such
+    // box at all. See the runWithLoading of the application: the box needs that pause to
+    // reach the screen before the single thread of this application is held by the work.
+    protected var loadingDelay:int = 100;
     protected var emptyHtmlParagraph:String = "<p>&nbsp;</p>";
     protected var boardBackgroundColor:String = "DDDDDD";
     protected var boardLineColor:String = "111111";
@@ -137,9 +147,23 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var boardRubberThicknessFactor:int = 5;
     protected var boardChangedTimerDelay:int = 1111;
     protected var raterNumOfStars:int = 5;
-    protected var cameraWidthMin:int = 480;
-    protected var cameraWidthMax:int = 1280;
-    protected var cameraWidthInc:int = 160;
+    // The widths a camera can be asked for, one range to an aspect ratio. A camera only
+    // answers a picture in a mode the device of it really holds, and those modes belong to
+    // the aspect ratio of them, so the two ranges have nothing in common: the four by three
+    // modes are 320x240, 480x360 and 640x480, and the widescreen ones are 640x360 and
+    // 1280x720. Every one of those is a mode an android device offers or the nearest one an
+    // iphone falls back to - 480x360 and 640x480 are two of the fixed presets of it - while
+    // a square picture or a 1120x840 one is a mode no device of any of them holds at all.
+    // The step is the one the next mode of the very same ratio stands at, so a machine
+    // holding more of them - an android device offering 1920x1080 - is one line of the xml
+    // away. A range has to hold two widths at the least: a potmeter standing on one single
+    // value is one that drops the whole range, see Potmeter.setMinMaxIncValues.
+    protected var cameraWidth43Min:int = 320;
+    protected var cameraWidth43Max:int = 640;
+    protected var cameraWidth43Inc:int = 160;
+    protected var cameraWidth169Min:int = 640;
+    protected var cameraWidth169Max:int = 1280;
+    protected var cameraWidth169Inc:int = 640;
     protected var cameraWidthIni:int = 640;
     protected var cameraFpsMin:int = 10;
     protected var cameraFpsMax:int = 42;
@@ -181,7 +205,7 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var shortTextLimit:int = 142;
     protected var shortTextEnding:String = "...";
     protected var minTextInputAlpha:Number = 0.15;
-    protected var clickGap:int = 5;
+    protected var clickGap:int = 7;
     protected var tracerBgalpha:Number = 0.5;
     protected var tracerAttrDelim:String = "&";
     protected var tracerAttrMargin:String = "   | ";
@@ -329,6 +353,8 @@ package com.kisscodesystems.KissAs3Fw.config
       datePanelDateTimeFormat = values.getString("datePanelDateTimeFormat", datePanelDateTimeFormat);
       datePanelDateTimeSecFormat = values.getString("datePanelDateTimeSecFormat", datePanelDateTimeSecFormat);
       inputTimerDelay = values.getInt("inputTimerDelay", inputTimerDelay);
+      startupRefreshDelay = values.getInt("startupRefreshDelay", startupRefreshDelay);
+      loadingDelay = values.getInt("loadingDelay", loadingDelay);
       emptyHtmlParagraph = values.getString("emptyHtmlParagraph", emptyHtmlParagraph);
       boardBackgroundColor = values.getString("boardBackgroundColor", boardBackgroundColor);
       boardLineColor = values.getString("boardLineColor", boardLineColor);
@@ -340,9 +366,12 @@ package com.kisscodesystems.KissAs3Fw.config
       boardRubberThicknessFactor = values.getInt("boardRubberThicknessFactor", boardRubberThicknessFactor);
       boardChangedTimerDelay = values.getInt("boardChangedTimerDelay", boardChangedTimerDelay);
       raterNumOfStars = values.getInt("raterNumOfStars", raterNumOfStars);
-      cameraWidthMin = values.getInt("cameraWidthMin", cameraWidthMin);
-      cameraWidthMax = values.getInt("cameraWidthMax", cameraWidthMax);
-      cameraWidthInc = values.getInt("cameraWidthInc", cameraWidthInc);
+      cameraWidth43Min = values.getInt("cameraWidth43Min", cameraWidth43Min);
+      cameraWidth43Max = values.getInt("cameraWidth43Max", cameraWidth43Max);
+      cameraWidth43Inc = values.getInt("cameraWidth43Inc", cameraWidth43Inc);
+      cameraWidth169Min = values.getInt("cameraWidth169Min", cameraWidth169Min);
+      cameraWidth169Max = values.getInt("cameraWidth169Max", cameraWidth169Max);
+      cameraWidth169Inc = values.getInt("cameraWidth169Inc", cameraWidth169Inc);
       cameraWidthIni = values.getInt("cameraWidthIni", cameraWidthIni);
       cameraFpsMin = values.getInt("cameraFpsMin", cameraFpsMin);
       cameraFpsMax = values.getInt("cameraFpsMax", cameraFpsMax);
@@ -762,6 +791,14 @@ package com.kisscodesystems.KissAs3Fw.config
     {
       return inputTimerDelay;
     }
+    public function getStartupRefreshDelay():int
+    {
+      return startupRefreshDelay;
+    }
+    public function getLoadingDelay():int
+    {
+      return loadingDelay;
+    }
     public function getEmptyHtmlParagraph():String
     {
       return emptyHtmlParagraph;
@@ -807,25 +844,43 @@ package com.kisscodesystems.KissAs3Fw.config
       return raterNumOfStars;
     }
     /**
-     * Returns the narrowest picture a camera of this framework can be asked for.
+     * Returns the narrowest picture a camera of this framework can be asked for in the
+     * given aspect ratio.
+     * @param resolution the aspect ratio, an EnumCameraResolutions value
      */
-    public function getCameraWidthMin():int
+    public function getCameraWidthMin(resolution:String):int
     {
-      return cameraWidthMin;
+      application.trace("<" + this + " ComponentsConfig getCameraWidthMin> called.", 1);
+      application.trace("<" + this + " ComponentsConfig getCameraWidthMin> resolution: " + resolution, 0);
+      return resolution == EnumCameraResolutions.CAMERA_RESOLUTION_169()
+        ? cameraWidth169Min
+        : cameraWidth43Min;
     }
     /**
-     * Returns the widest picture a camera of this framework can be asked for.
+     * Returns the widest picture a camera of this framework can be asked for in the given
+     * aspect ratio.
+     * @param resolution the aspect ratio, an EnumCameraResolutions value
      */
-    public function getCameraWidthMax():int
+    public function getCameraWidthMax(resolution:String):int
     {
-      return cameraWidthMax;
+      application.trace("<" + this + " ComponentsConfig getCameraWidthMax> called.", 1);
+      application.trace("<" + this + " ComponentsConfig getCameraWidthMax> resolution: " + resolution, 0);
+      return resolution == EnumCameraResolutions.CAMERA_RESOLUTION_169()
+        ? cameraWidth169Max
+        : cameraWidth43Max;
     }
     /**
-     * Returns the step between the two widths a camera can be asked for.
+     * Returns the step between the two widths a camera can be asked for in the given
+     * aspect ratio: the next mode of that very ratio stands there.
+     * @param resolution the aspect ratio, an EnumCameraResolutions value
      */
-    public function getCameraWidthInc():int
+    public function getCameraWidthInc(resolution:String):int
     {
-      return cameraWidthInc;
+      application.trace("<" + this + " ComponentsConfig getCameraWidthInc> called.", 1);
+      application.trace("<" + this + " ComponentsConfig getCameraWidthInc> resolution: " + resolution, 0);
+      return resolution == EnumCameraResolutions.CAMERA_RESOLUTION_169()
+        ? cameraWidth169Inc
+        : cameraWidth43Inc;
     }
     /**
      * Returns the width a brand new camera starts with.
@@ -1305,6 +1360,8 @@ package com.kisscodesystems.KissAs3Fw.config
       datePanelDateTimeFormat = null;
       datePanelDateTimeSecFormat = null;
       inputTimerDelay = 0;
+      startupRefreshDelay = 0;
+      loadingDelay = 0;
       emptyHtmlParagraph = null;
       boardBackgroundColor = null;
       boardLineColor = null;
@@ -1316,9 +1373,12 @@ package com.kisscodesystems.KissAs3Fw.config
       boardRubberThicknessFactor = 0;
       boardChangedTimerDelay = 0;
       raterNumOfStars = 0;
-      cameraWidthMin = 0;
-      cameraWidthMax = 0;
-      cameraWidthInc = 0;
+      cameraWidth43Min = 0;
+      cameraWidth43Max = 0;
+      cameraWidth43Inc = 0;
+      cameraWidth169Min = 0;
+      cameraWidth169Max = 0;
+      cameraWidth169Inc = 0;
       cameraWidthIni = 0;
       cameraFpsMin = 0;
       cameraFpsMax = 0;

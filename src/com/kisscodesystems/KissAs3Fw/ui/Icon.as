@@ -19,6 +19,8 @@
  * - the bitmap data is drawn over a transparent square, so the whole object takes the
  *   mouse events and not the drawn pixels only
  * - the dimensions come from the drawing, they can not be set from the outside
+ * - the drawing is repeated as soon as this object lands on the stage: a drawing made
+ *   outside the display list does not reach the screen of every machine
  */
 package com.kisscodesystems.KissAs3Fw.ui
 {
@@ -86,6 +88,10 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Icon destBitmapData> called.", 1);
       if (bitmapData != null)
       {
+        // the surface is cleared in front of the freeing on purpose: the fill drawn on it
+        // holds the very bitmap data below, and a fill pointing at a freed drawing is one
+        // a hardware renderer has no picture for any more
+        graphics.clear();
         bitmapData.dispose();
         bitmapData = null;
         application.trace("<" + this + " Icon destBitmapData> bitmapData has been cleared.", 0);
@@ -110,18 +116,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       bitmapData = application.getIconManager().getNewBitmapData(newIconType, newTextType, newIconSize);
       repaintBitmapData(newIconSize);
       filters = undefined;
-      if (newTextType == EnumTextTypes.TEXT_TYPE_MID())
-      {
-        setDropShadowFilter(application.getDynamicsConfig().getAppFontColorMid());
-      }
-      else if (newTextType == EnumTextTypes.TEXT_TYPE_DARK())
-      {
-        setDropShadowFilter(application.getDynamicsConfig().getAppFontColorDark());
-      }
-      else
-      {
-        setDropShadowFilter(application.getDynamicsConfig().getAppFontColorBright());
-      }
+      setDropShadowFilter(getColorOfTextType(newTextType));
       updateTextFormatListener(newTextType);
       iconType = newIconType;
       emojiType = "";
@@ -185,6 +180,68 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Icon setDwh> newdw: " + newdw, 0);
       application.trace("<" + this + " Icon setDwh> newdh: " + newdh, 0);
       application.trace("<" + this + " Icon setDwh> do nothing.", 1);
+    }
+    /**
+     * Draws the content of this object over again as soon as it really lands on the
+     * stage.
+     * A drawing made while this object was standing outside the display list does not
+     * reach the screen of an android device at all: that renderer only takes the surface
+     * of an object it composites, and an object nothing has composited yet has no such
+     * surface. The icons of a panel are drawn while that panel is being built, and a
+     * panel is built before it is added to the layer of it, so those icons would stay
+     * invisible until something drew them again - the turning of the screen, a new font
+     * size - and that is the very repetition this one makes on the spot. It costs
+     * nothing: the bitmap data of the drawing is the one this object already holds.
+     * @param e the added to stage event
+     */
+    override protected function addedToStage(e:Event):void
+    {
+      application.trace("<" + this + " Icon addedToStage> called.", 1);
+      application.trace("<" + this + " Icon addedToStage> e: " + e, 0);
+      super.addedToStage(e);
+      repeatDrawing();
+    }
+    /**
+     * Draws the bitmap data this object holds over its surface again and puts the drop
+     * shadow of an icon back on it. Neither that bitmap data nor the types of it are
+     * touched, so this is the cheap way to take a drawing that has been made already to
+     * the screen once more. An object holding nothing at all has nothing to repeat.
+     */
+    private function repeatDrawing():void
+    {
+      application.trace("<" + this + " Icon repeatDrawing> called.", 1);
+      if (bitmapData == null)
+      {
+        application.trace("<" + this + " Icon repeatDrawing> there is nothing drawn into this object yet.", 1);
+        return;
+      }
+      repaintBitmapData(iconSize);
+      // an emoji comes in its own colors and carries no shadow at all, so the filter of
+      // an icon is the only one there is to be built again
+      if (iconType != "")
+      {
+        filters = undefined;
+        setDropShadowFilter(getColorOfTextType(textType));
+      }
+    }
+    /**
+     * Returns the font color of the given text type: the very color the icon of this
+     * object is drawn in, and the one the drop shadow of it has to stand out of.
+     * @param newTextType the text type the color is asked for, an EnumTextTypes value
+     */
+    private function getColorOfTextType(newTextType:String):Number
+    {
+      application.trace("<" + this + " Icon getColorOfTextType> called.", 1);
+      application.trace("<" + this + " Icon getColorOfTextType> newTextType: " + newTextType, 0);
+      if (newTextType == EnumTextTypes.TEXT_TYPE_MID())
+      {
+        return application.getDynamicsConfig().getAppFontColorMid();
+      }
+      if (newTextType == EnumTextTypes.TEXT_TYPE_DARK())
+      {
+        return application.getDynamicsConfig().getAppFontColorDark();
+      }
+      return application.getDynamicsConfig().getAppFontColorBright();
     }
     /**
      * Draws the bitmap data of this object over a transparent rectangle, so that the

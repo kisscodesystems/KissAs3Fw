@@ -1519,7 +1519,13 @@ internal class Navigation extends BaseSprite
     }
   }
   /**
-   * Removes the stage mouse listeners when the navigation is removed from the stage.
+   * Removes the stage mouse listeners when the navigation is removed from the stage and
+   * ends the drag that was running on it.
+   * The release of the mouse button is the one thing that takes a scroll out of its
+   * dragged state, and that release arrives on the stage: an object that leaves the stage
+   * in the middle of a drag would never hear it, so the scroll of it would stay a dragged
+   * one for good - and a scroll that is a dragged one already refuses every later drag of
+   * itself, see spriteMoverMouseDown.
    * @param e the removed from stage event
    */
   override protected function removedFromStage(e:Event):void
@@ -1530,6 +1536,14 @@ internal class Navigation extends BaseSprite
     {
       stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUpSpriteMover);
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMoveSpriteMover);
+    }
+    if (moverDragging)
+    {
+      application.trace("<" + this + " Navigation removedFromStage> the drag running on this navigation is ended.", 0);
+      scroll.setScrolled(false);
+      moverDragging = false;
+      removeEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
+      spriteMover.stopDrag();
     }
     super.removedFromStage(e);
   }

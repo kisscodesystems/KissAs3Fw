@@ -15,9 +15,13 @@
  * MAIN FEATURES:
  * - it grabs and releases the camera device on demand, and it tells the outside by
  *   an event of its own which of the two has happened
+ * - a device that has been grabbed is held until it tells whether it is usable at all:
+ *   the one using the application is the one allowing it, and that answer arrives
+ *   moments later, so the picture of it waits for the status event of that device
  * - the microphone device is grabbed and released together with the camera one, so the
  *   application around it feeds both the picture and the sound of one outgoing stream
- *   from this single object
+ *   from this single object, and a machine refusing its microphone keeps the camera it
+ *   has allowed anyway
  * - both of those devices can be muted on their own, and the sound of the microphone
  *   carries a gain of its own as well, so a quiet microphone is a step away from a
  *   silenced one: a muted picture is an empty one and a muted microphone hears nothing
@@ -166,6 +170,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var bitmapData:BitmapData = null;
     private var pictureByteArray:ByteArray = null;
     private var pictureName:String = "";
+    // Whether the grabbed camera device has been reported usable and its picture has been
+    // taken into use. A device is grabbed moments before it becomes usable, see attachCamera.
+    private var cameraInUse:Boolean = false;
     private var eventCameraIsAttached:Event = null;
     private var eventCameraIsDetached:Event = null;
     private var eventChanged:Event = null;
@@ -275,12 +282,16 @@ package com.kisscodesystems.KissAs3Fw.ui
       return microphone != null;
     }
     /**
-     * Grabs the camera device the picker of the cameras stands on, starts to display the
-     * picture of it and grabs the picked microphone device with it. The devices of the
-     * machine are read again first: one of them can be plugged in or taken away while the
-     * application is running. A machine holding no camera at all, a portrait screen and a
-     * device that is muted or busy leave this object as it has been: the picture of a
-     * camera is a landscape one, and a device nobody allows can not be grabbed.
+     * Grabs the camera device the picker of the cameras stands on and starts to display
+     * the picture of it. A machine holding no camera at all and a portrait screen leave
+     * this object as it has been: the picture of a camera is a landscape one.
+     * A device that has been grabbed is not a device that is usable yet: the one using the
+     * application is the one allowing it, and that answer is given to a question the
+     * machine displays, so it arrives moments later. So the device is kept and the
+     * displaying of its picture waits for the status event of it, the very event that
+     * tells whether it has become usable at all: that is the state a first grabbing on a
+     * mobile device always lands in, and giving the device up on the spot - as this used
+     * to do - is what left the picture of an android camera empty.
      */
     public function attachCamera():void
     {
@@ -290,7 +301,14 @@ package com.kisscodesystems.KissAs3Fw.ui
         application.trace("<" + this + " Camera attachCamera> there is a camera device grabbed already.", 1);
         return;
       }
-      refreshCameraDevices();
+      // the devices are read again while this object knows of none: reading them grabs and
+      // lets go of every camera of the machine, and a device that has just been let go of
+      // is not one to be grabbed again in the very same moment, so the list of them is
+      // refreshed where it costs nothing - on the opening of the settings panel
+      if (cameraDevices.length < 1)
+      {
+        refreshCameraDevices();
+      }
       if (cameraDevices.length < 1)
       {
         application.trace("<" + this + " Camera attachCamera> this machine holds no camera device at all!", 6);
@@ -310,22 +328,27 @@ package com.kisscodesystems.KissAs3Fw.ui
         application.trace("<" + this + " Camera attachCamera> the picked device could not be grabbed, the default one comes.", 0);
         camera = flash.media.Camera.getCamera();
       }
-      if (camera == null || camera.muted)
+      if (camera == null)
       {
         application.trace("<" + this + " Camera attachCamera> there is no camera device to be used!", 6);
         detachCamera();
         showAlert(EnumTextKeys.REQUIRED_PERMISSIONS_ALERT());
         return;
       }
+      camera.addEventListener(StatusEvent.STATUS, cameraStatus);
       camera.setMode(cameraWidth, cameraHeight, cameraFps);
       camera.setQuality(0, cameraQuality);
-      camera.addEventListener(StatusEvent.STATUS, cameraStatus);
-      attachMicrophone();
-      createVideo();
+      // the buttons follow the grabbing of the device on the spot: a device whose answer is
+      // still on its way is a device that is held by this object, so the release of it has
+      // to be there to be pressed
       attachButtonLink.setSpriteVisible(false);
       detachButtonLink.setSpriteVisible(true);
-      refreshTakePictureButtonText();
-      getBaseEventDispatcher().dispatchEvent(eventCameraIsAttached);
+      if (camera.muted)
+      {
+        application.trace("<" + this + " Camera attachCamera> the device is not allowed yet, the status event of it is the one to tell.", 1);
+        return;
+      }
+      displayCameraPicture();
     }
     /**
      * Releases the camera device of this object together with the microphone one and
@@ -335,7 +358,8 @@ package com.kisscodesystems.KissAs3Fw.ui
     public function detachCamera():void
     {
       application.trace("<" + this + " Camera detachCamera> called.", 1);
-      const wasAttached:Boolean = isCameraAttached();
+      const wasInUse:Boolean = cameraInUse;
+      cameraInUse = false;
       dropVideo();
       if (camera != null)
       {
@@ -348,7 +372,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       detachButtonLink.setSpriteVisible(false);
       setSettingsVisible(false);
       refreshTakePictureButtonText();
-      if (wasAttached)
+      if (wasInUse)
       {
         getBaseEventDispatcher().dispatchEvent(eventCameraIsDetached);
       }
@@ -567,7 +591,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     /**
      * Takes the aspect ratio the picture of the camera has to be displayed in. The
      * height comes from that ratio and from the width, so the picture and this object
-     * are resized by it.
+     * are resized by it. The widths a camera device really works in belong to the ratio
+     * as well, so the width of the picture is taken into the range of the new one: a
+     * widescreen picture is a wider picture than a four by three one is.
      * @param resolution the new aspect ratio, an EnumCameraResolutions value
      */
     public function setCameraResolution(resolution:String):void
@@ -586,6 +612,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
       cameraResolution = resolution;
       resolutionListPicker.setSelectedIndex(EnumCameraResolutions.getEveryResolution().indexOf(cameraResolution), false);
+      applyWidthRangeOfResolution();
       applyCameraMode();
     }
     /**
@@ -619,17 +646,19 @@ package com.kisscodesystems.KissAs3Fw.ui
     /**
      * Takes the width the picture of the camera has to be displayed in. The height comes
      * from that width and from the aspect ratio, so the picture and this object are
-     * resized by it. A width outside the range of the configuration is refused.
+     * resized by it. A width the current aspect ratio does not hold is refused: the modes
+     * a camera device really works in belong to that very ratio, see the cameraWidth
+     * values of the components configuration.
      * @param newWidth the new width of the picture
      */
     public function setCameraWidth(newWidth:int):void
     {
       application.trace("<" + this + " Camera setCameraWidth> called.", 1);
       application.trace("<" + this + " Camera setCameraWidth> newWidth: " + newWidth, 0);
-      if (newWidth < application.getComponentsConfig().getCameraWidthMin()
-        || newWidth > application.getComponentsConfig().getCameraWidthMax())
+      if (newWidth < application.getComponentsConfig().getCameraWidthMin(cameraResolution)
+        || newWidth > application.getComponentsConfig().getCameraWidthMax(cameraResolution))
       {
-        application.trace("<" + this + " Camera setCameraWidth> this width is out of the range of a camera!", 6);
+        application.trace("<" + this + " Camera setCameraWidth> this width is out of the range of this aspect ratio!", 6);
         return;
       }
       if (cameraWidth == newWidth)
@@ -860,7 +889,10 @@ package com.kisscodesystems.KissAs3Fw.ui
      * Takes every property of the picture of the camera and of the sound of the
      * microphone back to the value the configuration of the application starts a brand new
      * camera with, and unmutes both of those devices. The two devices themselves and the
-     * aspect ratio are kept: those tell what this object is working with at all.
+     * aspect ratio are kept: those tell what this object is working with at all. The
+     * starting width is taken into the range of that kept ratio: the widths of a camera
+     * belong to the very ratio they are the modes of, so one single starting width cannot
+     * be the one of every ratio at once.
      */
     public function resetSettings():void
     {
@@ -868,7 +900,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       setVideoMuted(false);
       setSoundMuted(false);
       setSoundVolume(application.getComponentsConfig().getCameraSoundVolumeIni());
-      setCameraWidth(application.getComponentsConfig().getCameraWidthIni());
+      setCameraWidth(iniWidthOfResolution());
       setCameraFps(application.getComponentsConfig().getCameraFpsIni());
       setCameraQuality(application.getComponentsConfig().getCameraQualityIni());
       setFilterBlur(application.getComponentsConfig().getCameraBlurMin());
@@ -928,6 +960,15 @@ package com.kisscodesystems.KissAs3Fw.ui
         application.trace("<" + this + " Camera setSettingsVisible> nothing to do.", 1);
         return;
       }
+      // the devices of the machine are read again on the opening of the panel offering them:
+      // one of them can be plugged in or taken away while the application is running.
+      // Reading the cameras grabs and lets go of every one of them, so a device that is in
+      // use is never disturbed by it
+      if (b && !isCameraAttached())
+      {
+        refreshCameraDevices();
+        refreshMicrophoneDevices();
+      }
       settingsContent.visible = b;
       if (stage != null)
       {
@@ -961,7 +1002,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     public function takePicture():void
     {
       application.trace("<" + this + " Camera takePicture> called.", 1);
-      if (!isCameraAttached())
+      if (!cameraInUse)
       {
         application.trace("<" + this + " Camera takePicture> there is no camera device to take a photo of!", 6);
         return;
@@ -1176,7 +1217,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     private function refreshTakePictureButtonText():void
     {
       application.trace("<" + this + " Camera refreshTakePictureButtonText> called.", 1);
-      takePictureButtonText.setEnabled(getEnabled() && isCameraAttached() && !videoMuted
+      takePictureButtonText.setEnabled(getEnabled() && cameraInUse && !videoMuted
           && takePictureTimer == null);
     }
     /**
@@ -1228,8 +1269,23 @@ package com.kisscodesystems.KissAs3Fw.ui
       settingsContent.visible = false;
       settingsContent.setOrientation(EnumOrientations.ORIENTATION_VERTICAL());
       settingsContent.setElementsFix(1);
-      settingsContent.getBaseScroll().setEnabledHorizontal(false);
-      settingsContent.enableScrollingFromOthers = false;
+      // This panel scrolls in both directions on purpose: it stands in one single column,
+      // so it was a panel that never had to be scrolled sideways, but it is as wide as the
+      // widest row of it whatever the picture of the camera is. A camera narrower than
+      // that panel would show a part of every row only, with no way at all to reach the
+      // rest of it.
+      // It takes the drags of its own rows as well, the default of a content: a drag is the
+      // one way this panel can be scrolled on a screen that has no mouse at all. Every
+      // element of it that is dragged on its own - the mover of a potmeter, a picker, an
+      // input - keeps its presses by its own mouseDownForScrollingEnabled, so those drags
+      // never reach this panel.
+      // The scrolled surface of this panel keeps its own presses, the very same way: that
+      // surface starts the drag of this panel on its own, so a press of it is one that has
+      // nothing to do with the contents this camera stands in. A press is heard by every
+      // parent of the object it lands on, and only one single object can be dragged by the
+      // mouse at a time, so a parent content taking that press would steal this drag a few
+      // pixels in - the settings panel stopped and the widget layer began to scroll.
+      settingsContent.getBaseScroll().getMover().mouseDownForScrollingEnabled = false;
       detachButtonLink = new ButtonLink(application);
       settingsContent.addToContent(detachButtonLink, 0);
       detachButtonLink.setLabel(EnumTextKeys.RELEASE_CAMERA());
@@ -1276,9 +1332,12 @@ package com.kisscodesystems.KissAs3Fw.ui
       resolutionListPicker.setSelectedIndex(EnumCameraResolutions.getEveryResolution().indexOf(cameraResolution), false);
       resolutionListPicker.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), resolutionChanged);
       widthTextLabel = createSettingsTextLabel(EnumTextKeys.CAMERA_SIZE(), 8);
-      widthPotmeter = createSettingsPotmeter(9, application.getComponentsConfig().getCameraWidthMin()
-          , application.getComponentsConfig().getCameraWidthMax()
-          , application.getComponentsConfig().getCameraWidthInc(), 0, cameraWidth, widthChanged);
+      widthPotmeter = createSettingsPotmeter(9
+          , application.getComponentsConfig().getCameraWidthMin(cameraResolution)
+          , application.getComponentsConfig().getCameraWidthMax(cameraResolution)
+          , application.getComponentsConfig().getCameraWidthInc(cameraResolution)
+          , 0, cameraWidth, widthChanged);
+      applyWidthRangeOfResolution();
       fpsTextLabel = createSettingsTextLabel(EnumTextKeys.CAMERA_FPS(), 10);
       fpsPotmeter = createSettingsPotmeter(11, application.getComponentsConfig().getCameraFpsMin()
           , application.getComponentsConfig().getCameraFpsMax(), 1, 0, cameraFps, fpsChanged);
@@ -1377,6 +1436,67 @@ package com.kisscodesystems.KissAs3Fw.ui
       return stage != null && stage.stageWidth > stage.stageHeight;
     }
     /**
+     * Takes the potmeter of the width onto the widths the current aspect ratio holds and
+     * takes the width of the picture into that very range.
+     * The modes a camera device really works in belong to the aspect ratio of them: a
+     * four by three picture is a 640x480 one on every machine of this framework, and a
+     * widescreen one is a 1280x720 one, so the two ranges have nothing in common. A ratio
+     * holding one single width leaves that potmeter with nothing to be moved to, so it is
+     * taken out of reach: the width of such a ratio is the one it displays.
+     */
+    private function applyWidthRangeOfResolution():void
+    {
+      application.trace("<" + this + " Camera applyWidthRangeOfResolution> called.", 1);
+      const widthMin:int = application.getComponentsConfig().getCameraWidthMin(cameraResolution);
+      const widthMax:int = application.getComponentsConfig().getCameraWidthMax(cameraResolution);
+      const widthInc:int = application.getComponentsConfig().getCameraWidthInc(cameraResolution);
+      widthPotmeter.setMinMaxIncValues(widthMin, widthMax, widthInc);
+      widthPotmeter.setEnabled(widthMin < widthMax);
+      cameraWidth = widthOfRange(cameraWidth, widthMin, widthMax, widthInc);
+      widthPotmeter.setCurValue(cameraWidth, false);
+      application.trace("<" + this + " Camera applyWidthRangeOfResolution> cameraWidth: " + cameraWidth, 0);
+    }
+    /**
+     * Returns the given width taken into the given range of the widths: the step of that
+     * range standing the closest to it. A width that is a step of the range already is
+     * answered as it is.
+     * @param width the width to be taken into that range
+     * @param widthMin the narrowest width of the range
+     * @param widthMax the widest width of the range
+     * @param widthInc the step between the two widths of the range
+     */
+    private function widthOfRange(width:int, widthMin:int, widthMax:int, widthInc:int):int
+    {
+      application.trace("<" + this + " Camera widthOfRange> called.", 1);
+      application.trace("<" + this + " Camera widthOfRange> width: " + width, 0);
+      application.trace("<" + this + " Camera widthOfRange> widthMin: " + widthMin, 0);
+      application.trace("<" + this + " Camera widthOfRange> widthMax: " + widthMax, 0);
+      application.trace("<" + this + " Camera widthOfRange> widthInc: " + widthInc, 0);
+      if (widthInc < 1)
+      {
+        application.trace("<" + this + " Camera widthOfRange> the step of this range is no step at all!", 6);
+        return widthMin;
+      }
+      const stepsAbove:int = Math.round((width - widthMin) / widthInc);
+      const widthInRange:int = Math.min(widthMax, Math.max(widthMin, widthMin + stepsAbove * widthInc));
+      application.trace("<" + this + " Camera widthOfRange> widthInRange: " + widthInRange, 0);
+      return widthInRange;
+    }
+    /**
+     * Returns the width a brand new camera starts with, taken into the range of the widths
+     * the current aspect ratio holds. The configuration of the application names one single
+     * starting width, and a width belongs to the ratio it is a mode of, so that one single
+     * value cannot be the starting width of every ratio at once.
+     */
+    private function iniWidthOfResolution():int
+    {
+      application.trace("<" + this + " Camera iniWidthOfResolution> called.", 1);
+      return widthOfRange(application.getComponentsConfig().getCameraWidthIni()
+        , application.getComponentsConfig().getCameraWidthMin(cameraResolution)
+        , application.getComponentsConfig().getCameraWidthMax(cameraResolution)
+        , application.getComponentsConfig().getCameraWidthInc(cameraResolution));
+    }
+    /**
      * Takes the new dimensions and the new frames per second of the picture to the
      * camera device and to this object. The video object is rebuilt: it displays the
      * picture in the dimensions it has been created with.
@@ -1395,6 +1515,35 @@ package com.kisscodesystems.KissAs3Fw.ui
       dispatchEventChanged();
     }
     /**
+     * Takes the camera device that has been reported usable into use: it starts to display
+     * the picture of it, grabs the microphone device belonging to it and tells the outside
+     * that this object holds a camera from now on. It is called at the grabbing of a device
+     * that is allowed already and at the status event of one that has just been allowed, so
+     * a device that is in use is left alone.
+     */
+    private function displayCameraPicture():void
+    {
+      application.trace("<" + this + " Camera displayCameraPicture> called.", 1);
+      if (camera == null)
+      {
+        application.trace("<" + this + " Camera displayCameraPicture> there is no camera device to be displayed.", 1);
+        return;
+      }
+      if (cameraInUse)
+      {
+        application.trace("<" + this + " Camera displayCameraPicture> the camera device is in use already.", 1);
+        return;
+      }
+      cameraInUse = true;
+      createVideo();
+      // the microphone is grabbed after the picture of the camera on purpose: the bar of the
+      // loudness is a nice thing to see beside that picture and nothing more, so a machine
+      // refusing its sound device has to be left with the camera it has allowed
+      attachMicrophone();
+      refreshTakePictureButtonText();
+      getBaseEventDispatcher().dispatchEvent(eventCameraIsAttached);
+    }
+    /**
      * Creates the video object displaying the picture of the camera device. An object
      * holding no device at all and one whose picture is muted display nothing, so neither
      * of them builds that object.
@@ -1405,6 +1554,11 @@ package com.kisscodesystems.KissAs3Fw.ui
       if (camera == null)
       {
         application.trace("<" + this + " Camera createVideo> there is no camera device to be displayed.", 1);
+        return;
+      }
+      if (!cameraInUse)
+      {
+        application.trace("<" + this + " Camera createVideo> the camera device is not usable yet.", 1);
         return;
       }
       if (videoMuted)
@@ -1645,31 +1799,46 @@ package com.kisscodesystems.KissAs3Fw.ui
     private function attachMicrophone():void
     {
       application.trace("<" + this + " Camera attachMicrophone> called.", 1);
-      refreshMicrophoneDevices();
+      if (microphoneDevices.length < 1)
+      {
+        refreshMicrophoneDevices();
+      }
       if (microphoneDevices.length < 1)
       {
         application.trace("<" + this + " Camera attachMicrophone> this machine holds no microphone device at all.", 1);
         return;
       }
-      microphone = Microphone.getMicrophone(microphoneListPicker.getSelectedIndex());
-      if (microphone == null)
+      // every refusal of the sound device is written down and left there: not every machine
+      // lets a microphone be grabbed beside a camera or listened to at all, and the camera is
+      // the thing that has been asked for, so it has to go on without the bar of the loudness
+      try
       {
-        application.trace("<" + this + " Camera attachMicrophone> the picked device could not be grabbed, the default one comes.", 0);
-        microphone = Microphone.getMicrophone();
+        microphone = Microphone.getMicrophone(microphoneListPicker.getSelectedIndex());
+        if (microphone == null)
+        {
+          application.trace("<" + this + " Camera attachMicrophone> the picked device could not be grabbed, the default one comes.", 0);
+          microphone = Microphone.getMicrophone();
+        }
+        if (microphone == null || microphone.muted)
+        {
+          application.trace("<" + this + " Camera attachMicrophone> there is no microphone device to be used.", 1);
+          microphone = null;
+          return;
+        }
+        microphone.addEventListener(StatusEvent.STATUS, microphoneStatus);
+        // a device tells the loudness it hears while it is being listened to only, and the
+        // speakers of the machine are the ones it is played back through, so that playback
+        // is asked for in a volume of nothing at all: without it this object would hear
+        // itself, and without the loopback it could not display that loudness at all
+        microphone.soundTransform = new SoundTransform(0);
+        microphone.setLoopBack(true);
       }
-      if (microphone == null || microphone.muted)
+      catch (e:Error)
       {
-        application.trace("<" + this + " Camera attachMicrophone> there is no microphone device to be used.", 1);
-        microphone = null;
+        application.trace("<" + this + " Camera attachMicrophone> the microphone device could not be taken into use: " + e, 7);
+        detachMicrophone();
         return;
       }
-      microphone.addEventListener(StatusEvent.STATUS, microphoneStatus);
-      // a device tells the loudness it hears while it is being listened to only, and the
-      // speakers of the machine are the ones it is played back through, so that playback
-      // is asked for in a volume of nothing at all: without it this object would hear
-      // itself, and without the loopback it could not display that loudness at all
-      microphone.soundTransform = new SoundTransform(0);
-      microphone.setLoopBack(true);
       displaySound();
       startSoundLevelTimer();
     }
@@ -1683,8 +1852,18 @@ package com.kisscodesystems.KissAs3Fw.ui
       dropSoundLevelTimer();
       if (microphone != null)
       {
-        microphone.setLoopBack(false);
         microphone.removeEventListener(StatusEvent.STATUS, microphoneStatus);
+        // the listening is stopped inside a guard on purpose: this is the way out of a
+        // camera as well, and a machine that refuses to be listened to refuses the stopping
+        // of that listening just as well
+        try
+        {
+          microphone.setLoopBack(false);
+        }
+        catch (e:Error)
+        {
+          application.trace("<" + this + " Camera detachMicrophone> the listening of the microphone could not be stopped: " + e, 7);
+        }
         microphone = null;
       }
       drawSoundLevel();
@@ -2215,12 +2394,26 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       application.trace("<" + this + " Camera cameraStatus> called.", 1);
       application.trace("<" + this + " Camera cameraStatus> e: " + e, 0);
-      if (camera != null && !camera.muted)
+      if (camera == null)
       {
-        application.trace("<" + this + " Camera cameraStatus> the camera device is usable.", 1);
+        application.trace("<" + this + " Camera cameraStatus> there is no camera device of this object any more.", 1);
         return;
       }
-      detachCamera();
+      if (camera.muted)
+      {
+        application.trace("<" + this + " Camera cameraStatus> the camera device is not usable.", 1);
+        const wasInUse:Boolean = cameraInUse;
+        detachCamera();
+        // a device that has never been in use is one the one using the application has just
+        // refused, and the alert is the only thing telling why the picture stays empty
+        if (!wasInUse)
+        {
+          showAlert(EnumTextKeys.REQUIRED_PERMISSIONS_ALERT());
+        }
+        return;
+      }
+      application.trace("<" + this + " Camera cameraStatus> the camera device is usable.", 1);
+      displayCameraPicture();
     }
     /**
      * Releases the microphone device as soon as it tells that it is not usable any more:
@@ -2349,6 +2542,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       bitmapData = null;
       pictureByteArray = null;
       pictureName = null;
+      cameraInUse = false;
       eventCameraIsAttached = null;
       eventCameraIsDetached = null;
       eventChanged = null;

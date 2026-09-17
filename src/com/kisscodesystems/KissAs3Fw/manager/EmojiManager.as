@@ -1897,7 +1897,7 @@ package com.kisscodesystems.KissAs3Fw.manager
       var vectorDrawings:VectorDrawings = emojiDrawings[emojiType] as VectorDrawings;
       if (vectorDrawings == null)
       {
-        return new BitmapData(emojiSize, emojiSize, true, 0x00ffffff);
+        return new BitmapData(Math.max(1, emojiSize), Math.max(1, emojiSize), true, 0x00ffffff);
       }
       return vectorDrawings.getNewBitmapData(emojiType, emojiSize);
     }
