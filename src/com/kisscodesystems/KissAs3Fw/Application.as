@@ -22,6 +22,15 @@
  * - the three layers of a displayed application are built by the createLayers: the
  *   background, the middleground holding the widgets and the panels, and the
  *   foreground displaying the alerts
+ * - it draws every text and every icon of itself over again a moment after it has
+ *   reached the stage, see the startupRefresh
+ * - a work that takes long is done behind the alert telling that it is being done,
+ *   see the runWithLoading
+ * - it keeps its own state: that state is saved every time this application is sent to
+ *   the background and restored on the first frame of the next start, so an application
+ *   killed in the background by the operating system goes on where it has been left, see
+ *   the saveState and the restoreState. This one keeps the language and the displaying
+ *   style, and every extender adds its own values by overriding collectState and applyState
  */
 
 package com.kisscodesystems.KissAs3Fw
@@ -38,6 +47,7 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.enum.EnumAppEnvs;
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.enum.EnumOkCancel;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumTextKeys;
   import com.kisscodesystems.KissAs3Fw.manager.BackgroundManager;
   import com.kisscodesystems.KissAs3Fw.manager.CacheManager;
   import com.kisscodesystems.KissAs3Fw.manager.ContextMenuManager;
@@ -49,6 +59,7 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.manager.NetConnectionManager;
   import com.kisscodesystems.KissAs3Fw.manager.ServerManager;
   import com.kisscodesystems.KissAs3Fw.manager.SoundManager;
+  import com.kisscodesystems.KissAs3Fw.manager.StateManager;
   import com.kisscodesystems.KissAs3Fw.manager.UrlRequestManager;
   import com.kisscodesystems.KissAs3Fw.manager.WidgetManager;
   import com.kisscodesystems.KissAs3Fw.ui.ButtonLink;
@@ -57,13 +68,19 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.ui.Widget;
   import com.kisscodesystems.KissAs3Fw.user.User;
   import com.kisscodesystems.KissAs3Fw.util.Utils;
+  import flash.desktop.NativeApplication;
   import flash.display.DisplayObject;
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
   import flash.events.Event;
+  import flash.events.PermissionEvent;
+  import flash.events.TimerEvent;
   import flash.globalization.DateTimeFormatter;
   import flash.media.Camera;
   import flash.media.Microphone;
+  import flash.permissions.PermissionManager;
+  import flash.text.TextFormat;
+  import flash.utils.Timer;
   public class Application extends BaseSprite
   {
     /**
@@ -100,6 +117,7 @@ package com.kisscodesystems.KissAs3Fw
     protected var cacheManager:CacheManager = null;
     protected var contextMenuManager:ContextMenuManager = null;
     protected var deviceIdManager:DeviceIdManager = null;
+    protected var stateManager:StateManager = null;
     protected var fontManager:FontManager = null;
     protected var emojiManager:EmojiManager = null;
     protected var iconManager:IconManager = null;
@@ -146,6 +164,28 @@ package com.kisscodesystems.KissAs3Fw
     private var dateTimeFormatter:DateTimeFormatter = new DateTimeFormatter("en-US");
     // The font size calculated of the size of the stage the last time.
     private var lastCalculatedFontSize:int = 0;
+    // The permission managers waiting to be asked and the one being asked at the moment.
+    // A machine displays one single permission question at a time, so these two turn the
+    // askings of this application into one single row of them: see askPermissionOf below.
+    private var permissionManagersToAsk:Array = new Array();
+    private var permissionManagerAsked:PermissionManager = null;
+    // The timer of the drawing of everything over again after the start, and the flag of
+    // the single run of it: see the startupRefresh below.
+    private var startupRefreshTimer:Timer = null;
+    private var startupRefreshDone:Boolean = false;
+    // The work that is being done behind the alert telling that something long is going on,
+    // the unique string that alert is closed by and the timer of the pause that alert needs
+    // to reach the screen: see runWithLoading.
+    private var loadingTimer:Timer = null;
+    private var loadingWork:Function = null;
+    private var loadingUniqueString:String = "";
+    // The keys of the values this class keeps in the state of the application. Every
+    // extender keeps its own values under keys starting with its own name, so the values
+    // of two classes never overwrite each other.
+    private const STATE_LANG_CODE:String = "Application.langCode";
+    private const STATE_DISPLAYING_STYLE:String = "Application.displayingStyle";
+    // The flag of the single restoring of the state, the one of the first frame.
+    private var stateRestored:Boolean = false;
     /**
      * Constructs the application: it builds every configuration and every manager of the
      * framework first, and then it asks the extender of this class for the objects of it.
@@ -219,6 +259,13 @@ package com.kisscodesystems.KissAs3Fw
     public function getDeviceIdManager():DeviceIdManager
     {
       return deviceIdManager;
+    }
+    /**
+     * Returns the manager keeping the state of this application on the device.
+     */
+    public function getStateManager():StateManager
+    {
+      return stateManager;
     }
     /**
      * Returns the manager of the embedded fonts.
@@ -485,12 +532,40 @@ package com.kisscodesystems.KissAs3Fw
       return size;
     }
     /**
+     * Returns the font size every text of this application is really displayed with: the
+     * size the three text formats of it stand on. That is the configured font size, or the
+     * one calculated of the current size of the stage when this application asks for a
+     * calculated one with a zero.
+     * It is answered of the text formats themselves and not calculated again on purpose:
+     * the height of a text field is measured by those very formats, so an element taking
+     * its size from the font and its room from that height has to read one single size.
+     * A freshly calculated one can differ from it for a moment - the objects of this
+     * application are built before the stage has told it its real size - and an element
+     * mixing the two lands on two different fonts at once: that is what used to draw the
+     * icon of a label the size of a few pixels inside the full slot kept for it.
+     */
+    public function getFontSizeInUse():int
+    {
+      application.trace("<Application getFontSizeInUse> called.", 1);
+      const textFormat:TextFormat = getDynamicsConfig() == null
+        ? null
+        : getDynamicsConfig().getTextFormatBright();
+      const size:int = textFormat == null ? calcFontSizeFromStageSize() : int(textFormat.size);
+      application.trace("<Application getFontSizeInUse> size: " + size, 0);
+      return size;
+    }
+    /**
      * Gives every text of this application the font size belonging to the current size
      * of the stage. It does nothing when the font size is a fixed one.
      */
     public function setFontSizeFromStage():void
     {
       application.trace("<Application setFontSizeFromStage> called.", 1);
+      if (getDynamicsConfig() == null)
+      {
+        application.trace("<Application setFontSizeFromStage> there is no displayed property to set yet.", 0);
+        return;
+      }
       if (getDynamicsConfig().getAppFontSize() != 0)
       {
         application.trace("<Application setFontSizeFromStage> the font size is a fixed one.", 0);
@@ -691,7 +766,7 @@ package com.kisscodesystems.KissAs3Fw
         return;
       }
       askedForCameraPermission = true;
-      Camera.permissionManager.requestPermission();
+      askPermissionOf(Camera.permissionManager);
     }
     /**
      * Asks the one using this application for the permission of the microphone. The
@@ -706,13 +781,72 @@ package com.kisscodesystems.KissAs3Fw
         return;
       }
       askedForMicrophonePermission = true;
-      Microphone.permissionManager.requestPermission();
+      askPermissionOf(Microphone.permissionManager);
     }
     /**
      * The width of this application is the one of the stage, so it cannot be set from
      * the outside: see the setSizeFromStageSize below.
      * @param newdw the new width
      */
+    /**
+     * Saves the state of this application onto the device: every value of it is asked
+     * for from the collectState, and the whole state is written by the state manager.
+     * It is called every time this application is sent to the background, the last
+     * moment an application killed there is sure to be running, and it can be called
+     * any other time as well.
+     */
+    public function saveState():void
+    {
+      application.trace("<Application saveState> called.", 1);
+      if (stateManager == null)
+      {
+        this.trace("<Application saveState> there is no state manager to save the state with!", 6);
+        return;
+      }
+      const state:Object = new Object();
+      try
+      {
+        collectState(state);
+      }
+      catch (e:Error)
+      {
+        // a state that could not be collected in full is not written at all: a half one
+        // would restore this application into a state it has never been in
+        this.trace("<Application saveState> the state could not be collected: " + e.getStackTrace(), 7);
+        return;
+      }
+      application.trace("<Application saveState> the state is saved: " + stateManager.writeState(state), 0);
+    }
+    /**
+     * Restores the state kept on the device: every value of it is handed over to the
+     * applyState. Nothing happens when there is no state kept at all.
+     * It is called once, on the first frame after this application has reached the stage:
+     * every extender has built its whole content by then, so every value has something
+     * to be applied onto.
+     */
+    public function restoreState():void
+    {
+      application.trace("<Application restoreState> called.", 1);
+      if (stateManager == null)
+      {
+        this.trace("<Application restoreState> there is no state manager to restore the state with!", 6);
+        return;
+      }
+      const state:Object = stateManager.readState();
+      if (state == null)
+      {
+        application.trace("<Application restoreState> there is no state to restore.", 0);
+        return;
+      }
+      try
+      {
+        applyState(state);
+      }
+      catch (e:Error)
+      {
+        this.trace("<Application restoreState> the state could not be applied: " + e.getStackTrace(), 7);
+      }
+    }
     override public function setDw(newdw:int):void
     {
       application.trace("<Application setDw> called.", 1);
@@ -751,9 +885,61 @@ package com.kisscodesystems.KissAs3Fw
       application.trace("<Application createObjects> called.", 1);
     }
     /**
+     * Puts the values of the state of this application into the given object: this one
+     * puts the language and the displaying style there. The extenders of this class
+     * override it, call this super and put their own values next to these, under keys
+     * starting with their own name. A value has to be a simple one: a string, a number,
+     * a boolean, or an array or an object of those.
+     * @param state the object the values are put into
+     */
+    protected function collectState(state:Object):void
+    {
+      application.trace("<Application collectState> called.", 1);
+      application.trace("<Application collectState> state: " + state, 0);
+      if (labelManager != null)
+      {
+        state[STATE_LANG_CODE] = labelManager.getLang();
+      }
+      if (dynamicsConfig != null)
+      {
+        state[STATE_DISPLAYING_STYLE] = dynamicsConfig.getCurrentDisplayingStyle();
+      }
+    }
+    /**
+     * Applies the values of the given state onto this application: this one sets the
+     * language and the displaying style kept there. The extenders of this class override
+     * it, call this super and apply their own values after these. A value may be missing
+     * - a state written by an older version of the application does not hold it -, so
+     * every value has to be checked before it is applied.
+     * @param state the object the values are read from
+     */
+    protected function applyState(state:Object):void
+    {
+      application.trace("<Application applyState> called.", 1);
+      application.trace("<Application applyState> state: " + state, 0);
+      if (state[STATE_LANG_CODE] is String && labelManager != null && state[STATE_LANG_CODE] != labelManager.getLang())
+      {
+        if (middleground != null)
+        {
+          middleground.setLangCode(state[STATE_LANG_CODE]);
+        }
+        else
+        {
+          labelManager.setLang(state[STATE_LANG_CODE]);
+        }
+      }
+      if (state[STATE_DISPLAYING_STYLE] is String && dynamicsConfig != null && state[STATE_DISPLAYING_STYLE] != dynamicsConfig.getCurrentDisplayingStyle() && dynamicsConfig.hasDisplayingStyle(state[STATE_DISPLAYING_STYLE]))
+      {
+        dynamicsConfig.setCurrentDisplayingStyle(state[STATE_DISPLAYING_STYLE]);
+      }
+    }
+    /**
      * Builds the three layers of the displayed application. It is not called by the
      * initialize of this class on purpose: an application drawing everything on its
      * own does not need any of them, so every extender asks for them by itself.
+     * The size of the stage is taken at the end of it, so an extender calling this one
+     * first - and that is the way every one of them starts - builds every object of its
+     * own on the real size and on the real font size of this application.
      */
     protected function createLayers():void
     {
@@ -785,6 +971,9 @@ package com.kisscodesystems.KissAs3Fw
      * that happens when the one using the application drags the corner of the window: it
      * always happens, and an application that does not follow it keeps the height it was
      * started with, one title bar taller than the room it really has.
+     * The font size of an application asking for a calculated one belongs to the size of
+     * the stage, so the new size of it brings a new font size as well: the
+     * setSizeFromStageSize below takes care of that one.
      * @param e the resize event of the stage
      */
     protected function stageResized(e:Event):void
@@ -796,6 +985,14 @@ package com.kisscodesystems.KissAs3Fw
     /**
      * Gives this application and every layer of it the current size of the stage, kept
      * above the smallest size this framework is usable on.
+     * The font size of an application asking for a calculated one is taken from that very
+     * size, so it is settled here as well: this is the one place this application learns
+     * how big it really is, and every later size of the stage comes through here too.
+     * It can not wait for the resizing of the stage: the window of a desktop application
+     * is always resized right after it has been opened, but an application filling the
+     * whole screen of a mobile device is never resized at all, so the calculated font
+     * size of it would never arrive and every element sizing itself of the font would
+     * keep the size this framework had while there was no stage to measure.
      */
     protected function setSizeFromStageSize():void
     {
@@ -818,9 +1015,190 @@ package com.kisscodesystems.KissAs3Fw
       {
         foreground.setDwh(getDw(), getDh());
       }
+      setFontSizeFromStage();
     }
     /**
-     * Prepares the stage of this application and takes the size of it.
+     * Starts the waiting for the drawing of everything over again, once in the life of
+     * this application. A delay of zero asks for no such drawing at all.
+     */
+    private function createStartupRefreshTimer():void
+    {
+      application.trace("<Application createStartupRefreshTimer> called.", 1);
+      const delay:int = getComponentsConfig() == null
+        ? 0
+        : getComponentsConfig().getStartupRefreshDelay();
+      if (startupRefreshDone || delay <= 0)
+      {
+        application.trace("<Application createStartupRefreshTimer> there is no drawing to wait for.", 1);
+        return;
+      }
+      startupRefreshDone = true;
+      dropStartupRefreshTimer();
+      startupRefreshTimer = new Timer(delay, 1);
+      startupRefreshTimer.addEventListener(TimerEvent.TIMER, startupRefreshTimerHandler);
+      startupRefreshTimer.start();
+      application.trace("<Application createStartupRefreshTimer> the drawing is waited for: " + delay, 0);
+    }
+    /**
+     * Stops the timer of the drawing of everything over again and drops it.
+     */
+    private function dropStartupRefreshTimer():void
+    {
+      application.trace("<Application dropStartupRefreshTimer> called.", 1);
+      if (startupRefreshTimer != null)
+      {
+        startupRefreshTimer.removeEventListener(TimerEvent.TIMER, startupRefreshTimerHandler);
+        startupRefreshTimer.stop();
+        startupRefreshTimer = null;
+        application.trace("<Application dropStartupRefreshTimer> the timer of the drawing is dropped.", 0);
+      }
+    }
+    /**
+     * The waiting is over, so everything is drawn over again.
+     * @param e the timer event of the single shot of the waiting
+     */
+    private function startupRefreshTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<Application startupRefreshTimerHandler> called.", 1);
+      application.trace("<Application startupRefreshTimerHandler> e: " + e, 0);
+      dropStartupRefreshTimer();
+      startupRefresh();
+    }
+    /**
+     * Draws every text and every icon of this application over again, in the font size
+     * and in the colors it stands on by now.
+     * This is the answer of a machine that displays none of the icons built at the start:
+     * on an android device every one of them stays invisible until something draws it
+     * again, and the drawing that does reach the screen there is the one made a moment
+     * after the application has really started - not the repeated filling of a surface
+     * with the bitmap data it holds already, but the whole drawing, built of a bitmap
+     * data the icon manager gives out again. That is exactly what the one using the
+     * application does by hand when they change the displaying style or turn the screen,
+     * the two things that were found to bring every missing icon up, and that is why this
+     * one waits: the very same drawing made while the application was being built has
+     * already happened and has not reached that screen.
+     * The font sizes are what it is done through: every text format of this application
+     * is set again with the size it carries at the moment, and the events of that setting
+     * are the ones every text, every label and every icon of the framework already
+     * follows, so nothing needs a new listener for this. No value of the application is
+     * changed by it, so nothing of it is visible on a machine that had everything on the
+     * screen anyway.
+     */
+    public function startupRefresh():void
+    {
+      application.trace("<Application startupRefresh> called.", 1);
+      if (getDynamicsConfig() == null)
+      {
+        this.trace("<Application startupRefresh> there is no displayed property to draw again!", 6);
+        return;
+      }
+      // the font size of the stage is taken first: the objects of this application were
+      // built before the stage had told it its real size, and a size that has changed
+      // since then is drawn with right here instead of being dispatched twice
+      setFontSizeFromStage();
+      getDynamicsConfig().setAllFontSizes(getFontSizeInUse());
+      application.trace("<Application startupRefresh> everything is drawn again.", 0);
+    }
+    /**
+     * Does the given work behind the alert telling that a long work is being done: that
+     * alert is displayed on the foreground first, the work itself only begins a moment
+     * later and the alert is closed as soon as that work is over.
+     * The alert is one of the foreground, asked for without an ok button, so it carries no
+     * answer at all and nothing but the closing below takes it away: the message of a work
+     * that is being done is not something the one waiting for it has to click away.
+     * That pause is what this is all about. This application has one single thread, and
+     * the display list of it only reaches the screen between two frames of that thread, so
+     * a work started right where the alert is asked for would hold the thread until it is
+     * done and that alert would never be drawn at all: it would be closed in the very same
+     * frame it has been built in. It is on the screen by the time the work begins here.
+     * The alert is closed even when the work throws: the one waiting must not be left with
+     * the message of a work that is not running any more.
+     * A work that cannot be covered is done right away instead of being lost: there is no
+     * foreground to display the alert on, no pause is configured at all, or another work is
+     * being covered already.
+     * @param work the function doing the whole work, it takes no argument at all
+     */
+    public function runWithLoading(work:Function):void
+    {
+      application.trace("<Application runWithLoading> called.", 1);
+      application.trace("<Application runWithLoading> work: " + work, 0);
+      if (work == null)
+      {
+        this.trace("<Application runWithLoading> there is no work to be done!", 6);
+        return;
+      }
+      const delay:int = getComponentsConfig() == null
+        ? 0
+        : getComponentsConfig().getLoadingDelay();
+      if (getForeground() == null || delay <= 0 || loadingWork != null)
+      {
+        application.trace("<Application runWithLoading> this work cannot be covered, so it is done right away.", 0);
+        work();
+        return;
+      }
+      loadingWork = work;
+      loadingUniqueString = getUtils().getRandomGuid();
+      // the alert becomes the active content of the foreground right away: it tells about
+      // something that is happening now, so it must not wait behind another content
+      getForeground().createAlert(EnumTextKeys.LOADING(), loadingUniqueString, false, false, true);
+      dropLoadingTimer();
+      loadingTimer = new Timer(delay, 1);
+      loadingTimer.addEventListener(TimerEvent.TIMER, loadingTimerHandler);
+      loadingTimer.start();
+      application.trace("<Application runWithLoading> the alert of this work is displayed, the work begins in " + delay, 0);
+    }
+    /**
+     * Stops the timer of the pause of a covered work and drops it.
+     */
+    private function dropLoadingTimer():void
+    {
+      application.trace("<Application dropLoadingTimer> called.", 1);
+      if (loadingTimer != null)
+      {
+        loadingTimer.removeEventListener(TimerEvent.TIMER, loadingTimerHandler);
+        loadingTimer.stop();
+        loadingTimer = null;
+        application.trace("<Application dropLoadingTimer> the timer of the covered work is dropped.", 0);
+      }
+    }
+    /**
+     * The alert of a long work is on the screen by now, so that work is done and the alert
+     * is closed afterwards.
+     * @param e the timer event of the single shot of the pause
+     */
+    private function loadingTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<Application loadingTimerHandler> called.", 1);
+      application.trace("<Application loadingTimerHandler> e: " + e, 0);
+      dropLoadingTimer();
+      // the notes of the work are finished before the work itself begins: a work that
+      // throws must not leave this application believing that it is still going on, and
+      // the next one asking for an alert would be left without it then
+      const workToBeDone:Function = loadingWork;
+      const alertToBeClosed:String = loadingUniqueString;
+      loadingWork = null;
+      loadingUniqueString = "";
+      try
+      {
+        if (workToBeDone != null)
+        {
+          workToBeDone();
+        }
+      }
+      finally
+      {
+        if (getForeground() != null)
+        {
+          getForeground().closeAlert(alertToBeClosed);
+        }
+      }
+    }
+    /**
+     * Prepares the stage of this application and takes the size of it, together with the
+     * font size belonging to that size: the configuration of this application has been
+     * read while there was no stage to calculate one of yet.
+     * The drawing of everything over again is started to be waited for here as well: this
+     * is the moment this application really begins to be displayed.
      * @param e the added to stage event
      */
     override protected function addedToStage(e:Event):void
@@ -832,6 +1210,16 @@ package com.kisscodesystems.KissAs3Fw
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
+      createStartupRefreshTimer();
+      if (getPropertiesConfig().getStateKeepingEnabled())
+      {
+        NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, nativeApplicationDeactivated, false, 0, true);
+        NativeApplication.nativeApplication.addEventListener(Event.EXITING, nativeApplicationDeactivated, false, 0, true);
+        if (!stateRestored)
+        {
+          addEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
+        }
+      }
     }
     /**
      * Drops the listener of the resizing of the stage.
@@ -845,6 +1233,9 @@ package com.kisscodesystems.KissAs3Fw
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
+      NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, nativeApplicationDeactivated);
+      NativeApplication.nativeApplication.removeEventListener(Event.EXITING, nativeApplicationDeactivated);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
       super.removedFromStage(e);
     }
     /**
@@ -919,6 +1310,15 @@ package com.kisscodesystems.KissAs3Fw
     {
       application.trace("<Application initializeDeviceIdManager> called.", 1);
       deviceIdManager = new DeviceIdManager(this);
+    }
+    /**
+     * Builds the manager keeping the state of this application. It asks the name of that
+     * state from the properties of the application, so it stands after them.
+     */
+    protected function initializeStateManager():void
+    {
+      application.trace("<Application initializeStateManager> called.", 1);
+      stateManager = new StateManager(this);
     }
     /**
      * Builds the manager of the embedded fonts.
@@ -1018,6 +1418,7 @@ package com.kisscodesystems.KissAs3Fw
       initializeCacheManager();
       initializeContextMenuManager();
       initializeDeviceIdManager();
+      initializeStateManager();
       initializeFontManager();
       initializeEmojiManager();
       initializeIconManager();
@@ -1033,6 +1434,110 @@ package com.kisscodesystems.KissAs3Fw
       if (serverManager != null)
       {
         serverManager.startRefreshingServers();
+      }
+    }
+    /**
+     * This application has been sent to the background, or it is being closed: this is
+     * the last moment it is sure to be running, so its state is saved.
+     * @param e the deactivate or the exiting event of the native application
+     */
+    private function nativeApplicationDeactivated(e:Event):void
+    {
+      application.trace("<Application nativeApplicationDeactivated> called.", 1);
+      application.trace("<Application nativeApplicationDeactivated> e: " + e, 0);
+      saveState();
+    }
+    /**
+     * The first frame after this application has reached the stage: its content is built
+     * by now, so the state kept on the device is restored, once in the life of it.
+     * @param e the enter frame event
+     */
+    private function enterFrameRestoreState(e:Event):void
+    {
+      application.trace("<Application enterFrameRestoreState> called.", 0);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
+      stateRestored = true;
+      restoreState();
+    }
+    /**
+     * Puts the given permission manager into the row of the ones to be asked and starts
+     * that row when there is nothing being asked at the moment.
+     * A machine displays one single permission question at a time: a second asking that
+     * arrives while the question of the first one stands is refused by the runtime with
+     * an error, and the answer of the refused one never arrives at all. So the camera and
+     * the microphone of a camera object - both asked for while that object is landing on
+     * the stage - are asked for one after the other here instead.
+     * @param permissionManager the manager of the permission to be asked for
+     */
+    private function askPermissionOf(permissionManager:PermissionManager):void
+    {
+      application.trace("<Application askPermissionOf> called.", 1);
+      application.trace("<Application askPermissionOf> permissionManager: " + permissionManager, 0);
+      if (permissionManager == null)
+      {
+        application.trace("<Application askPermissionOf> there is no permission manager to ask!", 6);
+        return;
+      }
+      permissionManagersToAsk.push(permissionManager);
+      askNextPermission();
+    }
+    /**
+     * Asks for the first permission of the row of the ones waiting to be asked for. It
+     * does nothing while there is a question standing already: the answer of that one is
+     * the moment the next question of the row is asked at.
+     */
+    private function askNextPermission():void
+    {
+      application.trace("<Application askNextPermission> called.", 1);
+      if (permissionManagerAsked != null)
+      {
+        application.trace("<Application askNextPermission> there is a permission being asked for already.", 0);
+        return;
+      }
+      if (permissionManagersToAsk.length < 1)
+      {
+        application.trace("<Application askNextPermission> there is no permission left to ask for.", 0);
+        return;
+      }
+      permissionManagerAsked = permissionManagersToAsk.shift() as PermissionManager;
+      permissionManagerAsked.addEventListener(PermissionEvent.PERMISSION_STATUS, permissionStatusArrived);
+      try
+      {
+        permissionManagerAsked.requestPermission();
+      }
+      catch (e:Error)
+      {
+        application.trace("<Application askNextPermission> the permission could not be asked for: " + e, 7);
+        dropPermissionAsked();
+        askNextPermission();
+      }
+    }
+    /**
+     * Takes the answer of the permission that has been asked for and asks for the next
+     * one of the row. The answer itself is not read here: the objects using a device are
+     * the ones the runtime tells whether that device is usable, through the muted
+     * property and through the status event of it.
+     * @param e the permission status event of that permission
+     */
+    private function permissionStatusArrived(e:PermissionEvent):void
+    {
+      application.trace("<Application permissionStatusArrived> called.", 1);
+      application.trace("<Application permissionStatusArrived> e: " + e, 0);
+      application.trace("<Application permissionStatusArrived> status: " + e.status, 0);
+      dropPermissionAsked();
+      askNextPermission();
+    }
+    /**
+     * Lets the permission manager being asked at the moment go: its answer has arrived or
+     * the question of it could not be asked at all.
+     */
+    private function dropPermissionAsked():void
+    {
+      application.trace("<Application dropPermissionAsked> called.", 1);
+      if (permissionManagerAsked != null)
+      {
+        permissionManagerAsked.removeEventListener(PermissionEvent.PERMISSION_STATUS, permissionStatusArrived);
+        permissionManagerAsked = null;
       }
     }
     /**
@@ -1187,6 +1692,10 @@ package com.kisscodesystems.KissAs3Fw
       {
         fontManager.destroy();
       }
+      if (stateManager != null)
+      {
+        stateManager.destroy();
+      }
       if (deviceIdManager != null)
       {
         deviceIdManager.destroy();
@@ -1228,15 +1737,22 @@ package com.kisscodesystems.KissAs3Fw
       application.trace("<Application destroy> called.", 1);
       application.trace("<Application destroy> 1: unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher().", 0);
       removeEventListener(Event.ENTER_FRAME, enterFrameDisplayTraces);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
       if (stage != null)
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
+      NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, nativeApplicationDeactivated);
+      NativeApplication.nativeApplication.removeEventListener(Event.EXITING, nativeApplicationDeactivated);
+      dropPermissionAsked();
+      dropStartupRefreshTimer();
+      dropLoadingTimer();
       application.trace("<Application destroy> 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       if (tracesToDisplay != null)
       {
         tracesToDisplay.splice(0, tracesToDisplay.length);
       }
+      permissionManagersToAsk.splice(0);
       // the tracer is not a BaseSprite, so the super destroy below removes it from the display
       // list but cannot free it up: it has to be destroyed here, while it still has its stage
       if (tracer != null)
@@ -1266,6 +1782,10 @@ package com.kisscodesystems.KissAs3Fw
       tracesPerSource = null;
       tracesSuppressed = 0;
       tracer = null;
+      startupRefreshDone = false;
+      stateRestored = false;
+      loadingWork = null;
+      loadingUniqueString = null;
       appEnv = null;
       utils = null;
       propertiesConfig = null;
@@ -1275,6 +1795,7 @@ package com.kisscodesystems.KissAs3Fw
       cacheManager = null;
       contextMenuManager = null;
       deviceIdManager = null;
+      stateManager = null;
       fontManager = null;
       emojiManager = null;
       iconManager = null;
@@ -1291,6 +1812,8 @@ package com.kisscodesystems.KissAs3Fw
       applicationType = "";
       menuxml = "";
       lastCalculatedFontSize = 0;
+      permissionManagersToAsk = null;
+      permissionManagerAsked = null;
       scrollingBaseScroll = null;
     }
   }

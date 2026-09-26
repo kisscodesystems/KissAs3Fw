@@ -16,15 +16,23 @@
  * - the hours and the minutes are only taken while those are selectable
  * - a null date means the current one
  * - the dimensions come from the calendar view
+ * - a picked date is reported by the changed event, a step of the arrows or of the hours
+ *   by the stepped event, and a date set from the outside by neither of them
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
+  import com.kisscodesystems.KissAs3Fw.ui.ButtonLink;
   import com.kisscodesystems.KissAs3Fw.ui.DatePanel;
+  import com.kisscodesystems.KissAs3Fw.ui.ListPicker;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   public class DatePanelUnitTest extends BaseUnitTest
   {
+    private var changedCount:int = 0;
+    private var steppedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -109,8 +117,68 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertFalse("getEnabled after setEnabled(false)", datePanel.getEnabled());
       datePanel.setEnabled(true);
       assertTrue("getEnabled after setEnabled(true)", datePanel.getEnabled());
+      runSteppedEventTests(datePanel);
       runBaseSpriteTests(datePanel);
       removeTested(datePanel);
+    }
+    /**
+     * A day and the current date picked on a panel are reported by the changed event of it,
+     * and the steps of the arrows and of the pickers of the hours and of the minutes by the
+     * stepped event: a picker built of such a panel closes on the first one only. A set of
+     * the selected date from the outside reports neither of them.
+     * @param datePanel the tested panel
+     */
+    private function runSteppedEventTests(datePanel:DatePanel):void
+    {
+      changedCount = 0;
+      steppedCount = 0;
+      datePanel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), datePanelChanged);
+      datePanel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_STEPPED(), datePanelStepped);
+      datePanel.setHoursAndMinutes(true);
+      datePanel.setSelectedDate(new Date(2026, 7, 14, 13, 45));
+      assertEquals("no changed event after a set of the selected date with the hours", 0, changedCount);
+      assertEquals("no stepped event after a set of the selected date with the hours", 0, steppedCount);
+      // the four arrows step, the link of the current date picks
+      const buttonLinks:Array = findElementsOfClass(datePanel, ButtonLink);
+      assertEquals("the four arrows and the link of the current date", 5, buttonLinks.length);
+      for (var i:int = 0; i < buttonLinks.length; i++)
+      {
+        ButtonLink(buttonLinks[i]).getBaseEventDispatcher().dispatchEvent(new Event(EnumEvents.EVENT_CLICK()));
+      }
+      assertEquals("one stepped event per arrow", 4, steppedCount);
+      assertEquals("one changed event of the link of the current date", 1, changedCount);
+      buttonLinks.splice(0);
+      // the picker of the hours stands before the picker of the minutes
+      datePanel.setSelectedDate(new Date(2026, 7, 14, 13, 45));
+      const hoursListPicker:ListPicker = ListPicker(findElementOfClass(datePanel, ListPicker));
+      assertNotNull("the picker of the hours", hoursListPicker);
+      if (hoursListPicker != null)
+      {
+        hoursListPicker.setSelectedIndex(7);
+        assertEquals("a picked hour is taken into the selected date"
+          , "2026-08-14 07:45", datePanel.getSelectedDate());
+        assertEquals("one stepped event after a picked hour", 5, steppedCount);
+        assertEquals("no changed event after a picked hour", 1, changedCount);
+      }
+      datePanel.setHoursAndMinutes(false);
+      datePanel.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), datePanelChanged);
+      datePanel.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_STEPPED(), datePanelStepped);
+    }
+    /**
+     * Counts the changed events of the tested panel.
+     * @param e the changed event
+     */
+    private function datePanelChanged(e:Event):void
+    {
+      changedCount++;
+    }
+    /**
+     * Counts the stepped events of the tested panel.
+     * @param e the stepped event
+     */
+    private function datePanelStepped(e:Event):void
+    {
+      steppedCount++;
     }
     /**
      * Frees everything this suite holds.
@@ -122,6 +190,8 @@ package com.kisscodesystems.KissAs3Fw.suite
       // 3: call the super destroy.
       super.destroy();
       // 4: every reference and value should be reset to null, 0 or false.
+      changedCount = 0;
+      steppedCount = 0;
     }
   }
 }

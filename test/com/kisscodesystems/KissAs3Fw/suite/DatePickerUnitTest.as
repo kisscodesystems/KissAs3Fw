@@ -15,18 +15,23 @@
  * - the selected date arrives onto the label of the button
  * - the panel opens and closes, and the closed width comes back on closing
  * - the changed event is dispatched by the picker, and not by its panel
+ * - a step of the open panel is followed by the label and it is reported by the stepped
+ *   event, while the panel is kept open
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
+  import com.kisscodesystems.KissAs3Fw.ui.DatePanel;
   import com.kisscodesystems.KissAs3Fw.ui.DatePicker;
+  import com.kisscodesystems.KissAs3Fw.ui.ListPicker;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
   import flash.events.Event;
   public class DatePickerUnitTest extends BaseUnitTest
   {
     private var changedCount:int = 0;
+    private var steppedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -108,9 +113,50 @@ package com.kisscodesystems.KissAs3Fw.suite
       datePicker.setDwh(900, 900);
       assertEquals("setDh and setDwh do not change the height", closedDh, datePicker.getDh());
       assertEquals("setDwh does not change the width", expectedDw(300), datePicker.getDw());
+      runSteppedEventTests(datePicker);
       runBaseSpriteTests(datePicker);
       datePicker.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), datePickerChanged);
       removeTested(datePicker);
+    }
+    /**
+     * An hour picked on the open panel is a step and not a pick of a date: the label of
+     * the picker follows it, the stepped event reports it and the panel stays open.
+     * @param datePicker the tested picker
+     */
+    private function runSteppedEventTests(datePicker:DatePicker):void
+    {
+      steppedCount = 0;
+      datePicker.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_STEPPED(), datePickerStepped);
+      datePicker.setHoursAndMinutes(true);
+      datePicker.setSelectedDate(new Date(2026, 7, 14, 13, 45));
+      const changedCountBefore:int = changedCount;
+      datePicker.open();
+      const datePanel:DatePanel = DatePanel(findElementOfClass(datePicker, DatePanel));
+      assertNotNull("the panel of the picker", datePanel);
+      const hoursListPicker:ListPicker = datePanel != null
+        ? ListPicker(findElementOfClass(datePanel, ListPicker)) : null;
+      assertNotNull("the picker of the hours of that panel", hoursListPicker);
+      if (hoursListPicker != null)
+      {
+        hoursListPicker.setSelectedIndex(7);
+        assertTrue("the picker stays open after an hour picked on its panel", datePicker.isOpened());
+        assertEquals("the label of the button follows the picked hour"
+          , "2026-08-14 07:45", datePicker.getText());
+        assertEquals("one stepped event after an hour picked on the panel", 1, steppedCount);
+        assertEquals("no changed event after an hour picked on the panel"
+          , changedCountBefore, changedCount);
+      }
+      datePicker.close();
+      datePicker.setHoursAndMinutes(false);
+      datePicker.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_STEPPED(), datePickerStepped);
+    }
+    /**
+     * Counts the stepped events of the tested picker.
+     * @param e the stepped event
+     */
+    private function datePickerStepped(e:Event):void
+    {
+      steppedCount++;
     }
     /**
      * Counts the changed events of the tested picker.
@@ -131,6 +177,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       super.destroy();
       // 4: every reference and value should be reset to null, 0 or false.
       changedCount = 0;
+      steppedCount = 0;
     }
   }
 }

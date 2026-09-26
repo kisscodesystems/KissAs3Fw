@@ -204,6 +204,31 @@ package com.kisscodesystems.KissAs3Ut
       return null;
     }
     /**
+     * Returns every element of the given class standing inside the display list of the
+     * given object, in the order of that display list, see the findElementOfClass above.
+     * The elements found are not walked any further.
+     * @param container the object the display list of which is walked
+     * @param elementClass the class the elements to be found are instances of
+     * @param found the elements found so far, a new array when it is null
+     */
+    protected function findElementsOfClass(container:DisplayObjectContainer, elementClass:Class, found:Array = null):Array
+    {
+      const elements:Array = found != null ? found : new Array();
+      for (var i:int = 0; i < container.numChildren; i++)
+      {
+        var child:DisplayObject = container.getChildAt(i);
+        if (child is elementClass)
+        {
+          elements.push(child);
+        }
+        else if (child is DisplayObjectContainer)
+        {
+          findElementsOfClass(DisplayObjectContainer(child), elementClass, elements);
+        }
+      }
+      return elements;
+    }
+    /**
      * Runs the assertions that hold on every base sprite: the coordinates, the stored
      * value, the enabled state, the sprite visibility and the depth handling.
      * The dimensions are not checked here because every component drives them differently.

@@ -155,11 +155,15 @@ package com.kisscodesystems.KissAs3Fw.manager
     }
     protected function transformBitmapData(bitmap:Bitmap, textType:String, iconSize:int):BitmapData
     {
-      var bitmapData:BitmapData = new BitmapData(iconSize, iconSize, true, 0x00ffffff);
+      // a BitmapData of a zero or of a negative size throws an ArgumentError, and an icon
+      // is drawn while the objects of an application are being built, where that error
+      // would be caught by the constructor of it and take every object of it down
+      var size:int = Math.max(1, iconSize);
+      var bitmapData:BitmapData = new BitmapData(size, size, true, 0x00ffffff);
       if (bitmap != null)
       {
         var matrix:Matrix = new Matrix();
-        matrix.scale(iconSize / bitmap.width, iconSize / bitmap.height);
+        matrix.scale(size / bitmap.width, size / bitmap.height);
         bitmapData.draw(bitmap.bitmapData, matrix, null, null, null, true);
         var color:int = 0;
         if (textType == EnumTextTypes.TEXT_TYPE_MID())

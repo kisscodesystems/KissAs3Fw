@@ -332,6 +332,33 @@ package com.kisscodesystems.KissAs3Fw.ui
       dispatchEventPlayedByOutside();
     }
     /**
+     * Starts the playing from the outside at the given point of the sound, and dispatches
+     * the played by outside event. This is the way a player goes on from a point it has
+     * been left at in an earlier run of the application.
+     * @param position the point of the sound in milliseconds, kept inside the sound
+     */
+    public function playFrom(position:Number):void
+    {
+      application.trace("<" + this + " SoundPlayer playFrom> called.", 1);
+      application.trace("<" + this + " SoundPlayer playFrom> position: " + position, 0);
+      pausePoint = isNaN(position) ? 0 : Math.max(0, Math.min(position, soundLengthMillis));
+      play();
+      // a sound that could not be started stands nowhere: a point left behind would tell
+      // a stopped player a paused one
+      if (!playing)
+      {
+        pausePoint = 0;
+      }
+    }
+    /**
+     * Returns the point this player stands at inside its sound, in milliseconds: the one
+     * it is playing at, the one it has been paused at, or zero when it is stopped.
+     */
+    public function getPosition():Number
+    {
+      return soundChannel != null ? soundChannel.position : pausePoint;
+    }
+    /**
      * Pauses the playing, so it can be continued from the very same point later.
      */
     public function pause():void

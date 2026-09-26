@@ -83,19 +83,15 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " ColorPanel> constructed.", 1);
     }
     /**
-     * Returns the committed default color of this panel as a six character rgb string.
+     * Returns the committed default color of this panel as a six character rgb string. The
+     * input of the rgb string is not read here on purpose: it displays the color picked,
+     * dragged, hovered or typed so far, which is a preview only until it is committed, and
+     * no changed event is dispatched while it is displayed.
      */
     public function getRGBColor():String
     {
       application.trace("<" + this + " ColorPanel getRGBColor> called.", 1);
-      if (inputRgb != null)
-      {
-        return application.getUtils().colorToString(colorToNumber(inputRgb.getText()));
-      }
-      else
-      {
-        return String(getValue());
-      }
+      return String(getValue());
     }
     /**
      * Commits the given color as the default color of this panel and dispatches the changed

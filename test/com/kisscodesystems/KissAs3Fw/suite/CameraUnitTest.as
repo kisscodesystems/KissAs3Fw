@@ -27,11 +27,14 @@ package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.enum.EnumCameraResolutions;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.ui.Camera;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   public class CameraUnitTest extends BaseUnitTest
   {
+    private var changedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -112,19 +115,19 @@ package com.kisscodesystems.KissAs3Fw.suite
     }
     /**
      * Checks the enum of the aspect ratios: the height belonging to one width is counted
-     * from the two numbers of the ratio itself, and a ratio nobody knows answers a square.
+     * from the two numbers of the ratio itself, a ratio nobody knows answers a square, and
+     * the square ratio itself is not among them at all - no camera device holds it.
      */
     private function runResolutionEnumTests():void
     {
       const everyResolution:Array = EnumCameraResolutions.getEveryResolution();
-      assertEquals("the number of the aspect ratios", 3, everyResolution.length);
-      assertEquals("the square ratio comes first"
-        , EnumCameraResolutions.CAMERA_RESOLUTION_11(), everyResolution[0]);
+      assertEquals("the number of the aspect ratios", 2, everyResolution.length);
+      assertEquals("the television ratio comes first"
+        , EnumCameraResolutions.CAMERA_RESOLUTION_43(), everyResolution[0]);
       assertEquals("the widescreen ratio comes last"
-        , EnumCameraResolutions.CAMERA_RESOLUTION_169(), everyResolution[2]);
+        , EnumCameraResolutions.CAMERA_RESOLUTION_169(), everyResolution[1]);
+      assertTrue("the square ratio is not offered at all", everyResolution.indexOf("1:1") < 0);
       everyResolution.splice(0);
-      assertEquals("the height of a square picture", 640
-        , EnumCameraResolutions.getHeightOfWidth(EnumCameraResolutions.CAMERA_RESOLUTION_11(), 640));
       assertEquals("the height of a television picture", 480
         , EnumCameraResolutions.getHeightOfWidth(EnumCameraResolutions.CAMERA_RESOLUTION_43(), 640));
       assertEquals("the height of a widescreen picture", 360
@@ -191,15 +194,23 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getMicrophoneDevices returns a copy", numOfDevices
         , camera.getMicrophoneDevices().length);
       const indexBefore:int = camera.getSelectedMicrophoneIndex();
+      changedCount = 0;
+      camera.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), cameraChanged);
       camera.setSelectedMicrophoneIndex(-1);
       assertEquals("a microphone index below the first one is refused"
         , indexBefore, camera.getSelectedMicrophoneIndex());
       camera.setSelectedMicrophoneIndex(numOfDevices);
       assertEquals("a microphone index above the last one is refused"
         , indexBefore, camera.getSelectedMicrophoneIndex());
+      assertEquals("no changed event after a refused microphone index", 0, changedCount);
       camera.setSelectedMicrophoneIndex(numOfDevices - 1);
       assertEquals("the last microphone of the machine is taken"
         , numOfDevices > 0 ? numOfDevices - 1 : indexBefore, camera.getSelectedMicrophoneIndex());
+      // the picker of the settings panel picks through this very setter, so a microphone
+      // taken while no camera is attached is reported as well
+      assertEquals("one changed event after a microphone taken without an attached camera"
+        , numOfDevices > 0 ? 1 : 0, changedCount);
+      camera.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), cameraChanged);
       camera.setSelectedMicrophoneIndex(0);
       assertEquals("the first microphone of the machine is taken back"
         , indexBefore, camera.getSelectedMicrophoneIndex());
@@ -249,8 +260,6 @@ package com.kisscodesystems.KissAs3Fw.suite
      */
     private function runDimensionsTests(camera:Camera):void
     {
-      const widthMin:int = application.getComponentsConfig().getCameraWidthMin();
-      const widthMax:int = application.getComponentsConfig().getCameraWidthMax();
       assertEquals("getCameraHeight comes from the width and the ratio"
         , EnumCameraResolutions.getHeightOfWidth(camera.getCameraResolution(), camera.getCameraWidth())
         , camera.getCameraHeight());
@@ -266,16 +275,32 @@ package com.kisscodesystems.KissAs3Fw.suite
       camera.setCameraResolution("no such ratio");
       assertEquals("an unknown aspect ratio is refused"
         , EnumCameraResolutions.CAMERA_RESOLUTION_169(), camera.getCameraResolution());
-      camera.setCameraWidth(widthMin - 1);
-      assertTrue("a width below the smallest one is refused", camera.getCameraWidth() >= widthMin);
-      camera.setCameraWidth(widthMax + 1);
-      assertTrue("a width above the greatest one is refused", camera.getCameraWidth() <= widthMax);
-      camera.setCameraWidth(widthMin);
-      assertEquals("getCameraWidth after setCameraWidth", widthMin, camera.getCameraWidth());
-      assertEquals("this object follows that width", widthMin, camera.getDw());
-      camera.setCameraResolution(EnumCameraResolutions.CAMERA_RESOLUTION_11());
-      assertEquals("a square picture is as tall as it is wide", camera.getDw(), camera.getDh());
+      // the widths a camera device really works in belong to its aspect ratio, so every
+      // range below is the one of the ratio the camera stands in at that very moment
+      const widescreenMin:int = application.getComponentsConfig()
+        .getCameraWidthMin(EnumCameraResolutions.CAMERA_RESOLUTION_169());
+      const widescreenMax:int = application.getComponentsConfig()
+        .getCameraWidthMax(EnumCameraResolutions.CAMERA_RESOLUTION_169());
+      camera.setCameraWidth(widescreenMin - 1);
+      assertTrue("a width below the smallest one of the ratio is refused"
+        , camera.getCameraWidth() >= widescreenMin);
+      camera.setCameraWidth(widescreenMax + 1);
+      assertTrue("a width above the greatest one of the ratio is refused"
+        , camera.getCameraWidth() <= widescreenMax);
+      camera.setCameraWidth(widescreenMin);
+      assertEquals("getCameraWidth after setCameraWidth", widescreenMin, camera.getCameraWidth());
+      assertEquals("this object follows that width", widescreenMin, camera.getDw());
+      // a ratio holds widths of its own, so the width of the picture lands in the range of
+      // the new one: the widescreen widths of this framework start above the television ones
+      const televisionMax:int = application.getComponentsConfig()
+        .getCameraWidthMax(EnumCameraResolutions.CAMERA_RESOLUTION_43());
+      camera.setCameraWidth(widescreenMax);
       camera.setCameraResolution(EnumCameraResolutions.CAMERA_RESOLUTION_43());
+      assertEquals("the width lands in the range of the television ratio"
+        , televisionMax, camera.getCameraWidth());
+      assertEquals("the height follows the television ratio"
+        , EnumCameraResolutions.getHeightOfWidth(EnumCameraResolutions.CAMERA_RESOLUTION_43()
+          , televisionMax), camera.getCameraHeight());
       // the aspect ratio can be fixed, so the one using the application can not break the
       // shape the application displays that picture in
       camera.setResolutionFixed(true);
@@ -397,13 +422,20 @@ package com.kisscodesystems.KissAs3Fw.suite
     }
     /**
      * Checks the settings panel of this component: it stands over the picture of the
-     * camera and it is opened and closed on demand.
+     * camera, it is opened and closed on demand, and the opening of it reads the devices
+     * of the machine again - the pickers offering them are the very elements of it.
      * @param camera the object to be tested
      */
     private function runSettingsPanelTests(camera:Camera):void
     {
+      const numOfCameraDevices:int = camera.getCameraDevices().length;
+      const numOfMicrophoneDevices:int = camera.getMicrophoneDevices().length;
       camera.setSettingsVisible(true);
       assertTrue("getSettingsVisible after setSettingsVisible(true)", camera.getSettingsVisible());
+      assertEquals("the camera devices after the opening of the settings panel"
+        , numOfCameraDevices, camera.getCameraDevices().length);
+      assertEquals("the microphone devices after the opening of the settings panel"
+        , numOfMicrophoneDevices, camera.getMicrophoneDevices().length);
       camera.setSettingsVisible(false);
       assertFalse("getSettingsVisible after setSettingsVisible(false)", camera.getSettingsVisible());
     }
@@ -442,6 +474,26 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("clearPicture leaves no name behind", "", camera.getPictureName());
       assertNull("clearPicture frees the byte array of the photo up", camera.getPictureByteArray());
       assertNull("clearPicture frees the bitmap data of the photo up", camera.getBitmapData());
+    }
+    /**
+     * Counts the changed events of the tested camera.
+     * @param e the changed event
+     */
+    private function cameraChanged(e:Event):void
+    {
+      changedCount++;
+    }
+    /**
+     * Frees everything this suite holds.
+     */
+    override public function destroy():void
+    {
+      // 1: unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher()
+      // 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.
+      // 3: call the super destroy.
+      super.destroy();
+      // 4: every reference and value should be reset to null, 0 or false.
+      changedCount = 0;
     }
   }
 }

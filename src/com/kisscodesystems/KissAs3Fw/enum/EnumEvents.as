@@ -204,6 +204,15 @@ package com.kisscodesystems.KissAs3Fw.enum
       return "EVENT_CLEARED";
     }
     /**
+     * Returns the type of the stepped event: the selected value of a component has been
+     * moved by a step of the one using it, the arrows or the hour and minute pickers of a
+     * date panel for example, and not picked, so that component is kept open.
+     */
+    public static function EVENT_STEPPED():String
+    {
+      return "EVENT_STEPPED";
+    }
+    /**
      * Returns the type of the watch changed event.
      */
     public static function EVENT_WATCH_CHANGED():String

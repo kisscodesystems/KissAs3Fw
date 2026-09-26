@@ -17,7 +17,8 @@
  * - the word wrapping can be switched, a box without it scrolls horizontally too
  * - the looking up of the text keys can be switched off, so a text carrying brackets
  *   of its own, a source code for example, is displayed exactly the way it arrives
- * - the top and the bottom reached events of the scroll are forwarded
+ * - the top and the bottom reached events of the scroll are forwarded, and so is the
+ *   content y changed event of it: the leaving of an end is reported by that one only
  * - the dimensions of the scrolled content come from the size of the text
  */
 package com.kisscodesystems.KissAs3Fw.ui
@@ -316,7 +317,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Scrolls the text vertically to the position of the content of the scroll. The scroll
-     * works in pixels and the text field in lines, so the position is converted here.
+     * works in pixels and the text field in lines, so the position is converted here, and
+     * the event is forwarded afterwards: a box scrolled away from its top or from its bottom
+     * reports that by nothing else.
      * @param e the content y changed event of the scroll
      */
     private function reposTextY(e:Event):void
@@ -326,6 +329,10 @@ package com.kisscodesystems.KissAs3Fw.ui
       const texth:Number = baseTextField.textHeight - baseTextField.height;
       baseTextField.scrollV = Math.min(Math.abs(Math.round(baseScroll.getCyContent() * baseTextField.maxScrollV / texth))
         , baseTextField.maxScrollV);
+      if (getBaseEventDispatcher() != null && e != null)
+      {
+        getBaseEventDispatcher().dispatchEvent(e);
+      }
     }
     /**
      * Frees all listeners and references held by this box.

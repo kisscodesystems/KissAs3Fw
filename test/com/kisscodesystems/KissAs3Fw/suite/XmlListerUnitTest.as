@@ -15,15 +15,23 @@
  * - an xml is walked and the open branches of it are listed
  * - an unparsable xml leaves an empty list behind
  * - the width is given to the list, the height comes from the number of the items
+ * - a clicked branch is reported by the opened or by the closed event, not by the
+ *   changed one
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
+  import com.kisscodesystems.KissAs3Fw.ui.ListPanel;
   import com.kisscodesystems.KissAs3Fw.ui.XmlLister;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   public class XmlListerUnitTest extends BaseUnitTest
   {
+    private var changedCount:int = 0;
+    private var openedCount:int = 0;
+    private var closedCount:int = 0;
     // an open branch with one leaf under it, a closed branch and one single leaf
     private static const TEST_XML:String = "<items>"
       + "<item value=\"open branch\" opened=\"1\"><item value=\"leaf of it\"/></item>"
@@ -83,6 +91,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getStartIndex after setStartIndex(1)", 1, xmlLister.getStartIndex());
       // the selection is still empty, because no item has been clicked
       assertEquals("getSelectedItem after the xml has arrived", "", xmlLister.getSelectedItem());
+      runBranchEventTests(xmlLister);
       // every selection can be asked to dispatch the changed event
       xmlLister.setAlwaysDispatchSelectedEvent(true);
       assertTrue("getAlwaysDispatchSelectedEvent after it has been switched on"
@@ -105,6 +114,62 @@ package com.kisscodesystems.KissAs3Fw.suite
       removeTested(xmlLister);
     }
     /**
+     * A branch clicked on the list of the lister opens or closes, and that is reported by
+     * the opened or by the closed event: no leaf has been selected, so it is no changed
+     * event of the lister, the one a menu built of it would run its last item on.
+     * @param xmlLister the tested lister, standing on the test xml
+     */
+    private function runBranchEventTests(xmlLister:XmlLister):void
+    {
+      changedCount = 0;
+      openedCount = 0;
+      closedCount = 0;
+      xmlLister.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), xmlListerChanged);
+      xmlLister.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_OPENED(), xmlListerOpened);
+      xmlLister.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CLOSED(), xmlListerClosed);
+      const listPanel:ListPanel = ListPanel(findElementOfClass(xmlLister, ListPanel));
+      assertNotNull("the list of the lister", listPanel);
+      if (listPanel != null)
+      {
+        // the items: the open branch, its leaf, the closed branch and the single leaf
+        listPanel.setSelectedIndexes([2]);
+        assertEquals("one opened event after the click of the closed branch", 1, openedCount);
+        listPanel.setSelectedIndexes([0]);
+        assertEquals("one closed event after the click of the open branch", 1, closedCount);
+        assertEquals("no changed event after the clicks of branches", 0, changedCount);
+        assertEquals("no leaf has been selected by those clicks", "", xmlLister.getSelectedItem());
+      }
+      xmlLister.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), xmlListerChanged);
+      xmlLister.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_OPENED(), xmlListerOpened);
+      xmlLister.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CLOSED(), xmlListerClosed);
+      // the test xml is given again, the rest of this suite counts on its items
+      xmlLister.setXmlAsString(TEST_XML);
+    }
+    /**
+     * Counts the changed events of the tested lister.
+     * @param e the changed event
+     */
+    private function xmlListerChanged(e:Event):void
+    {
+      changedCount++;
+    }
+    /**
+     * Counts the opened events of the tested lister.
+     * @param e the opened event
+     */
+    private function xmlListerOpened(e:Event):void
+    {
+      openedCount++;
+    }
+    /**
+     * Counts the closed events of the tested lister.
+     * @param e the closed event
+     */
+    private function xmlListerClosed(e:Event):void
+    {
+      closedCount++;
+    }
+    /**
      * Frees everything this suite holds.
      */
     override public function destroy():void
@@ -114,6 +179,9 @@ package com.kisscodesystems.KissAs3Fw.suite
       // 3: call the super destroy.
       super.destroy();
       // 4: every reference and value should be reset to null, 0 or false.
+      changedCount = 0;
+      openedCount = 0;
+      closedCount = 0;
     }
   }
 }

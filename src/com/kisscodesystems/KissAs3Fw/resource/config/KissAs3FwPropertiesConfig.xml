@@ -20,8 +20,10 @@
 -->
 <config name="PropertiesConfig">
   <value key="applicationName">Application</value>
-  <value key="applicationVersion">3.0</value>
-  <value key="applicationReleaseDate">2026-08-29</value>
+  <value key="applicationVersion">2.3</value>
+  <value key="applicationReleaseDate">2026-09-13</value>
   <value key="deviceIdStoreName">KissAs3FwDeviceId</value>
   <value key="deviceIdSecret">KissAs3FwDeviceIdSecret</value>
+  <value key="stateKeepingEnabled">true</value>
+  <value key="stateStoreName">KissAs3FwState</value>
 </config>

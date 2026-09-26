@@ -174,6 +174,7 @@ package com.kisscodesystems.KissAs3Fw.ui
         baseTextField.addEventListener(FocusEvent.FOCUS_OUT, focusOut);
         baseTextField.addEventListener(FocusEvent.FOCUS_IN, focusIn);
         baseTextField.addEventListener(TextEvent.TEXT_INPUT, textInput);
+        baseTextField.addEventListener(Event.CHANGE, textChanged);
         if (stage != null)
         {
           stage.focus = baseTextField;
@@ -266,6 +267,28 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
     }
     /**
+     * Handles a text that has been changed by the one using the application: it takes the
+     * dimensions of this area to the text it holds by now.
+     * This is the one handler of the typing every machine really calls: the text input
+     * event above arrives from the keyboard of a desktop and from the on screen keyboard
+     * of an android device, but the on screen keyboard of an iPhone gives none of them, so
+     * this area followed nothing that was typed into it there. The change event of a text
+     * field is raised by the typing of the one using the application only - a text given
+     * to the field by this framework raises none of them.
+     * @param e the change event of the text field
+     */
+    private function textChanged(e:Event):void
+    {
+      application.trace("<" + this + " TextArea textChanged> called.", 1);
+      application.trace("<" + this + " TextArea textChanged> e: " + e, 0);
+      doDimensionsOrTextChanged();
+      if (!iniTextChanged)
+      {
+        iniTextChanged = true;
+        baseTextField.setLabel(baseTextField.text);
+      }
+    }
+    /**
      * Closes the editor mode of this area, lets the parent content back to where it has
      * been scrolled up from and reports that the editing has been finished.
      * @param e the focus out event of the text field
@@ -279,6 +302,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseTextField.removeEventListener(FocusEvent.FOCUS_OUT, focusOut);
       baseTextField.removeEventListener(FocusEvent.FOCUS_IN, focusIn);
       baseTextField.removeEventListener(TextEvent.TEXT_INPUT, textInput);
+      baseTextField.removeEventListener(Event.CHANGE, textChanged);
       if (!application.getDynamicsConfig().weAreInDesktopMode() && contentSprite != null)
       {
         contentSprite.y = origContentPos;
@@ -299,6 +323,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseTextField.removeEventListener(FocusEvent.FOCUS_OUT, focusOut);
       baseTextField.removeEventListener(FocusEvent.FOCUS_IN, focusIn);
       baseTextField.removeEventListener(TextEvent.TEXT_INPUT, textInput);
+      baseTextField.removeEventListener(Event.CHANGE, textChanged);
       application.trace("<" + this + " TextArea destroy> 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       eventChanged.stopImmediatePropagation();
       application.trace("<" + this + " TextArea destroy> 3: calling the super destroy.", 0);

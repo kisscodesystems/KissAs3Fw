@@ -81,6 +81,10 @@ package com.kisscodesystems.KissAs3Fw.suite
         , config.getWatchTimerDelay() > 0);
       assertTrue("the delay of the timer of the active servers is a positive one"
         , config.getActiveServersTimerDelay() > 0);
+      // the box of a long work needs a pause of its own to reach the screen before that
+      // work begins and holds the single thread of the application
+      assertTrue("the delay of the box of a long work is a positive one"
+        , config.getLoadingDelay() > 0);
       // the lists and the shortened texts have to have room for something
       assertTrue("the auto completion displays at least one element"
         , config.getAutoCompleteMaxElements() > 0);
@@ -217,6 +221,10 @@ package com.kisscodesystems.KissAs3Fw.suite
         , config.getVideoPlayerBufferTime() >= 0);
       assertTrue("the title timer of a video player is not a negative one"
         , config.getVideoPlayerControlsTimerDelay() >= 0);
+      assertEquals("the icon of the seek bar of a video player moves six times a second"
+        , 167, config.getVideoPlayerSeekIconTimerDelay());
+      assertEquals("the line of the arriving of a video player is drawn eight times a second"
+        , 125, config.getVideoPlayerBufferLineTimerDelay());
       assertTrue("the alpha of the list of the chapters is an alpha"
         , config.getVideoPlayerChapterListAlpha() >= 0
         && config.getVideoPlayerChapterListAlpha() <= 1);

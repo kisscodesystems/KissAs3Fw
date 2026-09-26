@@ -209,12 +209,15 @@ package com.kisscodesystems.KissAs3Fw.ui
       updateRateDisplaying(getRateValueByMouse());
     }
     /**
-     * Returns the rate the current mouse position means, rounded to a half star.
+     * Returns the rate the current mouse position means, rounded to a half star. The
+     * padding around the stars is a part of this object as well, so a mouse standing on it
+     * means the nearest rate that can be taken: no star at all or every star.
      */
     private function getRateValueByMouse():Number
     {
       application.trace("<" + this + " Rater getRateValueByMouse> called.", 0);
-      const rateValue:Number = Math.round((foreground.mouseX - application.getDynamicsConfig().getAppPadding()) / starsw * 2) / 2;
+      const rateValue:Number = Math.max(0, Math.min(application.getComponentsConfig().getRaterNumOfStars()
+          , Math.round((foreground.mouseX - application.getDynamicsConfig().getAppPadding()) / starsw * 2) / 2));
       application.trace("<" + this + " Rater getRateValueByMouse> rateValue: " + rateValue, 0);
       return rateValue;
     }

@@ -128,6 +128,10 @@
     <label lang="EN">Jump to here:</label>
     <label lang="HU">Ugrás ide:</label>
   </labels>
+  <labels key="LOADING">
+    <label lang="EN">Loading...</label>
+    <label lang="HU">Betöltés...</label>
+  </labels>
   <labels key="LISTS_OF_THE_CONTENTS_TO_MOVE_INTO">
     <label lang="EN">Move your widget here:</label>
     <label lang="HU">Widget mozgatása ide:</label>
@@ -365,6 +369,10 @@
   <labels key="DEFAULT_CONTENT">
     <label lang="EN">Default content</label>
     <label lang="HU">Alapértelmezett tartalom</label>
+  </labels>
+  <labels key="CONTENT_NOT_FOUND">
+    <label lang="EN">Content not found</label>
+    <label lang="HU">Tartalom nem található</label>
   </labels>
   <labels key="ACTIVATE_CAMERA">
     <label lang="EN">Camera</label>

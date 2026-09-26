@@ -108,6 +108,16 @@ package com.kisscodesystems.KissAs3Fw.app
       }
     }
     /**
+     * Returns the widget that is gone to in the active widget container, null when that
+     * container holds no widget at all.
+     */
+    public function getActualWidget():Widget
+    {
+      application.trace("<" + this + " Widgets getActualWidget> called.", 1);
+      const index:int = contentMultiple.getActiveIndex();
+      return index >= 0 && index < actualWidgets.length ? actualWidgets[index] as Widget : null;
+    }
+    /**
      * Returns the widgets orientation of the given widget container.
      * @param index the index of the widget container the orientation is asked of
      */
@@ -306,7 +316,14 @@ package com.kisscodesystems.KissAs3Fw.app
           widget.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_WIDGET_DRAG_START(), widgetDragStart);
           widget.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_WIDGET_DRAG_STOP(), widgetDragStop);
           contentMultiple.removeFromContent(contentId, widget);
-          widget.destroy();
+          // every note this layer keeps of the widget is dropped before the widget itself
+          // is freed up, and that order is the point of it: the destroy of a widget runs
+          // the destroy of everything standing on it, so one throwing object anywhere in
+          // that tree used to leave this layer half way through the closing - the widget
+          // was already off the screen while this layer still held it in widgetsArray, so
+          // the list of the widgets still offered it and the application navigated to the
+          // empty place of a widget that was not there any more. This way the layer is
+          // consistent whatever happens in that destroy.
           widgetsArray[contentId].splice(widgetIndex, 1);
           delete widgetWidths[widget];
           delete widgetHeights[widget];
@@ -323,6 +340,7 @@ package com.kisscodesystems.KissAs3Fw.app
             }
           }
           goToTheWidget(actualWidgets[contentId]);
+          widget.destroy();
         }
       }
     }

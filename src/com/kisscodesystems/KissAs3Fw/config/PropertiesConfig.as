@@ -38,8 +38,8 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var application:Application = null;
     private const applicationId:String = generateRandomBytes(1024).toString();
     protected var applicationName:String = "Application";
-    protected var applicationVersion:String = "3.0";
-    protected var applicationReleaseDate:String = "2026-08-29";
+    protected var applicationVersion:String = "2.3";
+    protected var applicationReleaseDate:String = "2026-09-13";
     protected var applicationSoftwareHomepageTxt:Array = new Array();
     protected var applicationSoftwareHomepageUrl:Array = new Array();
     // The name the identifier of the device is kept under, in the shared object and in
@@ -51,6 +51,12 @@ package com.kisscodesystems.KissAs3Fw.config
     // configuration xml of it, so every application writes its own one into its own xml:
     // an application keeping this one enciphers with a secret anyone can read.
     protected var deviceIdSecret:String = "KissAs3FwDeviceIdSecret";
+    // Whether this application keeps its state by itself: it saves the state every time it
+    // is sent to the background and restores it on the next start, so an application that
+    // has been killed there by the operating system goes on where it has been left.
+    protected var stateKeepingEnabled:Boolean = true;
+    // The name the state of this application is kept under in its shared object.
+    protected var stateStoreName:String = "KissAs3FwState";
     /**
      * Constructs the properties config and applies the embedded configuration xml onto it.
      * @param applicationRef the main application reference
@@ -97,6 +103,8 @@ package com.kisscodesystems.KissAs3Fw.config
       applicationReleaseDate = values.getString("applicationReleaseDate", applicationReleaseDate);
       deviceIdStoreName = values.getString("deviceIdStoreName", deviceIdStoreName);
       deviceIdSecret = values.getString("deviceIdSecret", deviceIdSecret);
+      stateKeepingEnabled = values.getBoolean("stateKeepingEnabled", stateKeepingEnabled);
+      stateStoreName = values.getString("stateStoreName", stateStoreName);
       values.destroy();
     }
     public function getApplicationId():String
@@ -138,6 +146,21 @@ package com.kisscodesystems.KissAs3Fw.config
       return deviceIdSecret;
     }
     /**
+     * Returns whether this application saves its state when it is sent to the background
+     * and restores it on the next start.
+     */
+    public function getStateKeepingEnabled():Boolean
+    {
+      return stateKeepingEnabled;
+    }
+    /**
+     * Returns the name the state of this application is kept under on the device.
+     */
+    public function getStateStoreName():String
+    {
+      return stateStoreName;
+    }
+    /**
      * Destroys this object and frees up everything. The identifier of the application is
      * a constant, so that one lives together with this object.
      */
@@ -157,6 +180,8 @@ package com.kisscodesystems.KissAs3Fw.config
       applicationReleaseDate = null;
       deviceIdStoreName = null;
       deviceIdSecret = null;
+      stateKeepingEnabled = false;
+      stateStoreName = null;
       applicationSoftwareHomepageTxt = null;
       applicationSoftwareHomepageUrl = null;
       application = null;

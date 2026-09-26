@@ -144,6 +144,10 @@ package com.kisscodesystems.KissAs3Fw.enum
     {
       return "[LISTS_OF_THE_WIDGETS]";
     }
+    public static function LOADING():String
+    {
+      return "[LOADING]";
+    }
     public static function LISTS_OF_THE_CONTENTS_TO_MOVE_INTO():String
     {
       return "[LISTS_OF_THE_CONTENTS_TO_MOVE_INTO]";
@@ -375,6 +379,10 @@ package com.kisscodesystems.KissAs3Fw.enum
     public static function DEFAULT_CONTENT():String
     {
       return "[DEFAULT_CONTENT]";
+    }
+    public static function CONTENT_NOT_FOUND():String
+    {
+      return "[CONTENT_NOT_FOUND]";
     }
     public static function ACTIVATE_CAMERA():String
     {

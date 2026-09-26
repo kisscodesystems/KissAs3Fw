@@ -15,6 +15,8 @@
  * - a fresh foreground is invisible and it holds nothing
  * - an alert makes it visible, and closing every alert hides it again
  * - the answers of an alert arrive on the dispatcher of the application
+ * - an alert without an ok button carries no answer at all, so nothing but a closeAlert
+ *   of the unique string of it takes it away
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
@@ -53,9 +55,16 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getDh after setDwh", expectedDh(600), foreground.getDh());
       // a fresh foreground holds nothing, so it is invisible
       assertFalse("the visible of a fresh Foreground", foreground.visible);
-      // an alert without an ok button displays nothing at all
-      foreground.createAlert("nothing", "uniqueNothing", false, false);
-      assertFalse("the visible after an alert without an ok button", foreground.visible);
+      // an alert without a message displays nothing at all
+      foreground.createAlert(null, "uniqueNoMessage", true, false);
+      assertFalse("the visible after an alert without a message", foreground.visible);
+      // an alert without an ok button is displayed just the same, it carries no answer at
+      // all: nothing but a closeAlert of the unique string of it takes it away. That is
+      // the alert of a long work, see the runWithLoading of the application
+      foreground.createAlert("nothing", "uniqueNoButton", false, false);
+      assertTrue("the visible after an alert without an ok button", foreground.visible);
+      foreground.closeAlert("uniqueNoButton");
+      assertFalse("the visible after closing the alert without an ok button", foreground.visible);
       // an alert with an ok button is displayed
       foreground.createAlert(EnumOkCancel.OC_OK(), "uniqueAlert", true, false);
       assertTrue("the visible after an alert", foreground.visible);
@@ -63,7 +72,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       foreground.createAlert(EnumOkCancel.OC_CANCEL(), "uniqueConfirm", true, true, true, false);
       assertTrue("the visible after a confirm", foreground.visible);
       // closing an alert that is not there leaves everything as it is
-      foreground.closeAlert("uniqueNothing");
+      foreground.closeAlert("uniqueNoMessage");
       assertTrue("the visible after closing an alert that is not there", foreground.visible);
       // closing every alert hides this object again
       foreground.closeAlert("uniqueAlert");
@@ -74,6 +83,19 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("the visible after a fullscreen alert", foreground.visible);
       foreground.closeAlert("uniqueFullscreen");
       assertFalse("the visible after closing the fullscreen alert", foreground.visible);
+      // a work that cannot be covered is done right away instead of being lost: this test
+      // application builds no layer at all, so there is no foreground of it to display the
+      // alert of that work on
+      var workIsDone:Boolean = false;
+      application.runWithLoading(function():void
+      {
+        workIsDone = true;
+      });
+      assertTrue("a work that cannot be covered is done right away", workIsDone);
+      // a work that is not there at all is answered without an error and does nothing
+      workIsDone = false;
+      application.runWithLoading(null);
+      assertFalse("a work that is not there at all does nothing", workIsDone);
       // the lists need the widgets of the middleground, and there is none of it here,
       // so these calls have to be answered without an error
       foreground.createWidgetsList();

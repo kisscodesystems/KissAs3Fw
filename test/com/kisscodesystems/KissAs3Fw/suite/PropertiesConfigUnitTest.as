@@ -75,6 +75,11 @@ package com.kisscodesystems.KissAs3Fw.suite
         , homepageTxtLength, config.getApplicationSoftwareHomepageTxt().length);
       assertEquals("getApplicationSoftwareHomepageUrl is not changed by writing its copy"
         , homepageUrlLength, config.getApplicationSoftwareHomepageUrl().length);
+      // the framework keeps the state of an application by default, under a name of its own
+      assertTrue("getStateKeepingEnabled is on in the framework", config.getStateKeepingEnabled());
+      assertTrue("getStateStoreName is not empty", config.getStateStoreName().length > 0);
+      assertFalse("the test application keeps no state by itself"
+        , application.getPropertiesConfig().getStateKeepingEnabled());
       // a second instance generates an identifier of its own
       const other:PropertiesConfig = new PropertiesConfig(application);
       assertFalse("the identifier of another instance is a different one"

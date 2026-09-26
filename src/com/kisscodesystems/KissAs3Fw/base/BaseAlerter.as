@@ -176,10 +176,20 @@ package com.kisscodesystems.KissAs3Fw.base
       application.trace("<" + this + " BaseAlerter destroy> called.", 1);
       application.trace("<" + this + " BaseAlerter destroy> unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher()", 0);
       // an alert or a confirm that has never been answered still holds its own handlers on
-      // the dispatcher of the application, and those handlers hold this object as well
+      // the dispatcher of the application, and those handlers hold this object as well.
+      // The handler is taken out of the array with an "as Function" and not with a
+      // Function(...) form: that form is not a cast at all, it calls the Function class
+      // itself, which builds a function of a source string, and that throws the
+      // "EvalError: Error #1066: The form function('function body') is not supported" of
+      // the runtime every single time. It threw it right here, in the destroy of an object
+      // holding an unanswered alert, and the caller of that destroy was left half way
+      // through its own work by it: a widget of the camera closed in portrait - where a
+      // camera answers with an alert - disappeared from the screen while the layer of the
+      // widgets kept holding it, so the application still navigated to the empty place of
+      // a widget that was not there any more
       for (var i:int = pendingTypes.length - 1; i > -1; i--)
       {
-        application.getBaseEventDispatcher().removeEventListener(String(pendingTypes[i]), Function(pendingFunctions[i]));
+        application.getBaseEventDispatcher().removeEventListener(String(pendingTypes[i]), pendingFunctions[i] as Function);
       }
       application.trace("<" + this + " BaseAlerter destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       pendingTypes.splice(0);

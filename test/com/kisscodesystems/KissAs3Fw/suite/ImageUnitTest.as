@@ -61,6 +61,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertFalse("isLoading of a fresh image", image.isLoading());
       assertFalse("isPictureLoaded of a fresh image", image.isPictureLoaded());
       assertNull("getBitmapData of a fresh image", image.getBitmapData());
+      assertFalse("isContentNotFound of a fresh image", image.isContentNotFound());
       assertEquals("getBitmapDw of a fresh image", 0, image.getBitmapDw());
       assertEquals("getBitmapDh of a fresh image", 0, image.getBitmapDh());
       assertEquals("getBoxDw of a fresh image", 0, image.getBoxDw());
@@ -124,6 +125,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getUrl after loadUrl", url, image.getUrl());
       assertTrue("isLoading while the picture is on its way", image.isLoading());
       assertFalse("isPictureLoaded while the picture is on its way", image.isPictureLoaded());
+      assertFalse("isContentNotFound while the picture is on its way", image.isContentNotFound());
       image.clear();
       assertFalse("isLoading after clear", image.isLoading());
       assertEquals("the url is kept by clear", url, image.getUrl());
@@ -138,6 +140,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       const bitmapData:BitmapData = new BitmapData(PICTURE_DW, PICTURE_DH, false, 0x808080);
       image.setBitmapData(bitmapData);
       assertTrue("isPictureLoaded after setBitmapData", image.isPictureLoaded());
+      assertFalse("isContentNotFound after setBitmapData", image.isContentNotFound());
       assertFalse("isLoading after setBitmapData", image.isLoading());
       assertEquals("the url is cleared by setBitmapData", "", image.getUrl());
       assertNotNull("getBitmapData after setBitmapData", image.getBitmapData());

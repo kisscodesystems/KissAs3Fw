@@ -137,10 +137,7 @@ package com.kisscodesystems.KissAs3Fw.app
       var panelWidth:int = getDw() - 2 * margin;
       if (application.getDynamicsConfig().weAreInDesktopMode())
       {
-        const fontSize:int = application.getDynamicsConfig().getAppFontSize() == 0
-          ? application.calcFontSizeFromStageSize()
-          : application.getDynamicsConfig().getAppFontSize();
-        panelWidth = fontSize * 20 + margin * 8 + application.getDynamicsConfig().getAppPadding() * 8;
+        panelWidth = application.getFontSizeInUse() * 20 + margin * 8 + application.getDynamicsConfig().getAppPadding() * 8;
       }
       application.trace("<" + this + " Middleground getPanelWidth> panelWidth: " + panelWidth, 0);
       return panelWidth;
