@@ -1724,7 +1724,7 @@ internal class Navigation extends BaseSprite
       application.trace("<" + this + " Navigation removedFromStage> the drag running on this navigation is ended.", 0);
       scroll.setScrolled(false);
       moverDragging = false;
-      removeEventListener(Event.ENTER_FRAME, enterFrameSampleSpriteMoverPos);
+      removeEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
       spriteMover.stopDrag();
     }
     super.removedFromStage(e);

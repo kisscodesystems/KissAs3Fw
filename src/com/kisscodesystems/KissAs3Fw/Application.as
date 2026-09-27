@@ -26,11 +26,6 @@
  *   reached the stage, see the startupRefresh
  * - a work that takes long is done behind the alert telling that it is being done,
  *   see the runWithLoading
- * - it keeps its own state: that state is saved every time this application is sent to
- *   the background and restored on the first frame of the next start, so an application
- *   killed in the background by the operating system goes on where it has been left, see
- *   the saveState and the restoreState. This one keeps the language and the displaying
- *   style, and every extender adds its own values by overriding collectState and applyState
  */
 
 package com.kisscodesystems.KissAs3Fw
@@ -179,13 +174,6 @@ package com.kisscodesystems.KissAs3Fw
     private var loadingTimer:Timer = null;
     private var loadingWork:Function = null;
     private var loadingUniqueString:String = "";
-    // The keys of the values this class keeps in the state of the application. Every
-    // extender keeps its own values under keys starting with its own name, so the values
-    // of two classes never overwrite each other.
-    private const STATE_LANG_CODE:String = "Application.langCode";
-    private const STATE_DISPLAYING_STYLE:String = "Application.displayingStyle";
-    // The flag of the single restoring of the state, the one of the first frame.
-    private var stateRestored:Boolean = false;
     /**
      * Constructs the application: it builds every configuration and every manager of the
      * framework first, and then it asks the extender of this class for the objects of it.
@@ -1211,15 +1199,6 @@ package com.kisscodesystems.KissAs3Fw
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
       createStartupRefreshTimer();
-      if (getPropertiesConfig().getStateKeepingEnabled())
-      {
-        NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, nativeApplicationDeactivated, false, 0, true);
-        NativeApplication.nativeApplication.addEventListener(Event.EXITING, nativeApplicationDeactivated, false, 0, true);
-        if (!stateRestored)
-        {
-          addEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
-        }
-      }
     }
     /**
      * Drops the listener of the resizing of the stage.
@@ -1435,29 +1414,6 @@ package com.kisscodesystems.KissAs3Fw
       {
         serverManager.startRefreshingServers();
       }
-    }
-    /**
-     * This application has been sent to the background, or it is being closed: this is
-     * the last moment it is sure to be running, so its state is saved.
-     * @param e the deactivate or the exiting event of the native application
-     */
-    private function nativeApplicationDeactivated(e:Event):void
-    {
-      application.trace("<Application nativeApplicationDeactivated> called.", 1);
-      application.trace("<Application nativeApplicationDeactivated> e: " + e, 0);
-      saveState();
-    }
-    /**
-     * The first frame after this application has reached the stage: its content is built
-     * by now, so the state kept on the device is restored, once in the life of it.
-     * @param e the enter frame event
-     */
-    private function enterFrameRestoreState(e:Event):void
-    {
-      application.trace("<Application enterFrameRestoreState> called.", 0);
-      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
-      stateRestored = true;
-      restoreState();
     }
     /**
      * Puts the given permission manager into the row of the ones to be asked and starts
@@ -1742,8 +1698,6 @@ package com.kisscodesystems.KissAs3Fw
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
-      NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, nativeApplicationDeactivated);
-      NativeApplication.nativeApplication.removeEventListener(Event.EXITING, nativeApplicationDeactivated);
       dropPermissionAsked();
       dropStartupRefreshTimer();
       dropLoadingTimer();
@@ -1783,7 +1737,6 @@ package com.kisscodesystems.KissAs3Fw
       tracesSuppressed = 0;
       tracer = null;
       startupRefreshDone = false;
-      stateRestored = false;
       loadingWork = null;
       loadingUniqueString = null;
       appEnv = null;

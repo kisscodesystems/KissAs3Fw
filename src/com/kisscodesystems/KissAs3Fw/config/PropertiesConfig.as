@@ -38,7 +38,7 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var application:Application = null;
     private const applicationId:String = generateRandomBytes(1024).toString();
     protected var applicationName:String = "Application";
-    protected var applicationVersion:String = "2.3";
+    protected var applicationVersion:String = "2.2";
     protected var applicationReleaseDate:String = "2026-09-13";
     protected var applicationSoftwareHomepageTxt:Array = new Array();
     protected var applicationSoftwareHomepageUrl:Array = new Array();

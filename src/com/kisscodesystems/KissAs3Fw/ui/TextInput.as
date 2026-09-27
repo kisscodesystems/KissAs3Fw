@@ -827,9 +827,6 @@ package com.kisscodesystems.KissAs3Fw.ui
       // the text of the field and the caret in it are the final ones by the time this
       // event arrives, so they are taken as they are
       autoCompleteTheText(baseTextField.text, baseTextField.caretIndex);
-      // the users of this input have to follow the typing on an iPhone as well, and the
-      // key up event passed on below never arrives there
-      getBaseEventDispatcher().dispatchEvent(e);
       hintTextLabelVisible();
       deleteVisible();
     }
