@@ -332,6 +332,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       {
         application.trace("<" + this + " Camera attachCamera> there is no camera device to be used!", 6);
         detachCamera();
+        // the picture has been cleared above already, and nothing else tells the outside
+        dispatchEventChanged();
         showAlert(EnumTextKeys.REQUIRED_PERMISSIONS_ALERT());
         return;
       }
@@ -346,6 +348,9 @@ package com.kisscodesystems.KissAs3Fw.ui
       if (camera.muted)
       {
         application.trace("<" + this + " Camera attachCamera> the device is not allowed yet, the status event of it is the one to tell.", 1);
+        // the device is held already, and the picture has been cleared: the attached event
+        // comes with the picture only, so the change of the grabbing is told here
+        dispatchEventChanged();
         return;
       }
       displayCameraPicture();
@@ -359,6 +364,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     {
       application.trace("<" + this + " Camera detachCamera> called.", 1);
       const wasInUse:Boolean = cameraInUse;
+      const wasAttached:Boolean = camera != null;
       cameraInUse = false;
       dropVideo();
       if (camera != null)
@@ -375,6 +381,12 @@ package com.kisscodesystems.KissAs3Fw.ui
       if (wasInUse)
       {
         getBaseEventDispatcher().dispatchEvent(eventCameraIsDetached);
+      }
+      else if (wasAttached)
+      {
+        // a device that has never given a picture (a refused or a still pending one) has
+        // no attached event to be answered by a detached one, but it has been let go of
+        dispatchEventChanged();
       }
     }
     /**
@@ -421,6 +433,9 @@ package com.kisscodesystems.KissAs3Fw.ui
         detachCamera();
         attachCamera();
       }
+      // the picker of the settings panel comes here as well, so the change is told even
+      // while no device is grabbed at all
+      dispatchEventChanged();
     }
     /**
      * Tells whether the picture of the camera is muted at the moment.
@@ -489,8 +504,10 @@ package com.kisscodesystems.KissAs3Fw.ui
       {
         detachMicrophone();
         attachMicrophone();
-        dispatchEventChanged();
       }
+      // the picker of the settings panel comes here as well, so the change is told even
+      // while no device is grabbed at all
+      dispatchEventChanged();
     }
     /**
      * Tells whether the microphone of this object is muted at the moment.

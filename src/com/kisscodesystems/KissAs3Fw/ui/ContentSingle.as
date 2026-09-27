@@ -60,6 +60,13 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var reposElementsInProgress:Boolean = false;
     private var reposElementsPending:Boolean = false;
     public var enableScrollingFromOthers:Boolean = true;
+    // The content is cached as a bitmap during a glide only when it is at most this many times
+    // larger than the visible area. The whole content is drawn into that bitmap when the glide
+    // begins, and drawn again whenever anything changes in it, so a larger one would cost more
+    // than drawing only its visible part on every frame, and it would hold a lot of memory.
+    private static const CACHE_MAX_SCREENS:Number = 3;
+    // The largest side of a bitmap the runtime can cache a display object into.
+    private static const CACHE_MAX_SIDE:int = 8191;
     /**
      * Constructs the ContentSingle object and builds up its base scroll and base sprite.
      * @param applicationRef the main application reference
@@ -84,6 +91,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseScroll.getContent().addChild(baseSprite);
       baseSprite.mask = baseScroll.getMask();
       baseScroll.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CONTENT_CACHE_BEGIN(), cacheBeginContent);
+      baseScroll.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CONTENT_CACHE_END(), cacheEndContent);
       baseScroll.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CONTENT_CX_CHANGED(), reposContentX);
       baseScroll.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CONTENT_CY_CHANGED(), reposContentY);
       baseSprite.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), contentResized);
@@ -672,14 +680,36 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseSprite.setCy(baseScroll.getCyContent());
     }
     /**
-     * Turns the bitmap caching of the content on before a scrolling begins.
+     * Turns the bitmap caching of the content on before a glide begins, if the content is
+     * small enough for it, see CACHE_MAX_SCREENS.
      * @param e the content cache begin event
      */
     private function cacheBeginContent(e:Event):void
     {
       application.trace("<" + this + " ContentSingle cacheBeginContent> called.", 1);
       application.trace("<" + this + " ContentSingle cacheBeginContent> e: " + e, 0);
-      baseSprite.cacheAsBitmap = true;
+      const dw:int = baseSprite.getDw();
+      const dh:int = baseSprite.getDh();
+      if (dw <= CACHE_MAX_SIDE && dh <= CACHE_MAX_SIDE
+          && dw * dh <= CACHE_MAX_SCREENS * baseScroll.getDw() * baseScroll.getDh())
+      {
+        application.trace("<" + this + " ContentSingle cacheBeginContent> conditions OK.", 1);
+        baseSprite.cacheAsBitmap = true;
+      }
+    }
+    /**
+     * Turns the bitmap caching of the content off after the glide has ended, so a content
+     * standing still is not drawn again as a whole on every change of it.
+     * @param e the content cache end event
+     */
+    private function cacheEndContent(e:Event):void
+    {
+      application.trace("<" + this + " ContentSingle cacheEndContent> called.", 1);
+      application.trace("<" + this + " ContentSingle cacheEndContent> e: " + e, 0);
+      if (baseSprite != null)
+      {
+        baseSprite.cacheAsBitmap = false;
+      }
     }
     /**
      * Repositions the elements after the application margin has been changed.

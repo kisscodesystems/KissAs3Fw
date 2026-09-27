@@ -380,6 +380,10 @@ package com.kisscodesystems.KissAs3Fw.enum
     {
       return "[DEFAULT_CONTENT]";
     }
+    public static function CONTENT_NOT_FOUND():String
+    {
+      return "[CONTENT_NOT_FOUND]";
+    }
     public static function ACTIVATE_CAMERA():String
     {
       return "[ACTIVATE_CAMERA]";

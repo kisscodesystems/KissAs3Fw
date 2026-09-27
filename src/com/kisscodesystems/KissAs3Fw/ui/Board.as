@@ -87,6 +87,12 @@ package com.kisscodesystems.KissAs3Fw.ui
     // content, so such a lightweight shape is enough for it, and it takes no mouse event
     // either: the drawing is always started by the sprite holding those shapes.
     private var drawnStroke:Shape = null;
+    // The last mouse position of the current movement, in the coordinates of its shape. The
+    // line is not drawn straight to every new position: this point is the control point of a
+    // curve that ends halfway between it and the new one, so the corners the samples of the
+    // enter frame would leave behind are rounded off.
+    private var drawnStrokeLastX:Number = 0;
+    private var drawnStrokeLastY:Number = 0;
     private var drawnStrokes:Array = null;
     private var undoneStrokes:Array = null;
     private var drawnMask:BaseSprite = null;
@@ -660,7 +666,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Takes the new color of the line and switches back to the drawing, because a new
-     * line color is only worth anything while the board draws.
+     * line color is only worth anything while the board draws, and reports the change to
+     * the outside world. A board that has been rubbing out is reported by the switcher of
+     * the drawing, which is switched here, so that change is reported once only.
      * @param e the changed event of the picker of the color of the line
      */
     private function lineColorPickerChanged(e:Event):void
@@ -668,10 +676,17 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Board lineColorPickerChanged> called.", 1);
       application.trace("<" + this + " Board lineColorPickerChanged> e: " + e, 0);
       setLineStyle(true);
-      setDraw(true);
+      if (drawSwitcher.getOn())
+      {
+        dispatchEventChanged();
+      }
+      else
+      {
+        setDraw(true);
+      }
     }
     /**
-     * Takes the new thickness of the line.
+     * Takes the new thickness of the line and reports the change to the outside world.
      * @param e the changed event of the potmeter of the thickness of the line
      */
     private function lineThicknessPotmeterChanged(e:Event):void
@@ -679,9 +694,11 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Board lineThicknessPotmeterChanged> called.", 1);
       application.trace("<" + this + " Board lineThicknessPotmeterChanged> e: " + e, 0);
       setLineStyle(drawSwitcher.getOn());
+      dispatchEventChanged();
     }
     /**
-     * Switches between the drawing and the rubbing out.
+     * Switches between the drawing and the rubbing out and reports the change to the
+     * outside world.
      * @param e the changed event of the switcher of the drawing
      */
     private function drawSwitcherChanged(e:Event):void
@@ -689,6 +706,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Board drawSwitcherChanged> called.", 1);
       application.trace("<" + this + " Board drawSwitcherChanged> e: " + e, 0);
       setLineStyle(drawSwitcher.getOn());
+      dispatchEventChanged();
     }
     /**
      * Undoes the last movement of the drawing. There is nothing to be asked here: this
@@ -823,13 +841,18 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Grabs this board on the area of its resizer, but only while nothing has been
-     * drawn onto it yet.
+     * drawn onto it yet. Such a press is kept from the parents of this board, otherwise the
+     * content it stands in (the layer of the widgets, typically) would start to scroll and
+     * take the resizing away: this listener runs before the ones of the parents, so the
+     * flag set here is the one they read about this very press. A press that resizes
+     * nothing is handed over as usual.
      * @param e the mouse down event of the resizer
      */
     private function resizerMouseDown(e:MouseEvent):void
     {
       application.trace("<" + this + " Board resizerMouseDown> called.", 1);
       application.trace("<" + this + " Board resizerMouseDown> e: " + e, 0);
+      resizer.mouseDownForScrollingEnabled = !(resizeIsPossible && contentIsEmpty);
       if (resizeIsPossible && contentIsEmpty)
       {
         resizingIsInProgress = true;
@@ -1069,13 +1092,16 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
     }
     /**
-     * Starts the drawing when this board is able to draw at the moment.
+     * Starts the drawing when this board is able to draw at the moment. Such a press is
+     * kept from the parents of this board, the same way as the one of the resizer, so the
+     * content this board stands in does not scroll while the line is drawn.
      * @param e the mouse down event of the drawable area
      */
     private function drawnSpriteMouseDown(e:MouseEvent):void
     {
       application.trace("<" + this + " Board drawnSpriteMouseDown> called.", 1);
       application.trace("<" + this + " Board drawnSpriteMouseDown> e: " + e, 0);
+      drawnSprite.mouseDownForScrollingEnabled = !ableToDraw;
       if (ableToDraw)
       {
         startDraw();
@@ -1102,11 +1128,17 @@ package com.kisscodesystems.KissAs3Fw.ui
       drawnSprite.addChild(drawnStroke);
       drawnStrokes.push(drawnStroke);
       drawnStroke.graphics.lineStyle(lineStyleThickness, lineStyleColor, 1, true);
-      drawnStroke.graphics.moveTo(drawnStroke.mouseX, drawnStroke.mouseY);
+      drawnStrokeLastX = drawnStroke.mouseX;
+      drawnStrokeLastY = drawnStroke.mouseY;
+      drawnStroke.graphics.moveTo(drawnStrokeLastX, drawnStrokeLastY);
       addEventListener(Event.ENTER_FRAME, drawing, false, 0, true);
     }
     /**
-     * Draws the line of the current movement up to the current mouse position.
+     * Draws the line of the current movement towards the current mouse position. The line
+     * is a curve controlled by the previous position and ending halfway between that and the
+     * current one, so consecutive curves meet with the same tangent and the line stays
+     * smooth even when the mouse moves fast between two frames. A frame without movement
+     * draws nothing.
      * @param e the enter frame event of this board
      */
     private function drawing(e:Event):void
@@ -1114,17 +1146,30 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Board drawing> called.", 0);
       if (drawnStroke != null)
       {
-        drawnStroke.graphics.lineTo(drawnStroke.mouseX, drawnStroke.mouseY);
+        const currentX:Number = drawnStroke.mouseX;
+        const currentY:Number = drawnStroke.mouseY;
+        if (currentX != drawnStrokeLastX || currentY != drawnStrokeLastY)
+        {
+          drawnStroke.graphics.curveTo(drawnStrokeLastX, drawnStrokeLastY, (drawnStrokeLastX + currentX) / 2, (drawnStrokeLastY + currentY) / 2);
+          drawnStrokeLastX = currentX;
+          drawnStrokeLastY = currentY;
+        }
       }
     }
     /**
      * Stops the drawing, closes the movement that has been drawn and reports the new
-     * content to the outside world.
+     * content to the outside world. The curves of the movement end halfway to the last
+     * position, so the line is finished up to the current mouse position here: this is also
+     * what leaves a dot behind when the mouse has not been moved at all.
      */
     private function stopDraw():void
     {
       application.trace("<" + this + " Board stopDraw> called.", 1);
       removeEventListener(Event.ENTER_FRAME, drawing);
+      if (drawnStroke != null)
+      {
+        drawnStroke.graphics.lineTo(drawnStroke.mouseX, drawnStroke.mouseY);
+      }
       drawingIsInProgress = false;
       drawnStroke = null;
       dispatchEventChanged();
@@ -1239,6 +1284,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       drawnContainer = null;
       drawnSprite = null;
       drawnStroke = null;
+      drawnStrokeLastX = 0;
+      drawnStrokeLastY = 0;
       drawnStrokes = null;
       undoneStrokes = null;
       drawnMask = null;

@@ -121,7 +121,7 @@
   <value key="boardPadding">6</value>
   <value key="boardLineThickness">2</value>
   <value key="boardLineMinThickness">1</value>
-  <value key="boardLineMaxThickness">10</value>
+  <value key="boardLineMaxThickness">20</value>
   <value key="boardLineIncThickness">1</value>
   <value key="boardRubberThicknessFactor">5</value>
   <value key="boardChangedTimerDelay">1111</value>
@@ -154,6 +154,8 @@
   <value key="cameraTakePictureTimerDelay">5000</value>
   <value key="videoPlayerBufferTime">3</value>
   <value key="videoPlayerControlsTimerDelay">4000</value>
+  <value key="videoPlayerSeekIconTimerDelay">167</value>
+  <value key="videoPlayerBufferLineTimerDelay">125</value>
   <value key="videoPlayerChapterListAlpha">0.85</value>
   <value key="videoPlayerSoundVolume">85</value>
   <value key="watchTimerDelay">1000</value>

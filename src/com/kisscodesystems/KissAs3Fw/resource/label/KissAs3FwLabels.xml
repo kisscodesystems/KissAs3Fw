@@ -370,6 +370,10 @@
     <label lang="EN">Default content</label>
     <label lang="HU">Alapértelmezett tartalom</label>
   </labels>
+  <labels key="CONTENT_NOT_FOUND">
+    <label lang="EN">Content not found</label>
+    <label lang="HU">Tartalom nem található</label>
+  </labels>
   <labels key="ACTIVATE_CAMERA">
     <label lang="EN">Camera</label>
     <label lang="HU">Kamera</label>

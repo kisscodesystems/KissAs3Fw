@@ -53,11 +53,13 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.suite.ColorPickerUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.ComponentsConfigUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.ContentMultipleUnitTest;
+  import com.kisscodesystems.KissAs3Fw.suite.ContentNotFoundUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.ContentSingleUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.CryptoUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.DatePanelUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.DatePickerUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.DeviceIdManagerUnitTest;
+  import com.kisscodesystems.KissAs3Fw.suite.StateManagerUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.DynamicsConfigUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.EnumUnitTest;
   import com.kisscodesystems.KissAs3Fw.suite.ForegroundUnitTest;
@@ -141,6 +143,14 @@ package com.kisscodesystems.KissAs3Fw
       }
     }
     /**
+     * The properties config of the framework with the keeping of the state switched off,
+     * so no run restores what an earlier one has left behind.
+     */
+    override protected function initializePropertiesConfig():void
+    {
+      propertiesConfig = new PropertiesConfigUnitTestFw(this);
+    }
+    /**
      * The test application builds no objects of its own, every suite builds what it needs.
      */
     override protected function createObjects():void
@@ -202,6 +212,7 @@ package com.kisscodesystems.KissAs3Fw
       // the cryptography and the identifier of the device built on top of it
       suitesArray.push(new CryptoUnitTest(this, report));
       suitesArray.push(new DeviceIdManagerUnitTest(this, report));
+      suitesArray.push(new StateManagerUnitTest(this, report));
       suitesArray.push(new UserUnitTest(this, report));
       // the base classes next, every component of the framework is built of them
       suitesArray.push(new BaseAlerterUnitTest(this, report));
@@ -222,6 +233,7 @@ package com.kisscodesystems.KissAs3Fw
       suitesArray.push(new BaseTextFieldUnitTest(this, report));
       suitesArray.push(new BaseWorkingButtonUnitTest(this, report));
       suitesArray.push(new IconUnitTest(this, report));
+      suitesArray.push(new ContentNotFoundUnitTest(this, report));
       suitesArray.push(new ImageUnitTest(this, report));
       suitesArray.push(new TextLabelUnitTest(this, report));
       suitesArray.push(new ButtonTextUnitTest(this, report));

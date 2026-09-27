@@ -22,6 +22,7 @@ package com.kisscodesystems.KissAs3Fw.suite
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.ui.ColorPanel;
+  import com.kisscodesystems.KissAs3Fw.ui.TextInput;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
   import flash.events.Event;
@@ -84,6 +85,17 @@ package com.kisscodesystems.KissAs3Fw.suite
       colorPanel.setRGBColor("445566", false);
       assertEquals("getRGBColor after a silent setRGBColor", "445566", colorPanel.getRGBColor());
       assertEquals("no changed event after a silent setRGBColor", 2, changedCount);
+      // the input of the rgb string displays a preview only until it is committed, and no
+      // changed event tells of such a preview, so the committed color is the one answered
+      const inputRgb:TextInput = TextInput(findElementOfClass(colorPanel, TextInput));
+      assertNotNull("the input of the rgb string of the panel", inputRgb);
+      if (inputRgb != null)
+      {
+        inputRgb.setLabel("ABCDEF");
+        assertEquals("getRGBColor while the input displays a color not committed yet"
+          , "445566", colorPanel.getRGBColor());
+        inputRgb.setLabel("445566");
+      }
       // the dimensions come from the size of the squares, so the setters do nothing
       const dwBefore:int = colorPanel.getDw();
       const dhBefore:int = colorPanel.getDh();

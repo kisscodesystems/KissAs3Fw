@@ -124,7 +124,7 @@ package com.kisscodesystems.KissAs3Fw.suite
         , EnumEvents.EVENT_BOTTOM_REACHED(), EnumEvents.EVENT_PLAYED_BY_HAND()
         , EnumEvents.EVENT_PLAYED_BY_OUTSIDE(), EnumEvents.EVENT_STOPPED_BY_END()
         , EnumEvents.EVENT_STOPPED_BY_HAND(), EnumEvents.EVENT_CHANGED(), EnumEvents.EVENT_CLEARED()
-        , EnumEvents.EVENT_WATCH_CHANGED(), EnumEvents.EVENT_WATCH_REPOSITIONED()
+        , EnumEvents.EVENT_STEPPED(), EnumEvents.EVENT_WATCH_CHANGED(), EnumEvents.EVENT_WATCH_REPOSITIONED()
         , EnumEvents.EVENT_TRACE_LEVEL_CHANGED(), EnumEvents.EVENT_OPENED(), EnumEvents.EVENT_CLOSED()
         , EnumEvents.EVENT_CLICK(), EnumEvents.EVENT_FILE_LOADED(), EnumEvents.EVENT_LANG_CHANGED()
         , EnumEvents.EVENT_COORDINATES_CHANGED(), EnumEvents.EVENT_WIDGET_CLOSE_ME()

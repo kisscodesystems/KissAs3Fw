@@ -83,6 +83,10 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertFalse("isPlaying after a pause of an unknown sound", soundPlayer.isPlaying());
       soundPlayer.stop();
       assertFalse("isPlaying after a stop of an unknown sound", soundPlayer.isPlaying());
+      soundPlayer.playFrom(5000);
+      assertFalse("isPlaying after a playFrom of an unknown sound", soundPlayer.isPlaying());
+      assertEqualsNumber("getPosition after a playFrom of an unknown sound", 0, soundPlayer.getPosition());
+      runPositionTests(soundPlayer);
       runSoundTests(soundPlayer);
       // only the width of a player can be set, and it is never narrower than seven buttons
       assertTrue("getMinDw is seven buttons of the playing", soundPlayer.getMinDw() > 0);
@@ -103,6 +107,26 @@ package com.kisscodesystems.KissAs3Fw.suite
       soundPlayer.setSoundTypeClick(EnumSounds.button());
       runBaseSpriteTests(soundPlayer);
       removeTested(soundPlayer);
+    }
+    /**
+     * Checks the point a player stands at inside a sound of the framework that can really
+     * be played: a playFrom starts it, and a stop takes it back to the beginning.
+     * @param soundPlayer the object to be tested
+     */
+    private function runPositionTests(soundPlayer:SoundPlayer):void
+    {
+      soundPlayer.setSoundTypeAndName(EnumSounds.button(), "The sound of a button");
+      assertEqualsNumber("getPosition of a stopped player", 0, soundPlayer.getPosition());
+      soundPlayer.playFrom(-100);
+      assertTrue("isPlaying after a playFrom", soundPlayer.isPlaying());
+      assertTrue("a point before the beginning is taken up to it", soundPlayer.getPosition() >= 0);
+      soundPlayer.stop();
+      assertEqualsNumber("getPosition after a stop", 0, soundPlayer.getPosition());
+      soundPlayer.playFrom(soundPlayer.getSoundLengthMillis() * 1000);
+      assertTrue("a point after the end is taken down to it"
+        , soundPlayer.getPosition() <= soundPlayer.getSoundLengthMillis());
+      soundPlayer.stop();
+      soundPlayer.setSoundTypeAndName("aSoundTypeThatDoesNotExist", "No such sound");
     }
     /**
      * Checks the controls of the sound of this component: the volume is refused outside

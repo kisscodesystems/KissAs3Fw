@@ -226,11 +226,13 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var controlsCx:int = 0;
     private var controlsDw:int = 0;
     private var controlsCy:int = 0;
-    // the state of the playing: the seconds played so far and the ones that have arrived
-    // over them are displayed by the timer below
+    // The state of the playing: the seconds played so far are displayed by the first timer
+    // below, together with the icon of the seek bar, and the part of the chapter that has
+    // arrived is drawn by the second one. The two are refreshed at their own rates, so the
+    // line of the arriving never waits for the icon and the other way round.
     private var progressSecs:int = 0;
-    private var bufferSecs:int = 0;
     private var timeDisplayingTimer:Timer = null;
+    private var bufferDisplayingTimer:Timer = null;
     private var eventPlayedByOutside:Event = null;
     private var eventPlayedByHand:Event = null;
     private var eventStoppedByEnd:Event = null;
@@ -642,6 +644,14 @@ package com.kisscodesystems.KissAs3Fw.ui
     public function isPaused():Boolean
     {
       return videoPicture.isPaused();
+    }
+    /**
+     * Tells whether the chapter this player stands on could not be loaded, so the dummy
+     * picture of the content not found stands in the area of the video.
+     */
+    public function isContentNotFound():Boolean
+    {
+      return videoPicture.isContentNotFound();
     }
     /**
      * Returns the seconds the chapter of this player has been played so far.
@@ -1271,7 +1281,6 @@ package com.kisscodesystems.KissAs3Fw.ui
         return;
       }
       progressSecs = 0;
-      bufferSecs = 0;
       seekBar.setSeekable(true);
       displayPlayerState();
       createTimeDisplayingTimer();
@@ -1286,9 +1295,9 @@ package com.kisscodesystems.KissAs3Fw.ui
       dropTimeDisplayingTimer();
       videoPicture.stopPlaying();
       progressSecs = 0;
-      bufferSecs = 0;
       seekBar.setSeekable(false);
-      seekBar.displayProgress(0, 0);
+      seekBar.displayProgress(0);
+      seekBar.displayArrived(0);
       resetDisplayedTimes();
       displayPlayerState();
     }
@@ -1341,14 +1350,21 @@ package com.kisscodesystems.KissAs3Fw.ui
       dispatchEventPlayedByHand();
     }
     /**
-     * Pauses the playing on a click.
+     * Pauses the playing on a click and dispatches the changed event when it has really
+     * been paused: the resuming has an event of its own, the played by hand one, and the
+     * pausing would be the one change of the playing that is told to nobody.
      * @param e the click event of the pause button, null on a direct call
      */
     private function pausButtonLinkClicked(e:Event = null):void
     {
       application.trace("<" + this + " VideoPlayer pausButtonLinkClicked> called.", 1);
       application.trace("<" + this + " VideoPlayer pausButtonLinkClicked> e: " + e, 0);
+      const wasPaused:Boolean = isPaused();
       pausePlaying();
+      if (!wasPaused && isPaused())
+      {
+        dispatchEventChanged();
+      }
     }
     /**
      * Stops the playing on a click and dispatches the stopped by hand event.
@@ -1447,20 +1463,27 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " VideoPlayer videoPictureCleared> called.", 1);
       application.trace("<" + this + " VideoPlayer videoPictureCleared> e: " + e, 0);
       doTheStop();
+      // the playing has stopped without anybody having asked for it, and a picture that
+      // has failed already reports nothing of its own
+      dispatchEventChanged();
     }
     /**
-     * Creates and starts the timer that displays the time of the playing.
+     * Creates and starts the two timers of the playing: the one displaying the time and the
+     * icon of the seek bar, and the one drawing the part of the chapter that has arrived.
      */
     private function createTimeDisplayingTimer():void
     {
       application.trace("<" + this + " VideoPlayer createTimeDisplayingTimer> called.", 1);
       dropTimeDisplayingTimer();
-      timeDisplayingTimer = new Timer(application.getComponentsConfig().getTimeDisplayingTimerDelay());
+      timeDisplayingTimer = new Timer(application.getComponentsConfig().getVideoPlayerSeekIconTimerDelay());
       timeDisplayingTimer.addEventListener(TimerEvent.TIMER, timeDisplayingTimerHandler);
       timeDisplayingTimer.start();
+      bufferDisplayingTimer = new Timer(application.getComponentsConfig().getVideoPlayerBufferLineTimerDelay());
+      bufferDisplayingTimer.addEventListener(TimerEvent.TIMER, bufferDisplayingTimerHandler);
+      bufferDisplayingTimer.start();
     }
     /**
-     * Stops and frees up the timer that displays the time of the playing.
+     * Stops and frees up the two timers of the playing.
      */
     private function dropTimeDisplayingTimer():void
     {
@@ -1471,11 +1494,18 @@ package com.kisscodesystems.KissAs3Fw.ui
         timeDisplayingTimer.removeEventListener(TimerEvent.TIMER, timeDisplayingTimerHandler);
         timeDisplayingTimer = null;
       }
+      if (bufferDisplayingTimer != null)
+      {
+        bufferDisplayingTimer.stop();
+        bufferDisplayingTimer.removeEventListener(TimerEvent.TIMER, bufferDisplayingTimerHandler);
+        bufferDisplayingTimer = null;
+      }
     }
     /**
-     * Displays the time played so far and the time still to come, and takes the seek bar
-     * to the point the playing has come to. A player without a stream has nothing to play
-     * any more, so it is stopped.
+     * Displays the time played so far and the time still to come, and takes the icon of the
+     * seek bar to the point the playing has come to. That icon gets the fractions of the
+     * second as well, otherwise it would jump once a second whatever the rate of this timer
+     * is. A player without a stream has nothing to play any more, so it is stopped.
      * @param e the timer event of the time displaying timer
      */
     private function timeDisplayingTimerHandler(e:TimerEvent):void
@@ -1488,10 +1518,27 @@ package com.kisscodesystems.KissAs3Fw.ui
         stopButtonLinkClicked();
         return;
       }
-      progressSecs = videoPicture.getStreamSecs();
-      bufferSecs = videoPicture.getBufferSecs();
+      const streamSecs:Number = videoPicture.getStreamSecs();
+      progressSecs = int(streamSecs);
       displayTimes();
-      seekBar.displayProgress(progressSecs, bufferSecs);
+      seekBar.displayProgress(streamSecs);
+    }
+    /**
+     * Draws the part of the chapter that has arrived so far: the point of the playing and
+     * the seconds that have arrived over it. A player without a stream is stopped by the
+     * other timer, so there is nothing to be done here.
+     * @param e the timer event of the buffer displaying timer
+     */
+    private function bufferDisplayingTimerHandler(e:TimerEvent):void
+    {
+      application.trace("<" + this + " VideoPlayer bufferDisplayingTimerHandler> called.", 1);
+      application.trace("<" + this + " VideoPlayer bufferDisplayingTimerHandler> e: " + e, 0);
+      if (!videoPicture.hasTheStream())
+      {
+        application.trace("<" + this + " VideoPlayer bufferDisplayingTimerHandler> there is no stream to be followed.", 1);
+        return;
+      }
+      seekBar.displayArrived(videoPicture.getStreamSecs() + videoPicture.getBufferSecs());
     }
     /**
      * Displays the time played so far and the time still to come.
@@ -1693,7 +1740,9 @@ package com.kisscodesystems.KissAs3Fw.ui
      * Returns the width the picture of the video is drawn with: the one it has arrived
      * with, shrunk into the box of this object. The picture keeps its own aspect ratio,
      * so the side that does not fit that box is the one both sides come from, and a
-     * picture nobody knows the dimensions of yet fills the whole box.
+     * picture nobody knows the dimensions of yet fills the whole box. A picture of no box
+     * and of no metadata that displays the dummy picture of the content not found is drawn
+     * in the smallest room of the controls, so that dummy picture is not a single pixel.
      */
     private function getVideoDwToDraw():int
     {
@@ -1702,7 +1751,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       const metaDh:int = videoPicture.getMetaDh();
       if (boxDw < 1 || boxDh < 1)
       {
-        return metaDw;
+        return metaDw < 1 && videoPicture.isContentNotFound() ? getMinContentDw() : metaDw;
       }
       const roomDw:int = getRoom(boxDw);
       if (metaDw < 1 || metaDh < 1)
@@ -1722,7 +1771,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       const metaDh:int = videoPicture.getMetaDh();
       if (boxDw < 1 || boxDh < 1)
       {
-        return metaDh;
+        return metaDh < 1 && videoPicture.isContentNotFound() ? getMinContentDh() : metaDh;
       }
       if (metaDw < 1 || metaDh < 1)
       {
@@ -2024,14 +2073,23 @@ package com.kisscodesystems.KissAs3Fw.ui
       baseResizer.setSpriteVisible(hasAnyChapter());
     }
     /**
-     * Takes the box of the picture from the drag of the handle of the resizing.
+     * Takes the box of the picture from the drag of the handle of the resizing and
+     * reports the change to the outside world. The dimensions changed event is not enough
+     * for that: a picture limited by the width of its box is drawn in the very same size
+     * inside a taller or a shorter box, so that event is not dispatched at all.
      * @param e the changed event of that handle
      */
     private function resizerChanged(e:Event):void
     {
       application.trace("<" + this + " VideoPlayer resizerChanged> called.", 1);
       application.trace("<" + this + " VideoPlayer resizerChanged> e: " + e, 0);
+      const prevBoxDw:int = boxDw;
+      const prevBoxDh:int = boxDh;
       setDwh(baseResizer.getDimensionDw(), baseResizer.getDimensionDh());
+      if (prevBoxDw != boxDw || prevBoxDh != boxDh)
+      {
+        dispatchEventChanged();
+      }
     }
     /**
      * Places the handle of the resizing again after it has taken new dimensions: a new
@@ -2584,8 +2642,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       controlsDw = 0;
       controlsCy = 0;
       progressSecs = 0;
-      bufferSecs = 0;
       timeDisplayingTimer = null;
+      bufferDisplayingTimer = null;
       eventPlayedByOutside = null;
       eventPlayedByHand = null;
       eventStoppedByEnd = null;
@@ -2603,6 +2661,7 @@ import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
 import com.kisscodesystems.KissAs3Fw.enum.EnumIcons;
 import com.kisscodesystems.KissAs3Fw.enum.EnumTextTypes;
 import com.kisscodesystems.KissAs3Fw.ui.ButtonLink;
+import com.kisscodesystems.KissAs3Fw.ui.ContentNotFound;
 import com.kisscodesystems.KissAs3Fw.ui.Icon;
 import com.kisscodesystems.KissAs3Fw.ui.ListPanel;
 import com.kisscodesystems.KissAs3Fw.ui.TextLabel;
@@ -2624,7 +2683,10 @@ import flash.net.NetStream;
  * is opened muted and it is paused on that very frame, so the playing goes on from the
  * same point without loading anything again. It tells the owner of it by three events
  * that the metadata of the file has arrived, that the chapter has come to its end and
- * that the chapter can not be played at all. The volume it plays with is the one of this
+ * that the chapter can not be played at all. A chapter whose file is not found (the
+ * server has not answered with a 2xx) or can not be played leaves a dummy picture with
+ * the "content not found" text in the area of the video, until another chapter is taken
+ * or the file really arrives. The volume it plays with is the one of this
  * picture itself and not the sound volume of the application, and a muted picture plays
  * no sound at all.
  */
@@ -2651,6 +2713,9 @@ internal class VideoPicture extends BaseSprite
   private var pictureSprite:BaseSprite = null;
   private var maskShape:BaseShape = null;
   private var soundTransform:SoundTransform = null;
+  // the dummy picture standing in the area of a chapter that could not be loaded, a null
+  // while there is no such failure
+  private var contentNotFound:ContentNotFound = null;
   // The volume of this picture, a value between zero and a hundred, and the state of the
   // muting of it. That volume belongs to this picture alone: the sound volume of the
   // application is the one of the sound effects, so it does not touch a picture at all.
@@ -2712,8 +2777,16 @@ internal class VideoPicture extends BaseSprite
     return url;
   }
   /**
-   * Takes the chapter this picture has to carry: the stream, the metadata and the preview
-   * picture of the previous one are dropped, and the preview picture of the new one is
+   * Tells whether the dummy picture of a chapter that could not be loaded stands in this
+   * picture at the moment.
+   */
+  public function isContentNotFound():Boolean
+  {
+    return contentNotFound != null;
+  }
+  /**
+   * Takes the chapter this picture has to carry: the stream, the metadata, the preview
+   * picture and the dummy picture of a failure of the previous one are dropped, and the preview picture of the new one is
    * asked for right away. A chapter that has refused that preview once is asked for it
    * again here, because this is another file from now on.
    * @param u the url of the new chapter, an empty string when there is no chapter at all
@@ -2727,6 +2800,7 @@ internal class VideoPicture extends BaseSprite
     metaDh = 0;
     metaSecs = 0;
     previewFailed = false;
+    dropContentNotFound();
     dropPreview();
     loadPreview();
   }
@@ -2861,22 +2935,22 @@ internal class VideoPicture extends BaseSprite
     return netStream != null;
   }
   /**
-   * Returns the seconds the stream of this picture has been playing so far, a zero when
-   * there is no stream at all.
+   * Returns the seconds the stream of this picture has been playing so far, with the
+   * fractions of the second, a zero when there is no stream at all.
    */
-  public function getStreamSecs():int
+  public function getStreamSecs():Number
   {
     application.trace("<" + this + " VideoPicture getStreamSecs> called.", 1);
-    return netStream == null ? 0 : int(netStream.time);
+    return netStream == null ? 0 : netStream.time;
   }
   /**
    * Returns the seconds of the chapter that have arrived over the point the playing
-   * stands at, a zero when there is no stream at all.
+   * stands at, with the fractions of the second, a zero when there is no stream at all.
    */
-  public function getBufferSecs():int
+  public function getBufferSecs():Number
   {
     application.trace("<" + this + " VideoPicture getBufferSecs> called.", 1);
-    return netStream == null ? 0 : int(netStream.bufferLength);
+    return netStream == null ? 0 : netStream.bufferLength;
   }
   /**
    * Starts the playing of the chapter this picture stands on and tells whether it has
@@ -2985,9 +3059,9 @@ internal class VideoPicture extends BaseSprite
     netStream.seek(secs);
   }
   /**
-   * Sets the dimensions the picture of the video is drawn with: the video object and the
-   * mask keeping it inside the rounded corners of the appearance take exactly the same
-   * ones.
+   * Sets the dimensions the picture of the video is drawn with: the video object, the
+   * mask keeping it inside the rounded corners of the appearance and the dummy picture
+   * of a failure take exactly the same ones.
    * @param newdw the new width of the picture
    * @param newdh the new height of the picture
    */
@@ -3000,6 +3074,10 @@ internal class VideoPicture extends BaseSprite
     pictureSprite.setDwh(getDw(), getDh());
     displayVideoDimensions();
     redrawMaskShape();
+    if (contentNotFound != null)
+    {
+      contentNotFound.setDwh(getDw(), getDh());
+    }
   }
   /**
    * Asks for the preview picture of the chapter as soon as this picture gets onto the
@@ -3200,7 +3278,8 @@ internal class VideoPicture extends BaseSprite
   /**
    * Takes the length and the dimensions of the chapter from the metadata of the file of
    * it and tells the owner of this picture about them: it is the one drawing the video in
-   * those dimensions.
+   * those dimensions. A file that arrives is not missing, so the dummy picture of an
+   * earlier failure is dropped here.
    * @param info the metadata object of the file
    */
   private function metaDataArrived(info:Object):void
@@ -3217,6 +3296,8 @@ internal class VideoPicture extends BaseSprite
     metaSecs = int(info.duration);
     application.trace("<" + this + " VideoPicture metaDataArrived> the picture: " + metaDw + " x " + metaDh, 0);
     application.trace("<" + this + " VideoPicture metaDataArrived> the length: " + metaSecs, 0);
+    // the file of the chapter has arrived after all, so it is not missing any more
+    dropContentNotFound();
     dispatchEventChanged();
   }
   /**
@@ -3232,7 +3313,8 @@ internal class VideoPicture extends BaseSprite
   /**
    * Answers the reports of the stream and of the connection of it: the end of a chapter
    * and a file that can not be played at all are the two the owner of this picture is told
-   * about. A stream that is loading the preview picture is not playing anything, so the
+   * about, and the area of such a file displays the dummy picture of the content not
+   * found. A stream that is loading the preview picture is not playing anything, so the
    * reports of it are answered by the previewStatus below.
    * @param e the net status event of the stream or of the connection
    */
@@ -3269,6 +3351,7 @@ internal class VideoPicture extends BaseSprite
       application.trace("<" + this + " VideoPicture netStatus> this chapter could not be played: " + url, 6);
       previewFailed = true;
       dropPreview();
+      displayContentNotFound();
       dispatchEventCleared();
     }
   }
@@ -3276,7 +3359,7 @@ internal class VideoPicture extends BaseSprite
    * Answers the reports of the stream while the preview picture is being loaded: the
    * first frame of the chapter stands in this picture as soon as the buffer of it has been
    * filled or flushed, and a chapter that can not be loaded at all is never previewed
-   * again.
+   * again: the dummy picture of the content not found stands in its area instead.
    * @param code the code of the net status event of the stream or of the connection
    */
   private function previewStatus(code:String):void
@@ -3293,6 +3376,43 @@ internal class VideoPicture extends BaseSprite
       application.trace("<" + this + " VideoPicture previewStatus> this chapter could not be previewed: " + url, 6);
       previewFailed = true;
       dropPreview();
+      displayContentNotFound();
+    }
+  }
+  /**
+   * Displays the dummy picture of the content not found over the area of the video and
+   * tells the owner of this picture about it: an owner that has no box to take the
+   * dimensions of the picture from gives it a room of its own then.
+   */
+  private function displayContentNotFound():void
+  {
+    application.trace("<" + this + " VideoPicture displayContentNotFound> called.", 1);
+    if (contentNotFound != null)
+    {
+      application.trace("<" + this + " VideoPicture displayContentNotFound> there is a dummy picture already.", 1);
+      return;
+    }
+    contentNotFound = new ContentNotFound(application);
+    addChild(contentNotFound);
+    contentNotFound.setDwh(getDw(), getDh());
+    dispatchEventChanged();
+  }
+  /**
+   * Frees up the dummy picture of the content not found.
+   */
+  private function dropContentNotFound():void
+  {
+    application.trace("<" + this + " VideoPicture dropContentNotFound> called.", 1);
+    if (contentNotFound != null)
+    {
+      // the dummy picture follows the appearance of the application on listeners of its
+      // own, so it has to be destroyed and not only dropped
+      contentNotFound.destroy();
+      if (contains(contentNotFound))
+      {
+        removeChild(contentNotFound);
+      }
+      contentNotFound = null;
     }
   }
   /**
@@ -3402,7 +3522,8 @@ internal class VideoPicture extends BaseSprite
   }
   /**
    * Dispatches the changed event of this picture: the metadata of the file of the chapter
-   * has arrived, so the dimensions and the length of it are known from now on.
+   * has arrived, so the dimensions and the length of it are known from now on, or the
+   * dummy picture of the content not found has appeared.
    */
   private function dispatchEventChanged():void
   {
@@ -3458,6 +3579,7 @@ internal class VideoPicture extends BaseSprite
     pictureSprite = null;
     maskShape = null;
     soundTransform = null;
+    contentNotFound = null;
     soundVolume = 0;
     soundMuted = false;
     previewLoading = false;
@@ -3991,11 +4113,13 @@ internal class SeekBar extends BaseSprite
   private var seekRect:Rectangle = null;
   private var dragged:Boolean = false;
   private var seekable:Boolean = false;
-  // the length of the chapter, the seconds played so far, the ones that have arrived over
-  // them and the point the last drag has taken the playing to
+  // the length of the chapter, the seconds played so far, the second of the chapter the
+  // arriving has come to and the point the last drag has taken the playing to; the played
+  // and the arrived ones hold the fractions of the second too, so the icon and the line
+  // move a little on every refresh and not once a second
   private var chapterSecs:int = 0;
-  private var progressSecs:int = 0;
-  private var bufferSecs:int = 0;
+  private var progressSecs:Number = 0;
+  private var arrivedSecs:Number = 0;
   private var seekToSecs:int = 0;
   private var eventChanged:Event = null;
   /**
@@ -4084,20 +4208,31 @@ internal class SeekBar extends BaseSprite
     return dragged;
   }
   /**
-   * Displays the point the playing has come to: the icon is moved onto it and the part of
-   * the chapter that has arrived so far is drawn again. An icon that is being dragged is
-   * left where the hand holds it.
+   * Displays the point the playing has come to: the icon is moved onto it. An icon that is
+   * being dragged is left where the hand holds it.
    * @param newProgressSecs the seconds of the chapter played so far
-   * @param newBufferSecs the seconds that have arrived over the played ones
    */
-  public function displayProgress(newProgressSecs:int, newBufferSecs:int):void
+  public function displayProgress(newProgressSecs:Number):void
   {
     application.trace("<" + this + " SeekBar displayProgress> called.", 1);
     application.trace("<" + this + " SeekBar displayProgress> newProgressSecs: " + newProgressSecs, 0);
-    application.trace("<" + this + " SeekBar displayProgress> newBufferSecs: " + newBufferSecs, 0);
     progressSecs = newProgressSecs;
-    bufferSecs = newBufferSecs;
-    displayTheProgress();
+    if (!dragged)
+    {
+      moveIconToProgress();
+    }
+  }
+  /**
+   * Displays the part of the chapter that has arrived so far: the line of it is drawn
+   * again.
+   * @param newArrivedSecs the second of the chapter the arriving has come to
+   */
+  public function displayArrived(newArrivedSecs:Number):void
+  {
+    application.trace("<" + this + " SeekBar displayArrived> called.", 1);
+    application.trace("<" + this + " SeekBar displayArrived> newArrivedSecs: " + newArrivedSecs, 0);
+    arrivedSecs = newArrivedSecs;
+    redrawBufferDraw();
   }
   /**
    * Sets the width of the line the icon of this bar travels along: the room of the two
@@ -4233,7 +4368,7 @@ internal class SeekBar extends BaseSprite
       return;
     }
     const arrivedX:int = fromX + Math.min(dragWidth
-        , dragWidth * (progressSecs + bufferSecs) / chapterSecs);
+        , dragWidth * arrivedSecs / chapterSecs);
     bufferDraw.graphics.lineStyle(thickness, application.getDynamicsConfig().getAppFontColorBright());
     bufferDraw.graphics.moveTo(fromX, 0);
     bufferDraw.graphics.lineTo(arrivedX, 0);
@@ -4341,7 +4476,7 @@ internal class SeekBar extends BaseSprite
     seekable = false;
     chapterSecs = 0;
     progressSecs = 0;
-    bufferSecs = 0;
+    arrivedSecs = 0;
     seekToSecs = 0;
     eventChanged = null;
   }
