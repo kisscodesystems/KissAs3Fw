@@ -21,16 +21,21 @@
  *   last undone one can be redone
  * - an empty board can be resized, both as a whole and by its drawable area only
  * - the content of the drawable area is available as a png byte array
+ * - the color and the thickness of the line and the switch of the drawing report their
+ *   changes by the changed event, once per change, the way the tools of the toolbar do
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.ui.Board;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   import flash.utils.ByteArray;
   public class BoardUnitTest extends BaseUnitTest
   {
+    private var changedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -184,8 +189,45 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertTrue("getUndoEnabled after the board has been switched on", board.getUndoEnabled());
       assertTrue("getRedoEnabled after the board has been switched on", board.getRedoEnabled());
       assertTrue("getClearEnabled after the board has been switched on", board.getClearEnabled());
+      runChangedEventTests(board);
       runBaseSpriteTests(board);
       removeTested(board);
+    }
+    /**
+     * The line and the drawing are changed by the tools of the toolbar of a board, and the
+     * setters of them go through those very tools, so every such change is reported by the
+     * changed event, once: a demo or an application following that board would display the
+     * old values otherwise.
+     * @param board the tested board
+     */
+    private function runChangedEventTests(board:Board):void
+    {
+      changedCount = 0;
+      board.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), boardChanged);
+      board.setLineThickness(application.getComponentsConfig().getBoardLineMinThickness());
+      assertEquals("one changed event after a new thickness of the line", 1, changedCount);
+      board.setLineThickness(application.getComponentsConfig().getBoardLineMinThickness());
+      assertEquals("no changed event after the very same thickness of the line", 1, changedCount);
+      board.setLineRGBColor("0000FF");
+      assertEquals("one changed event after a new color of the line", 2, changedCount);
+      board.setDraw(false);
+      assertEquals("one changed event after the switching to the rubber", 3, changedCount);
+      board.setDraw(false);
+      assertEquals("no changed event after the switching to the rubber again", 3, changedCount);
+      // a new color of the line takes the board back to the drawing, and the two changes
+      // are reported as one
+      board.setLineRGBColor("FF00FF");
+      assertTrue("a new color of the line takes the rubbing board back to the drawing", board.getDraw());
+      assertEquals("one changed event after a new color of the line of a rubbing board", 4, changedCount);
+      board.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), boardChanged);
+    }
+    /**
+     * Counts the changed events of the tested board.
+     * @param e the changed event
+     */
+    private function boardChanged(e:Event):void
+    {
+      changedCount++;
     }
     /**
      * Frees everything this suite holds.
@@ -197,6 +239,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       // 3: call the super destroy.
       super.destroy();
       // 4: every reference and value should be reset to null, 0 or false.
+      changedCount = 0;
     }
   }
 }

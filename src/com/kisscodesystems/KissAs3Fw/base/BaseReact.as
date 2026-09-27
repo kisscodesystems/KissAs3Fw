@@ -482,8 +482,10 @@ package com.kisscodesystems.KissAs3Fw.base
         searchTextInput.setEnabled(getEnabled());
         searchTextInput.visible = false;
         // the changed event of an input comes on the enter key only, but a search has to
-        // follow every single character, so the key up events of it are taken instead
-        searchTextInput.getBaseEventDispatcher().addEventListener(KeyboardEvent.KEY_UP, searchTextInputKeyUp);
+        // follow every single character, so the change events of its text field are taken
+        // instead. Those are raised by every machine, the key up events are not raised by
+        // the on screen keyboard of an iPhone.
+        searchTextInput.getBaseEventDispatcher().addEventListener(Event.CHANGE, searchTextInputChanged);
         // the delete icon of the field empties it without any key at all
         searchTextInput.getBaseEventDispatcher().addEventListener(MouseEvent.CLICK, searchTextInputClick);
         searchTextInput.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), buttonLinkResized);
@@ -844,12 +846,12 @@ package com.kisscodesystems.KissAs3Fw.base
     /**
      * Searches the emojis again after a character has been typed into the search field
      * or one has been deleted from it.
-     * @param e the key up event of the search field
+     * @param e the change event of the text field of the search field
      */
-    private function searchTextInputKeyUp(e:KeyboardEvent):void
+    private function searchTextInputChanged(e:Event):void
     {
-      application.trace("<" + this + " BaseReact searchTextInputKeyUp> called.", 1);
-      application.trace("<" + this + " BaseReact searchTextInputKeyUp> e: " + e, 0);
+      application.trace("<" + this + " BaseReact searchTextInputChanged> called.", 1);
+      application.trace("<" + this + " BaseReact searchTextInputChanged> e: " + e, 0);
       searchTheEmojis();
     }
     /**

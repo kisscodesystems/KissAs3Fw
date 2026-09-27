@@ -18,6 +18,9 @@
  *   embedded resource or a photo of a camera is displayed without a loading at all
  * - the loading tells the outside that it is over by one single event, whatever the
  *   result of it has been, so a caller waiting for the picture is never left alone
+ * - a picture that could not be loaded (the server has not answered with a 2xx, or the
+ *   answer is no picture at all) leaves a dummy picture with the "content not found"
+ *   text in the area of it, so the user sees that something is missing there
  * - the box the picture is drawn inside is the dimensions this object is given: a
  *   picture that fits to that box is shrunk into it keeping its own aspect ratio, while
  *   a picture nobody has given a box to is drawn in the dimensions it has arrived with
@@ -43,6 +46,7 @@ package com.kisscodesystems.KissAs3Fw.ui
   import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.enum.EnumIcons;
   import com.kisscodesystems.KissAs3Fw.ui.ButtonLink;
+  import com.kisscodesystems.KissAs3Fw.ui.ContentNotFound;
   import flash.display.BitmapData;
   import flash.display.DisplayObject;
   import flash.display.Loader;
@@ -72,6 +76,9 @@ package com.kisscodesystems.KissAs3Fw.ui
     // the picture and the shape it is drawn onto
     private var bitmapData:BitmapData = null;
     private var pictureShape:Shape = null;
+    // the dummy picture standing in the place of a picture that could not be loaded, a
+    // null while there is no such failure
+    private var contentNotFound:ContentNotFound = null;
     // the frame around the picture and the state telling whether it is drawn at all
     private var frameShape:BaseShape = null;
     private var frame:Boolean = false;
@@ -176,6 +183,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Image loadUrl> delay: " + delay, 0);
       dropLoadDelayTimer();
       dropLoader();
+      dropContentNotFound();
       url = newUrl == null ? "" : newUrl;
       if (url == "")
       {
@@ -209,6 +217,14 @@ package com.kisscodesystems.KissAs3Fw.ui
       return pictureLoaded;
     }
     /**
+     * Tells whether the dummy picture of a failed loading stands in this object at the
+     * moment: the last loading has not brought any picture that could be displayed.
+     */
+    public function isContentNotFound():Boolean
+    {
+      return contentNotFound != null;
+    }
+    /**
      * Returns the bitmap data of the picture of this object, a null one when there is no
      * picture in it at all.
      */
@@ -231,6 +247,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       dropLoadDelayTimer();
       dropLoader();
       dropPicture();
+      dropContentNotFound();
       loading = false;
       url = "";
       if (newBitmapData == null)
@@ -268,9 +285,10 @@ package com.kisscodesystems.KissAs3Fw.ui
       return bitmapData == null ? 0 : bitmapData.height;
     }
     /**
-     * Drops the picture of this object: the loading of it, the bitmap data and the
-     * drawing as well, and it tells the outside that the content has changed. The url is
-     * kept, so the very same picture can be asked for again.
+     * Drops the picture of this object: the loading of it, the bitmap data, the drawing
+     * and the dummy picture of a failed loading as well, and it tells the outside that
+     * the content has changed. The url is kept, so the very same picture can be asked for
+     * again.
      */
     public function clear():void
     {
@@ -279,6 +297,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       loading = false;
       dropLoader();
       dropPicture();
+      dropContentNotFound();
       closeFullscreen();
       dropFullscreenButtonLink();
       redrawEverything();
@@ -668,8 +687,8 @@ package com.kisscodesystems.KissAs3Fw.ui
     }
     /**
      * Takes the picture that has arrived, draws it and tells the outside that the loading
-     * is over. A picture that can not be drawn at all leaves this object empty, the way
-     * a failed loading does.
+     * is over. A picture that can not be drawn at all leaves the dummy picture of the
+     * content not found in this object, the way a failed loading does.
      * @param e the complete event of the loader
      */
     private function loadSucceeded(e:Event):void
@@ -694,13 +713,18 @@ package com.kisscodesystems.KissAs3Fw.ui
       {
         createFullscreenButtonLink();
       }
+      if (!pictureLoaded)
+      {
+        createContentNotFound();
+      }
       redrawEverything();
       dispatchEventFileLoaded();
     }
     /**
-     * Leaves this object empty after a loading that has failed and tells the outside that
-     * the loading is over: the caller waiting for the picture is told that it does not
-     * arrive at all.
+     * Displays the dummy picture of the content not found after a loading that has failed
+     * and tells the outside that the loading is over: the caller waiting for the picture
+     * is told that it does not arrive at all. A server answering with anything else than
+     * a 2xx is reported to the loader as such an error.
      * @param e the error event of the loader, null when the request could not be sent
      */
     private function loadFailed(e:Event):void
@@ -715,6 +739,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       dropPicture();
       closeFullscreen();
       dropFullscreenButtonLink();
+      createContentNotFound();
       redrawEverything();
       dispatchEventFileLoaded();
     }
@@ -758,6 +783,73 @@ package com.kisscodesystems.KissAs3Fw.ui
         bitmapData = null;
       }
       pictureLoaded = false;
+    }
+    /**
+     * Creates the dummy picture of the content not found. It stands right above the
+     * surface of the picture, so the handle of the resizing and the react row stay on the
+     * top of it.
+     */
+    private function createContentNotFound():void
+    {
+      application.trace("<" + this + " Image createContentNotFound> called.", 1);
+      if (contentNotFound != null)
+      {
+        application.trace("<" + this + " Image createContentNotFound> there is a dummy picture already.", 1);
+        return;
+      }
+      contentNotFound = new ContentNotFound(application);
+      addChildAt(contentNotFound, getChildIndex(pictureShape) + 1);
+      contentNotFound.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), contentNotFoundChanged);
+    }
+    /**
+     * Frees up the dummy picture of the content not found.
+     */
+    private function dropContentNotFound():void
+    {
+      application.trace("<" + this + " Image dropContentNotFound> called.", 1);
+      if (contentNotFound != null)
+      {
+        // the dummy picture follows the appearance of the application on listeners of
+        // its own, so it has to be destroyed and not only dropped
+        contentNotFound.destroy();
+        if (contains(contentNotFound))
+        {
+          removeChild(contentNotFound);
+        }
+        contentNotFound = null;
+      }
+    }
+    /**
+     * Draws everything again after the smallest dimensions of the dummy picture have
+     * changed: a side of this object nobody has bounded is taken from them.
+     * @param e the changed event of the dummy picture
+     */
+    private function contentNotFoundChanged(e:Event):void
+    {
+      application.trace("<" + this + " Image contentNotFoundChanged> called.", 1);
+      application.trace("<" + this + " Image contentNotFoundChanged> e: " + e, 0);
+      redrawEverything();
+    }
+    /**
+     * Returns the width the dummy picture of the content not found is drawn with: the
+     * room of the box, or the smallest width of that dummy picture when nobody has
+     * bounded this object in that direction.
+     */
+    private function getContentNotFoundDw():int
+    {
+      application.trace("<" + this + " Image getContentNotFoundDw> called.", 1);
+      return getRoom(boxDw, contentNotFound.getMinDw());
+    }
+    /**
+     * Returns the height the dummy picture of the content not found is drawn with: the
+     * room of the box, or a height of the aspect ratio of 4:3 when nobody has bounded
+     * this object in that direction, but at least the smallest height of that dummy
+     * picture.
+     */
+    private function getContentNotFoundDh():int
+    {
+      application.trace("<" + this + " Image getContentNotFoundDh> called.", 1);
+      return getRoom(boxDh, Math.max(contentNotFound.getMinDh(), int(getContentNotFoundDw() * 3 / 4)));
     }
     /**
      * Returns the room the picture can be drawn inside in the given direction: the side
@@ -817,8 +909,9 @@ package com.kisscodesystems.KissAs3Fw.ui
       return frame ? application.getDynamicsConfig().getAppRadius() : 0;
     }
     /**
-     * Draws the picture and the frame around it, places the button of the fullscreen and
-     * takes the dimensions of this object from all of them. A picture standing in a
+     * Draws the picture (or the dummy picture of the content not found) and the frame
+     * around it, places the button of the fullscreen and takes the dimensions of this
+     * object from all of them. A picture standing in a
      * square is placed into the middle of that square, so the room around it belongs to
      * this object as well.
      */
@@ -827,8 +920,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " Image redrawEverything> called.", 1);
       const radius:int = application.getDynamicsConfig().getAppRadius();
       const frameDelta:int = getFrameDelta();
-      const pictureDw:int = getPictureDw();
-      const pictureDh:int = getPictureDh();
+      const pictureDw:int = contentNotFound == null ? getPictureDw() : getContentNotFoundDw();
+      const pictureDh:int = contentNotFound == null ? getPictureDh() : getContentNotFoundDh();
       var objectDw:int = pictureDw + 2 * frameDelta;
       var objectDh:int = pictureDh + 2 * frameDelta;
       if (inSquare)
@@ -848,6 +941,11 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
       pictureShape.x = int((objectDw - pictureDw) / 2);
       pictureShape.y = int((objectDh - pictureDh) / 2);
+      if (contentNotFound != null)
+      {
+        contentNotFound.setCxy(pictureShape.x, pictureShape.y);
+        contentNotFound.setDwh(pictureDw, pictureDh);
+      }
       frameShape.visible = frame;
       if (frame)
       {
@@ -921,14 +1019,24 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
     }
     /**
-     * Takes the box of the picture from the drag of the handle of the resizing.
+     * Takes the box of the picture from the drag of the handle of the resizing and
+     * reports the change to the outside world. The dimensions changed event is not enough
+     * for that: a picture that is not fitted to its box, or one that has reached its own
+     * size already, is drawn in the very same size inside a new box, so that event is not
+     * dispatched at all.
      * @param e the changed event of that handle
      */
     private function resizerChanged(e:Event):void
     {
       application.trace("<" + this + " Image resizerChanged> called.", 1);
       application.trace("<" + this + " Image resizerChanged> e: " + e, 0);
+      const prevBoxDw:int = boxDw;
+      const prevBoxDh:int = boxDh;
       setDwh(baseResizer.getDimensionDw(), baseResizer.getDimensionDh());
+      if (prevBoxDw != boxDw || prevBoxDh != boxDh)
+      {
+        dispatchEventChanged();
+      }
     }
     /**
      * Places the handle of the resizing again after it has taken new dimensions: a new
@@ -1136,6 +1244,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       pictureLoaded = false;
       bitmapData = null;
       pictureShape = null;
+      contentNotFound = null;
       frameShape = null;
       frame = false;
       boxDw = 0;

@@ -16,7 +16,9 @@
  *   carries the calendar icon that names this picker
  * - that label stands with the date from the very first moment: a brand new picker
  *   displays the current date, the one its panel has selected while it was built
- * - the panel opens on a click and closes as soon as a date has been selected
+ * - the panel opens on a click and closes as soon as a date has been selected, while a
+ *   step of its year, month, hour or minute is followed by the label and it is reported
+ *   by the stepped event of this picker, which keeps that panel open
  * - the closed picker is as tall as its label, the open one is as tall as its panel
  * - the hours and the minutes can be made selectable as well, and the format of the
  *   displayed date can be given from the outside
@@ -36,6 +38,7 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var textLabel:TextLabel = null;
     private var datePanel:DatePanel = null;
     private var eventChanged:Event = null;
+    private var eventStepped:Event = null;
     // The width of the closed picker has to be stored, because the open one takes the
     // width of its panel and has to give it back on closing.
     private var closedWidth:int = 0;
@@ -49,6 +52,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " DatePicker> called.", 1);
       application.trace("<" + this + " DatePicker> applicationRef: " + applicationRef, 0);
       eventChanged = new Event(EnumEvents.EVENT_CHANGED());
+      eventStepped = new Event(EnumEvents.EVENT_STEPPED());
       textLabel = new TextLabel(application);
       baseWorkingButton.getContentSprite().addChild(textLabel);
       textLabel.setType(EnumTextTypes.TEXT_TYPE_MID());
@@ -61,6 +65,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       datePanel = new DatePanel(application);
       contentSprite.addChild(datePanel);
       datePanel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), selectedItemChanged);
+      datePanel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_STEPPED(), selectedItemStepped);
       datePanel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), datePanelResized);
       textLabel.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), resize);
       application.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_PADDING_CHANGED(), resize);
@@ -245,6 +250,21 @@ package com.kisscodesystems.KissAs3Fw.ui
       dispatchEventChanged();
     }
     /**
+     * Displays the date that has been stepped to and reports it, but keeps the panel open:
+     * a step of the year, of the month, of the hour or of the minute is no pick of a date.
+     * @param e the stepped event of the panel
+     */
+    private function selectedItemStepped(e:Event):void
+    {
+      application.trace("<" + this + " DatePicker selectedItemStepped> called.", 1);
+      application.trace("<" + this + " DatePicker selectedItemStepped> e: " + e, 0);
+      displaySelectedDate();
+      if (getBaseEventDispatcher() != null)
+      {
+        getBaseEventDispatcher().dispatchEvent(eventStepped);
+      }
+    }
+    /**
      * Takes the dimensions of the resized panel, and the dimensions of this picker as
      * well when the panel is the open one at the moment.
      * @param e the dimensions changed event of the panel
@@ -325,11 +345,13 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_PADDING_CHANGED(), resize);
       application.trace("<" + this + " DatePicker destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       eventChanged.stopImmediatePropagation();
+      eventStepped.stopImmediatePropagation();
       application.trace("<" + this + " DatePicker destroy> calling the super destroy and clearing everything.", 0);
       super.destroy();
       textLabel = null;
       datePanel = null;
       eventChanged = null;
+      eventStepped = null;
       closedWidth = 0;
     }
   }

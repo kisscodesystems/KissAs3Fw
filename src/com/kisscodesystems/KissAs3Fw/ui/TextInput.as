@@ -827,6 +827,9 @@ package com.kisscodesystems.KissAs3Fw.ui
       // the text of the field and the caret in it are the final ones by the time this
       // event arrives, so they are taken as they are
       autoCompleteTheText(baseTextField.text, baseTextField.caretIndex);
+      // the users of this input have to follow the typing on an iPhone as well, and the
+      // key up event passed on below never arrives there
+      getBaseEventDispatcher().dispatchEvent(e);
       hintTextLabelVisible();
       deleteVisible();
     }
@@ -1139,6 +1142,10 @@ package com.kisscodesystems.KissAs3Fw.ui
       autoCompleteListRemove();
       hintTextLabelVisible();
       deleteVisible();
+      // a text given to the field by the code raises no change event, but this one has
+      // been picked by the one using this input, so its users are told the way the typing
+      // tells them
+      getBaseEventDispatcher().dispatchEvent(new Event(Event.CHANGE));
     }
     /**
      * Positions and resizes the list of the completion below the text field.

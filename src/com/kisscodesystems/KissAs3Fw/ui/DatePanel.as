@@ -18,6 +18,9 @@
  * MAIN FEATURES:
  * - the year and the month can be stepped forwards and backwards, and the current
  *   date can be taken by one single click
+ * - a picked day and the current date are reported by the changed event, while a step
+ *   of the year, of the month, of the hour or of the minute is reported by the stepped
+ *   event: that is no pick, so a picker built of this panel is kept open by it
  * - the hours and the minutes can be displayed and selected as well
  * - the selected day and the current day are painted onto the background
  * - the format of the displayed date comes from the components config
@@ -40,6 +43,7 @@ package com.kisscodesystems.KissAs3Fw.ui
   public class DatePanel extends BaseSprite
   {
     private var eventChanged:Event = null;
+    private var eventStepped:Event = null;
     private var currentDateObject:Date = null;
     private var hoursAndMinutes:Boolean = false;
     private var hoursLabelArray:Array = null;
@@ -78,6 +82,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " DatePanel> called.", 1);
       application.trace("<" + this + " DatePanel> applicationRef: " + applicationRef, 0);
       eventChanged = new Event(EnumEvents.EVENT_CHANGED());
+      eventStepped = new Event(EnumEvents.EVENT_STEPPED());
       currentDateObject = new Date();
       dateFormatter = new DateTimeFormatter("en-US");
       weekdaysCodesArray = application.getLabelManager().getKeysWeekdays();
@@ -235,16 +240,16 @@ package com.kisscodesystems.KissAs3Fw.ui
           , dateToSelect.getDate()
           , hoursAndMinutes ? dateToSelect.getHours() : 0
           , hoursAndMinutes ? dateToSelect.getMinutes() : 0);
-      // the pickers take the hour and the minute of the date that has arrived, and not
-      // the ones of the date object above: setting the picker of the hours dispatches
-      // its changed event, and the handler of that event rewrites that date object
+      // the pickers take the hour and the minute silently: the date object above holds
+      // both of them already, and the changed event of such a picker is the one of the
+      // one using this panel, the one reported by the stepped event of it
       if (hoursAndMinutes && hoursListPicker != null)
       {
-        hoursListPicker.setSelectedIndex(dateToSelect.getHours());
+        hoursListPicker.setSelectedIndex(dateToSelect.getHours(), false);
       }
       if (hoursAndMinutes && minutesListPicker != null)
       {
-        minutesListPicker.setSelectedIndex(dateToSelect.getMinutes());
+        minutesListPicker.setSelectedIndex(dateToSelect.getMinutes(), false);
       }
       reposDaysWeeksWeekdays();
       dateDisplay();
@@ -485,7 +490,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       return new Date(year, month, date, getSelectedHour(), getSelectedMinute());
     }
     /**
-     * Steps the selected date by the given number of years and months.
+     * Steps the selected date by the given number of years and months and reports it to
+     * the outside world by the stepped event.
      * @param yearDelta the number of the years to be stepped
      * @param monthDelta the number of the months to be stepped
      */
@@ -497,6 +503,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       setSelectedDate(createDate(currentDateObject.getFullYear() + yearDelta
           , currentDateObject.getMonth() + monthDelta
           , currentDateObject.getDate()));
+      dispatchSelectedStepped();
     }
     /**
      * Steps one year backwards.
@@ -888,10 +895,11 @@ package com.kisscodesystems.KissAs3Fw.ui
       reposElements();
     }
     /**
-     * Takes the selected hour and minute into the selected date. Both pickers report
-     * here, and neither of them dispatches the changed event of this panel: a set of
-     * the selected date moves both of them, so a dispatch from here would report a
-     * change that the outside world has asked for itself.
+     * Takes the selected hour and minute into the selected date and reports it to the
+     * outside world by the stepped event. Both pickers report here when the one using
+     * this panel picks in them only: a set of the selected date moves both of them
+     * silently. The changed event is not dispatched here on purpose: a picker built of
+     * this panel closes itself on that event, and an hour is picked before the minute.
      * @param e the changed event of the picker of the hours or of the minutes
      */
     private function hoursOrMinutesChanged(e:Event):void
@@ -899,6 +907,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " DatePanel hoursOrMinutesChanged> called.", 1);
       application.trace("<" + this + " DatePanel hoursOrMinutesChanged> e: " + e, 0);
       refreshSelectedDateFromPickers();
+      dispatchSelectedStepped();
     }
     /**
      * Takes the selected hour and minute into the selected date.
@@ -956,6 +965,17 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
     }
     /**
+     * Dispatches the stepped event of this panel.
+     */
+    private function dispatchSelectedStepped():void
+    {
+      application.trace("<" + this + " DatePanel dispatchSelectedStepped> called.", 1);
+      if (getBaseEventDispatcher() != null)
+      {
+        getBaseEventDispatcher().dispatchEvent(eventStepped);
+      }
+    }
+    /**
      * Frees all listeners, events and references held by this panel.
      */
     override public function destroy():void
@@ -975,6 +995,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       }
       application.trace("<" + this + " DatePanel destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       eventChanged.stopImmediatePropagation();
+      eventStepped.stopImmediatePropagation();
       background.graphics.clear();
       if (contains(background))
       {
@@ -991,6 +1012,7 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " DatePanel destroy> calling the super destroy and clearing everything.", 0);
       super.destroy();
       eventChanged = null;
+      eventStepped = null;
       currentDateObject = null;
       hoursAndMinutes = false;
       hoursLabelArray = null;

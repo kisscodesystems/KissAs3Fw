@@ -108,6 +108,16 @@ package com.kisscodesystems.KissAs3Fw.app
       }
     }
     /**
+     * Returns the widget that is gone to in the active widget container, null when that
+     * container holds no widget at all.
+     */
+    public function getActualWidget():Widget
+    {
+      application.trace("<" + this + " Widgets getActualWidget> called.", 1);
+      const index:int = contentMultiple.getActiveIndex();
+      return index >= 0 && index < actualWidgets.length ? actualWidgets[index] as Widget : null;
+    }
+    /**
      * Returns the widgets orientation of the given widget container.
      * @param index the index of the widget container the orientation is asked of
      */

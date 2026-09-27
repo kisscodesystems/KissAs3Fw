@@ -16,16 +16,20 @@
  * - the text code the box has been written with and the text it displays
  * - the text type and the html mode of that text
  * - a text box takes both of the dimensions it is given
+ * - every step of the scrolling of the text is forwarded by the content y changed event
  */
 package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.enum.EnumTextTypes;
   import com.kisscodesystems.KissAs3Fw.ui.TextBox;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   public class TextBoxUnitTest extends BaseUnitTest
   {
+    private var contentCyChangedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -130,8 +134,54 @@ package com.kisscodesystems.KissAs3Fw.suite
       // the dimensions survive the text changes
       assertEquals("getDw after the text changes", expectedDw(240), textBox.getDw());
       assertEquals("getDh after the text changes", expectedDh(180), textBox.getDh());
+      runScrollEventTests(textBox);
       runBaseSpriteTests(textBox);
       removeTested(textBox);
+    }
+    /**
+     * Every step of the scrolling of the text is forwarded by the content y changed event:
+     * a box scrolled away from its bottom reports that by nothing else, and a demo
+     * displaying whether it stands at its bottom would be left behind without it.
+     * @param textBox the tested box
+     */
+    private function runScrollEventTests(textBox:TextBox):void
+    {
+      contentCyChangedCount = 0;
+      textBox.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CONTENT_CY_CHANGED(), textBoxContentCyChanged);
+      var longText:String = "";
+      for (var i:int = 0; i < 60; i++)
+      {
+        longText += "The line " + i + " of a text taller than the box.\n";
+      }
+      textBox.setLabel(longText);
+      assertFalse("a box of a long text does not stand at its bottom at first", textBox.getAtBottom());
+      textBox.toBottom();
+      assertTrue("getAtBottom after toBottom", textBox.getAtBottom());
+      assertEquals("one content y changed event after the scrolling to the bottom", 1, contentCyChangedCount);
+      textBox.toBottom();
+      assertEquals("no content y changed event while the box stays at its bottom", 1, contentCyChangedCount);
+      textBox.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CONTENT_CY_CHANGED(), textBoxContentCyChanged);
+      textBox.setLabel("Kiss Code Systems");
+    }
+    /**
+     * Counts the content y changed events of the tested box.
+     * @param e the content y changed event
+     */
+    private function textBoxContentCyChanged(e:Event):void
+    {
+      contentCyChangedCount++;
+    }
+    /**
+     * Frees everything this suite holds.
+     */
+    override public function destroy():void
+    {
+      // 1: unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher()
+      // 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.
+      // 3: call the super destroy.
+      super.destroy();
+      // 4: every reference and value should be reset to null, 0 or false.
+      contentCyChangedCount = 0;
     }
   }
 }

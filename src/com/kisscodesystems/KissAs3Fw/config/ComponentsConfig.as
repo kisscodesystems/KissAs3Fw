@@ -142,7 +142,7 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var boardPadding:int = 6;
     protected var boardLineThickness:int = 2;
     protected var boardLineMinThickness:int = 1;
-    protected var boardLineMaxThickness:int = 10;
+    protected var boardLineMaxThickness:int = 20;
     protected var boardLineIncThickness:int = 1;
     protected var boardRubberThicknessFactor:int = 5;
     protected var boardChangedTimerDelay:int = 1111;
@@ -191,6 +191,8 @@ package com.kisscodesystems.KissAs3Fw.config
     protected var cameraSoundLevelTimerDelay:int = 100;
     protected var videoPlayerBufferTime:Number = 3;
     protected var videoPlayerControlsTimerDelay:int = 4000;
+    protected var videoPlayerSeekIconTimerDelay:int = 167;
+    protected var videoPlayerBufferLineTimerDelay:int = 125;
     protected var videoPlayerChapterListAlpha:Number = 0.85;
     protected var videoPlayerSoundVolume:int = 85;
     protected var soundPlayerSoundVolume:int = 85;
@@ -399,6 +401,8 @@ package com.kisscodesystems.KissAs3Fw.config
       cameraSoundLevelTimerDelay = values.getInt("cameraSoundLevelTimerDelay", cameraSoundLevelTimerDelay);
       videoPlayerBufferTime = values.getNumber("videoPlayerBufferTime", videoPlayerBufferTime);
       videoPlayerControlsTimerDelay = values.getInt("videoPlayerControlsTimerDelay", videoPlayerControlsTimerDelay);
+      videoPlayerSeekIconTimerDelay = values.getInt("videoPlayerSeekIconTimerDelay", videoPlayerSeekIconTimerDelay);
+      videoPlayerBufferLineTimerDelay = values.getInt("videoPlayerBufferLineTimerDelay", videoPlayerBufferLineTimerDelay);
       videoPlayerChapterListAlpha = values.getNumber("videoPlayerChapterListAlpha", videoPlayerChapterListAlpha);
       videoPlayerSoundVolume = values.getInt("videoPlayerSoundVolume", videoPlayerSoundVolume);
       soundPlayerSoundVolume = values.getInt("soundPlayerSoundVolume", soundPlayerSoundVolume);
@@ -1080,6 +1084,23 @@ package com.kisscodesystems.KissAs3Fw.config
       return videoPlayerControlsTimerDelay;
     }
     /**
+     * Returns the delay the icon of the seek bar of a player and the displayed times are
+     * refreshed after while that player is playing: 167 ms is six times a second.
+     */
+    public function getVideoPlayerSeekIconTimerDelay():int
+    {
+      return videoPlayerSeekIconTimerDelay;
+    }
+    /**
+     * Returns the delay the line of the seek bar of a player, the one telling how much of
+     * the chapter has arrived, is refreshed after while that player is playing: 125 ms is
+     * eight times a second.
+     */
+    public function getVideoPlayerBufferLineTimerDelay():int
+    {
+      return videoPlayerBufferLineTimerDelay;
+    }
+    /**
      * Returns the alpha the background of the list of the chapters of a player is drawn
      * with: that list stands on the picture of the video, so it lets a little of that
      * picture through and it keeps the names of the chapters readable at the same time.
@@ -1406,6 +1427,8 @@ package com.kisscodesystems.KissAs3Fw.config
       cameraSoundLevelTimerDelay = 0;
       videoPlayerBufferTime = 0;
       videoPlayerControlsTimerDelay = 0;
+      videoPlayerSeekIconTimerDelay = 0;
+      videoPlayerBufferLineTimerDelay = 0;
       videoPlayerChapterListAlpha = 0;
       videoPlayerSoundVolume = 0;
       soundPlayerSoundVolume = 0;

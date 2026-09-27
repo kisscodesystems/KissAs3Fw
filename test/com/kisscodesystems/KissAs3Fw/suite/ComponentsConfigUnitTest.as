@@ -221,6 +221,10 @@ package com.kisscodesystems.KissAs3Fw.suite
         , config.getVideoPlayerBufferTime() >= 0);
       assertTrue("the title timer of a video player is not a negative one"
         , config.getVideoPlayerControlsTimerDelay() >= 0);
+      assertEquals("the icon of the seek bar of a video player moves six times a second"
+        , 167, config.getVideoPlayerSeekIconTimerDelay());
+      assertEquals("the line of the arriving of a video player is drawn eight times a second"
+        , 125, config.getVideoPlayerBufferLineTimerDelay());
       assertTrue("the alpha of the list of the chapters is an alpha"
         , config.getVideoPlayerChapterListAlpha() >= 0
         && config.getVideoPlayerChapterListAlpha() <= 1);

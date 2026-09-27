@@ -27,11 +27,14 @@ package com.kisscodesystems.KissAs3Fw.suite
 {
   import com.kisscodesystems.KissAs3Fw.Application;
   import com.kisscodesystems.KissAs3Fw.enum.EnumCameraResolutions;
+  import com.kisscodesystems.KissAs3Fw.enum.EnumEvents;
   import com.kisscodesystems.KissAs3Fw.ui.Camera;
   import com.kisscodesystems.KissAs3Ut.BaseUnitTest;
   import com.kisscodesystems.KissAs3Ut.UnitTestReport;
+  import flash.events.Event;
   public class CameraUnitTest extends BaseUnitTest
   {
+    private var changedCount:int = 0;
     /**
      * Constructs the suite.
      * @param applicationRef the main application reference
@@ -191,15 +194,23 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getMicrophoneDevices returns a copy", numOfDevices
         , camera.getMicrophoneDevices().length);
       const indexBefore:int = camera.getSelectedMicrophoneIndex();
+      changedCount = 0;
+      camera.getBaseEventDispatcher().addEventListener(EnumEvents.EVENT_CHANGED(), cameraChanged);
       camera.setSelectedMicrophoneIndex(-1);
       assertEquals("a microphone index below the first one is refused"
         , indexBefore, camera.getSelectedMicrophoneIndex());
       camera.setSelectedMicrophoneIndex(numOfDevices);
       assertEquals("a microphone index above the last one is refused"
         , indexBefore, camera.getSelectedMicrophoneIndex());
+      assertEquals("no changed event after a refused microphone index", 0, changedCount);
       camera.setSelectedMicrophoneIndex(numOfDevices - 1);
       assertEquals("the last microphone of the machine is taken"
         , numOfDevices > 0 ? numOfDevices - 1 : indexBefore, camera.getSelectedMicrophoneIndex());
+      // the picker of the settings panel picks through this very setter, so a microphone
+      // taken while no camera is attached is reported as well
+      assertEquals("one changed event after a microphone taken without an attached camera"
+        , numOfDevices > 0 ? 1 : 0, changedCount);
+      camera.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_CHANGED(), cameraChanged);
       camera.setSelectedMicrophoneIndex(0);
       assertEquals("the first microphone of the machine is taken back"
         , indexBefore, camera.getSelectedMicrophoneIndex());
@@ -463,6 +474,26 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("clearPicture leaves no name behind", "", camera.getPictureName());
       assertNull("clearPicture frees the byte array of the photo up", camera.getPictureByteArray());
       assertNull("clearPicture frees the bitmap data of the photo up", camera.getBitmapData());
+    }
+    /**
+     * Counts the changed events of the tested camera.
+     * @param e the changed event
+     */
+    private function cameraChanged(e:Event):void
+    {
+      changedCount++;
+    }
+    /**
+     * Frees everything this suite holds.
+     */
+    override public function destroy():void
+    {
+      // 1: unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher()
+      // 2: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.
+      // 3: call the super destroy.
+      super.destroy();
+      // 4: every reference and value should be reset to null, 0 or false.
+      changedCount = 0;
     }
   }
 }

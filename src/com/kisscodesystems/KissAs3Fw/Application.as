@@ -26,6 +26,11 @@
  *   reached the stage, see the startupRefresh
  * - a work that takes long is done behind the alert telling that it is being done,
  *   see the runWithLoading
+ * - it keeps its own state: that state is saved every time this application is sent to
+ *   the background and restored on the first frame of the next start, so an application
+ *   killed in the background by the operating system goes on where it has been left, see
+ *   the saveState and the restoreState. This one keeps the language and the displaying
+ *   style, and every extender adds its own values by overriding collectState and applyState
  */
 
 package com.kisscodesystems.KissAs3Fw
@@ -54,6 +59,7 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.manager.NetConnectionManager;
   import com.kisscodesystems.KissAs3Fw.manager.ServerManager;
   import com.kisscodesystems.KissAs3Fw.manager.SoundManager;
+  import com.kisscodesystems.KissAs3Fw.manager.StateManager;
   import com.kisscodesystems.KissAs3Fw.manager.UrlRequestManager;
   import com.kisscodesystems.KissAs3Fw.manager.WidgetManager;
   import com.kisscodesystems.KissAs3Fw.ui.ButtonLink;
@@ -62,6 +68,7 @@ package com.kisscodesystems.KissAs3Fw
   import com.kisscodesystems.KissAs3Fw.ui.Widget;
   import com.kisscodesystems.KissAs3Fw.user.User;
   import com.kisscodesystems.KissAs3Fw.util.Utils;
+  import flash.desktop.NativeApplication;
   import flash.display.DisplayObject;
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
@@ -110,6 +117,7 @@ package com.kisscodesystems.KissAs3Fw
     protected var cacheManager:CacheManager = null;
     protected var contextMenuManager:ContextMenuManager = null;
     protected var deviceIdManager:DeviceIdManager = null;
+    protected var stateManager:StateManager = null;
     protected var fontManager:FontManager = null;
     protected var emojiManager:EmojiManager = null;
     protected var iconManager:IconManager = null;
@@ -171,6 +179,13 @@ package com.kisscodesystems.KissAs3Fw
     private var loadingTimer:Timer = null;
     private var loadingWork:Function = null;
     private var loadingUniqueString:String = "";
+    // The keys of the values this class keeps in the state of the application. Every
+    // extender keeps its own values under keys starting with its own name, so the values
+    // of two classes never overwrite each other.
+    private const STATE_LANG_CODE:String = "Application.langCode";
+    private const STATE_DISPLAYING_STYLE:String = "Application.displayingStyle";
+    // The flag of the single restoring of the state, the one of the first frame.
+    private var stateRestored:Boolean = false;
     /**
      * Constructs the application: it builds every configuration and every manager of the
      * framework first, and then it asks the extender of this class for the objects of it.
@@ -244,6 +259,13 @@ package com.kisscodesystems.KissAs3Fw
     public function getDeviceIdManager():DeviceIdManager
     {
       return deviceIdManager;
+    }
+    /**
+     * Returns the manager keeping the state of this application on the device.
+     */
+    public function getStateManager():StateManager
+    {
+      return stateManager;
     }
     /**
      * Returns the manager of the embedded fonts.
@@ -766,6 +788,65 @@ package com.kisscodesystems.KissAs3Fw
      * the outside: see the setSizeFromStageSize below.
      * @param newdw the new width
      */
+    /**
+     * Saves the state of this application onto the device: every value of it is asked
+     * for from the collectState, and the whole state is written by the state manager.
+     * It is called every time this application is sent to the background, the last
+     * moment an application killed there is sure to be running, and it can be called
+     * any other time as well.
+     */
+    public function saveState():void
+    {
+      application.trace("<Application saveState> called.", 1);
+      if (stateManager == null)
+      {
+        this.trace("<Application saveState> there is no state manager to save the state with!", 6);
+        return;
+      }
+      const state:Object = new Object();
+      try
+      {
+        collectState(state);
+      }
+      catch (e:Error)
+      {
+        // a state that could not be collected in full is not written at all: a half one
+        // would restore this application into a state it has never been in
+        this.trace("<Application saveState> the state could not be collected: " + e.getStackTrace(), 7);
+        return;
+      }
+      application.trace("<Application saveState> the state is saved: " + stateManager.writeState(state), 0);
+    }
+    /**
+     * Restores the state kept on the device: every value of it is handed over to the
+     * applyState. Nothing happens when there is no state kept at all.
+     * It is called once, on the first frame after this application has reached the stage:
+     * every extender has built its whole content by then, so every value has something
+     * to be applied onto.
+     */
+    public function restoreState():void
+    {
+      application.trace("<Application restoreState> called.", 1);
+      if (stateManager == null)
+      {
+        this.trace("<Application restoreState> there is no state manager to restore the state with!", 6);
+        return;
+      }
+      const state:Object = stateManager.readState();
+      if (state == null)
+      {
+        application.trace("<Application restoreState> there is no state to restore.", 0);
+        return;
+      }
+      try
+      {
+        applyState(state);
+      }
+      catch (e:Error)
+      {
+        this.trace("<Application restoreState> the state could not be applied: " + e.getStackTrace(), 7);
+      }
+    }
     override public function setDw(newdw:int):void
     {
       application.trace("<Application setDw> called.", 1);
@@ -802,6 +883,55 @@ package com.kisscodesystems.KissAs3Fw
     protected function createObjects():void
     {
       application.trace("<Application createObjects> called.", 1);
+    }
+    /**
+     * Puts the values of the state of this application into the given object: this one
+     * puts the language and the displaying style there. The extenders of this class
+     * override it, call this super and put their own values next to these, under keys
+     * starting with their own name. A value has to be a simple one: a string, a number,
+     * a boolean, or an array or an object of those.
+     * @param state the object the values are put into
+     */
+    protected function collectState(state:Object):void
+    {
+      application.trace("<Application collectState> called.", 1);
+      application.trace("<Application collectState> state: " + state, 0);
+      if (labelManager != null)
+      {
+        state[STATE_LANG_CODE] = labelManager.getLang();
+      }
+      if (dynamicsConfig != null)
+      {
+        state[STATE_DISPLAYING_STYLE] = dynamicsConfig.getCurrentDisplayingStyle();
+      }
+    }
+    /**
+     * Applies the values of the given state onto this application: this one sets the
+     * language and the displaying style kept there. The extenders of this class override
+     * it, call this super and apply their own values after these. A value may be missing
+     * - a state written by an older version of the application does not hold it -, so
+     * every value has to be checked before it is applied.
+     * @param state the object the values are read from
+     */
+    protected function applyState(state:Object):void
+    {
+      application.trace("<Application applyState> called.", 1);
+      application.trace("<Application applyState> state: " + state, 0);
+      if (state[STATE_LANG_CODE] is String && labelManager != null && state[STATE_LANG_CODE] != labelManager.getLang())
+      {
+        if (middleground != null)
+        {
+          middleground.setLangCode(state[STATE_LANG_CODE]);
+        }
+        else
+        {
+          labelManager.setLang(state[STATE_LANG_CODE]);
+        }
+      }
+      if (state[STATE_DISPLAYING_STYLE] is String && dynamicsConfig != null && state[STATE_DISPLAYING_STYLE] != dynamicsConfig.getCurrentDisplayingStyle() && dynamicsConfig.hasDisplayingStyle(state[STATE_DISPLAYING_STYLE]))
+      {
+        dynamicsConfig.setCurrentDisplayingStyle(state[STATE_DISPLAYING_STYLE]);
+      }
     }
     /**
      * Builds the three layers of the displayed application. It is not called by the
@@ -1081,6 +1211,15 @@ package com.kisscodesystems.KissAs3Fw
       stage.addEventListener(Event.RESIZE, stageResized, false, 0, true);
       setSizeFromStageSize();
       createStartupRefreshTimer();
+      if (getPropertiesConfig().getStateKeepingEnabled())
+      {
+        NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, nativeApplicationDeactivated, false, 0, true);
+        NativeApplication.nativeApplication.addEventListener(Event.EXITING, nativeApplicationDeactivated, false, 0, true);
+        if (!stateRestored)
+        {
+          addEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
+        }
+      }
     }
     /**
      * Drops the listener of the resizing of the stage.
@@ -1094,6 +1233,9 @@ package com.kisscodesystems.KissAs3Fw
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
+      NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, nativeApplicationDeactivated);
+      NativeApplication.nativeApplication.removeEventListener(Event.EXITING, nativeApplicationDeactivated);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
       super.removedFromStage(e);
     }
     /**
@@ -1168,6 +1310,15 @@ package com.kisscodesystems.KissAs3Fw
     {
       application.trace("<Application initializeDeviceIdManager> called.", 1);
       deviceIdManager = new DeviceIdManager(this);
+    }
+    /**
+     * Builds the manager keeping the state of this application. It asks the name of that
+     * state from the properties of the application, so it stands after them.
+     */
+    protected function initializeStateManager():void
+    {
+      application.trace("<Application initializeStateManager> called.", 1);
+      stateManager = new StateManager(this);
     }
     /**
      * Builds the manager of the embedded fonts.
@@ -1267,6 +1418,7 @@ package com.kisscodesystems.KissAs3Fw
       initializeCacheManager();
       initializeContextMenuManager();
       initializeDeviceIdManager();
+      initializeStateManager();
       initializeFontManager();
       initializeEmojiManager();
       initializeIconManager();
@@ -1283,6 +1435,29 @@ package com.kisscodesystems.KissAs3Fw
       {
         serverManager.startRefreshingServers();
       }
+    }
+    /**
+     * This application has been sent to the background, or it is being closed: this is
+     * the last moment it is sure to be running, so its state is saved.
+     * @param e the deactivate or the exiting event of the native application
+     */
+    private function nativeApplicationDeactivated(e:Event):void
+    {
+      application.trace("<Application nativeApplicationDeactivated> called.", 1);
+      application.trace("<Application nativeApplicationDeactivated> e: " + e, 0);
+      saveState();
+    }
+    /**
+     * The first frame after this application has reached the stage: its content is built
+     * by now, so the state kept on the device is restored, once in the life of it.
+     * @param e the enter frame event
+     */
+    private function enterFrameRestoreState(e:Event):void
+    {
+      application.trace("<Application enterFrameRestoreState> called.", 0);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
+      stateRestored = true;
+      restoreState();
     }
     /**
      * Puts the given permission manager into the row of the ones to be asked and starts
@@ -1517,6 +1692,10 @@ package com.kisscodesystems.KissAs3Fw
       {
         fontManager.destroy();
       }
+      if (stateManager != null)
+      {
+        stateManager.destroy();
+      }
       if (deviceIdManager != null)
       {
         deviceIdManager.destroy();
@@ -1558,10 +1737,13 @@ package com.kisscodesystems.KissAs3Fw
       application.trace("<Application destroy> called.", 1);
       application.trace("<Application destroy> 1: unregister every event listener added to a dispatcher other than local_var.getBaseEventDispatcher().", 0);
       removeEventListener(Event.ENTER_FRAME, enterFrameDisplayTraces);
+      removeEventListener(Event.ENTER_FRAME, enterFrameRestoreState);
       if (stage != null)
       {
         stage.removeEventListener(Event.RESIZE, stageResized);
       }
+      NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, nativeApplicationDeactivated);
+      NativeApplication.nativeApplication.removeEventListener(Event.EXITING, nativeApplicationDeactivated);
       dropPermissionAsked();
       dropStartupRefreshTimer();
       dropLoadingTimer();
@@ -1601,6 +1783,7 @@ package com.kisscodesystems.KissAs3Fw
       tracesSuppressed = 0;
       tracer = null;
       startupRefreshDone = false;
+      stateRestored = false;
       loadingWork = null;
       loadingUniqueString = null;
       appEnv = null;
@@ -1612,6 +1795,7 @@ package com.kisscodesystems.KissAs3Fw
       cacheManager = null;
       contextMenuManager = null;
       deviceIdManager = null;
+      stateManager = null;
       fontManager = null;
       emojiManager = null;
       iconManager = null;

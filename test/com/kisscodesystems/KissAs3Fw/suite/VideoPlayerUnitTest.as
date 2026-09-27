@@ -103,6 +103,7 @@ package com.kisscodesystems.KissAs3Fw.suite
       assertEquals("getTotalSecs of a fresh player", 0, videoPlayer.getTotalSecs());
       assertFalse("isPlaying of a fresh player", videoPlayer.isPlaying());
       assertFalse("isPaused of a fresh player", videoPlayer.isPaused());
+      assertFalse("isContentNotFound of a fresh player", videoPlayer.isContentNotFound());
       assertEquals("getProgressSecs of a fresh player", 0, videoPlayer.getProgressSecs());
       assertFalse("getAutoContinue of a fresh player", videoPlayer.getAutoContinue());
       assertFalse("getFrame of a fresh player", videoPlayer.getFrame());

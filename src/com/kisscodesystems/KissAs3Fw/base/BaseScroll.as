@@ -8,6 +8,7 @@ package com.kisscodesystems.KissAs3Fw.base
   import flash.events.MouseEvent;
   import flash.geom.Point;
   import flash.geom.Rectangle;
+  import flash.utils.getTimer;
   public class BaseScroll extends BaseSprite
   {
     private var shapeFrame:BaseShape = null;
@@ -43,15 +44,34 @@ package com.kisscodesystems.KissAs3Fw.base
     private var eventQuantizedHorizontalChanged:Event = null;
     private var isScrolled:Boolean = false;
     private var eventContentCacheBegin:Event = null;
+    private var eventContentCacheEnd:Event = null;
+    private var contentCached:Boolean = false;
     private var eventTopReached:Event = null;
     private var eventBottomReached:Event = null;
     private var eventLeftReached:Event = null;
     private var eventRightReached:Event = null;
     private var dummyContent:BaseShape = null;
     private var content:BaseSprite = null;
-    private var cxContentTarget:int = 0;
-    private var cyContentTarget:int = 0;
+    // The speed (pixels per millisecond) the thrown content is gliding with, and the time of
+    // the frame that moved it last.
+    private var velocityXContent:Number = 0;
+    private var velocityYContent:Number = 0;
+    private var glideFrameTime:int = 0;
+    // True while this scroll holds the frame rate of the stage raised for its glide.
+    private var frameRateRaised:Boolean = false;
     private var shapeFrameBackgroundAlpha:Number = 0;
+    // The glide of a thrown content slows down exponentially: its speed falls to 1/e in
+    // weightScrollContent * GLIDE_TIME_PER_WEIGHT milliseconds, and the distance it covers is
+    // its starting speed multiplied by that time. 9 gives 450 ms, close to the feel of iOS.
+    private static const GLIDE_TIME_PER_WEIGHT:Number = 50;
+    // Below this speed (pixels per millisecond) the glide is over.
+    private static const GLIDE_MIN_VELOCITY:Number = 0.01;
+    // The frame rate a glide runs at. The applications are built with a low frame rate to
+    // spare the battery, which makes a glide stutter, so it is raised while any glide runs.
+    private static const GLIDE_FRAME_RATE:Number = 60;
+    // How many scrolls are gliding right now, and the frame rate of the stage before the first one.
+    private static var frameRateRaisers:int = 0;
+    private static var frameRateOriginal:Number = 0;
     /**
      * Constructs the scroll: builds the frame shape, the five navigations and the optional dummy content, then registers every listener.
      * @param applicationRef the application reference passed to the base sprite
@@ -81,6 +101,7 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedVerticalChanged = new Event(EnumEvents.EVENT_QUANTIZED_VERTICAL_CHANGED());
       eventQuantizedHorizontalChanged = new Event(EnumEvents.EVENT_QUANTIZED_HORIZONTAL_CHANGED());
       eventContentCacheBegin = new Event(EnumEvents.EVENT_CONTENT_CACHE_BEGIN());
+      eventContentCacheEnd = new Event(EnumEvents.EVENT_CONTENT_CACHE_END());
       eventTopReached = new Event(EnumEvents.EVENT_TOP_REACHED());
       eventBottomReached = new Event(EnumEvents.EVENT_BOTTOM_REACHED());
       eventLeftReached = new Event(EnumEvents.EVENT_LEFT_REACHED());
@@ -594,6 +615,7 @@ package com.kisscodesystems.KissAs3Fw.base
         stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove);
       }
       resizerDragging = false;
+      stopScrollToTarget();
       super.removedFromStage(e);
     }
     /**
@@ -777,25 +799,71 @@ package com.kisscodesystems.KissAs3Fw.base
     private function dispatchEventCacheBegin():void
     {
       application.trace("<" + this + " BaseScroll dispatchEventCacheBegin> called.", 1);
+      contentCached = true;
       getBaseEventDispatcher().dispatchEvent(eventContentCacheBegin);
     }
     /**
-     * Calculates the target content coordinates from the center navigation deltas, honoring enabled and quantized axes.
-     * The deltas are the pixels the dragging of the content covered in its very last frame,
-     * so they are the speed the content has been thrown with. The target is the place that
-     * speed carries the content to, so it is measured from the place the content is standing
-     * at right now: a target of the bare speed would throw the content to the beginning or
-     * to the end of itself, wherever it was dragged from.
+     * Dispatches the content cache end event, once per cache begin event.
      */
-    private function calcTargetCoordinates():void
+    private function dispatchEventCacheEnd():void
     {
-      application.trace("<" + this + " BaseScroll calcTargetCoordinates> called.", 1);
-      const deltax:int = centerNavigation.getDeltaX();
-      const deltay:int = centerNavigation.getDeltaY();
-      cxContentTarget = isEnabledHorizontal ? cxContent + deltax * Math.abs(deltax) : 0;
-      cyContentTarget = isEnabledVertical ? cyContent + deltay * Math.abs(deltay) : 0;
-      if (isQuantizedHorizontal) cxContentTarget = Math.round(cxContentTarget / getDw()) * getDw();
-      if (isQuantizedVertical) cyContentTarget = Math.round(cyContentTarget / getDh()) * getDh();
+      application.trace("<" + this + " BaseScroll dispatchEventCacheEnd> called.", 1);
+      if (contentCached)
+      {
+        application.trace("<" + this + " BaseScroll dispatchEventCacheEnd> conditions OK.", 1);
+        contentCached = false;
+        getBaseEventDispatcher().dispatchEvent(eventContentCacheEnd);
+      }
+    }
+    /**
+     * Takes the speed of the glide over from the speed the center navigation has been released
+     * with, in the enabled directions only.
+     */
+    private function calcGlideVelocity():void
+    {
+      application.trace("<" + this + " BaseScroll calcGlideVelocity> called.", 1);
+      velocityXContent = isEnabledHorizontal ? centerNavigation.getVelocityX() : 0;
+      velocityYContent = isEnabledVertical ? centerNavigation.getVelocityY() : 0;
+    }
+    /**
+     * Raises the frame rate of the stage for the glide of this scroll, see GLIDE_FRAME_RATE.
+     * The first gliding scroll saves the original rate, the last one puts it back.
+     */
+    private function raiseFrameRate():void
+    {
+      application.trace("<" + this + " BaseScroll raiseFrameRate> called.", 1);
+      if (!frameRateRaised && application.stage != null)
+      {
+        application.trace("<" + this + " BaseScroll raiseFrameRate> conditions OK.", 1);
+        if (frameRateRaisers == 0)
+        {
+          frameRateOriginal = application.stage.frameRate;
+          if (frameRateOriginal < GLIDE_FRAME_RATE)
+          {
+            application.stage.frameRate = GLIDE_FRAME_RATE;
+          }
+        }
+        frameRateRaisers++;
+        frameRateRaised = true;
+      }
+    }
+    /**
+     * Gives the raised frame rate of this scroll back, and restores the original rate of the
+     * stage when no other scroll is gliding.
+     */
+    private function restoreFrameRate():void
+    {
+      application.trace("<" + this + " BaseScroll restoreFrameRate> called.", 1);
+      if (frameRateRaised)
+      {
+        application.trace("<" + this + " BaseScroll restoreFrameRate> conditions OK.", 1);
+        frameRateRaised = false;
+        frameRateRaisers--;
+        if (frameRateRaisers == 0 && application.stage != null)
+        {
+          application.stage.frameRate = frameRateOriginal;
+        }
+      }
     }
     /**
      * Saves the current content coordinates at the start of a center scrolling drag.
@@ -917,19 +985,25 @@ package com.kisscodesystems.KissAs3Fw.base
       application.trace("<" + this + " BaseScroll centerScrollingEnd> e: " + e, 0);
     }
     /**
-     * Starts the animated scroll to the calculated target by attaching the enter frame handler.
+     * Starts the glide of the thrown content by attaching the enter frame handler.
      * @param e the start scroll to target event
      */
     private function centerStartScrollToTarget(e:Event):void
     {
       application.trace("<" + this + " BaseScroll centerStartScrollToTarget> called.", 1);
       application.trace("<" + this + " BaseScroll centerStartScrollToTarget> e: " + e, 0);
-      calcTargetCoordinates();
-      dispatchEventCacheBegin();
-      addEventListener(Event.ENTER_FRAME, enterFrameMoveContent);
+      calcGlideVelocity();
+      if (velocityXContent != 0 || velocityYContent != 0)
+      {
+        application.trace("<" + this + " BaseScroll centerStartScrollToTarget> conditions OK.", 1);
+        dispatchEventCacheBegin();
+        glideFrameTime = getTimer();
+        raiseFrameRate();
+        addEventListener(Event.ENTER_FRAME, enterFrameMoveContent);
+      }
     }
     /**
-     * Stops the animated scroll and pins the target to the current content coordinates.
+     * Stops the glide of the content where it is standing right now.
      * @param e the stop scroll to target event (optional)
      */
     private function stopScrollToTarget(e:Event = null):void
@@ -937,11 +1011,17 @@ package com.kisscodesystems.KissAs3Fw.base
       application.trace("<" + this + " BaseScroll stopScrollToTarget> called.", 1);
       application.trace("<" + this + " BaseScroll stopScrollToTarget> e: " + e, 0);
       removeEventListener(Event.ENTER_FRAME, enterFrameMoveContent);
-      cxContentTarget = cxContent;
-      cyContentTarget = cyContent;
+      velocityXContent = 0;
+      velocityYContent = 0;
+      restoreFrameRate();
+      dispatchEventCacheEnd();
     }
     /**
-     * Eases the content towards the target coordinates each frame, clamping to bounds and stopping when reached.
+     * Moves the gliding content by the time passed since the previous frame, slowing it down
+     * exponentially. The exact solution of that slowing is used instead of a step per frame, so
+     * the glide covers the same distance in the same time at any frame rate, even when some
+     * frames are late. An edge stops the direction that has reached it, and the glide stops
+     * when it has become slower than GLIDE_MIN_VELOCITY, on whole pixels.
      * @param e the enter frame event
      */
     private function enterFrameMoveContent(e:Event):void
@@ -950,35 +1030,42 @@ package com.kisscodesystems.KissAs3Fw.base
       application.trace("<" + this + " BaseScroll enterFrameMoveContent> e: " + e, 0);
       const cxContentPrev:Number = cxContent;
       const cyContentPrev:Number = cyContent;
-      cxContent += (cxContentTarget - cxContent) / application.getComponentsConfig().getWeightScrollContent();
-      cyContent += (cyContentTarget - cyContent) / application.getComponentsConfig().getWeightScrollContent();
-      var shouldStop:Boolean = false;
-      if (Math.round(cxContent) == cxContentTarget && Math.round(cyContent) == cyContentTarget)
+      const now:int = getTimer();
+      const glideTime:Number = application.getComponentsConfig().getWeightScrollContent() * GLIDE_TIME_PER_WEIGHT;
+      const decay:Number = glideTime > 0 ? Math.exp((glideFrameTime - now) / glideTime) : 0;
+      glideFrameTime = now;
+      cxContent += velocityXContent * glideTime * (1 - decay);
+      cyContent += velocityYContent * glideTime * (1 - decay);
+      velocityXContent *= decay;
+      velocityYContent *= decay;
+      if (Math.abs(velocityXContent) < GLIDE_MIN_VELOCITY && Math.abs(velocityYContent) < GLIDE_MIN_VELOCITY)
       {
-        cxContent = cxContentTarget;
-        cyContent = cyContentTarget;
-        shouldStop = true;
+        velocityXContent = 0;
+        velocityYContent = 0;
+        cxContent = Math.round(cxContent);
+        cyContent = Math.round(cyContent);
       }
       if (cxContent < getDw() - dwContent)
       {
         cxContent = getDw() - dwContent;
-        shouldStop = true;
+        velocityXContent = 0;
       }
       if (cxContent > 0)
       {
         cxContent = 0;
-        shouldStop = true;
+        velocityXContent = 0;
       }
       if (cyContent < getDh() - dhContent)
       {
         cyContent = getDh() - dhContent;
-        shouldStop = true;
+        velocityYContent = 0;
       }
       if (cyContent > 0)
       {
         cyContent = 0;
-        shouldStop = true;
+        velocityYContent = 0;
       }
+      const shouldStop:Boolean = velocityXContent == 0 && velocityYContent == 0;
       // the content is told to follow this scroll only when it really has to: a scroll that
       // stands where it has been asked to stand must not move whatever is standing in it,
       // and the one holding the widgets of a container is moved by the widget layer itself
@@ -1014,8 +1101,6 @@ package com.kisscodesystems.KissAs3Fw.base
       stopScrollToTarget();
       cxContent = 0;
       cyContent = 0;
-      cxContentTarget = 0;
-      cyContentTarget = 0;
       bottomNavigation.refreshOuterFactorFromOutside(0);
       topNavigation.refreshOuterFactorFromOutside(0);
       rightNavigation.refreshOuterFactorFromOutside(0);
@@ -1283,7 +1368,7 @@ package com.kisscodesystems.KissAs3Fw.base
         stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUp);
         stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove);
       }
-      removeEventListener(Event.ENTER_FRAME, enterFrameMoveContent);
+      stopScrollToTarget();
       application.trace("<" + this + " BaseScroll destroy> remove every child object if there are any (necessary only in BaseScroll).", 0);
       application.trace("<" + this + " BaseScroll destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       eventContentDwChanged.stopImmediatePropagation();
@@ -1295,6 +1380,7 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedVerticalChanged.stopImmediatePropagation();
       eventQuantizedHorizontalChanged.stopImmediatePropagation();
       eventContentCacheBegin.stopImmediatePropagation();
+      eventContentCacheEnd.stopImmediatePropagation();
       eventTopReached.stopImmediatePropagation();
       eventBottomReached.stopImmediatePropagation();
       eventLeftReached.stopImmediatePropagation();
@@ -1331,14 +1417,18 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedHorizontalChanged = null;
       isScrolled = false;
       eventContentCacheBegin = null;
+      eventContentCacheEnd = null;
+      contentCached = false;
       eventTopReached = null;
       eventBottomReached = null;
       eventLeftReached = null;
       eventRightReached = null;
       dummyContent = null;
       content = null;
-      cxContentTarget = 0;
-      cyContentTarget = 0;
+      velocityXContent = 0;
+      velocityYContent = 0;
+      glideFrameTime = 0;
+      frameRateRaised = false;
       shapeFrameBackgroundAlpha = 0;
     }
   }
@@ -1354,19 +1444,33 @@ import flash.display.SpreadMethod;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Matrix;
+import flash.utils.getTimer;
 /** Navigation: base of the scroll's navigation helpers; manages the draggable spriteMover and its mouse handling. */
 internal class Navigation extends BaseSprite
 {
   protected var scroll:BaseScroll = null;
   protected var textFieldHeight:int = 1;
   protected var spriteMover:BaseSprite = null;
-  protected var prevMoverX:int = 0;
-  protected var prevMoverY:int = 0;
-  protected var deltaX:int = 0;
-  protected var deltaY:int = 0;
+  // The last positions of the dragged mover with the time they were seen at, kept only as far
+  // back as the speed of the finger is measured over: see calcVelocity.
+  protected var sampleTimes:Array = [];
+  protected var sampleXs:Array = [];
+  protected var sampleYs:Array = [];
+  protected var velocityX:Number = 0;
+  protected var velocityY:Number = 0;
   protected var moverDragging:Boolean = false;
   protected var eventStartScrollToTarget:Event = null;
   protected var eventStopScrollToTarget:Event = null;
+  // The time window (ms) the speed of the release is measured over.
+  private static const VELOCITY_WINDOW:int = 100;
+  // A finger that has not moved for this long (ms) before it was lifted has been resting, so
+  // it does not throw the content. This also has to cover the lifting itself: iOS reports the
+  // end of a touch in a later frame than its last move.
+  private static const VELOCITY_MAX_REST:int = 100;
+  // A release slower than one text row per this many milliseconds is no throw at all, in that
+  // direction. The text row follows the size of the screen, so this does not depend on the
+  // pixel density of the device.
+  private static const VELOCITY_MIN_ROW_TIME:Number = 400;
   /**
    * Constructs the navigation: builds the draggable mover and its scroll-to-target events, then hooks the mouse over listener.
    * @param applicationRef the application reference passed to the base sprite
@@ -1386,18 +1490,18 @@ internal class Navigation extends BaseSprite
     application.trace("<" + this + " Navigation> constructed.", 1);
   }
   /**
-   * Returns the horizontal drag delta captured for the scroll-to-target animation.
+   * Returns the horizontal speed (pixels per millisecond) the mover has been released with.
    */
-  public function getDeltaX():int
+  public function getVelocityX():Number
   {
-    return deltaX;
+    return velocityX;
   }
   /**
-   * Returns the vertical drag delta captured for the scroll-to-target animation.
+   * Returns the vertical speed (pixels per millisecond) the mover has been released with.
    */
-  public function getDeltaY():int
+  public function getVelocityY():Number
   {
-    return deltaY;
+    return velocityY;
   }
   /**
    * Stores the scroll reference and listens for its dimension changes.
@@ -1412,15 +1516,93 @@ internal class Navigation extends BaseSprite
     scrollDimensionsChanged(null);
   }
   /**
-   * Saves the previous mover position each frame while dragging.
+   * Samples the mover position each frame while dragging: the mouse moves sample it as well,
+   * this one catches a position the dragging has set without a mouse move heard.
    * @param e the enter frame event
    */
-  protected function enterFrameSaveSpriteMoverPos(e:Event):void
+  protected function enterFrameSampleSpriteMoverPos(e:Event):void
   {
-    application.trace("<" + this + " Navigation enterFrameSaveSpriteMoverPos> called.", 0);
-    application.trace("<" + this + " Navigation enterFrameSaveSpriteMoverPos> e: " + e, 0);
-    prevMoverX = spriteMover.x;
-    prevMoverY = spriteMover.y;
+    application.trace("<" + this + " Navigation enterFrameSampleSpriteMoverPos> called.", 0);
+    application.trace("<" + this + " Navigation enterFrameSampleSpriteMoverPos> e: " + e, 0);
+    sampleSpriteMoverPos(false);
+  }
+  /**
+   * Records the current mover position with the current time. Only a changed position is
+   * recorded, so the time of the last sample is the time the finger last moved at. The samples
+   * older than the measuring window are dropped, but two of them are always kept.
+   * @param isFirst true at the beginning of a drag, where the samples of an earlier drag are dropped
+   */
+  protected function sampleSpriteMoverPos(isFirst:Boolean):void
+  {
+    application.trace("<" + this + " Navigation sampleSpriteMoverPos> called.", 0);
+    application.trace("<" + this + " Navigation sampleSpriteMoverPos> isFirst: " + isFirst, 0);
+    const last:int = sampleTimes.length - 1;
+    if (isFirst)
+    {
+      sampleTimes.splice(0);
+      sampleXs.splice(0);
+      sampleYs.splice(0);
+    }
+    else if (last >= 0 && sampleXs[last] == spriteMover.x && sampleYs[last] == spriteMover.y)
+    {
+      return;
+    }
+    const now:int = getTimer();
+    sampleTimes.push(now);
+    sampleXs.push(spriteMover.x);
+    sampleYs.push(spriteMover.y);
+    while (sampleTimes.length > 2 && now - sampleTimes[1] > VELOCITY_WINDOW)
+    {
+      sampleTimes.shift();
+      sampleXs.shift();
+      sampleYs.shift();
+    }
+  }
+  /**
+   * Calculates the speed of the release from the samples of the drag: the distance the mover
+   * covered in the last VELOCITY_WINDOW milliseconds of the movement, divided by that time.
+   * It is measured in time and not in frames: the frame rate of the application and the rate
+   * the device reports the touches at differ from device to device, and a single last frame is
+   * either empty (the finger has been lifted in a frame of its own) or much too short.
+   * The window is always a whole one (unless the drag itself was shorter), and the mover stood
+   * still between two samples: a finger that stops and then rolls back a few pixels while it is
+   * being lifted gives a tiny speed this way. Measured between the samples of that roll alone,
+   * the same few pixels would throw the content fast in the opposite direction of the swipe.
+   * No speed at all when the finger has been resting before it was lifted, and no speed in a
+   * direction where it is slower than one text row per VELOCITY_MIN_ROW_TIME milliseconds.
+   */
+  protected function calcVelocity():void
+  {
+    application.trace("<" + this + " Navigation calcVelocity> called.", 1);
+    velocityX = 0;
+    velocityY = 0;
+    const last:int = sampleTimes.length - 1;
+    if (last < 1 || getTimer() - sampleTimes[last] > VELOCITY_MAX_REST)
+    {
+      return;
+    }
+    const windowStart:int = sampleTimes[last] - VELOCITY_WINDOW;
+    var first:int = last - 1;
+    while (first > 0 && sampleTimes[first] > windowStart)
+    {
+      first--;
+    }
+    const dt:int = sampleTimes[last] - Math.max(sampleTimes[first], windowStart);
+    if (dt > 0)
+    {
+      const minVelocity:Number = textFieldHeight / VELOCITY_MIN_ROW_TIME;
+      velocityX = (sampleXs[last] - sampleXs[first]) / dt;
+      velocityY = (sampleYs[last] - sampleYs[first]) / dt;
+      if (Math.abs(velocityX) < minVelocity)
+      {
+        velocityX = 0;
+      }
+      if (Math.abs(velocityY) < minVelocity)
+      {
+        velocityY = 0;
+      }
+    }
+    application.trace("<" + this + " Navigation calcVelocity> velocityX: " + velocityX + ", velocityY: " + velocityY, 0);
   }
   /**
    * Moves the draggable mover to the top of the child display list.
@@ -1542,7 +1724,7 @@ internal class Navigation extends BaseSprite
       application.trace("<" + this + " Navigation removedFromStage> the drag running on this navigation is ended.", 0);
       scroll.setScrolled(false);
       moverDragging = false;
-      removeEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
+      removeEventListener(Event.ENTER_FRAME, enterFrameSampleSpriteMoverPos);
       spriteMover.stopDrag();
     }
     super.removedFromStage(e);
@@ -1561,7 +1743,7 @@ internal class Navigation extends BaseSprite
     {
       scroll.setScrolled(true);
       moverDragging = true;
-      addEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
+      addEventListener(Event.ENTER_FRAME, enterFrameSampleSpriteMoverPos);
       if (stage != null)
       {
         stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUpSpriteMover);
@@ -1571,6 +1753,7 @@ internal class Navigation extends BaseSprite
       {
         spriteMover.startDrag();
       }
+      sampleSpriteMoverPos(true);
     }
   }
   /**
@@ -1588,13 +1771,13 @@ internal class Navigation extends BaseSprite
       stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUpSpriteMover);
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, stageMouseMoveSpriteMover);
     }
-    removeEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
-    if ((spriteMover.x != prevMoverX || spriteMover.y != prevMoverY)
+    removeEventListener(Event.ENTER_FRAME, enterFrameSampleSpriteMoverPos);
+    sampleSpriteMoverPos(false);
+    calcVelocity();
+    if ((velocityX != 0 || velocityY != 0)
      && !scroll.getQuantizedHorizontal() && !scroll.getQuantizedVertical()
     )
     {
-      deltaX = spriteMover.x - prevMoverX;
-      deltaY = spriteMover.y - prevMoverY;
       getBaseEventDispatcher().dispatchEvent(eventStartScrollToTarget);
     }
     spriteMoverRepos();
@@ -1611,6 +1794,7 @@ internal class Navigation extends BaseSprite
   {
     application.trace("<" + this + " Navigation stageMouseMoveSpriteMover> called.", 0);
     application.trace("<" + this + " Navigation stageMouseMoveSpriteMover> e: " + e, 0);
+    sampleSpriteMoverPos(false);
     if (e != null)
     {
       e.updateAfterEvent();
@@ -1636,13 +1820,13 @@ internal class Navigation extends BaseSprite
     application.trace("<" + this + " Navigation spriteMoverMouseWheel> e: " + e, 0);
   }
   /**
-   * Clears the captured drag deltas used for the scroll-to-target animation.
+   * Clears the captured release speed used for the scroll-to-target animation.
    */
   private function resetScrollToTarget():void
   {
     application.trace("<" + this + " Navigation resetScrollToTarget> called.", 1);
-    deltaX = 0;
-    deltaY = 0;
+    velocityX = 0;
+    velocityY = 0;
   }
   /**
    * Recalculates the navigation dimensions and coordinates when the scroll dimensions change.
@@ -1668,7 +1852,7 @@ internal class Navigation extends BaseSprite
     spriteMover.removeEventListener(MouseEvent.MOUSE_DOWN, spriteMoverMouseDown);
     spriteMover.removeEventListener(MouseEvent.MOUSE_WHEEL, spriteMoverMouseWheel);
     scroll.getBaseEventDispatcher().removeEventListener(EnumEvents.EVENT_DIMENSIONS_CHANGED(), scrollDimensionsChanged);
-    removeEventListener(Event.ENTER_FRAME, enterFrameSaveSpriteMoverPos);
+    removeEventListener(Event.ENTER_FRAME, enterFrameSampleSpriteMoverPos);
     if (stage != null)
     {
       stage.removeEventListener(MouseEvent.MOUSE_UP, stageMouseUpSpriteMover);
@@ -1677,6 +1861,9 @@ internal class Navigation extends BaseSprite
     application.trace("<" + this + " Navigation destroy> remove every child object if there are any (necessary only in Navigation).", 0);
     application.trace("<" + this + " Navigation destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
     spriteMover.stopDrag();
+    sampleTimes.splice(0);
+    sampleXs.splice(0);
+    sampleYs.splice(0);
     eventStartScrollToTarget.stopImmediatePropagation();
     eventStopScrollToTarget.stopImmediatePropagation();
     application.trace("<" + this + " Navigation destroy> calling the super destroy (necessary only not in Navigation) and clearing everything.", 0);
@@ -1684,10 +1871,11 @@ internal class Navigation extends BaseSprite
     scroll = null;
     textFieldHeight = 0;
     spriteMover = null;
-    prevMoverX = 0;
-    prevMoverY = 0;
-    deltaX = 0;
-    deltaY = 0;
+    sampleTimes = null;
+    sampleXs = null;
+    sampleYs = null;
+    velocityX = 0;
+    velocityY = 0;
     eventStartScrollToTarget = null;
     eventStopScrollToTarget = null;
   }

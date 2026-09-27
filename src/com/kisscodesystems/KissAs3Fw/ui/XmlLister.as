@@ -17,7 +17,8 @@
  *   one leaves an empty list behind
  * - a branch item opens and closes on a click, a leaf item gets selected
  * - the changed event is only dispatched when the selected leaf item has changed,
- *   and not when a branch has been opened or closed
+ *   and not when a branch has been opened or closed: those two are reported by the
+ *   opened and by the closed event
  * - the labels, the values, the icons and the indentations are given to the list
  */
 package com.kisscodesystems.KissAs3Fw.ui
@@ -43,6 +44,8 @@ package com.kisscodesystems.KissAs3Fw.ui
     private var selectedItem:String = "";
     private var startIndex:int = 0;
     private var eventChanged:Event = null;
+    private var eventOpened:Event = null;
+    private var eventClosed:Event = null;
     /**
      * Constructs the XmlLister object: creates the list that displays the tree and
      * the empty arrays the tree is collected into.
@@ -54,6 +57,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " XmlLister> called.", 1);
       application.trace("<" + this + " XmlLister> applicationRef: " + applicationRef, 0);
       eventChanged = new Event(EnumEvents.EVENT_CHANGED());
+      eventOpened = new Event(EnumEvents.EVENT_OPENED());
+      eventClosed = new Event(EnumEvents.EVENT_CLOSED());
       list = new ListPanel(application);
       addChild(list);
       list.setCanBeEmpty(false);
@@ -370,6 +375,12 @@ package com.kisscodesystems.KissAs3Fw.ui
         // The displaying tries to start from the item that has been opened or closed.
         startIndex = selectedIndex;
         createArrays();
+        // no leaf has been selected, so this is no changed event: a menu built of this
+        // object would run its last item again on it
+        if (getBaseEventDispatcher() != null)
+        {
+          getBaseEventDispatcher().dispatchEvent(x.@opened == "1" ? eventOpened : eventClosed);
+        }
       }
     }
     /**
@@ -391,6 +402,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       application.trace("<" + this + " XmlLister destroy> called.", 1);
       application.trace("<" + this + " XmlLister destroy> free up everything: stopImmediatePropagation, bitmapData.dispose(), array.splice(0), etc.", 0);
       eventChanged.stopImmediatePropagation();
+      eventOpened.stopImmediatePropagation();
+      eventClosed.stopImmediatePropagation();
       arrayLabels.splice(0);
       arrayValues.splice(0);
       arrayIcons.splice(0);
@@ -407,6 +420,8 @@ package com.kisscodesystems.KissAs3Fw.ui
       selectedItem = null;
       startIndex = 0;
       eventChanged = null;
+      eventOpened = null;
+      eventClosed = null;
     }
   }
 }
