@@ -44,6 +44,8 @@ package com.kisscodesystems.KissAs3Fw.base
     private var eventQuantizedHorizontalChanged:Event = null;
     private var isScrolled:Boolean = false;
     private var eventContentCacheBegin:Event = null;
+    private var eventContentCacheEnd:Event = null;
+    private var contentCached:Boolean = false;
     private var eventTopReached:Event = null;
     private var eventBottomReached:Event = null;
     private var eventLeftReached:Event = null;
@@ -99,6 +101,7 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedVerticalChanged = new Event(EnumEvents.EVENT_QUANTIZED_VERTICAL_CHANGED());
       eventQuantizedHorizontalChanged = new Event(EnumEvents.EVENT_QUANTIZED_HORIZONTAL_CHANGED());
       eventContentCacheBegin = new Event(EnumEvents.EVENT_CONTENT_CACHE_BEGIN());
+      eventContentCacheEnd = new Event(EnumEvents.EVENT_CONTENT_CACHE_END());
       eventTopReached = new Event(EnumEvents.EVENT_TOP_REACHED());
       eventBottomReached = new Event(EnumEvents.EVENT_BOTTOM_REACHED());
       eventLeftReached = new Event(EnumEvents.EVENT_LEFT_REACHED());
@@ -796,7 +799,21 @@ package com.kisscodesystems.KissAs3Fw.base
     private function dispatchEventCacheBegin():void
     {
       application.trace("<" + this + " BaseScroll dispatchEventCacheBegin> called.", 1);
+      contentCached = true;
       getBaseEventDispatcher().dispatchEvent(eventContentCacheBegin);
+    }
+    /**
+     * Dispatches the content cache end event, once per cache begin event.
+     */
+    private function dispatchEventCacheEnd():void
+    {
+      application.trace("<" + this + " BaseScroll dispatchEventCacheEnd> called.", 1);
+      if (contentCached)
+      {
+        application.trace("<" + this + " BaseScroll dispatchEventCacheEnd> conditions OK.", 1);
+        contentCached = false;
+        getBaseEventDispatcher().dispatchEvent(eventContentCacheEnd);
+      }
     }
     /**
      * Takes the speed of the glide over from the speed the center navigation has been released
@@ -997,6 +1014,7 @@ package com.kisscodesystems.KissAs3Fw.base
       velocityXContent = 0;
       velocityYContent = 0;
       restoreFrameRate();
+      dispatchEventCacheEnd();
     }
     /**
      * Moves the gliding content by the time passed since the previous frame, slowing it down
@@ -1362,6 +1380,7 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedVerticalChanged.stopImmediatePropagation();
       eventQuantizedHorizontalChanged.stopImmediatePropagation();
       eventContentCacheBegin.stopImmediatePropagation();
+      eventContentCacheEnd.stopImmediatePropagation();
       eventTopReached.stopImmediatePropagation();
       eventBottomReached.stopImmediatePropagation();
       eventLeftReached.stopImmediatePropagation();
@@ -1398,6 +1417,8 @@ package com.kisscodesystems.KissAs3Fw.base
       eventQuantizedHorizontalChanged = null;
       isScrolled = false;
       eventContentCacheBegin = null;
+      eventContentCacheEnd = null;
+      contentCached = false;
       eventTopReached = null;
       eventBottomReached = null;
       eventLeftReached = null;

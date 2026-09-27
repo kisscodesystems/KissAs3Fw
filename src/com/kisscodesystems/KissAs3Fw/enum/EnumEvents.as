@@ -127,6 +127,13 @@ package com.kisscodesystems.KissAs3Fw.enum
       return "EVENT_CONTENT_CACHE_BEGIN";
     }
     /**
+     * Returns the type of the content cache end event.
+     */
+    public static function EVENT_CONTENT_CACHE_END():String
+    {
+      return "EVENT_CONTENT_CACHE_END";
+    }
+    /**
      * Returns the type of the left reached event.
      */
     public static function EVENT_LEFT_REACHED():String
